@@ -1,0 +1,25 @@
+[project]
+name = "gta-build-off"
+version = "0.1.0"
+description = "Harness for the $100 GTA Build-Off: race two models in Claude Code, routed and metered by Nexus."
+requires-python = ">=3.12"
+dependencies = [
+    "playwright>=1.48",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.7",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "D"]
+# Google-style docstrings with third-person summaries ("Loads...").
+ignore = ["D401"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
