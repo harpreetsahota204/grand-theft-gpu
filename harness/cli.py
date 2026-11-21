@@ -31,6 +31,8 @@ from harness.config import ASSETS_DIR, MIRROR_DIR, PROMPTS_DIR
 # $100-per-model run by accident. The smoke test stays under it.
 CONFIRM_ABOVE_USD: float = 2.0
 SMOKE_BUDGET_USD: float = 0.5
+# The locked game spec each asset pack races on (see harness.fetch.PACK_PATTERNS).
+SPEC_FOR_PACK: dict[str, str] = {"full": "game_spec.md", "primitives": "game_spec_primitives.md"}
 
 
 def cmd_doctor(_: argparse.Namespace) -> int:
@@ -128,7 +130,13 @@ def cmd_inventory(args: argparse.Namespace) -> int:
 
 def cmd_smoke(args: argparse.Namespace) -> int:
     """Runs the cheap smoke race: both models add a floating GPU to the base game."""
-    argv = ["--spec", str(PROMPTS_DIR / "smoke_spec.md"), "--budget", str(SMOKE_BUDGET_USD)]
+    argv = [
+        "--spec",
+        str(PROMPTS_DIR / "smoke_spec.md"),
+        "--budget",
+        str(SMOKE_BUDGET_USD),
+        "--stop-on-done",
+    ]
     if not args.viewers:
         argv.append("--no-viewers")
     race.main(argv)
@@ -144,7 +152,9 @@ def cmd_race(args: argparse.Namespace) -> int:
             file=sys.stderr,
         )
         return 2
-    argv = ["--spec", str(args.spec), "--budget", str(args.budget)]
+    # Each pack has its own locked spec: the primitives one lists no assets.
+    spec = args.spec or PROMPTS_DIR / SPEC_FOR_PACK[args.pack]
+    argv = ["--spec", str(spec), "--budget", str(args.budget), "--pack", args.pack]
     if args.race_id:
         argv += ["--race-id", args.race_id]
     if args.no_viewers:
@@ -244,7 +254,13 @@ def build_parser() -> argparse.ArgumentParser:
     s.set_defaults(func=cmd_smoke)
 
     r = sub.add_parser("race", help="run a race (spends real money)")
-    r.add_argument("--spec", type=Path, default=PROMPTS_DIR / "game_spec.md")
+    r.add_argument("--spec", type=Path, default=None, help="default: the pack's locked spec")
+    r.add_argument(
+        "--pack",
+        choices=list(SPEC_FOR_PACK),
+        default="full",
+        help="full asset pack, or primitives (only the GPU; models build the rest)",
+    )
     r.add_argument("--budget", type=float, default=100.0, help="USD cap per model")
     r.add_argument("--race-id", default=None, help="output folder name (default: timestamp)")
     r.add_argument("--no-viewers", action="store_true", help="skip live viewer windows")

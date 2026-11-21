@@ -55,6 +55,14 @@ CORE_PATTERNS: list[str] = [
 ]  # fmt: skip
 
 
+# The primitives race: only the loot (the heist needs a GPU to steal), with its
+# licence. Everything else the models build themselves.
+PRIMITIVES_PATTERNS: list[str] = ["gpu/*"]
+
+# Asset sets a race can seed, by `RaceConfig.pack`.
+PACK_PATTERNS: dict[str, list[str]] = {"full": CORE_PATTERNS, "primitives": PRIMITIVES_PATTERNS}
+
+
 def download(patterns: list[str], out: Path | None = None) -> Path:
     """Downloads dataset files matching any pattern, at the pinned revision.
 

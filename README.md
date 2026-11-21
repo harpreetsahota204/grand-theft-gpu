@@ -73,7 +73,7 @@ Each contender loops through turns. A turn is one `claude -p` process.
 1. **Turn 1** gets the spec plus the run rules. Every later turn gets the same fixed nudge (`prompts/nudge.md`) and resumes the same session.
 2. **During a turn,** a watchdog polls Nexus every 15 seconds. It kills the turn if spend reaches the budget, if any model other than the contender's shows up (a leak), or if the turn **stalls**: no output and no new spend for 10 minutes. A stalled turn isn't a penalty; the model gets nudged and carries on. This exists because a model in a dry run started `npm run preview`, a server that never exits, in the foreground and sat blocked for 35 minutes.
 3. **After every turn,** the harness stops any server the model left running in its workspace, then makes a git commit, runs `npm install && npm run build`, screenshots the built game, and writes a row to `turns.jsonl`. The screenshot waits for the game to finish loading, then clicks past any "click to play" screen, so it shows gameplay. A failed build counts as not playable for that turn.
-4. **Stop rules,** in order: budget, leak or crash → the model created `DONE.md` → 3 nudges used.
+4. **Stop rules,** in order: budget, leak or crash → 3 nudges used. Creating `DONE.md` early doesn't end a race: the file is set aside in `logs/done-turn-NNN.md` and the model gets the fixed nudge, so both models are pushed toward the full budget the same way. A `DONE.md` after the last nudge ends the run (`declared_done`). The smoke test stops at the first `DONE.md`.
 
 ## Rules of the race
 
@@ -208,7 +208,7 @@ USDCraft ships OpenUSD for Isaac Sim, which three.js can't load. For each prop, 
 
 ## Not done yet
 
-- The detailed pass/fail checks per tier (T1 steal a GPU → T4 living San Silicon) for scoring commits. The game prompt itself is locked (git tag `prompt-v4`).
+- The detailed pass/fail checks per tier (T1 steal a GPU → T4 living San Silicon) for scoring commits. The game prompts are locked (git tag `prompt-v5`).
 - The Claude side bills through your Claude login. For a true "list price" claim, give Nexus an Anthropic API key.
 - Rendering the race video from the logs.
 - More assets for prompt-v3: people (Quaternius, Microsoft Rocketbox, Meta MHR) and a real SF slice from OpenStreetMap. A dry run showed the models build every pedestrian from boxes when they're given no people.

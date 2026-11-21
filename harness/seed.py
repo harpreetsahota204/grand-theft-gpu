@@ -5,8 +5,8 @@ Both contenders must start from byte-identical folders. `harness.runner` calls
 
     workspace/
       <base game at BASE_REPO_COMMIT>   minus its .git and duplicate top-level assets/
-      public/assets/gt-gpu/<dataset layout>   the core asset set (harness.fetch.CORE_PATTERNS)
-      tools/assets.mjs, tools/catalog.json    the models' own search + fetch tool
+      public/assets/gt-gpu/<dataset layout>   the seeded asset set (harness.fetch.PACK_PATTERNS)
+      tools/assets.mjs, tools/catalog.json    the models' own search + fetch tool (full pack only)
       tools/screenshot                  build + render the game to a PNG (harness.shot_tool)
       .gitignore                        keeps node_modules/ and dist/ out of turn commits
       node_modules/                     from `npm install`
@@ -65,12 +65,16 @@ def write_screenshot_wrapper(workspace: Path) -> Path:
     return script
 
 
-def copy_core(dest: Path) -> int:
-    """Copies the core asset set (dataset layout) into dest.
+def copy_core(dest: Path, patterns: list[str] = fetch.CORE_PATTERNS) -> int:
+    """Copies the seeded asset set (dataset layout) into dest.
 
-    Only files matching CORE_PATTERNS are copied: the huggingface_hub cache can
+    Only files matching `patterns` are copied: the huggingface_hub cache can
     also hold extras someone fetched on demand, and those must never leak into
     one race but not another.
+
+    Args:
+        dest: the workspace's asset folder
+        patterns: which dataset files to seed (see `fetch.PACK_PATTERNS`)
 
     Returns:
         files copied
@@ -84,7 +88,7 @@ def copy_core(dest: Path) -> int:
         # ~/.cache, so testing the absolute path would skip every file.
         if path.is_dir() or ".cache" in rel_path.parts:
             continue
-        if any(fnmatch.fnmatch(rel, pat) for pat in fetch.CORE_PATTERNS):
+        if any(fnmatch.fnmatch(rel, pat) for pat in patterns):
             target = dest / rel
             target.parent.mkdir(parents=True, exist_ok=True)
             # copy2 follows the cache's symlinks, so the workspace gets real files.
@@ -121,11 +125,13 @@ def base_cache() -> Path:
     return cache
 
 
-def seed_workspace(workspace: Path) -> None:
+def seed_workspace(workspace: Path, pack: str = "full") -> None:
     """Fills an empty workspace with the base game, our assets and installed deps.
 
     Args:
         workspace: the contender's folder; must not exist yet
+        pack: "full" (the whole seeded asset set plus the asset search tool) or
+            "primitives" (only the GPU loot; no asset tool). Both get tools/screenshot.
     """
     cache = base_cache()
 
@@ -144,11 +150,12 @@ def seed_workspace(workspace: Path) -> None:
         return skipped
 
     shutil.copytree(cache, workspace, ignore=skip)
-    copy_core(workspace / GAME_ASSETS_SUBDIR)
+    copy_core(workspace / GAME_ASSETS_SUBDIR, fetch.PACK_PATTERNS[pack])
     tools = workspace / "tools"
     tools.mkdir()
-    shutil.copy2(TOOL_PATH, tools / "assets.mjs")
-    shutil.copy2(CATALOG_PATH, tools / "catalog.json")
+    if pack == "full":
+        shutil.copy2(TOOL_PATH, tools / "assets.mjs")
+        shutil.copy2(CATALOG_PATH, tools / "catalog.json")
     write_screenshot_wrapper(workspace)
     (workspace / ".gitignore").write_text(WORKSPACE_GITIGNORE)
 

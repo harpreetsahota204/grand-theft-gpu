@@ -15,7 +15,7 @@ The hard part isn't writing the prompt. It's making sure the only thing that dif
 * Both models run headless in Claude Code with identical flags, tools and files. The only difference is `--model`: `kimi-latest` (Kimi K3.1 Pro, routed to Fireworks by Nexus) or `opus` (Claude Opus 5.5).
 * Spend is metered by `nexus claude usage`, not by Claude Code. In testing, Claude Code priced a Kimi call at $0.060, while list price for the same tokens was $0.030.
 * Each model starts from a working three.js game pinned to one commit, plus 45 converted NVIDIA USDCraft props, a CC0 car kit and a CC0 graphics card (the loot).
-* A run stops at $100, when the model creates `DONE.md`, or after three "keep going" nudges. A watchdog kills it early if any other model shows up in its usage.
+* A run stops at $100 or after three "keep going" nudges. Declaring the game done early earns a nudge instead of a stop, so neither model leaves budget on the table by quitting early. A watchdog kills it early if any other model shows up in its usage.
 * Every turn leaves a git commit, a build result and a gameplay screenshot, and every transcript line is timestamped, so the race video can be cut from the logs.
 * The whole setup is reproducible: `uv sync`, `uv run buildoff doctor`, then `uv run buildoff smoke` for about $0.30.
 
@@ -71,6 +71,21 @@ Starting from an empty folder would turn the race into "who sets up three.js fas
 
 **Keep it honest.** The base game had a problem we only found by running it. It commits its own `node_modules`, without execute permissions and built for another OS. In the first smoke test, Kimi quietly spent part of its budget repairing the install, and Opus didn't. The harness now skips that folder and runs a clean `npm install` before the clock starts.
 
+## **Why run the race twice?**
+
+A rich asset pack makes better-looking games, but it also changes what the race measures. With finished people, cars and a real city handed over, the race mostly tests integration and game design: how well a model wires the parts together, and what it invents on top. The parts themselves are ours, and a viewer could easily credit the model for them.
+
+The first dry run showed both sides. Opus wrote six missions, a wanted system and parody landmarks, all invention. It also put realistic people in the story scenes but made every pedestrian a recoloured copy of the base game's player, because our people have no walk animations. That was a shortcut around a gap in our pack, not a design choice.
+
+So the comparison runs twice, same models and same rules:
+
+| Race | What the models get | What it shows |
+|---|---|---|
+| **Asset race** (`--pack full`, `game_spec.md`) | The base game, about 1,300 assets and the asset search tool | What each model builds when good parts are on hand |
+| **Primitives race** (`--pack primitives`, `game_spec_primitives.md`) | The base game and one model, the GPU. Everything else is made in code. Downloading assets is against the rules | How inventive each model is from scratch |
+
+Both races keep the screenshot tool. It's a way to look at your own work, not content, and it's the same for both models. The gap between the two races is itself a result: it shows how much of a game's quality came from the parts, and how much from the model.
+
 ## **How does Nexus put Kimi inside Claude Code?**
 
 Claude Code speaks one API: Anthropic Messages. [Nexus](https://docs.fireworks.ai/nexus) is a Fireworks CLI that points Claude Code at Fireworks, which serves that same API, so Claude Code can run open models like Kimi K3.1 Pro without changing anything else about how it works.
@@ -115,7 +130,7 @@ Every rule below exists because something could tilt the result.
 **A clear finish line.** A run ends on whichever comes first:
 
 1. The budget is spent, a leak is caught, or the process crashes.
-2. The model creates `DONE.md`.
+2. The model creates `DONE.md` after its last nudge. An earlier `DONE.md` is set aside (kept in `logs/done-turn-NNN.md`, with the spend at that moment in `result.json`) and the model is nudged on. We added this after a $25 dry run, where Opus called its game done at $7 and Kimi at $13.
 3. Three nudges have been sent. The nudge is one fixed sentence: keep building toward the spec.
 
 **Keep it honest.** Nexus is a Fireworks tool, and Kimi runs on Fireworks. The referee's numbers come from list prices with a cited source (`docs.fireworks.ai/serverless/pricing` for Kimi), and every raw transcript is kept, so anyone can recompute the spend. The budget check runs every 15 seconds, so a run can end slightly over $100. In tests the overshoot was $0.01 to $0.05.
@@ -171,7 +186,10 @@ Both models get a one-line task: float the GPU above the player's head. It costs
 
 ```bash
 nohup uv run buildoff race --budget 100 --yes --race-id my-race > ~/gta-race-runs/my-race.log 2>&1 &
+nohup uv run buildoff race --budget 100 --yes --pack primitives --race-id my-race-prim > ~/gta-race-runs/my-race-prim.log 2>&1 &
 ```
+
+The first command is the asset race and the second is the primitives race. `--pack` picks both the seeded assets and the matching locked spec.
 
 `--yes` is required for any budget over $2, because the race spends up to that amount *per model*. Running it detached keeps a long run from dying with your terminal.
 
@@ -235,7 +253,7 @@ So the harness isn't a variable. Nexus points Claude Code at Fireworks, and both
 It doesn't know `kimi-latest` and falls back to a default rate. In testing it reported $0.060 for a call that costs $0.030 at Kimi K3.1 Pro's list price ($2 per million input tokens, $10 per million output). `nexus claude usage --json` prices each row at the provider's list rate.
 
 ### **Can I change the prompt?**
-Not for a comparable race. `prompts/game_spec.md`, `run_rules.md` and `nudge.md` are frozen at git tag `prompt-v4`. Edit them for your own experiments, but tag the new version, because results across prompt versions aren't comparable.
+Not for a comparable race. `prompts/game_spec.md`, `run_rules.md` and `nudge.md` are frozen at git tag `prompt-v5`. Edit them for your own experiments, but tag the new version, because results across prompt versions aren't comparable.
 
 ### **Do I need Blender?**
 Only to rebuild the props from the source dataset with `uv run buildoff assets props`. The converted `.glb` files are already committed, and a rebuild from source comes out byte-identical.

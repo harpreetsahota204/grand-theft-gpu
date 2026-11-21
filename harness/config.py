@@ -100,6 +100,9 @@ class RaceConfig:
         budget_usd: hard spend cap per contender, at list price per Nexus
         race_id: folder name under `RUNS_ROOT` for this race's outputs
         open_viewers: whether to open a Terminal window per contender
+        pack: seeded assets, "full" or "primitives" (see `harness.fetch.PACK_PATTERNS`)
+        nudge_on_done: True = a DONE.md before the last nudge is set aside and the
+            model nudged on (races); False = DONE.md ends the run (smoke test)
         contenders: who races
     """
 
@@ -107,6 +110,8 @@ class RaceConfig:
     budget_usd: float
     race_id: str
     open_viewers: bool = True
+    pack: str = "full"
+    nudge_on_done: bool = True
     contenders: tuple[Contender, ...] = CONTENDERS
 
     @property

@@ -8,12 +8,17 @@ if spend hits the budget, a foreign model shows up in the usage rows, or the
 turn stalls (no output and no new spend for STALL_TIMEOUT_S). After each turn,
 any server the model left running in its workspace is stopped.
 
+Declaring done doesn't end the run while nudges remain: DONE.md is moved to
+`logs/done-turn-NNN.md` (the turn's commit still has it) and the model gets
+the fixed nudge, so both models are pushed toward the full budget the same way.
+
 Output layout under `<race_dir>/<contender>/`:
     workspace/            the seeded Vite project the model builds in (a git repo)
     logs/turn-NNN.jsonl   timestamped Claude Code stream-json transcript per turn
     logs/cost.csv         timestamped Nexus spend readings
     logs/turns.jsonl      one row per turn (turn 0 = seeded base): build, load, errors
     logs/events.jsonl     harness events: leak, stalled turn, unpriced rows (absent if none)
+    logs/done-turn-NNN.md each DONE.md the model wrote before its last nudge
     shots/turn-NNN.png    screenshot of the built game after each turn (000 = base)
     result.json           final outcome
 """
@@ -66,6 +71,8 @@ class RunResult:
         first_playable_turn: first turn whose build loaded without errors, if any
         first_playable_seconds: elapsed seconds at the end of that turn
         models_seen: every model Nexus logged for this session
+        done_declared: each time the model wrote DONE.md: turn and spend so far
+        pack: which asset pack the workspace was seeded with
     """
 
     contender: str
@@ -78,6 +85,8 @@ class RunResult:
     first_playable_turn: int | None
     first_playable_seconds: float | None
     models_seen: list[str]
+    done_declared: list[dict[str, float]]
+    pack: str
 
 
 class ContenderRun:
@@ -110,6 +119,8 @@ class ContenderRun:
         self._last_activity: float = 0.0
         # Highest unpriced-row count already logged as a warning event.
         self._unpriced_seen: int = 0
+        # Every DONE.md the model wrote: {"turn", "cost_usd"} (see `_stop_reason`).
+        self._done_declared: list[dict[str, float]] = []
 
     def run(self) -> RunResult:
         """Runs turns until done, nudge cap, budget or leak, then writes result.json.
@@ -119,7 +130,7 @@ class ContenderRun:
         """
         # Seeding happens before the clock starts: npm install and copying the
         # base game aren't the model's time.
-        seed.seed_workspace(self.workspace)
+        seed.seed_workspace(self.workspace, self.cfg.pack)
         snapshot.init_workspace(self.workspace)
         self.logs.mkdir(parents=True, exist_ok=True)
         # Turn 0 is the untouched base game: the "before" frame for the video
@@ -145,7 +156,7 @@ class ContenderRun:
             if first_playable is None and playable:
                 first_playable = (turn, time.monotonic() - self._start)
 
-            reason = self._stop_reason(end, nudges)
+            reason = self._stop_reason(end, nudges, turn)
             if reason is not None:
                 break
 
@@ -163,6 +174,8 @@ class ContenderRun:
             first_playable_turn=first_playable[0] if first_playable else None,
             first_playable_seconds=round(first_playable[1], 1) if first_playable else None,
             models_seen=sorted(self._last.models) if self._last else [],
+            done_declared=self._done_declared,
+            pack=self.cfg.pack,
         )
         (self.root / "result.json").write_text(json.dumps(asdict(result), indent=2))
         return result
@@ -204,24 +217,32 @@ class ContenderRun:
         )
         return built.ok and shot.loaded and not shot.console_errors
 
-    def _stop_reason(self, end: TurnEnd, nudges: int) -> StopReason | None:
+    def _stop_reason(self, end: TurnEnd, nudges: int, turn: int) -> StopReason | None:
         """Applies the stop rules after a turn, in priority order.
 
-        Hard limits first (budget, leak, error), then the model's own call
-        (DONE.md exists), then the nudge cap. A "stalled" turn is not a hard
-        limit: the model is nudged and can carry on.
+        Hard limits first (budget, leak, error), then the nudge cap. Writing
+        DONE.md is not a stop while nudges remain: the file is moved to
+        `logs/done-turn-NNN.md` and the model is nudged to keep building (the
+        user's rule, so neither model leaves budget unspent by stopping early).
+        A "stalled" turn is nudged too.
 
         Args:
             end: how the turn that just finished ended
             nudges: nudges sent so far
+            turn: the turn that just finished
 
         Returns:
             why the run should stop, or None to send another nudge
         """
         if end in ("budget", "leak", "error"):
             return end
-        if (self.workspace / DONE_FILE).exists():
-            return "declared_done"
+        done = self.workspace / DONE_FILE
+        if done.exists():
+            self._done_declared.append({"turn": turn, "cost_usd": round(self._cost(), 4)})
+            if nudges >= MAX_NUDGES or not self.cfg.nudge_on_done:
+                return "declared_done"
+            done.replace(self.logs / f"done-turn-{turn:03d}.md")
+            return None
         if nudges >= MAX_NUDGES:
             return "nudge_cap"
         return None

@@ -39,12 +39,25 @@ def parse_args(argv: list[str]) -> RaceConfig:
     p.add_argument("--budget", type=float, default=100.0, help="USD cap per contender")
     p.add_argument("--race-id", default=None, help="output folder name (default: timestamp)")
     p.add_argument("--no-viewers", action="store_true", help="skip opening viewer windows")
+    p.add_argument(
+        "--pack",
+        choices=["full", "primitives"],
+        default="full",
+        help="seeded assets: the full pack, or only the GPU (primitives race)",
+    )
+    p.add_argument(
+        "--stop-on-done",
+        action="store_true",
+        help="end a run at the first DONE.md instead of nudging on (smoke test)",
+    )
     a = p.parse_args(argv)
     return RaceConfig(
         spec_path=a.spec.resolve(),
         budget_usd=a.budget,
         race_id=a.race_id or datetime.now().strftime("race-%Y%m%d-%H%M%S"),
         open_viewers=not a.no_viewers,
+        pack=a.pack,
+        nudge_on_done=not a.stop_on_done,
     )
 
 
