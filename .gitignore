@@ -8,3 +8,8 @@ PROGRAM_BRIEF.md
 
 # Private agent notes: never commit
 CLAUDE.local.md
+
+# Assets live in the Hugging Face dataset (harpreetsahota/grand-theft-gpu-assets);
+# only the catalog that indexes it is tracked here.
+assets/*
+!assets/catalog.json

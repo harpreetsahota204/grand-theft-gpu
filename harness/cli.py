@@ -7,6 +7,7 @@ remembering module paths:
     buildoff doctor                  check prerequisites
     buildoff assets [gpu|cars|props|catalog|all] [--out DIR]   rebuild assets/ from source
     buildoff inventory search police car   find assets (JSON out; see `inventory schema`)
+    buildoff fetch <id ...> [--tiers] | --core | --pattern G   download from the HF dataset
     buildoff smoke                   ~$0.30 end-to-end check on the real setup
     buildoff race --budget 100 --yes the real race (spends real money)
 
@@ -60,6 +61,37 @@ def cmd_assets(args: argparse.Namespace) -> int:
     # is what was rebuilt (not when rebuilding into a scratch --out to diff).
     if args.what in ("catalog", "all") and args.out == ASSETS_DIR:
         print(f"catalog: {catalog.write_catalog()} assets -> {catalog.CATALOG_PATH}")
+    return 0
+
+
+def cmd_fetch(args: argparse.Namespace) -> int:
+    """Downloads assets at the pinned dataset revision; prints a JSON summary."""
+    from harness import fetch
+
+    try:
+        patterns = list(args.pattern or [])
+        if args.ids:
+            patterns += fetch.patterns_for_ids(args.ids, with_tiers=args.tiers)
+        if args.core:
+            patterns += fetch.CORE_PATTERNS
+        if not patterns:
+            raise inventory.InventoryError(
+                "nothing to fetch", "pass asset ids, --core, or --pattern", code=2
+            )
+    except KeyError as err:
+        return inventory.fail(
+            inventory.InventoryError(str(err).strip("'"), "find ids with `inventory search`")
+        )
+    except inventory.InventoryError as err:
+        return inventory.fail(err)
+    path = fetch.download(sorted(set(patterns)), args.out)
+    # `.cache` is tested relative to the folder: the HF cache itself is under ~/.cache.
+    files = [
+        p for p in path.rglob("*") if p.is_file() and ".cache" not in p.relative_to(path).parts
+    ]
+    inventory.emit(
+        {"folder": str(path), "patterns": sorted(set(patterns)), "files": len(files)}, "json"
+    )
     return 0
 
 
@@ -187,6 +219,22 @@ def build_parser() -> argparse.ArgumentParser:
     r.set_defaults(func=cmd_race)
 
     add_inventory(sub)
+
+    f = sub.add_parser(
+        "fetch",
+        help="download assets from the HF dataset (pinned revision)",
+        description=(
+            "Download assets from the Hugging Face dataset at the pinned revision. "
+            "Pass catalog ids (from `inventory search`), --core for the seeded set, or "
+            "--pattern for dataset globs. Prints a JSON summary."
+        ),
+    )
+    f.add_argument("ids", nargs="*", help="catalog ids, e.g. rocketbox-avatars/chef-female-01")
+    f.add_argument("--core", action="store_true", help="the seeded set (~508 MB)")
+    f.add_argument("--pattern", action="append", help="dataset glob, e.g. 'meta-mhr/*'")
+    f.add_argument("--tiers", action="store_true", help="include people's lods/mobile/collision")
+    f.add_argument("--out", type=Path, default=None, help="folder (default: HF cache)")
+    f.set_defaults(func=cmd_fetch)
     return p
 
 

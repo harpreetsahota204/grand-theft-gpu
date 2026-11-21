@@ -20,7 +20,7 @@ from dataclasses import asdict
 from datetime import datetime
 from pathlib import Path
 
-from harness import seed
+from harness import fetch, seed
 from harness.config import REPO_ROOT, RaceConfig
 from harness.runner import ContenderRun, RunResult
 
@@ -78,6 +78,8 @@ def main(argv: list[str]) -> None:
     # Fetch the pinned base game once, before the contender threads start, so
     # they don't both try to populate the cache at the same time.
     seed.base_cache()
+    # Same for the core assets: download once into the HF cache up front.
+    fetch.core()
 
     runs = [ContenderRun(c, cfg) for c in cfg.contenders]
     if cfg.open_viewers:

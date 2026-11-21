@@ -47,29 +47,34 @@ SUMMARY_FIELDS: tuple[str, ...] = (
 
 SCHEMA: dict[str, Any] = {
     "description": (
-        "Inventory of 3D assets available to the game. Each asset is a .glb "
-        "loadable with three.js GLTFLoader from its `url` inside a race workspace."
+        "Inventory of the Grand Theft GPU asset dataset. Each asset is a .glb "
+        "loadable with three.js GLTFLoader from its `url` inside a race workspace. "
+        "Rocketbox and Kenney files need loader.setMeshoptDecoder(MeshoptDecoder)."
     ),
     "fields": {
-        "id": "Stable unique id, '<folder>/<file stem>'. Use with `show`.",
-        "category": "Broad group: loot, vehicle, prop (more as packs are added).",
-        "kind": "Finer type, e.g. vehicle vs vehicle-part for car-kit pieces.",
+        "id": "Stable unique id, '<dataset folder>/<item>'. Use with `show`.",
+        "category": "person, motion, animation, city, vehicle, prop, loot, map or body.",
+        "kind": "Finer type: profession/adult (people), motion style, Kenney kit, ...",
         "name": "Human-readable name.",
-        "url": "Path the game fetches, e.g. /assets/gt-gpu/cars/taxi.glb.",
-        "repo_path": "Path of the file in this repository.",
-        "format": "File format (glb).",
+        "hf_path": "Path inside the Hugging Face dataset (see top-level dataset/revision).",
+        "url": "Where the game loads it in a race workspace: /assets/gt-gpu/<hf_path>.",
+        "seeded": "true = already in every race workspace; false = fetch it first.",
         "bytes": "File size in bytes.",
-        "triangles": "Rendered triangle count (sum over all mesh instances).",
-        "size_m": "Bounding box in metres, glTF axes: y is up.",
+        "triangles": "Rendered triangle count, or null if unknown.",
+        "size_m": "Bounding box in metres (glTF axes, y up), or null if unknown.",
         "parts": "Named sub-objects you can move independently (wheels, doors, rotors).",
         "joints": (
-            "Articulations (props only): name, type revolute|prismatic, parent_link, "
+            "Articulations (props): name, type revolute|prismatic, parent_link, "
             "child_link, axis (USD Z-up letter; USD Z = glTF Y, USD Y = glTF -Z), "
             "lower/upper limits (degrees for revolute, metres for prismatic; null = no limit)."
         ),
-        "tags": "Lowercase search keywords, including synonyms (cop, robotaxi, vault).",
-        "group": "Source dataset's own grouping, when it has one (USDCraft props).",
-        "source": "Where the asset came from.",
+        "animations": "Clips in the file: name, plus seconds/fps for motion capture.",
+        "plays_on": "Which skeleton the clips fit (Rocketbox Biped or Quaternius rig).",
+        "optional_tiers": "People only: extra tiers (lods, mobile, collision), fetch on demand.",
+        "data_files": "Map only: URLs of buildings.json, streets.json, meta.json.",
+        "group": "Source dataset's own grouping (USDCraft group, Kenney kit, motion style).",
+        "tags": "Lowercase search keywords, incl. synonyms (vc, cop, phone, pedestrian).",
+        "source": "Who made it (and who converted it).",
         "source_url": "Link to the original.",
         "license": "SPDX license id.",
     },
@@ -145,7 +150,8 @@ def score(asset: dict[str, Any], words: list[str]) -> float:
     """
     id_tokens = {stem(t) for t in tokens(asset["id"])}
     name_tokens = {stem(t) for t in tokens(asset["name"])}
-    tags = {stem(t) for t in asset["tags"]}
+    # Multi-word tags ("data-center") match word by word too.
+    tags = {stem(w) for t in asset["tags"] for w in [t, *tokens(t)]}
     haystack = " ".join([asset["id"], asset["name"], *asset["tags"]]).lower()
     total = 0.0
     words = [stem(w) for w in words]

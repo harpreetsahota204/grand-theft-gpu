@@ -5,23 +5,28 @@ Both contenders must start from byte-identical folders. `harness.runner` calls
 
     workspace/
       <base game at BASE_REPO_COMMIT>   minus its .git and duplicate top-level assets/
-      public/assets/gt-gpu/{gpu,cars,props}   copied from this repo's assets/
+      public/assets/gt-gpu/<dataset layout>   the core asset set (harness.fetch.CORE_PATTERNS)
+      tools/assets.mjs, tools/catalog.json    the models' own search + fetch tool
       .gitignore                        keeps node_modules/ and dist/ out of turn commits
       node_modules/                     from `npm install`
 
-The base repo is fetched once into a cache under `RUNS_ROOT/.cache` and copied
-from there, so a race doesn't re-download its 71 MB per contender.
+The base repo is fetched once into a cache under `RUNS_ROOT/.cache`, and the
+core assets once into the huggingface_hub cache; both are copied from there,
+so a race doesn't re-download anything per contender.
 """
 
+import fnmatch
 import shutil
 import subprocess
 from pathlib import Path
 
+from harness import fetch
+from harness.catalog import CATALOG_PATH
 from harness.config import (
-    ASSETS_DIR,
     BASE_REPO_COMMIT,
     BASE_REPO_URL,
     GAME_ASSETS_SUBDIR,
+    REPO_ROOT,
     RUNS_ROOT,
 )
 
@@ -30,6 +35,37 @@ from harness.config import (
 WORKSPACE_GITIGNORE: str = "node_modules/\ndist/\n"
 
 NPM_TIMEOUT_S: int = 600
+
+# The models' zero-dependency asset tool, copied into every workspace's tools/.
+TOOL_PATH: Path = REPO_ROOT / "harness" / "workspace_tools" / "assets.mjs"
+
+
+def copy_core(dest: Path) -> int:
+    """Copies the core asset set (dataset layout) into dest.
+
+    Only files matching CORE_PATTERNS are copied: the huggingface_hub cache can
+    also hold extras someone fetched on demand, and those must never leak into
+    one race but not another.
+
+    Returns:
+        files copied
+    """
+    src = fetch.core()
+    copied = 0
+    for path in sorted(src.rglob("*")):
+        rel_path = path.relative_to(src)
+        rel = rel_path.as_posix()
+        # Check `.cache` relative to the snapshot: the HF cache itself lives under
+        # ~/.cache, so testing the absolute path would skip every file.
+        if path.is_dir() or ".cache" in rel_path.parts:
+            continue
+        if any(fnmatch.fnmatch(rel, pat) for pat in fetch.CORE_PATTERNS):
+            target = dest / rel
+            target.parent.mkdir(parents=True, exist_ok=True)
+            # copy2 follows the cache's symlinks, so the workspace gets real files.
+            shutil.copy2(path, target)
+            copied += 1
+    return copied
 
 
 def base_cache() -> Path:
@@ -83,7 +119,11 @@ def seed_workspace(workspace: Path) -> None:
         return skipped
 
     shutil.copytree(cache, workspace, ignore=skip)
-    shutil.copytree(ASSETS_DIR, workspace / GAME_ASSETS_SUBDIR)
+    copy_core(workspace / GAME_ASSETS_SUBDIR)
+    tools = workspace / "tools"
+    tools.mkdir()
+    shutil.copy2(TOOL_PATH, tools / "assets.mjs")
+    shutil.copy2(CATALOG_PATH, tools / "catalog.json")
     (workspace / ".gitignore").write_text(WORKSPACE_GITIGNORE)
 
     # Install before turn 1 so the model starts with a buildable project and the

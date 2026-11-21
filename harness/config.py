@@ -54,6 +54,12 @@ ASSETS_DIR: Path = REPO_ROOT / "assets"
 # the third-party sets in scripts/mirror_sources.json here, outside the repo.
 MIRROR_DIR: Path = Path.home() / "grand-theft-gpu-assets"
 
+# The published asset dataset and the exact revision races use. Seeding and
+# `buildoff assets fetch` download this revision, so every race gets identical
+# files; bump it deliberately after re-publishing (it changes what races see).
+HF_ASSETS_REPO: str = "harpreetsahota/grand-theft-gpu-assets"
+HF_ASSETS_REVISION: str = "a71295a4c76deabf157ab362119a6ca99aaca959"
+
 # Blender runs the USDCraft converter; $BLENDER overrides this macOS default.
 DEFAULT_BLENDER: str = "/Applications/Blender.app/Contents/MacOS/Blender"
 GAME_ASSETS_SUBDIR: str = "public/assets/gt-gpu"

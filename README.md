@@ -32,7 +32,7 @@ The game is **Grand Theft GPU**, a browser heist game set in San Silicon, a paro
    uv run buildoff smoke
    ```
 
-The assets are already in `assets/`. To rebuild them from the original sources, run `uv run buildoff assets` (see [Assets](#assets)).
+The assets download from Hugging Face automatically on the first race (about 513 MB, cached). See [Assets](#assets).
 
 ## Run a race
 
@@ -95,15 +95,30 @@ These are the decisions behind the design.
 
 ## Assets
 
-Both models get the same assets. Each folder keeps its license file.
+All assets live in the Hugging Face dataset **[harpreetsahota/grand-theft-gpu-assets](https://huggingface.co/datasets/harpreetsahota/grand-theft-gpu-assets)**, not in this repo. This repo tracks only `assets/catalog.json`, the index of all 1,202 assets, pinned to the dataset revision races use (`HF_ASSETS_REVISION` in `harness/config.py`).
 
-| Folder | What | Source | License |
-|---|---|---|---|
-| `assets/gpu/` | The loot: one graphics card, with spinnable fans and RGB strips | [Grab3D](https://grab3d.com/models/electronics/graphics-card/) | CC0 |
-| `assets/cars/` | 49 low-poly vehicles and parts (sedan, taxi, police, SUV, van…), wheels as separate nodes | [Kenney Car Kit 3.1](https://kenney.nl/assets/car-kit) | CC0 |
-| `assets/props/` | 45 props: servers, safes, an ATM, a forklift, a drone, city street furniture. `manifest.json` lists sizes, movable parts and joints | [NVIDIA USDCraft-10K](https://huggingface.co/datasets/nvidia/USDCraft-10K), converted | Apache 2.0 |
+| Folder | What | License |
+|---|---|---|
+| `rocketbox-avatars/` | 105 rigged people: business, police, medical, fire, construction, security, everyday adults | MIT (Microsoft Rocketbox) |
+| `rocketbox-motions/` | 326 motion-capture clips that play on any Rocketbox person | MIT (Microsoft Rocketbox) |
+| `quaternius-animations/` | 89 walk/run/drive/climb clips on one humanoid rig | CC0 (Quaternius) |
+| `sf-city/` | Real SF slice (SoMa → FiDi → Embarcadero): terrain, 2,168 buildings, streets, bay, street graph | ODbL / © OpenStreetMap contributors |
+| `kenney/` | 714 low-poly city pieces, furniture and cars | CC0 (Kenney) |
+| `usdcraft-props/` | 45 props with joints: servers, safes, an ATM, a forklift, a drone | Apache 2.0 (NVIDIA USDCraft-10K) |
+| `gpu/` | The loot: a graphics card with animatable fans and RGB | CC0 (Grab3D) |
+| `meta-mhr/` | Meta's parametric human body, 7 LODs (on demand only) | Apache 2.0 (Meta) |
 
-The base game is [kartik786-git/gta-clone-threejs](https://github.com/kartik786-git/gta-clone-threejs), used with attribution.
+**In a race,** every workspace is seeded with the full web tier (about 513 MB: everything except people's extra LOD/mobile/collision tiers and the MHR bodies), copied from the Hugging Face cache into `public/assets/gt-gpu/` in the dataset's layout. Each workspace also gets `tools/assets.mjs`, a zero-dependency Node tool the models use to search the catalog and fetch extras (`node tools/assets.mjs help`).
+
+**Fetch assets yourself:**
+
+```bash
+uv run buildoff fetch rocketbox-avatars/chef-female-01 --tiers   # one person, all tiers
+uv run buildoff fetch --core --out /tmp/core                     # the seeded set
+uv run buildoff fetch --pattern 'meta-mhr/*'                     # any dataset glob
+```
+
+The base game is [kartik786-git/gta-clone-threejs](https://github.com/kartik786-git/gta-clone-threejs), used with attribution and fetched at a pinned commit.
 
 ### The asset dataset on Hugging Face
 
@@ -120,19 +135,21 @@ These stage into `~/grand-theft-gpu-assets/`.
 
 ### Searching the assets
 
-Every asset is listed in `assets/catalog.json`: id, category, URL, size in metres, triangles, movable parts, joints, tags and license. `buildoff inventory` searches it. It doesn't prompt, it's deterministic, and it prints JSON, so agents can use it directly:
+Every asset is listed in `assets/catalog.json`: id, category, kind, URL, whether it's seeded, size in metres, triangles, movable parts, joints, animation clips, tags and license. `buildoff inventory` searches it. It doesn't prompt, it's deterministic, and it prints JSON, so agents can use it directly:
 
 ```bash
 uv run buildoff inventory schema                     # what every field and command means
 uv run buildoff inventory categories                 # counts per category
 uv run buildoff inventory search police car --limit 3
 uv run buildoff inventory list --tag heist-target --format jsonl
-uv run buildoff inventory show props/home-safe       # full record: parts, joints, size
+uv run buildoff inventory show usdcraft-props/home-safe   # full record: parts, joints, size
 ```
 
-Errors go to stderr as `{"error": ..., "hint": ...}`, with exit code 1 (not found) or 2 (bad input). Rebuild the catalog after changing assets with `uv run buildoff assets catalog`.
+Errors go to stderr as `{"error": ..., "hint": ...}`, with exit code 1 (not found) or 2 (bad input). Rebuild the catalog after re-publishing the dataset with `uv run buildoff assets catalog` (it reads the local staging copy).
 
-### Rebuilding the assets
+### Rebuilding our own asset sets
+
+The GPU and USDCraft props are the two sets we build ourselves; they go into the dataset via `buildoff assets dataset`.
 
 ```bash
 uv run buildoff assets                     # all sets + catalog; or: gpu | cars | props | catalog
@@ -161,6 +178,8 @@ USDCraft ships OpenUSD for Isaac Sim, which three.js can't load. For each prop, 
 | `harness/assets.py` | Rebuilds `assets/` from the original sources |
 | `harness/catalog.py` | Builds `assets/catalog.json` by inspecting every `.glb` |
 | `harness/inventory.py` | The `buildoff inventory` search and query layer |
+| `harness/fetch.py` | `buildoff fetch` and the seeded core set (`CORE_PATTERNS`) |
+| `harness/workspace_tools/assets.mjs` | The racing models' search + fetch tool (copied into every workspace) |
 | `harness/mirror.py`, `scripts/mirror_sources.json` | Mirror pinned third-party asset sets (Rocketbox, Kenney) |
 | `harness/sfcity.py` | Builds the real SF slice: terrain, buildings, streets, street graph |
 | `harness/dataset.py`, `dataset_card/` | Assemble and publish the Hugging Face asset dataset |
@@ -182,4 +201,4 @@ The harness code and docs are under the [Business Source License 1.1](LICENSE). 
 
 Why 2040-01-22? It's **4,811 days** after this repo went public, which is exactly how long fans waited between GTA V (Sept 17, 2013) and GTA 6 (Nov 19, 2026). The license's own four-year rule means the code actually opens up sooner, but the date stays as a tribute.
 
-The assets keep their own licenses: the GPU and cars are CC0, and the USDCraft props are Apache 2.0 (see `assets/props/NOTICE.md`). The base game is fetched from [its author's repo](https://github.com/kartik786-git/gta-clone-threejs) at run time and isn't redistributed here.
+The assets keep their own licenses, listed per folder in the [asset dataset](https://huggingface.co/datasets/harpreetsahota/grand-theft-gpu-assets#licenses-and-credit). The base game is fetched from [its author's repo](https://github.com/kartik786-git/gta-clone-threejs) at run time and isn't redistributed here.

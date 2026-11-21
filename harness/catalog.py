@@ -1,84 +1,56 @@
-"""Builds `assets/catalog.json`: one structured record per asset in `assets/`.
+"""Builds `assets/catalog.json`: one structured record per asset in the HF dataset.
 
-The catalog is what `buildoff inventory` (see `harness.inventory`) searches, so
-agents can find assets without opening files. It is generated, never hand
-edited: `buildoff assets catalog` rebuilds it, and `buildoff assets all` rebuilds
-it after the asset sets themselves.
+The asset dataset (harpreetsahota/grand-theft-gpu-assets) is the source of
+truth; this catalog indexes it so `buildoff inventory` (and the racing models'
+`tools/assets.mjs`) can search ~1,200 assets without opening any files. It is
+generated from the local staging copy (`config.MIRROR_DIR`) by
+`buildoff assets catalog`, and is never hand edited.
 
-Output is deterministic: entries are sorted by id, numbers are rounded, and no
-timestamps or absolute paths are written, so rebuilding unchanged assets
-produces a byte-identical file.
+Every record's `hf_path` is its path inside the dataset, and its `url` is where
+a game loads it inside a race workspace: `/assets/gt-gpu/<hf_path>` (the
+workspace mirrors the dataset layout under `public/assets/gt-gpu/`).
 
-Per-asset facts come from two places:
-- the .glb itself (triangles, real-world size, named parts), read with trimesh
-- each folder's sidecar data (USDCraft `manifest.json` for prop parts/joints,
-  `scripts/usdcraft_props.csv` for the dataset group), plus a fixed table of
-  per-category source and license
+Per-asset facts come from:
+- upstream `metadata.jsonl` (Rocketbox, Kenney): their files are meshopt
+  compressed, which trimesh can't decode, so triangles/bones/sizes come from there
+- the .glb itself for our own sets (GPU, USDCraft props): triangles, size, parts
+- USDCraft `manifest.json` for prop joints, and glTF JSON for clip names
+
+Output is deterministic: sorted ids, rounded numbers, no timestamps or absolute
+paths, and strict JSON (no Infinity/NaN), so unchanged inputs give a
+byte-identical file.
 """
 
-import csv
 import json
 import re
 import struct
 from pathlib import Path
-from typing import TypedDict
+from typing import Any
 
 import trimesh
 
-from harness.config import ASSETS_DIR, REPO_ROOT
+from harness.config import ASSETS_DIR, HF_ASSETS_REPO, HF_ASSETS_REVISION, MIRROR_DIR
 
 CATALOG_PATH: Path = ASSETS_DIR / "catalog.json"
-CATALOG_VERSION: int = 1
+CATALOG_VERSION: int = 2
 
-# Where each asset folder lands in a race workspace, as a URL the game fetches.
-# Mirrors config.GAME_ASSETS_SUBDIR ("public/assets/gt-gpu"), served at "/".
+# The dataset is mirrored under this URL path inside each race workspace.
 URL_PREFIX: str = "/assets/gt-gpu"
 
+# Tiers that are fetched on demand rather than seeded into every workspace.
+OPTIONAL_TIERS: tuple[str, ...] = ("lods", "mobile", "collision")
 
-class Source(TypedDict):
-    """Provenance shared by every asset in one folder."""
-
-    category: str
-    source: str
-    source_url: str
-    license: str
-
-
-# One row per asset folder. Folders not listed here are skipped, so a new pack
-# must be registered before it appears in the catalog.
-SOURCES: dict[str, Source] = {
-    "gpu": Source(
-        category="loot",
-        source="Grab3D graphics card",
-        source_url="https://grab3d.com/models/electronics/graphics-card/",
-        license="CC0-1.0",
-    ),
-    "cars": Source(
-        category="vehicle",
-        source="Kenney Car Kit 3.1",
-        source_url="https://kenney.nl/assets/car-kit",
-        license="CC0-1.0",
-    ),
-    "props": Source(
-        category="prop",
-        source="NVIDIA USDCraft-10K (converted)",
-        source_url="https://huggingface.co/datasets/nvidia/USDCraft-10K",
-        license="Apache-2.0",
-    ),
-}
-
-# Kenney car-kit files that are parts or track pieces rather than drivable vehicles.
-CAR_PART_PREFIXES: tuple[str, ...] = ("debris-", "wheel-", "cone", "box")
-
-# Synonyms appended as tags so plain-language searches hit the right asset
-# ("cop" finds police, "server" finds rack hardware). Keyed by a substring of the id.
+# Plain-language synonyms appended as tags, keyed by a substring of the asset id,
+# so "cop", "vc" or "phone call" find the right thing.
 SYNONYMS: dict[str, list[str]] = {
+    # vehicles
     "police": ["cop", "cops", "pursuit", "chase"],
     "taxi": ["cab", "robotaxi"],
     "sedan": ["car", "robotaxi"],
     "suv": ["car", "robotaxi"],
     "ambulance": ["emergency"],
-    "firetruck": ["emergency", "fire"],
+    "firetruck": ["emergency"],
+    # loot and props
     "server": ["datacenter", "data-center", "compute", "heist-target"],
     "rack": ["datacenter", "storage"],
     "safe": ["vault", "heist-target"],
@@ -93,29 +65,28 @@ SYNONYMS: dict[str, list[str]] = {
     "traffic": ["street", "intersection"],
     "barrier": ["roadblock", "street"],
     "gate": ["entrance", "security"],
+    # people
+    "business": ["vc", "investor", "founder", "executive", "suit", "office"],
+    "security": ["guard", "bouncer"],
+    "construction": ["worker", "builder", "hardhat"],
+    "medical": ["doctor", "nurse", "hospital"],
+    "chef": ["cook", "restaurant"],
+    "delivery": ["courier", "driver"],
+    "military": ["soldier"],
+    "pilot": ["airline"],
+    "fire-": ["firefighter"],
+    "adult": ["pedestrian", "civilian", "npc", "crowd"],
+    "wood-": ["woodworker", "carpenter", "worker"],
+    "gardener": ["worker"],
+    # motions
+    "cell": ["phone", "call", "texting"],
+    "gestic": ["talk", "talking", "gesture", "pitch", "conversation"],
+    "idle": ["standing", "waiting"],
+    "dancing": ["dance", "party"],
+    "-sit": ["sitting", "seated"],
+    "cheer": ["celebrate", "celebration"],
+    "drunk": ["party"],
 }
-
-
-class Asset(TypedDict):
-    """One catalog record. `buildoff inventory schema` documents every field."""
-
-    id: str
-    category: str
-    kind: str
-    name: str
-    url: str
-    repo_path: str
-    format: str
-    bytes: int
-    triangles: int
-    size_m: dict[str, float]
-    parts: list[str]
-    joints: list[dict[str, object]]
-    tags: list[str]
-    group: str
-    source: str
-    source_url: str
-    license: str
 
 
 def tokens(text: str) -> list[str]:
@@ -123,128 +94,324 @@ def tokens(text: str) -> list[str]:
     return [t for t in re.split(r"[^a-z0-9]+", text.lower()) if t]
 
 
+def synonyms(key: str) -> set[str]:
+    """Returns synonym tags for every SYNONYMS key found in `key`."""
+    return {tag for k, tags in SYNONYMS.items() if k in key for tag in tags}
+
+
+def gltf_json(path: Path) -> dict[str, Any]:
+    """Reads the JSON chunk of a .glb without decoding any geometry."""
+    data = path.read_bytes()
+    # GLB layout: 12-byte header, then chunk 0 = [length u32][type u32][JSON bytes].
+    length = struct.unpack_from("<I", data, 12)[0]
+    return json.loads(data[20 : 20 + length])
+
+
+def mesh_node_names(gltf: dict[str, Any]) -> list[str]:
+    """Names of glTF nodes that carry a mesh (stable, unlike trimesh's suffixed names)."""
+    return sorted({n["name"] for n in gltf.get("nodes", []) if "mesh" in n and n.get("name")})
+
+
+def triangles_from_json(gltf: dict[str, Any]) -> int:
+    """Counts triangles from accessor counts (indices / 3, or vertices / 3)."""
+    acc = gltf.get("accessors", [])
+    total = 0
+    for mesh in gltf.get("meshes", []):
+        for prim in mesh["primitives"]:
+            if "indices" in prim:
+                total += acc[prim["indices"]]["count"] // 3
+            else:
+                total += acc[prim["attributes"]["POSITION"]]["count"] // 3
+    return total
+
+
 def inspect_glb(path: Path) -> tuple[int, dict[str, float], list[str]]:
-    """Reads triangle count, bounding-box size and named geometry nodes from a .glb.
-
-    Args:
-        path: the .glb file
-
-    Returns:
-        (triangles, size in metres as {"x", "y", "z"} with y up, sorted part names)
-    """
+    """Reads triangles, bounding-box size (metres, y up) and part names from a plain .glb."""
     scene = trimesh.load(path, force="scene")
-    # nodes_geometry lists instanced nodes; count each instance's faces once.
     triangles = sum(
         len(scene.geometry[scene.graph[node][1]].faces) for node in scene.graph.nodes_geometry
     )
     x, y, z = (round(float(v), 3) for v in scene.extents)
-    return triangles, {"x": x, "y": y, "z": z}, glb_mesh_node_names(path)
+    return triangles, {"x": x, "y": y, "z": z}, mesh_node_names(gltf_json(path))
 
 
-def glb_mesh_node_names(path: Path) -> list[str]:
-    """Returns the names of glTF nodes that carry a mesh, read from the .glb's JSON chunk.
-
-    Read directly rather than via trimesh, which appends random suffixes to
-    nodes with several primitives and would make the catalog non-deterministic.
-    """
-    data = path.read_bytes()
-    # GLB layout: 12-byte header, then chunk 0 = [length u32][type u32][JSON bytes].
-    length = struct.unpack_from("<I", data, 12)[0]
-    gltf = json.loads(data[20 : 20 + length])
-    return sorted({n["name"] for n in gltf.get("nodes", []) if "mesh" in n and n.get("name")})
-
-
-def prop_metadata() -> dict[str, dict[str, object]]:
-    """Loads USDCraft prop links, joints and dataset group, keyed by .glb file name."""
-    manifest = json.loads((ASSETS_DIR / "props" / "manifest.json").read_text())
-    groups: dict[str, str] = {}
-    with (REPO_ROOT / "scripts" / "usdcraft_props.csv").open() as f:
-        for row in csv.DictReader(f):
-            # path looks like rigid/<group>/<category_id>_<category>/<variant>
-            slug = re.sub(r"[^a-z0-9]+", "-", row["category"].lower()).strip("-")
-            groups[f"{slug}.glb"] = row["path"].split("/")[1]
-    return {
-        p["file"]: {
-            "links": p["links"],
-            "joints": p["joints"],
-            "group": groups.get(p["file"], ""),
-            "name": p["category"],
-        }
-        for p in manifest["props"]
+def record(
+    *,
+    hf_path: str,
+    category: str,
+    kind: str,
+    name: str,
+    root: Path,
+    license_id: str,
+    source: str,
+    source_url: str,
+    tags: set[str],
+    **fields: Any,
+) -> dict[str, Any]:
+    """Builds one catalog record with the shared fields; extra fields pass through."""
+    item = hf_path.split("/")[-2] if hf_path.count("/") >= 2 else Path(hf_path).stem
+    folder = hf_path.split("/")[0]
+    rec: dict[str, Any] = {
+        "id": f"{folder}/{item}",
+        "category": category,
+        "kind": kind,
+        "name": name,
+        "hf_path": hf_path,
+        "url": f"{URL_PREFIX}/{hf_path}",
+        "seeded": True,
+        "bytes": (root / hf_path).stat().st_size,
+        "triangles": None,
+        "size_m": None,
+        "parts": [],
+        "joints": [],
+        "animations": [],
+        "group": "",
+        "tags": sorted(tags | {category, kind} | set(tokens(item)) | synonyms(item)),
+        "license": license_id,
+        "source": source,
+        "source_url": source_url,
     }
+    rec.update(fields)
+    return rec
 
 
-def build_entry(folder: str, path: Path, props: dict[str, dict[str, object]]) -> Asset:
-    """Builds one catalog record for a .glb.
+def read_jsonl(path: Path) -> list[dict[str, Any]]:
+    """Reads a JSON Lines file into a list of dicts."""
+    return [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
 
-    Args:
-        folder: asset folder name (a key of SOURCES)
-        path: the .glb inside that folder
-        props: USDCraft sidecar data from `prop_metadata`
 
-    Returns:
-        the record
-    """
-    src = SOURCES[folder]
-    stem = path.stem
-    triangles, size_m, parts = inspect_glb(path)
-    name = stem.replace("-", " ")
-    joints: list[dict[str, object]] = []
-    tags = set(tokens(stem)) | {src["category"]}
+def people(root: Path) -> list[dict[str, Any]]:
+    """Rocketbox avatars: one record per person, web tier seeded, other tiers listed."""
+    out = []
+    for row in read_jsonl(root / "rocketbox-avatars" / "metadata.jsonl"):
+        pid = row["id"]
+        tiers = {
+            t: f"rocketbox-avatars/{p}"
+            for t, p in (
+                ("lods", f"lods/{pid}/{pid}_lod1.glb"),
+                ("mobile", f"mobile/{pid}/{pid}.glb"),
+                ("collision", f"collision/{pid}/{pid}_collision.glb"),
+            )
+            if (root / "rocketbox-avatars" / p).exists()
+        }
+        out.append(
+            record(
+                hf_path=f"rocketbox-avatars/objects/{pid}/{pid}.glb",
+                category="person",
+                kind=row.get("kind", "person"),
+                name=row["title"],
+                root=root,
+                license_id="MIT",
+                source="Microsoft Rocketbox (web conversion: codepawl)",
+                source_url=row.get("source_url", ""),
+                tags={"rigged", "biped"},
+                triangles=row.get("triangles"),
+                group=row.get("group", ""),
+                bones=row.get("bones"),
+                blendshapes=row.get("blendshapes"),
+                optional_tiers=tiers,
+            )
+        )
+    return out
 
-    # Category-specific refinements.
-    if folder == "props":
-        meta = props.get(path.name, {})
-        name = str(meta.get("name", name))
-        # Props' geometry nodes are generic ("Geom", "mesh"); the USD links are the movable parts.
-        parts = sorted(meta.get("links", []))  # type: ignore[arg-type]
-        joints = list(meta.get("joints", []))  # type: ignore[arg-type]
-        if joints:
-            tags.add("articulated")
-    if folder == "cars":
-        kind = "vehicle-part" if stem.startswith(CAR_PART_PREFIXES) else "vehicle"
-    else:
-        kind = src["category"]
-    for key, extra in SYNONYMS.items():
-        if key in stem:
-            tags |= set(extra)
 
-    return Asset(
-        id=f"{folder}/{stem}",
-        category=src["category"],
-        kind=kind,
-        name=name,
-        url=f"{URL_PREFIX}/{folder}/{path.name}",
-        repo_path=str(path.relative_to(REPO_ROOT)),
-        format="glb",
-        bytes=path.stat().st_size,
-        triangles=triangles,
-        size_m=size_m,
-        parts=parts,
-        joints=joints,
-        tags=sorted(tags),
-        group=str(props.get(path.name, {}).get("group", "")) if folder == "props" else "",
-        source=src["source"],
-        source_url=src["source_url"],
-        license=src["license"],
+def motions(root: Path) -> list[dict[str, Any]]:
+    """Rocketbox motion clips: one record per clip (avatar with the clip baked on)."""
+    out = []
+    for row in read_jsonl(root / "rocketbox-motions" / "metadata.jsonl"):
+        cid = row["id"]
+        out.append(
+            record(
+                hf_path=f"rocketbox-motions/objects/{cid}/{cid}.glb",
+                category="motion",
+                kind=row.get("style", "motion"),
+                name=row["title"],
+                root=root,
+                license_id="MIT",
+                source="Microsoft Rocketbox (web conversion: codepawl)",
+                source_url=row.get("source_url", ""),
+                tags={"animation", "mocap", row.get("gender", "")} - {""},
+                triangles=row.get("triangles"),
+                animations=[{"name": cid, "seconds": row.get("seconds"), "fps": row.get("fps")}],
+                group=row.get("style", ""),
+                plays_on="any rocketbox-avatars person (shared 3ds Max Biped skeleton)",
+            )
+        )
+    return out
+
+
+def kenney(root: Path) -> list[dict[str, Any]]:
+    """Kenney pieces: car-kit parts are vehicles, everything else is city building."""
+    out = []
+    for row in read_jsonl(root / "kenney" / "metadata.jsonl"):
+        item = row["file_name"].split("/")[1]
+        kit = row.get("kit_slug", "")
+        su = row.get("size_units")
+        out.append(
+            record(
+                hf_path=f"kenney/objects/{item}/{item}.glb",
+                category="vehicle" if kit == "car-kit" else "city",
+                kind=kit,
+                name=row["title"],
+                root=root,
+                license_id="CC0-1.0",
+                source=f"Kenney {row.get('kit', kit)} (web conversion: codepawl)",
+                source_url=row.get("source_url", ""),
+                tags=set(tokens(kit)),
+                triangles=row.get("triangles"),
+                # Kenney's model units are close to metres but not guaranteed.
+                size_m={"x": su[0], "y": su[1], "z": su[2]} if su else None,
+                group=row.get("kit", ""),
+            )
+        )
+    return out
+
+
+def own_sets(root: Path) -> list[dict[str, Any]]:
+    """Our GPU and USDCraft props: inspected directly (plain, uncompressed glb)."""
+    out = []
+    gpu = root / "gpu" / "graphics-card-light.glb"
+    tris, size, parts = inspect_glb(gpu)
+    out.append(
+        record(
+            hf_path="gpu/graphics-card-light.glb",
+            category="loot",
+            kind="loot",
+            name="graphics card",
+            root=root,
+            license_id="CC0-1.0",
+            source="Grab3D",
+            source_url="https://grab3d.com/models/electronics/graphics-card/",
+            tags=set(),
+            triangles=tris,
+            size_m=size,
+            parts=parts,
+        )
     )
+    manifest = json.loads((root / "usdcraft-props" / "manifest.json").read_text())
+    for p in manifest["props"]:
+        tris, size, _ = inspect_glb(root / "usdcraft-props" / p["file"])
+        out.append(
+            record(
+                hf_path=f"usdcraft-props/{p['file']}",
+                category="prop",
+                kind="prop",
+                name=p["category"],
+                root=root,
+                license_id="Apache-2.0",
+                source="NVIDIA USDCraft-10K (converted)",
+                source_url="https://huggingface.co/datasets/nvidia/USDCraft-10K",
+                tags={"articulated"} if p["joints"] else set(),
+                triangles=tris,
+                size_m=size,
+                parts=sorted(p["links"]),
+                joints=p["joints"],
+                group=p["source_path"].split("/")[1],
+            )
+        )
+    return out
 
 
-def build_catalog() -> dict[str, object]:
-    """Builds the full catalog from every registered asset folder in assets/.
+def animation_libraries(root: Path) -> list[dict[str, Any]]:
+    """Quaternius clip libraries and mannequin: clip names read from glTF JSON."""
+    out = []
+    for glb in sorted((root / "quaternius-animations").glob("*.glb")):
+        gj = gltf_json(glb)
+        clips = sorted(a.get("name", "") for a in gj.get("animations", []))
+        out.append(
+            record(
+                hf_path=f"quaternius-animations/{glb.name}",
+                category="animation" if clips else "person",
+                kind="clip-library" if clips else "mannequin",
+                name=glb.stem.replace("-", " "),
+                root=root,
+                license_id="CC0-1.0",
+                source="Quaternius Universal Animation Library",
+                source_url="https://quaternius.com/packs/universalanimationlibrary.html",
+                tags={"rigged", "walk", "run", "locomotion"} if clips else {"rigged"},
+                triangles=triangles_from_json(gj),
+                animations=[{"name": c} for c in clips],
+                plays_on="the Quaternius humanoid rig; retarget for Rocketbox people",
+            )
+        )
+    return out
+
+
+def bodies(root: Path) -> list[dict[str, Any]]:
+    """Meta MHR base bodies: fetched on demand (large; no clothes or textures)."""
+    out = []
+    for glb in sorted((root / "meta-mhr").glob("*.glb")):
+        gj = gltf_json(glb)
+        targets = max(
+            (len(p.get("targets", [])) for m in gj.get("meshes", []) for p in m["primitives"]),
+            default=0,
+        )
+        rec = record(
+            hf_path=f"meta-mhr/{glb.name}",
+            category="body",
+            kind="parametric-body",
+            name=f"MHR body {glb.stem.split('-')[-1]}",
+            root=root,
+            license_id="Apache-2.0",
+            source="Meta MHR (Momentum Human Rig)",
+            source_url="https://github.com/facebookresearch/MHR",
+            tags={"rigged", "blendshapes", "base-body"},
+            triangles=triangles_from_json(gj),
+            morph_targets=targets,
+        )
+        rec["seeded"] = False
+        out.append(rec)
+    return out
+
+
+def city(root: Path) -> list[dict[str, Any]]:
+    """The SF slice scene plus its data files, as one map record."""
+    meta = json.loads((root / "sf-city" / "meta.json").read_text())
+    return [
+        record(
+            hf_path="sf-city/sf-city.glb",
+            category="map",
+            kind="city",
+            name="San Francisco: SoMa, Financial District, Embarcadero",
+            root=root,
+            license_id="ODbL-1.0",
+            source="OpenStreetMap + USGS 3DEP elevation (built by grand-theft-gpu)",
+            source_url="https://www.openstreetmap.org/copyright",
+            tags={"san-francisco", "sf", "terrain", "hills", "streets", "buildings", "map"},
+            parts=["buildings", "roads", "terrain", "water"],
+            data_files={
+                "buildings": f"{URL_PREFIX}/sf-city/buildings.json",
+                "streets": f"{URL_PREFIX}/sf-city/streets.json",
+                "meta": f"{URL_PREFIX}/sf-city/meta.json",
+            },
+            axes=meta["axes"],
+        )
+    ]
+
+
+def build_catalog(root: Path = MIRROR_DIR) -> dict[str, Any]:
+    """Builds the full catalog from the staged dataset folder.
 
     Returns:
-        the catalog document: {"version", "url_prefix", "count", "assets": [...]}
+        {"version", "dataset", "revision", "url_prefix", "count", "assets": [...]}
     """
-    props = prop_metadata()
-    entries = [
-        build_entry(folder, glb, props)
-        for folder in sorted(SOURCES)
-        for glb in sorted((ASSETS_DIR / folder).glob("*.glb"))
-    ]
+    entries = (
+        people(root)
+        + motions(root)
+        + kenney(root)
+        + own_sets(root)
+        + animation_libraries(root)
+        + bodies(root)
+        + city(root)
+    )
     entries.sort(key=lambda e: e["id"])
+    ids = [e["id"] for e in entries]
+    if len(ids) != len(set(ids)):
+        raise RuntimeError("duplicate asset ids in catalog")
     return {
         "version": CATALOG_VERSION,
+        "dataset": HF_ASSETS_REPO,
+        "revision": HF_ASSETS_REVISION,
         "url_prefix": URL_PREFIX,
         "count": len(entries),
         "assets": entries,
@@ -252,7 +419,7 @@ def build_catalog() -> dict[str, object]:
 
 
 def write_catalog(path: Path = CATALOG_PATH) -> int:
-    """Builds the catalog and writes it as stable, pretty-printed JSON.
+    """Builds the catalog and writes it as stable, strict, pretty-printed JSON.
 
     Returns:
         number of assets written
@@ -260,4 +427,4 @@ def write_catalog(path: Path = CATALOG_PATH) -> int:
     catalog = build_catalog()
     # allow_nan=False: JSON has no Infinity/NaN, and browsers' JSON.parse rejects them.
     path.write_text(json.dumps(catalog, indent=2, sort_keys=True, allow_nan=False) + "\n")
-    return int(catalog["count"])  # type: ignore[call-overload]
+    return int(catalog["count"])
