@@ -301,6 +301,9 @@ class ContenderRun:
     def _check_meter(self) -> TurnEnd | None:
         """Polls Nexus, logs the reading, and says whether the turn must stop.
 
+        Also writes an `unpriced` warning to events.jsonl when Nexus reports
+        rows it couldn't price (spend undercounted); that never stops the turn.
+
         Returns:
             "leak" if a model other than the contender's appears, "budget" if
             spend reached the cap, otherwise None

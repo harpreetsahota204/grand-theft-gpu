@@ -2,25 +2,43 @@
 
 Two models get the same game spec and the same $100. Each one builds the game alone in headless Claude Code. The harness records everything so the results can be scored and turned into a video.
 
+The game is **Grand Theft GPU**, a browser heist game set in San Francisco: you steal GPUs, and the cast is satirical tech-Twitter archetypes. Both models start from the same three.js base game and the same asset pack (below).
+
 | | Kimi K3.1 Pro | Claude Opus 5.5 |
 |---|---|---|
 | Claude Code `--model` | `kimi-latest` | `opus` |
 | Served by | Fireworks, through Nexus | Anthropic |
 | Spend counted by | Nexus | Nexus |
 
+## Setup (fresh clone)
+
+1. **Install the tools:**
+   - [uv](https://docs.astral.sh/uv/)
+   - [Claude Code](https://claude.com/claude-code) 2.1.242+
+   - Node.js, for the base game's Vite build
+   - Nexus CLI: `curl -fsSL https://nexus.fireworks.ai/install.sh | bash`
+   - Blender, only if you'll rebuild the props: `brew install --cask blender`
+2. **Python environment** (Python 3.12, pinned in `.python-version`; one sync installs every group):
+   ```bash
+   uv sync
+   uv run playwright install chromium
+   ```
+3. **Connect Nexus:** `nexus login`, then `nexus claude`. This routes Claude Code to Fireworks for the Kimi side.
+4. **Check everything:** `uv run python scripts/doctor.py`. It prints `ok` or a fix for each prerequisite.
+5. **Smoke test** (about $0.15, 1 minute):
+   ```bash
+   uv run python -m harness.race --spec prompts/smoke_spec.md --budget 0.5 --no-viewers
+   ```
+
+The assets are already in `assets/`. To rebuild them from the original sources, run `uv run python scripts/build_assets.py all` (see [Assets](#assets)).
+
 ## Run a race
 
 ```bash
-uv sync && uv run playwright install chromium   # once
-
-# real race
 uv run python -m harness.race --spec prompts/game_spec.md --budget 100
-
-# cheap smoke test, no viewer windows
-uv run python -m harness.race --spec prompts/smoke_spec.md --budget 0.5 --no-viewers
 ```
 
-Needs: macOS, `claude` 2.1.242+, `nexus claude` connected (`nexus claude status`), and `uv`.
+Live viewer windows open in Terminal. Pass `--no-viewers` to skip them, for example when not on macOS.
 
 ## How a race works
 
@@ -72,6 +90,30 @@ These are the decisions behind the design.
     └── result.json           stop reason, cost, turns, first playable turn
 ```
 
+## Assets
+
+Both models get the same assets. Each folder keeps its license file.
+
+| Folder | What | Source | License |
+|---|---|---|---|
+| `assets/gpu/` | The loot: one graphics card, with spinnable fans and RGB strips | [Grab3D](https://grab3d.com/models/electronics/graphics-card/) | CC0 |
+| `assets/cars/` | 49 low-poly vehicles and parts (sedan, taxi, police, SUV, van…), wheels as separate nodes | [Kenney Car Kit 3.1](https://kenney.nl/assets/car-kit) | CC0 |
+| `assets/props/` | 45 props: servers, safes, an ATM, a forklift, a drone, SF street furniture. `manifest.json` lists sizes, movable parts and joints | [NVIDIA USDCraft-10K](https://huggingface.co/datasets/nvidia/USDCraft-10K), converted | Apache 2.0 |
+
+The base game is [kartik786-git/gta-clone-threejs](https://github.com/kartik786-git/gta-clone-threejs), used with attribution.
+
+### Rebuilding the assets
+
+```bash
+uv run python scripts/build_assets.py all              # or: gpu | cars | props
+uv run python scripts/build_assets.py props --out /tmp/assets   # rebuild somewhere else
+```
+
+- **gpu / cars:** downloaded from Grab3D and Kenney.
+- **props:** downloads the 45 folders listed in `scripts/usdcraft_props.csv` from Hugging Face (about 120 MB) and converts them with `scripts/convert_usdcraft.py` inside Blender. Set `$BLENDER` if Blender isn't at `/Applications/Blender.app`.
+
+USDCraft ships OpenUSD for Isaac Sim, which three.js can't load. For each prop, the converter drops the collision meshes, caps each mesh at 4K triangles, keeps moving parts as separate nodes, writes the joints to `manifest.json`, and exports a Y-up `.glb`. To change the prop set, edit `scripts/usdcraft_props.csv`; categories and paths come from the dataset's `manifest.csv`.
+
 ## Code map
 
 | File | Job |
@@ -83,10 +125,16 @@ These are the decisions behind the design.
 | `harness/viewer.py` | Live terminal view of a contender (`python -m harness.viewer <dir>`) |
 | `harness/config.py` | Contenders, limits, paths |
 | `prompts/` | Game spec, run rules, nudge, smoke spec |
+| `scripts/doctor.py` | Checks every prerequisite and prints how to fix what's missing |
+| `scripts/build_assets.py` | Rebuilds `assets/` from the original sources |
+| `scripts/convert_usdcraft.py` | USDCraft OpenUSD → `.glb` converter (runs in Blender) |
+| `scripts/usdcraft_props.csv` | The curated list of 45 USDCraft props |
+| `assets/` | GPU, cars and props the models build with |
 
 ## Not done yet
 
 - `prompts/game_spec.md` is a placeholder. It must be locked before the first $100 run.
-- The tier checklist (GTA 1–4) for scoring commits.
+- The heist-tier checklist (T1 steal a GPU → T4 living SF) for scoring commits.
+- Seeding each race workspace with the base game and assets.
 - The Claude side bills through your Claude login. For a true "list price" claim, give Nexus an Anthropic API key.
 - Rendering the race video from the logs.

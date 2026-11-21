@@ -8,9 +8,17 @@ dependencies = [
 ]
 
 [dependency-groups]
+assets = [
+    "huggingface-hub>=2.4.0",
+]
 dev = [
     "ruff>=0.7",
 ]
+
+[tool.uv]
+# A plain `uv sync` installs everything a replicator needs, including the
+# asset-rebuild tools.
+default-groups = "all"
 
 [tool.ruff]
 line-length = 100

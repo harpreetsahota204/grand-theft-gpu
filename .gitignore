@@ -5,3 +5,6 @@ __pycache__/
 
 # Internal brief: never commit
 PROGRAM_BRIEF.md
+
+# Private agent notes: never commit
+CLAUDE.local.md
