@@ -2,6 +2,8 @@
 
 Two models get the same game spec and the same $100. Each one builds the game alone in headless Claude Code. The harness records everything so the results can be scored and turned into a video.
 
+New here? [`HUMANS.md`](HUMANS.md) is the story version: the premise, the setup, and why each rule exists. Coding agents should start with [`AGENTS.md`](AGENTS.md).
+
 The game is **Grand Theft GPU**, a browser heist game set in San Silicon, a parody of San Francisco: you steal GPUs, and the cast is satirical tech-Twitter archetypes. Both models start from the same three.js base game and the same asset pack (below).
 
 | | Kimi K3.1 Pro | Claude Opus 5.5 |

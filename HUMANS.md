@@ -1,0 +1,166 @@
+# Two Models, $100 Each, One Heist Game: Inside the GTA Build-Off
+
+Models, Benchmarks, Agents
+
+_Kimi K3.1 Pro and Claude Opus 5.5 each get $100 and the same locked prompt to build a GTA-style heist game, alone, in Claude Code. This is how the race is set up, what each model is given, and how we keep it fair._
+
+GTA 6 took 4,811 days to arrive after GTA V. Here, each model gets $100.
+
+That's the whole setup. Give two frontier-class models the same budget, the same starting code, the same assets and the same instructions, then step away. Neither model knows it's in a race. Each one just builds until the money runs out or it decides the game is done.
+
+The hard part isn't writing the prompt. It's making sure the only thing that differs between the two runs is the model.
+
+## **Key Takeaways**
+
+* Both models run headless in Claude Code with identical flags, tools and files. The only difference is `--model`: `kimi-latest` (Kimi K3.1 Pro, routed to Fireworks by Nexus) or `opus` (Claude Opus 5.5).
+* Spend is metered by `nexus claude usage`, not by Claude Code. In testing, Claude Code priced a Kimi call at $0.060, while list price for the same tokens was $0.030.
+* Each model starts from a working three.js game pinned to one commit, plus 45 converted NVIDIA USDCraft props, a CC0 car kit and a CC0 graphics card (the loot).
+* A run stops at $100, when the model creates `DONE.md`, or after three "keep going" nudges. A watchdog kills it early if any other model shows up in its usage.
+* Every turn leaves a git commit, a build result and a gameplay screenshot, and every transcript line is timestamped, so the race video can be cut from the logs.
+* The whole setup is reproducible: `uv sync`, `uv run buildoff doctor`, then `uv run buildoff smoke` for about $0.30.
+
+## **What are the models racing to build?**
+
+The game is **Grand Theft GPU**. It's a third-person heist game set in **San Silicon**, a parody of San Francisco: hills, fog, cable cars, a famous red bridge, and robotaxis everywhere. GPUs are the most valuable thing in the city, and you steal them.
+
+The cast comes straight out of a tech Twitter thread: VCs, hype beasts, grifters, anon accounts, founders, doomers, reply guys. They're archetypes, never real people, and the brands are parodies too. It's "the robotaxi with the spinning roof sensor," not a real company.
+
+The prompt gives the models a world to play in and leaves the story to them. Raising money from VCs, poaching engineers, honeypot spies, doomers arguing with boomers, billboards for AI insurance startups: all of it is offered as inspiration, and none of it is required.
+
+What *is* required, in every build:
+
+1. **Steal a GPU.** Find one, take it, carry or deliver it.
+2. **Drive a car.** Get in, drive, get out.
+3. **Talk to an archetype.** At least one character who speaks in their own voice.
+4. **Get chased.** A pursuer, with heat that rises and falls.
+
+## **How do you score a game nobody has seen yet?**
+
+With a ladder the models can see. Builds are judged on how far up it they climb, and each tier includes everything below it.
+
+| Video label | Tier | Unlocks when |
+| --- | --- | --- |
+| GTA 1 | Small-time | You can steal a GPU |
+| GTA 2 | Getaway | You escape by car while being chased, and heat rises and falls |
+| GTA 3 | Crew | A story across multiple missions, with archetype characters who talk |
+| GTA 4 | Kingpin | A living San Silicon: traffic, robotaxis, pedestrians, day and night |
+
+The "GTA 1–4" labels are for the video. Inside the prompt, the tiers are only called Small-time through Kingpin, so the models aren't nudged toward copying a real game.
+
+**Good to know. Do the models know their budget?**
+Yes. The prompt says they have about $100 of compute and should keep the game playable at every step. It doesn't say they're racing anyone.
+
+## **What does each model start with?**
+
+Starting from an empty folder would turn the race into "who sets up three.js fastest." So both models start from the same working game and the same asset pack.
+
+* **The base game:** [kartik786-git/gta-clone-threejs](https://github.com/kartik786-git/gta-clone-threejs), a third-person three.js game with walking, sprinting, jumping, melee and enemies, plus a city model. It's fetched at commit `babb623` for every race and is not redistributed here. It has no cars.
+* **The loot:** a CC0 graphics card from [Grab3D](https://grab3d.com/models/electronics/graphics-card/), with spinnable fans and RGB strips as separate meshes.
+* **The cars:** [Kenney Car Kit 3.1](https://kenney.nl/assets/car-kit) (CC0), 49 low-poly GLBs including a sedan, taxi, police car and SUV, with the wheels as separate nodes.
+* **The props:** 45 objects from [NVIDIA USDCraft-10K](https://huggingface.co/datasets/nvidia/USDCraft-10K) (Apache 2.0): server racks, safes, an ATM, a forklift, a quadcopter drone, traffic lights, parking meters, scooters and more. They ship as OpenUSD for Isaac Sim, which a browser can't load, so `scripts/convert_usdcraft.py` converts them in Blender. It drops collision meshes, caps each mesh at 4,000 triangles, flips Z-up to Y-up, and writes every joint (safe doors, rack doors, drone rotors) to `assets/props/manifest.json`.
+
+**Keep it honest.** The base game had a problem we only found by running it. It commits its own `node_modules`, without execute permissions and built for another OS. In the first smoke test, Kimi quietly spent part of its budget repairing the install, and Opus didn't. The harness now skips that folder and runs a clean `npm install` before the clock starts.
+
+## **How do you keep the race fair?**
+
+Every rule below exists because something could tilt the result.
+
+**One harness, one variable.** Both sides run `claude -p` with the same flags, the same tools (Bash, Read, Edit, Write, WebFetch, WebSearch, Agent) and the same files. Only `--model` changes.
+
+**Nothing from anyone's laptop leaks in.** `--strict-mcp-config` with an empty config removes MCP servers. `--disable-slash-commands` removes skills. Workspaces live in `~/gta-race-runs/`, outside the repo. Claude Code's own init event confirms it for each session: `mcp_servers: []`, `slash_commands: []`.
+
+**Subagents stay on their own side.** The Nexus subagent pin is global, which would send Opus's subagents to Kimi. Instead, each process sets `CLAUDE_CODE_SUBAGENT_MODEL` to its own model. A leak test confirmed that each side's subagents stayed put, and the watchdog checks it again on every poll.
+
+**One referee for money.** Every 15 seconds, the watchdog reads `nexus claude usage --json`. That gives cost at list price, subagents included, plus every model that answered. If cost reaches the budget, the turn is killed. If a foreign model appears, the run stops with `leak`.
+
+**A clear finish line.** A run ends on whichever comes first:
+
+1. The budget is spent, a leak is caught, or the process crashes.
+2. The model creates `DONE.md`.
+3. Three nudges have been sent. The nudge is one fixed sentence: keep building toward the spec.
+
+**Keep it honest.** Nexus is a Fireworks tool, and Kimi runs on Fireworks. The referee's numbers come from list prices with a cited source (`docs.fireworks.ai/serverless/pricing` for Kimi), and every raw transcript is kept, so anyone can recompute the spend. The budget check runs every 15 seconds, so a run can end slightly over $100. In tests the overshoot was $0.01 to $0.05.
+
+**Keep it honest.** For now, the Claude side bills through a Claude login. For a clean "$100 at list price" comparison, Nexus needs an Anthropic API key, and that's an open item before the full race.
+
+## **What does a race leave behind?**
+
+Nothing records the screen. A screen recording would capture whatever else is open on the machine, so the harness keeps evidence instead:
+
+```
+~/gta-race-runs/<race-id>/
+└── kimi/ and opus/
+    ├── workspace/            the game, one git commit per turn
+    ├── logs/turn-NNN.jsonl   transcript, each line {"t": seconds, "event": ...}
+    ├── logs/cost.csv         spend at every Nexus poll
+    ├── logs/turns.jsonl      per turn: build_ok, loaded, console errors, cost
+    ├── shots/turn-NNN.png    gameplay screenshot (000 = untouched base game)
+    └── result.json           stop reason, cost, first playable turn, models seen
+```
+
+Getting a real gameplay screenshot from headless Chrome took three fixes. Wait for the network to go quiet. Wait another 12 seconds, because the base game parses its models between downloads and takes about 9 seconds to load. Then click the middle of the screen with a small stub for the browser's pointer-lock API installed, because headless Chrome never grants pointer lock and "Click to Play" would never go away.
+
+## **Step 1: Clone and install**
+
+```bash
+git clone https://github.com/harpreetsahota204/grand-theft-gpu
+cd grand-theft-gpu
+uv sync
+uv run playwright install chromium
+```
+
+## **Step 2: Connect Nexus and check everything**
+
+```bash
+curl -fsSL https://nexus.fireworks.ai/install.sh | bash
+nexus login        # opens a browser
+nexus claude       # routes Claude Code to Fireworks for the Kimi side
+uv run buildoff doctor
+```
+
+`doctor` prints `ok` or the fix for each prerequisite: Claude Code 2.1.242+, Nexus connected, Node.js, git and Chromium.
+
+## **Step 3: Run the smoke test**
+
+```bash
+uv run buildoff smoke
+```
+
+Both models get a one-line task: float the GPU above the player's head. It costs about $0.30 in total. In our runs, each side finished in one turn for $0.12 to $0.18, and both builds loaded with no console errors.
+
+## **Step 4: Run the race**
+
+```bash
+nohup uv run buildoff race --budget 100 --yes --race-id my-race > ~/gta-race-runs/my-race.log 2>&1 &
+```
+
+`--yes` is required for any budget over $2, because the race spends up to that amount *per model*. Running it detached keeps a long run from dying with your terminal.
+
+## **Results**
+
+_The full $100 race hasn't run yet. This section will hold the tier each model reached, time to first playable build, total spend and output speed, the blind playtest, and the before/after screenshots._
+
+## **Try it yourself**
+
+* Repo: [github.com/harpreetsahota204/grand-theft-gpu](https://github.com/harpreetsahota204/grand-theft-gpu)
+* For coding agents: [`AGENTS.md`](AGENTS.md)
+* Nexus: [docs.fireworks.ai/nexus](https://docs.fireworks.ai/nexus)
+* Kimi K3.1 Pro on Fireworks: [app.fireworks.ai/models/fireworks/kimi-k3p1-pro](https://app.fireworks.ai/models/fireworks/kimi-k3p1-pro)
+* NVIDIA USDCraft-10K: [huggingface.co/datasets/nvidia/USDCraft-10K](https://huggingface.co/datasets/nvidia/USDCraft-10K)
+
+## **Frequently Asked Questions**
+
+### **Why run Kimi inside Claude Code instead of its own agent?**
+So the harness isn't a variable. Nexus points Claude Code at Fireworks, and both models get the same tool loop, prompts and permissions. Only `--model` differs.
+
+### **Why not trust Claude Code's `total_cost_usd`?**
+It doesn't know `kimi-latest` and falls back to a default rate. In testing it reported $0.060 for a call that costs $0.030 at Kimi K3.1 Pro's list price ($2 per million input tokens, $10 per million output). `nexus claude usage --json` prices each row at the provider's list rate.
+
+### **Can I change the prompt?**
+Not for a comparable race. `prompts/game_spec.md`, `run_rules.md` and `nudge.md` are frozen at git tag `prompt-v1`. Edit them for your own experiments, but tag the new version, because results across prompt versions aren't comparable.
+
+### **Do I need Blender?**
+Only to rebuild the props from the source dataset with `uv run buildoff assets props`. The converted `.glb` files are already committed, and a rebuild from source comes out byte-identical.
+
+### **What license is this under?**
+The harness is under the Business Source License 1.1. Non-commercial use is free, including running your own races and publishing the results. It converts to Apache 2.0 on 2040-01-22, which is 4,811 days after release, the same wait as GTA V to GTA 6. The assets keep their own CC0 and Apache 2.0 licenses.

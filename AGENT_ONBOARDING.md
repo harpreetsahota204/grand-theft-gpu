@@ -162,4 +162,4 @@ After that (the user's order, 2026-11-20):
 3. ~~Update the team in Notion~~ ✅ (Nov 20: added an "Update: Nov 20, 2026" section, milestone, check-in and appendix note): the internal program brief (link in CLAUDE.local.md) (status, decisions, what's built so far)
 4. ~~Thin CLI + `AGENTS.md`~~ ✅ `uv run buildoff doctor|assets|smoke|race` (race over $2 requires `--yes`). `AGENTS.md` is for people who clone the repo and point an agent at it; `CLAUDE.md` imports it.
 5. $5–10 test runs of each model on the locked prompt, then the full race
-6. Blog post (via the blog-writer skill) after the race. No separate HUMANS.md: the README is the human front door.
+6. ~~HUMANS.md~~ ✅ A blog-style explainer of the premise, setup and rules (via the blog-writer skill), linked from the README. Its **Results** section is empty: fill it after the race, and it becomes the blog post.
