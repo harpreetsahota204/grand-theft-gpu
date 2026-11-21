@@ -55,7 +55,7 @@ The exact pass/fail checks per tier still need writing and locking with the prom
 The user is the architect and decision-maker. The agent writes the code and runs the commands. The maintainer's private working-style notes are in `CLAUDE.local.md`. It's gitignored, but Claude Code loads it automatically when it's present.
 
 - **Code standards:** Google-style docstrings and full type hints on every function, "why" comments, and the cleanup checklist run twice. `ruff` is configured in `pyproject.toml`.
-- **Git:** commit only when asked.
+- **Git:** commit only when asked. The repo is **public**: scan for secrets, personal info and internal links (Notion, Slack, claude.ai) before every push.
 
 ## 3. Status
 
@@ -67,6 +67,7 @@ The user is the architect and decision-maker. The agent writes the code and runs
 | Car pack (CC0) | ✅ `assets/cars/` (Kenney Car Kit 3.1) |
 | USDCraft props → .glb | ✅ `assets/props/` (45 props + manifest), `scripts/convert_usdcraft.py` |
 | Replication setup (anyone can rebuild assets and run a race) | ✅ `.python-version`, `uv sync` (all groups by default), `buildoff doctor`, `buildoff assets` (`harness/doctor.py`, `harness/assets.py`). Rebuilt from source and **byte-identical** to `assets/` |
+| Public repo | ✅ https://github.com/harpreetsahota204/grand-theft-gpu (public since 2026-11-20). BSL 1.1: non-commercial use granted; converts to Apache 2.0 on 2040-01-22 (4,811 days, the GTA V → GTA 6 wait) or on each version's 4th anniversary if sooner. Before pushing: a secrets/personal-info scan of files and history, and a fresh-clone smoke test. |
 | Decide what goes in git | ✅ `assets/` committed (16 MB; licenses allow it). Base game fetched, not vendored. `PROGRAM_BRIEF.md` and `CLAUDE.local.md` gitignored. |
 | Game prompt (`prompts/game_spec.md`, `run_rules.md`, `nudge.md`) | 🔒 **LOCKED 2026-11-20**, git tag `prompt-v1`. Do not edit without the user's explicit OK; any change is a new tag (`prompt-v2`) and invalidates comparisons with earlier runs. |
 | Harness seeding + per-turn Vite build + gameplay screenshots | ✅ `harness/seed.py`, `snapshot.build`. The smoke test on the seeded base (`smoke-seed-002`) passed for both models: turn 0 builds, both added the GPU from our assets, and the screenshots show gameplay. |
