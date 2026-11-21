@@ -93,6 +93,8 @@ async function fetchIds(ids, tiers) {
   for (const i of ids) {
     const a = byId.get(i);
     paths.add(a.hf_path);
+    // Multi-file sets (sound variants, texture maps) list workspace URLs.
+    [...(a.files || []), ...Object.values(a.maps || {})].forEach((u) => paths.add(u.slice(CATALOG.url_prefix.length + 1)));
     if (tiers) Object.values(a.optional_tiers || {}).forEach((p) => paths.add(p));
   }
   const results = [];
@@ -122,11 +124,15 @@ const HELP = {
     "search <words> [--limit N]": "rank assets by query words (all words must match)",
     "list [--category C] [--kind K] [--tag T] [--seeded|--not-seeded] [--limit N] [--full]": "filter assets",
     "show <id> [...]": "full record(s)",
-    "fetch <id> [...] [--tiers]": "download non-seeded assets (and people's extra tiers) into public/assets/gt-gpu/",
+    "fetch <id> [...] [--tiers]": "download non-seeded assets (--tiers adds optional_tiers: people's lods/mobile/collision, 2k skies) into public/assets/gt-gpu/",
   },
   notes: [
-    "Load any asset in the game from its `url` with three.js GLTFLoader.",
-    "Rocketbox and Kenney files need loader.setMeshoptDecoder(MeshoptDecoder) from three/addons/libs/meshopt_decoder.module.js.",
+    "Load any model in the game from its `url` with three.js GLTFLoader.",
+    "Files under objects/ (people, motions, Kenney, vehicles, trees) need loader.setMeshoptDecoder(MeshoptDecoder) from three/addons/libs/meshopt_decoder.module.js.",
+    "Skies (category sky) are .hdr: RGBELoader, then PMREMGenerator for scene.environment and scene.background.",
+    "Textures (category texture): load each URL in `maps` with TextureLoader; set wrapS/wrapT = RepeatWrapping and repeat = surface metres / tile_m. Night facades have an emission map (lit windows).",
+    "sf-city UVs are in metres (see the map record's uv field), so a texture's repeat is 1 / tile_m.",
+    "Sounds (category sound) are .ogg/.wav for AudioLoader; `files` lists every variant. Sprites (vfx) are transparent .png. Fonts are .ttf for CSS @font-face.",
     "Rocketbox motion clips play on any Rocketbox person (shared skeleton). Quaternius clips (walk/run) need retargeting.",
     "sf-city: buildings.json and streets.json (see the map record's data_files) give footprints, heights and a routable street graph.",
   ],

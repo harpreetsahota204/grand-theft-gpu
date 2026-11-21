@@ -91,6 +91,7 @@ def fetch_polyhaven_hdris(spec: dict[str, Any], out: Path) -> int:
             record["files"][res] = {"file": name, "sha256": digest, "bytes": meta["size"]}
         record.update(
             source=f"https://polyhaven.com/a/{asset_id}",
+            author="Poly Haven",
             license="CC0-1.0",
             seeded_resolution=spec["seeded_resolution"],
         )
@@ -119,6 +120,7 @@ def fetch_polyhaven_textures(spec: dict[str, Any], out: Path) -> int:
         record.update(
             size_m=polyhaven_size_m(asset_id),
             source=f"https://polyhaven.com/a/{asset_id}",
+            author="Poly Haven",
             license="CC0-1.0",
         )
         (out / asset_id / "info.json").write_text(json.dumps(record, indent=2, sort_keys=True))
@@ -153,6 +155,7 @@ def fetch_ambientcg(spec: dict[str, Any], out: Path) -> int:
             # ambientCG dimensions are in centimetres when present.
             size_m=[round(dims[0] / 100, 2), round(dims[1] / 100, 2)] if all(dims) else None,
             source=f"https://ambientcg.com/view?id={asset_id}",
+            author="ambientCG",
             license="CC0-1.0",
         )
         (out / asset_id / "info.json").write_text(json.dumps(record, indent=2, sort_keys=True))

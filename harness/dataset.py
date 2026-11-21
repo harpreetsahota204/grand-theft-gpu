@@ -6,6 +6,8 @@ staging folder (`config.MIRROR_DIR`) so every subfolder is self-describing:
 - mirrored sources (from scripts/mirror_sources.json): filters the upstream
   `metadata.jsonl` to the items we kept, and writes `ATTRIBUTION.md` with the
   creator, converter, pinned revision, what was kept, and what we changed
+- curated media (skies, textures, sounds, sprites, fonts): LICENSE.md and
+  ATTRIBUTION.md generated from each item's info.json
 - our own assets from this repo's assets/ (the GPU and the converted USDCraft
   props) are copied in with their licence files
 - the hand-written cards in this repo's `dataset_card/` (the top-level
@@ -50,6 +52,52 @@ OWN_SETS: dict[str, dict[str, str]] = {
         ),
     },
 }
+
+
+# Folders staged by `assets textures` / `assets media`: each item has an info.json
+# (id, what, author, license, source), from which LICENSE.md and ATTRIBUTION.md
+# are generated here.
+MEDIA_FOLDERS: dict[str, str] = {
+    "polyhaven-hdris": "Poly Haven HDRI skies",
+    "polyhaven-textures": "Poly Haven PBR textures",
+    "ambientcg-textures": "ambientCG PBR textures",
+    "audio-opengameart": "OpenGameArt sounds",
+    "kenney-media": "Kenney sounds and particle sprites",
+    "google-fonts": "Google Fonts",
+}
+LICENSE_URLS: dict[str, str] = {
+    "CC0-1.0": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "CC-BY-3.0": "https://creativecommons.org/licenses/by/3.0/",
+    "OFL-1.1": "https://openfontlicense.org",
+}
+
+
+def media_docs(folder: Path, title: str) -> int:
+    """Writes a media folder's LICENSE.md and ATTRIBUTION.md from its items' info.json.
+
+    Args:
+        folder: the dataset folder, e.g. MIRROR_DIR / "audio-opengameart"
+        title: human name for the folder, used as the heading
+
+    Returns:
+        items credited
+    """
+    records = [json.loads(f.read_text()) for f in sorted(folder.glob("*/info.json"))]
+    licenses = sorted({r["license"] for r in records})
+    lines = [f"# {title}: licences", ""]
+    lines += [f"- {lic}: {LICENSE_URLS[lic]}" for lic in licenses]
+    lines += ["", "Which item uses which licence is listed in ATTRIBUTION.md and each info.json."]
+    (folder / "LICENSE.md").write_text("\n".join(lines) + "\n")
+
+    rows = [f"# {title}: attribution", "", "| Item | What | Author | Licence | Source |"]
+    rows.append("|---|---|---|---|---|")
+    for r in records:
+        rows.append(f"| {r['id']} | {r['what']} | {r['author']} | {r['license']} | {r['source']} |")
+    notes = [f"- {r['id']}: {r['license_note']}" for r in records if "license_note" in r]
+    if notes:
+        rows += ["", "Notes:", "", *notes]
+    (folder / "ATTRIBUTION.md").write_text("\n".join(rows) + "\n")
+    return len(records)
 
 
 def item_of(row: dict[str, object]) -> str | None:
@@ -229,6 +277,9 @@ def build(out: Path = MIRROR_DIR) -> dict[str, int]:
         (folder / "ATTRIBUTION.md").write_text(text)
         counts[src["id"]] = kept or items
         print(f"{src['id']}: {items} items, metadata rows kept {kept}")
+    for name, title in MEDIA_FOLDERS.items():
+        counts[name] = media_docs(out / name, title)
+        print(f"{name}: {counts[name]} items credited")
     for name, spec in OWN_SETS.items():
         counts[name] = copy_own(name, spec, out)
         print(f"{name}: {counts[name]} files copied")

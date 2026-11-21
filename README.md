@@ -95,7 +95,7 @@ These are the decisions behind the design.
 
 ## Assets
 
-All assets live in the Hugging Face dataset **[harpreetsahota/grand-theft-gpu-assets](https://huggingface.co/datasets/harpreetsahota/grand-theft-gpu-assets)**, not in this repo. This repo tracks only `assets/catalog.json`, the index of all 1,167 assets, pinned to the dataset revision races use (`HF_ASSETS_REVISION` in `harness/config.py`).
+All assets live in the Hugging Face dataset **[harpreetsahota/grand-theft-gpu-assets](https://huggingface.co/datasets/harpreetsahota/grand-theft-gpu-assets)**, not in this repo. This repo tracks only `assets/catalog.json`, the index of all 1,294 assets, pinned to the dataset revision races use (`HF_ASSETS_REVISION` in `harness/config.py`).
 
 | Folder | What | License |
 |---|---|---|

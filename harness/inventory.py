@@ -47,13 +47,18 @@ SUMMARY_FIELDS: tuple[str, ...] = (
 
 SCHEMA: dict[str, Any] = {
     "description": (
-        "Inventory of the Grand Theft GPU asset dataset. Each asset is a .glb "
-        "loadable with three.js GLTFLoader from its `url` inside a race workspace. "
-        "Rocketbox and Kenney files need loader.setMeshoptDecoder(MeshoptDecoder)."
+        "Inventory of the Grand Theft GPU asset dataset. Models are .glb files "
+        "loadable with three.js GLTFLoader from their `url` inside a race workspace; "
+        "files under objects/ need loader.setMeshoptDecoder(MeshoptDecoder). Skies are "
+        ".hdr (RGBELoader), textures .jpg (TextureLoader), sounds .ogg/.wav "
+        "(AudioLoader), sprites .png, fonts .ttf (CSS @font-face or FontFace)."
     ),
     "fields": {
         "id": "Stable unique id, '<dataset folder>/<item>'. Use with `show`.",
-        "category": "person, motion, animation, city, vehicle, prop, loot, map or body.",
+        "category": (
+            "person, motion, animation, city, vehicle, prop, loot, map, body, nature, "
+            "sky, texture, sound, vfx or font."
+        ),
         "kind": "Finer type: profession/adult (people), motion style, Kenney kit, ...",
         "name": "Human-readable name.",
         "hf_path": "Path inside the Hugging Face dataset (see top-level dataset/revision).",
@@ -70,7 +75,20 @@ SCHEMA: dict[str, Any] = {
         ),
         "animations": "Clips in the file: name, plus seconds/fps for motion capture.",
         "plays_on": "Which skeleton the clips fit (Rocketbox Biped or Quaternius rig).",
-        "optional_tiers": "People only: extra tiers (lods, mobile, collision), fetch on demand.",
+        "optional_tiers": (
+            "Extra files fetched on demand: people/vehicles' lods, mobile, collision; "
+            "skies' 2k .hdr."
+        ),
+        "files": "Sounds, sprites, fonts: every file URL in the set (variants, weights).",
+        "maps": (
+            "Textures: map role -> URL (color, normal_gl, roughness, ao, metalness, "
+            "emission, opacity). normal_gl is OpenGL convention, as three.js expects."
+        ),
+        "tile_m": (
+            "Textures: real-world [width, height] in metres one image covers. "
+            "Set texture.repeat = surface size / tile_m (the SF city UVs are in metres)."
+        ),
+        "notes": "Anything else you need to know to use it (e.g. scale).",
         "data_files": "Map only: URLs of buildings.json, streets.json, meta.json.",
         "group": "Source dataset's own grouping (USDCraft group, Kenney kit, motion style).",
         "tags": "Lowercase search keywords, incl. synonyms (vc, cop, phone, pedestrian).",

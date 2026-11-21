@@ -156,14 +156,18 @@ def record(
     source_url: str,
     tags: set[str],
     id_tags: bool = True,
+    item: str = "",
     **fields: Any,
 ) -> dict[str, Any]:
     """Builds one catalog record with the shared fields; extra fields pass through.
 
     `id_tags=False` keeps words from the file id out of the tags, for items whose
     original file names carry real brand names or hashes (vehicles).
+    `item` overrides the id's item part, for sets whose files share one folder
+    (Kenney sound and sprite families).
     """
-    item = hf_path.split("/")[-2] if hf_path.count("/") >= 2 else Path(hf_path).stem
+    if not item:
+        item = hf_path.split("/")[-2] if hf_path.count("/") >= 2 else Path(hf_path).stem
     folder = hf_path.split("/")[0]
     rec: dict[str, Any] = {
         "id": f"{folder}/{item}",
@@ -465,6 +469,207 @@ def city(root: Path) -> list[dict[str, Any]]:
     ]
 
 
+def info_records(folder: Path) -> list[dict[str, Any]]:
+    """Reads every item's info.json in a media folder, sorted by item id."""
+    return [json.loads(f.read_text()) for f in sorted(folder.glob("*/info.json"))]
+
+
+def media_url(hf_path: str) -> str:
+    """Workspace URL for a dataset path (what TextureLoader/Audio/FontFace load)."""
+    return f"{URL_PREFIX}/{hf_path}"
+
+
+def skies(root: Path) -> list[dict[str, Any]]:
+    """Poly Haven HDRIs: the 1k file is seeded; the 2k file is an optional tier."""
+    out = []
+    for info in info_records(root / "polyhaven-hdris"):
+        hid, files = info["id"], info["files"]
+        seeded = info["seeded_resolution"]
+        out.append(
+            record(
+                hf_path=f"polyhaven-hdris/{hid}/{files[seeded]['file']}",
+                category="sky",
+                kind="hdri",
+                name=info["what"],
+                root=root,
+                license_id=info["license"],
+                source="Poly Haven",
+                source_url=info["source"],
+                tags={"hdri", "environment", "lighting", "skybox", *tokens(info["what"])},
+                optional_tiers={
+                    res: f"polyhaven-hdris/{hid}/{f['file']}"
+                    for res, f in files.items()
+                    if res != seeded
+                },
+            )
+        )
+    return out
+
+
+# ambientCG map names → the same role names Poly Haven items use.
+MAP_ROLES: dict[str, str] = {
+    "Color": "color",
+    "NormalGL": "normal_gl",
+    "Roughness": "roughness",
+    "AmbientOcclusion": "ao",
+    "Metalness": "metalness",
+    "Emission": "emission",
+    "Opacity": "opacity",
+}
+
+
+def textures(root: Path) -> list[dict[str, Any]]:
+    """PBR surface textures (Poly Haven + ambientCG): one record per material."""
+    out = []
+    for folder, source in (
+        ("polyhaven-textures", "Poly Haven"),
+        ("ambientcg-textures", "ambientCG"),
+    ):
+        for info in info_records(root / folder):
+            tid = info["id"]
+            maps = {
+                MAP_ROLES.get(role, role): media_url(f"{folder}/{tid}/{m['file']}")
+                for role, m in sorted(info["maps"].items())
+            }
+            color = info["maps"].get("color") or info["maps"]["Color"]
+            # Emission maps mark night facades with lit windows.
+            extra = {"night", "lit", "emissive"} if "emission" in maps else set()
+            out.append(
+                record(
+                    hf_path=f"{folder}/{tid}/{color['file']}",
+                    category="texture",
+                    kind="pbr",
+                    name=info["what"],
+                    root=root,
+                    license_id=info["license"],
+                    source=source,
+                    source_url=info["source"],
+                    tags={"material", "surface", *tokens(info["what"]), *tokens(tid)} | extra,
+                    id_tags=False,
+                    maps=maps,
+                    tile_m=info.get("size_m"),
+                )
+            )
+    return out
+
+
+def trees(root: Path) -> list[dict[str, Any]]:
+    """Google Poly trees (CC-BY-3.0: credit each artist; see ATTRIBUTION.md)."""
+    out = []
+    for row in read_jsonl(root / "trees-google-poly" / "metadata.jsonl"):
+        item = row["file_name"].split("/")[1]
+        kind = "palm" if "palm" in item else "tree"
+        ext = row.get("original_extents")
+        scale = row.get("scale") or 1.0
+        out.append(
+            record(
+                hf_path=f"trees-google-poly/objects/{item}/{item}.glb",
+                category="nature",
+                kind=kind,
+                name=row["title"].lower(),
+                root=root,
+                license_id=row.get("license", "CC-BY-3.0"),
+                source=f"{row.get('authors', '')} · Google Poly (web conversion: codepawl)",
+                source_url=row.get("source_url", ""),
+                tags={"tree", "plant", "vegetation", "street", "park", *tokens(row["title"])},
+                id_tags=False,
+                triangles=row.get("triangles"),
+                notes=(
+                    "Normalised to about 1 m tall: scale up to real size "
+                    "(street trees 8-12 m, palms 10-20 m)."
+                ),
+                # codepawl rescaled each model by `scale`; extents are pre-scale.
+                size_m={k: round(v * scale, 3) for k, v in zip("xyz", ext, strict=True)}
+                if ext
+                else None,
+            )
+        )
+    return out
+
+
+def family_of(path: Path) -> str:
+    """Groups numbered variants: "impactGlass_heavy_003.ogg" → "impactGlass_heavy"."""
+    return re.sub(r"_\d+$", "", path.stem)
+
+
+def split_camel(name: str) -> list[str]:
+    """Search words from a Kenney file family: "impactGlass_heavy" → impact, glass, heavy."""
+    return tokens(re.sub(r"(?<=[a-z])(?=[A-Z])", " ", name))
+
+
+def media_sets(root: Path) -> list[dict[str, Any]]:
+    """Sounds, particle sprites and fonts: one record per sound/sprite family or font."""
+    out = []
+    oga = root / "audio-opengameart"
+    for info in info_records(oga):
+        paths = [f"audio-opengameart/{info['id']}/{f}" for f in sorted(info["files"])]
+        audio = [p for p in paths if p.endswith((".ogg", ".wav"))]
+        out.append(
+            record(
+                hf_path=audio[0],
+                category="sound",
+                kind="loop" if "loop" in info["id"] or "ambience" in info["id"] else "sfx",
+                name=info["what"],
+                root=root,
+                license_id=info["license"],
+                source=f"{info['author']} · OpenGameArt",
+                source_url=info["source"],
+                tags={"audio", "sound", *tokens(info["what"])},
+                files=[media_url(p) for p in audio],
+            )
+        )
+    kenney_media = root / "kenney-media"
+    for pack, category, suffix in (
+        ("impact-sounds", "sound", ".ogg"),
+        ("interface-sounds", "sound", ".ogg"),
+        ("particle-pack", "vfx", ".png"),
+    ):
+        info = json.loads((kenney_media / pack / "info.json").read_text())
+        # Only top-level files: the particle pack's Rotated/ copies stay out of the index.
+        files = sorted(f for f in (kenney_media / pack).glob(f"*{suffix}"))
+        families: dict[str, list[Path]] = {}
+        for f in files:
+            families.setdefault(family_of(f), []).append(f)
+        for fam, members in sorted(families.items()):
+            words = split_camel(fam)
+            rels = [f"kenney-media/{pack}/{m.name}" for m in members]
+            out.append(
+                record(
+                    hf_path=rels[0],
+                    category=category,
+                    kind="sprite" if category == "vfx" else pack.removesuffix("-sounds"),
+                    name=" ".join(words),
+                    root=root,
+                    license_id=info["license"],
+                    source=f"Kenney {pack}",
+                    source_url=info["source"],
+                    tags={"audio", "sound"} if category == "sound" else {"particle", "sprite"},
+                    group=pack,
+                    item=f"{pack}/{fam}",
+                    files=[media_url(r) for r in rels],
+                )
+            )
+    for info in info_records(root / "google-fonts"):
+        fonts = [
+            f"google-fonts/{info['id']}/{f}" for f in sorted(info["files"]) if f.endswith(".ttf")
+        ]
+        out.append(
+            record(
+                hf_path=fonts[0],
+                category="font",
+                kind="ttf",
+                name=info["what"],
+                root=root,
+                license_id=info["license"],
+                source="Google Fonts",
+                source_url=info["source"],
+                tags={"font", "typeface", "hud", "text", *tokens(info["what"])},
+                files=[media_url(f) for f in fonts],
+            )
+        )
+    return out
+
+
 def build_catalog(root: Path = MIRROR_DIR) -> dict[str, Any]:
     """Builds the full catalog from the staged dataset folder.
 
@@ -480,6 +685,10 @@ def build_catalog(root: Path = MIRROR_DIR) -> dict[str, Any]:
         + animation_libraries(root)
         + bodies(root)
         + city(root)
+        + skies(root)
+        + textures(root)
+        + trees(root)
+        + media_sets(root)
     )
     entries.sort(key=lambda e: e["id"])
     ids = [e["id"] for e in entries]

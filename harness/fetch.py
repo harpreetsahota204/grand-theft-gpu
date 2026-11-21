@@ -2,8 +2,9 @@
 
 Two uses:
 - `core()`: the seeded set every race workspace starts with (the full web tier,
-  ~508 MB: people, motions, Kenney, SF city, props, GPU, Quaternius clips, plus
-  each folder's license and attribution files). `harness.seed` copies it into
+  ~640 MB: people, motions, Kenney, SF city, props, GPU, Quaternius clips, vehicles,
+  trees, 1k skies, textures, sounds, sprites, fonts, plus each folder's license
+  and attribution files). `harness.seed` copies it into
   each workspace under `public/assets/gt-gpu/`.
 - `fetch()`: anything else on demand, by catalog id or dataset path pattern
   (`buildoff assets fetch`).
@@ -17,7 +18,7 @@ from pathlib import Path
 
 from huggingface_hub import snapshot_download
 
-from harness.catalog import CATALOG_PATH
+from harness.catalog import CATALOG_PATH, URL_PREFIX
 from harness.config import HF_ASSETS_REPO, HF_ASSETS_REVISION
 
 # Licence and attribution files travel with the assets into every workspace.
@@ -37,8 +38,18 @@ CORE_PATTERNS: list[str] = [
     "rocketbox-motions/objects/*",
     "vehicles-objaverse/objects/*",
     "vehicles-quaternius/objects/*",
+    "trees-google-poly/objects/*",
+    # Skies at 1k only (the 2k .hdr files are fetched on demand).
+    "polyhaven-hdris/*/*_1k.hdr",
+    "polyhaven-hdris/*/info.json",
+    "polyhaven-textures/*",
+    "ambientcg-textures/*",
+    "audio-opengameart/*",
+    "kenney-media/*",
+    "google-fonts/*",
     *[f"{folder}/{f}" for folder in ("kenney", "rocketbox-avatars", "rocketbox-motions", "sf-city",
-                   "vehicles-objaverse", "vehicles-quaternius")
+                   "vehicles-objaverse", "vehicles-quaternius", "trees-google-poly",
+                   "polyhaven-hdris")
       for f in STEWARDSHIP],
 ]  # fmt: skip
 
@@ -74,7 +85,7 @@ def patterns_for_ids(ids: list[str], with_tiers: bool = False) -> list[str]:
 
     Args:
         ids: catalog ids, e.g. "rocketbox-avatars/business-female-01"
-        with_tiers: also include people's optional tiers (lods, mobile, collision)
+        with_tiers: also include optional tiers (people's lods/mobile/collision, 2k skies)
 
     Raises:
         KeyError: listing ids that aren't in the catalog
@@ -87,6 +98,9 @@ def patterns_for_ids(ids: list[str], with_tiers: bool = False) -> list[str]:
     for i in ids:
         a = assets[i]
         paths.append(a["hf_path"])
+        # Multi-file sets (sound variants, texture maps) list workspace URLs.
+        urls = [*a.get("files", []), *a.get("maps", {}).values()]
+        paths += [u.removeprefix(URL_PREFIX + "/") for u in urls]
         if with_tiers:
             paths += list(a.get("optional_tiers", {}).values())
     return sorted(set(paths))

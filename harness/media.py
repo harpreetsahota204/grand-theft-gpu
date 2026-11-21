@@ -8,9 +8,9 @@ Reads `scripts/media_sources.json` and writes, under the staging folder
     google-fonts/<family>/<file>.ttf, OFL.txt, info.json
 
 Each `info.json` records what the item is, its source page, author, licence and
-a sha256 per file. Each folder also gets a LICENSE.md and an ATTRIBUTION.md
-generated from the same plan, so CC-BY credits can't drift from what was
-actually downloaded. Called by `buildoff assets media`.
+a sha256 per file. `buildoff assets dataset` turns those into each folder's
+LICENSE.md and ATTRIBUTION.md (`harness.dataset.media_docs`), so CC-BY credits
+can't drift from what was actually downloaded. Called by `buildoff assets media`.
 """
 
 import hashlib
@@ -31,11 +31,6 @@ OGA_PAGE: str = "https://opengameart.org/content"
 USER_AGENT: str = (
     "grand-theft-gpu-asset-builder/0.1 (+https://github.com/harpreetsahota204/grand-theft-gpu)"
 )
-LICENSE_URLS: dict[str, str] = {
-    "CC0-1.0": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "CC-BY-3.0": "https://creativecommons.org/licenses/by/3.0/",
-    "OFL-1.1": "https://openfontlicense.org",
-}
 
 
 def get(url: str) -> bytes:
@@ -87,7 +82,7 @@ def fetch_opengameart(spec: dict[str, Any], out: Path) -> list[dict[str, Any]]:
     """Downloads each OpenGameArt item's files (or the kept part of its zip).
 
     Returns:
-        the info records written, for the folder's ATTRIBUTION.md
+        the info records written
     """
     records = []
     for item_id, item in sorted(spec["items"].items()):
@@ -163,30 +158,6 @@ def fetch_google_fonts(spec: dict[str, Any], out: Path) -> list[dict[str, Any]]:
     return records
 
 
-def write_folder_docs(out: Path, title: str, records: list[dict[str, Any]]) -> None:
-    """Writes a folder's LICENSE.md (licences used) and ATTRIBUTION.md (per-item credits).
-
-    Args:
-        out: the dataset folder, e.g. MIRROR_DIR / "audio-opengameart"
-        title: human name for the folder, used as the heading
-        records: the info records of every item in the folder
-    """
-    licenses = sorted({r["license"] for r in records})
-    lines = [f"# {title}: licences", ""]
-    lines += [f"- {lic}: {LICENSE_URLS[lic]}" for lic in licenses]
-    lines += ["", "Which item uses which licence is listed in ATTRIBUTION.md and each info.json."]
-    (out / "LICENSE.md").write_text("\n".join(lines) + "\n")
-
-    rows = [f"# {title}: attribution", "", "| Item | What | Author | Licence | Source |"]
-    rows.append("|---|---|---|---|---|")
-    for r in records:
-        rows.append(f"| {r['id']} | {r['what']} | {r['author']} | {r['license']} | {r['source']} |")
-    notes = [f"- {r['id']}: {r['license_note']}" for r in records if "license_note" in r]
-    if notes:
-        rows += ["", "Notes:", "", *notes]
-    (out / "ATTRIBUTION.md").write_text("\n".join(rows) + "\n")
-
-
 def build(root: Path = MIRROR_DIR) -> dict[str, int]:
     """Downloads every curated sound, particle pack and font into the staging folder.
 
@@ -195,14 +166,11 @@ def build(root: Path = MIRROR_DIR) -> dict[str, int]:
     """
     plan = json.loads(PLAN_PATH.read_text())
     steps = [
-        ("opengameart", "OpenGameArt sounds", fetch_opengameart),
-        ("kenney", "Kenney audio and particles", fetch_kenney),
-        ("google_fonts", "Google Fonts", fetch_google_fonts),
+        ("opengameart", fetch_opengameart),
+        ("kenney", fetch_kenney),
+        ("google_fonts", fetch_google_fonts),
     ]
-    counts = {}
-    for key, title, fetcher in steps:
-        out = root / plan[key]["folder"]
-        records = fetcher(plan[key], out)
-        write_folder_docs(out, title, records)
-        counts[plan[key]["folder"]] = len(records)
-    return counts
+    return {
+        plan[key]["folder"]: len(fetcher(plan[key], root / plan[key]["folder"]))
+        for key, fetcher in steps
+    }
