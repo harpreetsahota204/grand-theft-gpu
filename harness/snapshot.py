@@ -179,7 +179,7 @@ def screenshot(
 
     # Port 0 lets the OS pick a free port, so both contenders can snapshot at once.
     handler = functools.partial(QuietHandler, directory=str(site_dir))
-    server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
+    server = AssetServer(("127.0.0.1", 0), handler)
     threading.Thread(target=server.serve_forever, daemon=True).start()
     url = f"http://127.0.0.1:{server.server_address[1]}/{GAME_ENTRY}"
 
