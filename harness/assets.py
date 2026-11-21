@@ -4,9 +4,7 @@ This is the replication path: someone with a fresh clone runs one command and
 gets the exact asset set both race contenders build with. It downloads:
 
 - `gpu`: the CC0 graphics card from Grab3D (direct file URLs)
-- `cars`: Kenney Car Kit (CC0). Kenney hides the zip behind a donation popup;
-  the page's own "continue without donating" flow fetches a signed URL from
-  `/download-link/<id>` using the page's session cookie, so we do the same.
+- `cars`: Kenney Car Kit (CC0), via `kenney_zip`
 - `props`: the curated NVIDIA USDCraft-10K props listed in
   `scripts/usdcraft_props.csv`, downloaded from Hugging Face and converted to
   `.glb` by `scripts/convert_usdcraft.py` running inside Blender
@@ -40,26 +38,28 @@ CONVERTER: Path = REPO_ROOT / "scripts" / "convert_usdcraft.py"
 GPU_BASE_URL: str = "https://grab3d.com/dl/graphics-card"
 GPU_FILES: tuple[str, ...] = ("graphics-card-light.glb", "LICENSE.txt", "manifest.json")
 
-KENNEY_PAGE: str = "https://kenney.nl/assets/car-kit"
-# Hex of "assets/car-kit": the id the page passes to its download endpoint.
-KENNEY_DOWNLOAD_ID: str = "6173736574732f6361722d6b6974"
+KENNEY_CAR_KIT: str = "car-kit"
 USDCRAFT_REPO: str = "nvidia/USDCraft-10K"
 
 # Kenney rejects urllib's default user agent.
 USER_AGENT: str = "Mozilla/5.0 (asset-rebuild script)"
 
 
-def fetch(url: str, opener: urllib.request.OpenerDirector | None = None) -> bytes:
+def fetch(
+    url: str, opener: urllib.request.OpenerDirector | None = None, referer: str = ""
+) -> bytes:
     """Downloads a URL and returns its body.
 
     Args:
         url: what to fetch
         opener: an opener carrying cookies, when the site needs a session
+        referer: Referer header, for sites that check where a download came from
 
     Returns:
         the response body
     """
-    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, "Referer": KENNEY_PAGE})
+    headers = {"User-Agent": USER_AGENT} | ({"Referer": referer} if referer else {})
+    req = urllib.request.Request(url, headers=headers)
     with (opener or urllib.request.build_opener()).open(req, timeout=120) as resp:
         return resp.read()
 
@@ -73,20 +73,35 @@ def build_gpu(out: Path) -> None:
     print(f"gpu: {len(GPU_FILES)} files -> {dest}")
 
 
+def kenney_zip(slug: str) -> zipfile.ZipFile:
+    """Downloads one Kenney asset pack (CC0) as an in-memory zip.
+
+    Kenney hides the zip behind a donation popup; the page's own "continue
+    without donating" flow fetches a signed URL from `/download-link/<id>`
+    using the page's session cookie, so we do the same.
+
+    Args:
+        slug: the pack's page name, e.g. "car-kit" for kenney.nl/assets/car-kit
+    """
+    page = f"https://kenney.nl/assets/{slug}"
+    # Visiting the page first sets the session cookie the download endpoint checks.
+    opener = urllib.request.build_opener(
+        urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar())
+    )
+    fetch(page, opener, page)
+    # The download id is just the hex of "assets/<slug>".
+    link_id = f"assets/{slug}".encode().hex()
+    signed = json.loads(fetch(f"https://kenney.nl/download-link/{link_id}", opener, page))
+    return zipfile.ZipFile(io.BytesIO(fetch(signed["url"], opener, page)))
+
+
 def build_cars(out: Path) -> None:
     """Downloads Kenney Car Kit and keeps the GLBs, their shared texture and the license.
 
     Args:
         out: assets root; files land in `out/cars`
     """
-    # Visiting the page first sets the session cookie the download endpoint checks.
-    opener = urllib.request.build_opener(
-        urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar())
-    )
-    fetch(KENNEY_PAGE, opener)
-    signed = json.loads(fetch(f"https://kenney.nl/download-link/{KENNEY_DOWNLOAD_ID}", opener))
-    archive = zipfile.ZipFile(io.BytesIO(fetch(signed["url"], opener)))
-
+    archive = kenney_zip(KENNEY_CAR_KIT)
     dest = out / "cars"
     (dest / "Textures").mkdir(parents=True, exist_ok=True)
     kept = 0

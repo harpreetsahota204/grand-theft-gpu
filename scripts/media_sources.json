@@ -1,0 +1,99 @@
+{
+  "_comment": "Curated sound, particle-effect and font sources for the asset dataset. Used by harness/media.py (buildoff assets media). CC0 is preferred; CC-BY items are kept only where nothing CC0 fits, and media.py writes their credits into the folder's ATTRIBUTION.md. Every file's sha256 lands in the item's info.json.",
+  "opengameart": {
+    "folder": "audio-opengameart",
+    "items": {
+      "car-engine-start": {
+        "page": "car-engine-start-01",
+        "files": ["generic_car_startengine.wav"],
+        "author": "looneybits",
+        "license": "CC0-1.0",
+        "what": "car engine cranking and starting"
+      },
+      "car-engine-loops": {
+        "page": "racing-car-engine-sound-loops",
+        "files": ["loop_0.wav", "loop_1_0.wav", "loop_2_0.wav", "loop_3_0.wav", "loop_4_0.wav", "loop_5_0.wav"],
+        "author": "domasx2",
+        "license": "CC0-1.0",
+        "what": "engine loops from idle (loop_0) to high revs (loop_5); crossfade by speed"
+      },
+      "tire-squeal-loop": {
+        "page": "car-tire-squeal-skid-loop",
+        "files": ["tires_squal_loop.wav"],
+        "author": "qubodup",
+        "license": "CC-BY-3.0",
+        "what": "looping tire squeal for skids and hard turns"
+      },
+      "alarm": {
+        "page": "alarm-2",
+        "files": ["alarm_0.wav"],
+        "author": "Frenchyboy",
+        "license": "CC0-1.0",
+        "what": "building alarm bell for when the heist is noticed"
+      },
+      "siren": {
+        "page": "facility-alert-siren",
+        "files": ["facility_breach_siren.wav"],
+        "author": "FiveBrosStopMosYT",
+        "license": "CC-BY-3.0",
+        "what": "wailing siren for police chases"
+      },
+      "city-ambience": {
+        "page": "scifi-city-ambient-loop",
+        "files": ["busy_cyberworld.ogg"],
+        "author": "TinyWorlds",
+        "license": "CC0-1.0",
+        "what": "busy futuristic city ambience loop"
+      },
+      "footsteps": {
+        "page": "footsteps-on-different-surfaces",
+        "zip": "footsteps_0.zip",
+        "zip_keep": ["footsteps/boots/", "footsteps/grass/", "footsteps/gravel/", "footsteps/metal/", "footsteps/tile/", "footsteps/wood/"],
+        "author": "congusbongus",
+        "license": "CC-BY-3.0",
+        "license_note": "Each surface folder keeps its license.txt naming the Freesound recording it was derived from; gravel is CC0, the rest CC-BY-3.0.",
+        "what": "footstep sets per surface: boots on concrete, grass, gravel, metal, tile, wood"
+      }
+    }
+  },
+  "kenney": {
+    "folder": "kenney-media",
+    "items": {
+      "impact-sounds": {
+        "keep_prefix": "Audio/",
+        "what": "130 impacts: punches, metal, glass, wood, footsteps on several surfaces"
+      },
+      "interface-sounds": {
+        "keep_prefix": "Audio/",
+        "what": "100 UI sounds: clicks, confirms, errors, pickups, menu ticks"
+      },
+      "particle-pack": {
+        "keep_prefix": "PNG (Transparent)/",
+        "what": "80 transparent particle sprites (plus pre-rotated copies in Rotated/): smoke, fire, sparks, flares, stars, dirt, muzzle flashes"
+      }
+    }
+  },
+  "google_fonts": {
+    "folder": "google-fonts",
+    "repo": "google/fonts",
+    "revision": "06bfe0d62a98375cb09c942fa18e68bd32cff057",
+    "items": {
+      "bebasneue": {
+        "files": ["BebasNeue-Regular.ttf"],
+        "what": "tall condensed caps for titles, mission names, WANTED banners"
+      },
+      "anton": {
+        "files": ["Anton-Regular.ttf"],
+        "what": "heavy condensed display face for big on-screen callouts"
+      },
+      "rajdhani": {
+        "files": ["Rajdhani-Regular.ttf", "Rajdhani-SemiBold.ttf", "Rajdhani-Bold.ttf"],
+        "what": "squared techy sans for the HUD, money and minimap labels"
+      },
+      "sharetechmono": {
+        "files": ["ShareTechMono-Regular.ttf"],
+        "what": "monospace for terminals, hacking screens and phone texts"
+      }
+    }
+  }
+}

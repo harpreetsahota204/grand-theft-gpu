@@ -6,6 +6,7 @@ remembering module paths:
 
     buildoff doctor                  check prerequisites
     buildoff assets [gpu|cars|props|catalog|all] [--out DIR]   rebuild assets/ from source
+    buildoff assets [mirror|city|textures|media|dataset]       stage the HF asset dataset
     buildoff inventory search police car   find assets (JSON out; see `inventory schema`)
     buildoff fetch <id ...> [--tiers] | --core | --pattern G   download from the HF dataset
     buildoff smoke                   ~$0.30 end-to-end check on the real setup
@@ -38,7 +39,7 @@ def cmd_doctor(_: argparse.Namespace) -> int:
 def cmd_assets(args: argparse.Namespace) -> int:
     """Rebuilds the requested asset set from source, then refreshes the catalog."""
     # Lazy imports: huggingface_hub and trimesh are only needed here.
-    from harness import assets, catalog, dataset, mirror, sfcity, textures
+    from harness import assets, catalog, dataset, media, mirror, sfcity, textures
 
     staging = args.out if args.out != ASSETS_DIR else MIRROR_DIR
     if args.what == "city":
@@ -46,6 +47,9 @@ def cmd_assets(args: argparse.Namespace) -> int:
         return 0
     if args.what == "textures":
         print(json.dumps(textures.build(staging)))
+        return 0
+    if args.what == "media":
+        print(json.dumps(media.build(staging)))
         return 0
     if args.what == "dataset":
         dataset.build(staging)
@@ -201,6 +205,7 @@ def build_parser() -> argparse.ArgumentParser:
             "mirror",
             "city",
             "textures",
+            "media",
             "dataset",
             "publish",
             "all",
