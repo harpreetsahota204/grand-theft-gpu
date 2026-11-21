@@ -452,7 +452,9 @@ def city(root: Path) -> list[dict[str, Any]]:
             source="OpenStreetMap + USGS 3DEP elevation (built by grand-theft-gpu)",
             source_url="https://www.openstreetmap.org/copyright",
             tags={"san-francisco", "sf", "terrain", "hills", "streets", "buildings", "map"},
-            parts=["buildings", "roads", "terrain", "water"],
+            # Layers are separate meshes with named materials and metre UVs (meta["uv"]).
+            parts=meta.get("layers", []),
+            uv=meta.get("uv", ""),
             data_files={
                 "buildings": f"{URL_PREFIX}/sf-city/buildings.json",
                 "streets": f"{URL_PREFIX}/sf-city/streets.json",

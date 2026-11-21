@@ -40045,7 +40045,7 @@
     {
       "animations": [],
       "axes": "metres; x = east, y = up (above sea level), z = south (north is -z)",
-      "bytes": 9486144,
+      "bytes": 8966512,
       "category": "map",
       "data_files": {
         "buildings": "/assets/gt-gpu/sf-city/buildings.json",
@@ -40060,10 +40060,17 @@
       "license": "ODbL-1.0",
       "name": "San Francisco: SoMa, Financial District, Embarcadero",
       "parts": [
-        "buildings",
-        "roads",
         "terrain",
-        "water"
+        "water",
+        "roads",
+        "walls_commercial",
+        "roofs_commercial",
+        "walls_office",
+        "roofs_office",
+        "walls_other",
+        "roofs_other",
+        "walls_residential",
+        "roofs_residential"
       ],
       "seeded": true,
       "size_m": null,
@@ -40080,7 +40087,8 @@
         "terrain"
       ],
       "triangles": null,
-      "url": "/assets/gt-gpu/sf-city/sf-city.glb"
+      "url": "/assets/gt-gpu/sf-city/sf-city.glb",
+      "uv": "UVs are in metres. walls_*: u = distance along the wall, v = height above the building's base (negative below ground). roofs_*, terrain, water: u = x, v = z. roads: u = across the road (0..width), v = along it. For a texture covering S metres, set texture.wrapS = texture.wrapT = RepeatWrapping and texture.repeat.set(1/S, 1/S). Find meshes by material name (walls_office, roofs_residential, roads, terrain, ...)."
     },
     {
       "animations": [],

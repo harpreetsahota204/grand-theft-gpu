@@ -9,7 +9,9 @@ Inputs (both fetched at build time, cached under the output folder):
 Outputs, in `<out>/sf-city/`:
 - `sf-city.glb`: terrain (with the hills), every building extruded to its
   real height and sat on the terrain, drivable streets draped over the ground,
-  and a water plane for the bay. One mesh per layer, vertex-coloured.
+  and a water plane for the bay. Layers are separate meshes with UVs in metres
+  and named materials (`walls_<type>`, `roofs_<type>`, `roads`, `terrain`,
+  `water`), so games can apply tiling textures (see UV_NOTE).
 - `buildings.json`: one row per building (centroid, footprint, height, base
   elevation, OSM type) so a game can pick one to be a data center or a VC office.
 - `streets.json`: a routable graph of drivable streets (intersections,
@@ -37,6 +39,7 @@ import numpy as np
 import trimesh
 from PIL import Image
 from shapely.geometry import Polygon
+from shapely.geometry.polygon import orient
 
 # SoMa → Financial District → Embarcadero (south, west, north, east), WGS84.
 BBOX: tuple[float, float, float, float] = (37.776, -122.408, 37.797, -122.390)
@@ -46,6 +49,15 @@ TERRAIN_URL: str = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/
 # Zoom 15 terrarium tiles are ~4 m/pixel at this latitude: enough for SF's hills.
 TERRAIN_ZOOM: int = 15
 USER_AGENT: str = "grand-theft-gpu-asset-builder/0.1"
+
+# How to texture the scene; written into meta.json for games to read.
+UV_NOTE: str = (
+    "UVs are in metres. walls_*: u = distance along the wall, v = height above the "
+    "building's base (negative below ground). roofs_*, terrain, water: u = x, v = z. "
+    "roads: u = across the road (0..width), v = along it. For a texture covering S metres, "
+    "set texture.wrapS = texture.wrapT = RepeatWrapping and texture.repeat.set(1/S, 1/S). "
+    "Find meshes by material name (walls_office, roofs_residential, roads, terrain, ...)."
+)
 
 TERRAIN_STEP_M: float = 10.0
 WATER_LEVEL_M: float = 0.0
@@ -191,9 +203,23 @@ def inside(lat: float, lon: float) -> bool:
     return s <= lat <= n and w <= lon <= e
 
 
-def coloured(mesh: trimesh.Trimesh, rgba: list[int]) -> trimesh.Trimesh:
-    """Paints every vertex of a mesh one flat colour and returns it."""
-    mesh.visual.vertex_colors = np.tile(rgba, (len(mesh.vertices), 1))
+def surfaced(mesh: trimesh.Trimesh, uv: np.ndarray, name: str, rgba: list[int]) -> trimesh.Trimesh:
+    """Gives a mesh UVs and a named, flat-coloured PBR material.
+
+    UVs are in metres (see UV_NOTE), so a game swaps in a tiling texture by
+    material name and sets `texture.repeat` from the texture's real size. The
+    base colour keeps the scene readable before any texture is applied.
+
+    Args:
+        mesh: the geometry
+        uv: array of shape (n_vertices, 2), in metres
+        name: material name, e.g. "walls_office" (stable; games look it up)
+        rgba: base colour, 0-255
+    """
+    material = trimesh.visual.material.PBRMaterial(
+        name=name, baseColorFactor=rgba, metallicFactor=0.0, roughnessFactor=0.9
+    )
+    mesh.visual = trimesh.visual.TextureVisuals(uv=uv, material=material)
     return mesh
 
 
@@ -204,7 +230,7 @@ def finalize(mesh: trimesh.Trimesh, flat: bool) -> trimesh.Trimesh:
     normals are NaN, which stops three.js from loading the file.
 
     Args:
-        mesh: a vertex-coloured mesh
+        mesh: a mesh with UVs and a material (see `surfaced`)
         flat: True for per-face (faceted) normals, False for smooth ones
     """
     mesh.update_faces(mesh.nondegenerate_faces())
@@ -232,8 +258,9 @@ def terrain_mesh(proj: Projection, elev: Elevation) -> trimesh.Trimesh:
         for c in range(nx - 1):
             a, b, d = r * nx + c, r * nx + c + 1, (r + 1) * nx + c
             faces += [(a, d, b), (b, d, d + 1)]
-    mesh = trimesh.Trimesh(np.array(verts), np.array(faces), process=False)
-    return coloured(mesh, COLOURS["terrain"])
+    v = np.array(verts)
+    mesh = trimesh.Trimesh(v, np.array(faces), process=False)
+    return surfaced(mesh, v[:, [0, 2]], "terrain", COLOURS["terrain"])
 
 
 def water_plane(proj: Projection) -> trimesh.Trimesh:
@@ -242,7 +269,8 @@ def water_plane(proj: Projection) -> trimesh.Trimesh:
     (xmin, zmax), (xmax, zmin) = proj.xz(s, w), proj.xz(n, e)
     v = np.array([[xmin, WATER_LEVEL_M, zmin], [xmax, WATER_LEVEL_M, zmin],
                   [xmax, WATER_LEVEL_M, zmax], [xmin, WATER_LEVEL_M, zmax]])  # fmt: skip
-    return coloured(trimesh.Trimesh(v, [[0, 2, 1], [0, 3, 2]], process=False), COLOURS["water"])
+    mesh = trimesh.Trimesh(v, [[0, 2, 1], [0, 3, 2]], process=False)
+    return surfaced(mesh, v[:, [0, 2]], "water", COLOURS["water"])
 
 
 def parse_height(tags: dict[str, str]) -> float:
@@ -259,16 +287,66 @@ def parse_height(tags: dict[str, str]) -> float:
         return DEFAULT_HEIGHT_M
 
 
-def build_buildings(
-    osm: dict[str, Any], proj: Projection, elev: Elevation
-) -> tuple[trimesh.Trimesh, list[dict[str, Any]]]:
-    """Extrudes every closed building way onto the terrain.
+def wall_quads(
+    ring: list[tuple[float, float]], bottom: float, top: float, ground: float
+) -> tuple[list[list[float]], list[list[float]], list[list[int]]]:
+    """Builds one quad per edge of a polygon ring, with metre UVs.
+
+    The ring must be oriented so its solid side is on the left (shapely's
+    `orient(..., sign=1)`: exterior CCW, holes CW, in (x, z)). The face winding
+    below then always points the wall outward, into the street or courtyard.
+
+    Args:
+        ring: closed list of (x, z) points (first == last)
+        bottom: wall bottom y (below ground, so walls never float on slopes)
+        top: roof y
+        ground: y of the building's base; v = height above it, so window
+            textures line up with real floors
 
     Returns:
-        (one merged, vertex-coloured mesh of all buildings, per-building metadata rows)
+        (vertices, uvs, faces) for this ring
+    """
+    verts: list[list[float]] = []
+    uvs: list[list[float]] = []
+    faces: list[list[int]] = []
+    along = 0.0
+    for (x0, z0), (x1, z1) in zip(ring, ring[1:], strict=False):
+        length = math.hypot(x1 - x0, z1 - z0)
+        if length < 1e-6:
+            continue
+        b = len(verts)
+        verts += [[x0, bottom, z0], [x1, bottom, z1], [x1, top, z1], [x0, top, z0]]
+        lo, hi = bottom - ground, top - ground
+        uvs += [[along, lo], [along + length, lo], [along + length, hi], [along, hi]]
+        # (v0, v2, v1) / (v0, v3, v2) winding gives the outward normal for this orientation.
+        faces += [[b, b + 2, b + 1], [b, b + 3, b + 2]]
+        along += length
+    return verts, uvs, faces
+
+
+def roof(poly: Polygon, top: float) -> trimesh.Trimesh:
+    """Triangulates a footprint into an upward-facing roof at height `top`, planar UVs."""
+    v2, f = trimesh.creation.triangulate_polygon(poly)
+    v3 = np.column_stack([v2[:, 0], np.full(len(v2), top), v2[:, 1]])
+    mesh = trimesh.Trimesh(v3, f, process=False)
+    if len(mesh.faces) and mesh.face_normals[:, 1].mean() < 0:
+        mesh.invert()  # triangulation winding depends on ring orientation; force up
+    return mesh
+
+
+def build_buildings(
+    osm: dict[str, Any], proj: Projection, elev: Elevation
+) -> tuple[dict[str, trimesh.Trimesh], list[dict[str, Any]]]:
+    """Extrudes every closed building way onto the terrain, walls and roofs separately.
+
+    Returns:
+        ({"walls_<type>": mesh, "roofs_<type>": mesh, ...} with UVs and named
+        materials, per-building metadata rows)
     """
     nodes = {e["id"]: (e["lat"], e["lon"]) for e in osm["elements"] if e["type"] == "node"}
-    meshes, rows = [], []
+    walls: dict[str, tuple[list, list, list]] = {}
+    roofs: dict[str, list[trimesh.Trimesh]] = {}
+    rows = []
     ways = [e for e in osm["elements"] if e["type"] == "way" and "building" in e.get("tags", {})]
     for way in sorted(ways, key=lambda w: w["id"]):
         ids = way["nodes"]
@@ -280,17 +358,22 @@ def build_buildings(
         poly = Polygon([proj.xz(*ll) for ll in latlons]).buffer(0)
         if poly.is_empty or poly.geom_type != "Polygon" or poly.area < 4:
             continue
+        poly = orient(poly, sign=1.0)
         tags = way["tags"]
         height = parse_height(tags)
         base = min(elev.at(*ll) for ll in latlons)
         kind = BUILDING_TYPES.get(tags.get("building", ""), "other")
-        # extrude_polygon works in the XY plane extruding +Z; rotate so it extrudes up (+Y).
-        # Polygon coords are (x, z), so after rotating -90° about X: X→x, Y→-z, Z→y.
-        flat = Polygon([(x, -z) for x, z in poly.exterior.coords])
-        m = trimesh.creation.extrude_polygon(flat, height + FOUNDATION_M)
-        m.apply_transform(trimesh.transformations.rotation_matrix(-math.pi / 2, [1, 0, 0]))
-        m.apply_translation([0, base - FOUNDATION_M, 0])
-        meshes.append(coloured(m, COLOURS[kind]))
+        top = base + height
+
+        wv, wu, wf = walls.setdefault(kind, ([], [], []))
+        for ring in [poly.exterior, *poly.interiors]:
+            v, u, f = wall_quads(list(ring.coords), base - FOUNDATION_M, top, base)
+            offset = len(wv)
+            wv += v
+            wu += u
+            wf += [[a + offset, b + offset, c + offset] for a, b, c in f]
+        roofs.setdefault(kind, []).append(roof(poly, top))
+
         cx, cz = poly.centroid.x, poly.centroid.y
         rows.append({
             "osm_id": way["id"], "type": kind, "osm_building": tags.get("building"),
@@ -298,7 +381,18 @@ def build_buildings(
             "base_m": round(base, 2), "footprint_m2": round(poly.area, 1),
             "footprint": [[round(x, 2), round(z, 2)] for x, z in poly.exterior.coords[:-1]],
         })  # fmt: skip
-    return trimesh.util.concatenate(meshes), rows
+
+    meshes: dict[str, trimesh.Trimesh] = {}
+    for kind in sorted(walls):
+        wv, wu, wf = walls[kind]
+        wall = trimesh.Trimesh(np.array(wv), np.array(wf), process=False)
+        meshes[f"walls_{kind}"] = surfaced(wall, np.array(wu), f"walls_{kind}", COLOURS[kind])
+        roof_mesh = trimesh.util.concatenate(roofs[kind])
+        roof_colour = [int(c * 0.8) for c in COLOURS[kind][:3]] + [255]
+        meshes[f"roofs_{kind}"] = surfaced(
+            roof_mesh, roof_mesh.vertices[:, [0, 2]], f"roofs_{kind}", roof_colour
+        )
+    return meshes, rows
 
 
 def build_roads(
@@ -321,6 +415,7 @@ def build_roads(
         for i in set(w["nodes"]):
             use[i] = use.get(i, 0) + 1
     verts: list[list[float]] = []
+    uvs: list[list[float]] = []
     faces: list[list[int]] = []
     graph_nodes: dict[str, list[float]] = {}
     edges: list[dict[str, Any]] = []
@@ -348,9 +443,13 @@ def build_roads(
 
     for w, ids in runs:
         tags = w["tags"]
-        half = ROAD_WIDTH_M[tags["highway"]] / 2
+        width = ROAD_WIDTH_M[tags["highway"]]
+        half = width / 2
         pts = [point(i) for i in ids]
         # Ribbon: offset each segment sideways by half the width, as quads.
+        # UV u runs across the road (0..width m), v along it (cumulative metres),
+        # so lane-marking and asphalt textures tile at real scale.
+        along = 0.0
         for (x0, y0, z0), (x1, y1, z1) in zip(pts, pts[1:], strict=False):
             dx, dz = x1 - x0, z1 - z0
             length = math.hypot(dx, dz) or 1.0
@@ -358,7 +457,11 @@ def build_roads(
             b = len(verts)
             verts += [[x0 + ox, y0, z0 + oz], [x0 - ox, y0, z0 - oz],
                       [x1 + ox, y1, z1 + oz], [x1 - ox, y1, z1 - oz]]  # fmt: skip
-            faces += [[b, b + 1, b + 2], [b + 1, b + 3, b + 2]]
+            uvs += [[0.0, along], [width, along], [0.0, along + length], [width, along + length]]
+            # Winding chosen so the normals point up (verified by face_normals);
+            # the opposite order makes roads invisible under single-sided materials.
+            faces += [[b, b + 2, b + 1], [b + 1, b + 2, b + 3]]
+            along += length
         # Graph: split the way at intersections into edges.
         start = 0
         for k in range(1, len(ids)):
@@ -376,7 +479,8 @@ def build_roads(
                 })  # fmt: skip
                 start = k
     mesh = trimesh.Trimesh(np.array(verts), np.array(faces), process=False)
-    return coloured(mesh, COLOURS["road"]), {"nodes": graph_nodes, "edges": edges}
+    mesh = surfaced(mesh, np.array(uvs), "roads", COLOURS["road"])
+    return mesh, {"nodes": graph_nodes, "edges": edges}
 
 
 # ---------- entry point ------------------------------------------------------------
@@ -395,15 +499,16 @@ def build(out_root: Path) -> dict[str, int]:
     elev = Elevation(cache / "terrain")
     proj = Projection()
 
-    buildings, rows = build_buildings(osm, proj, elev)
+    building_meshes, rows = build_buildings(osm, proj, elev)
     roads, graph = build_roads(osm, proj, elev)
     scene = trimesh.Scene()
-    for name, mesh, flat in (
+    layers = [
         ("terrain", terrain_mesh(proj, elev), False),
         ("water", water_plane(proj), True),
         ("roads", roads, True),
-        ("buildings", buildings, True),
-    ):
+        *[(name, mesh, True) for name, mesh in building_meshes.items()],
+    ]
+    for name, mesh, flat in layers:
         scene.add_geometry(finalize(mesh, flat), node_name=name, geom_name=name)
     # Normals are required for lit materials; without them three.js renders black.
     (out / "sf-city.glb").write_bytes(scene.export(file_type="glb", include_normals=True))
@@ -417,6 +522,8 @@ def build(out_root: Path) -> dict[str, int]:
         "origin_wgs84": [proj.lat0, proj.lon0],
         "axes": "metres; x = east, y = up (above sea level), z = south (north is -z)",
         "water_level_m": WATER_LEVEL_M,
+        "layers": [name for name, _, _ in layers],
+        "uv": UV_NOTE,
         "attribution": [
             "Map data © OpenStreetMap contributors, available under the Open Database "
             "License (ODbL 1.0): https://www.openstreetmap.org/copyright",
