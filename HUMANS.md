@@ -55,7 +55,7 @@ Yes. The prompt says they have about $100 of compute and should keep the game pl
 Starting from an empty folder would turn the race into "who sets up three.js fastest." So both models start from the same working game and the same asset pack.
 
 * **The base game:** [kartik786-git/gta-clone-threejs](https://github.com/kartik786-git/gta-clone-threejs), a third-person three.js game with walking, sprinting, jumping, melee and enemies, plus a city model. It's fetched at commit `babb623` for every race and is not redistributed here. It has no cars.
-* **About 1,200 assets,** pre-installed in every workspace (517 MB) and published as the Hugging Face dataset [harpreetsahota/grand-theft-gpu-assets](https://huggingface.co/datasets/harpreetsahota/grand-theft-gpu-assets), with every folder's license and attribution:
+* **About 1,300 assets,** pre-installed in every workspace (about 650 MB) and published as the Hugging Face dataset [harpreetsahota/grand-theft-gpu-assets](https://huggingface.co/datasets/harpreetsahota/grand-theft-gpu-assets), with every folder's license and attribution:
   * **105 rigged people** from [Microsoft Rocketbox](https://github.com/microsoft/Microsoft-Rocketbox) (MIT): business suits, police, security, medical, construction, everyday adults. There are no animals or children, and avatars in religious dress or swimwear were left out so no model could cast them as the villains of a satire.
   * **326 motion-capture clips** on the same skeleton (idle, talking, phone calls, sitting, dancing), plus 89 walk/run/drive clips from [Quaternius](https://quaternius.com) (CC0) on a different rig.
   * **The real San Francisco:** SoMa to the Embarcadero, built from OpenStreetMap and USGS elevation. It has the hills, 2,168 buildings at their real heights, streets, the bay, and a routable street graph. Real building names are stripped.
@@ -63,7 +63,9 @@ Starting from an empty folder would turn the race into "who sets up three.js fas
   * **664 Kenney city pieces** (CC0): buildings, roads and furniture.
   * **45 props** from [NVIDIA USDCraft-10K](https://huggingface.co/datasets/nvidia/USDCraft-10K) (Apache 2.0): server racks, safes, an ATM, a forklift, a drone. We converted them from OpenUSD to glTF, keeping their moving parts and joints.
   * **The loot:** a CC0 graphics card from [Grab3D](https://grab3d.com/models/electronics/graphics-card/) with animatable fans and RGB strips.
-* **A search tool:** `node tools/assets.mjs search vc` finds business people, `search phone call` finds the phone clips, and so on, so a model never has to dig through 1,200 files. It can also `fetch` optional extras (more detailed people, Meta's parametric body) on demand, at the cost of its own time and budget. The same search is available outside races as `uv run buildoff inventory`.
+  * **Looks and sound:** 8 HDRI skies and 16 PBR textures from [Poly Haven](https://polyhaven.com), 20 materials from [ambientCG](https://ambientcg.com) (office facades in day/night pairs, the night ones with lit windows), all CC0; 8 trees and palms (CC-BY 3.0, every artist credited); engine, tire, siren, alarm, ambience and footstep sounds from OpenGameArt (CC0 and CC-BY 3.0); Kenney impact and UI sounds and particle sprites (CC0); and four OFL fonts for the HUD. The SF city's walls, roofs and roads have UVs in metres so these textures tile at real scale.
+* **A search tool:** `node tools/assets.mjs search vc` finds business people, `search phone call` finds the phone clips, and so on, so a model never has to dig through 1,300 files. It can also `fetch` optional extras (more detailed people, Meta's parametric body) on demand, at the cost of its own time and budget. The same search is available outside races as `uv run buildoff inventory`.
+* **A screenshot tool:** `tools/screenshot` builds the game exactly the way the harness does, plays it in headless Chrome (optionally holding keys first, like `--hold w:2000`) and saves a PNG the model opens with its Read tool. Without it, a model writes 3D code blind. Before adding it, we checked that both Kimi K3.1 Pro (through Nexus) and Opus can read images in Claude Code, so it helps both sides equally.
 
 **Keep it honest.** The base game had a problem we only found by running it. It commits its own `node_modules`, without execute permissions and built for another OS. In the first smoke test, Kimi quietly spent part of its budget repairing the install, and Opus didn't. The harness now skips that folder and runs a clean `npm install` before the clock starts.
 
@@ -165,7 +167,7 @@ So the harness isn't a variable. Nexus points Claude Code at Fireworks, and both
 It doesn't know `kimi-latest` and falls back to a default rate. In testing it reported $0.060 for a call that costs $0.030 at Kimi K3.1 Pro's list price ($2 per million input tokens, $10 per million output). `nexus claude usage --json` prices each row at the provider's list rate.
 
 ### **Can I change the prompt?**
-Not for a comparable race. `prompts/game_spec.md`, `run_rules.md` and `nudge.md` are frozen at git tag `prompt-v3`. Edit them for your own experiments, but tag the new version, because results across prompt versions aren't comparable.
+Not for a comparable race. `prompts/game_spec.md`, `run_rules.md` and `nudge.md` are frozen at git tag `prompt-v4`. Edit them for your own experiments, but tag the new version, because results across prompt versions aren't comparable.
 
 ### **Do I need Blender?**
 Only to rebuild the props from the source dataset with `uv run buildoff assets props`. The converted `.glb` files are already committed, and a rebuild from source comes out byte-identical.

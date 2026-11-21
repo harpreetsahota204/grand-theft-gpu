@@ -108,8 +108,12 @@ All assets live in the Hugging Face dataset **[harpreetsahota/grand-theft-gpu-as
 | `usdcraft-props/` | 45 props with joints: servers, safes, an ATM, a forklift, a drone | Apache 2.0 (NVIDIA USDCraft-10K) |
 | `gpu/` | The loot: a graphics card with animatable fans and RGB | CC0 (Grab3D) |
 | `meta-mhr/` | Meta's parametric human body, 7 LODs (on demand only) | Apache 2.0 (Meta) |
+| `trees-google-poly/` | 8 street trees and palms | CC-BY 3.0 (per-artist credit) |
+| `polyhaven-hdris/`, `polyhaven-textures/`, `ambientcg-textures/` | 8 HDRI skies (1k seeded, 2k on demand); 36 PBR materials incl. day/night office facades | CC0 (Poly Haven, ambientCG) |
+| `audio-opengameart/`, `kenney-media/` | Engine, tires, siren, alarm, ambience, footsteps, impacts, UI sounds; particle sprites | CC0 / CC-BY 3.0 per item (credited) |
+| `google-fonts/` | Bebas Neue, Anton, Rajdhani, Share Tech Mono | OFL 1.1 |
 
-**In a race,** every workspace is seeded with the full web tier (about 517 MB: everything except people's extra LOD/mobile/collision tiers and the MHR bodies), copied from the Hugging Face cache into `public/assets/gt-gpu/` in the dataset's layout. Each workspace also gets `tools/assets.mjs`, a zero-dependency Node tool the models use to search the catalog and fetch extras (`node tools/assets.mjs help`).
+**In a race,** every workspace is seeded with the full web tier (about 650 MB: everything except people's extra LOD/mobile/collision tiers, 2k skies and the MHR bodies), copied from the Hugging Face cache into `public/assets/gt-gpu/` in the dataset's layout. Each workspace also gets `tools/assets.mjs`, a zero-dependency Node tool the models use to search the catalog and fetch extras (`node tools/assets.mjs help`), and `tools/screenshot`, which builds and renders the game to a PNG the model can look at.
 
 **Fetch assets yourself:**
 
@@ -193,7 +197,7 @@ USDCraft ships OpenUSD for Isaac Sim, which three.js can't load. For each prop, 
 
 ## Not done yet
 
-- The detailed pass/fail checks per tier (T1 steal a GPU → T4 living San Silicon) for scoring commits. The game prompt itself is locked (git tag `prompt-v3`).
+- The detailed pass/fail checks per tier (T1 steal a GPU → T4 living San Silicon) for scoring commits. The game prompt itself is locked (git tag `prompt-v4`).
 - The Claude side bills through your Claude login. For a true "list price" claim, give Nexus an Anthropic API key.
 - Rendering the race video from the logs.
 - More assets for prompt-v3: people (Quaternius, Microsoft Rocketbox, Meta MHR) and a real SF slice from OpenStreetMap. A dry run showed the models build every pedestrian from boxes when they're given no people.

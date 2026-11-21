@@ -58,7 +58,7 @@ MIRROR_DIR: Path = Path.home() / "grand-theft-gpu-assets"
 # `buildoff assets fetch` download this revision, so every race gets identical
 # files; bump it deliberately after re-publishing (it changes what races see).
 HF_ASSETS_REPO: str = "harpreetsahota/grand-theft-gpu-assets"
-HF_ASSETS_REVISION: str = "4fa7f2681169f2bcf670a4f577e6faabcf63d4cf"
+HF_ASSETS_REVISION: str = "00367a7c63d4a21fc0c6ae7595ffa18eed44caae"
 
 # Blender runs the USDCraft converter; $BLENDER overrides this macOS default.
 DEFAULT_BLENDER: str = "/Applications/Blender.app/Contents/MacOS/Blender"
