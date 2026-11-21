@@ -36,7 +36,7 @@ AMBIENTCG_API: str = "https://ambientcg.com/api/v2/full_json"
 
 
 def get(url: str) -> bytes:
-    """Downloads a URL with the project's User-Agent."""
+    """Downloads a URL with the project's User-Agent (also used by `harness.media`)."""
     req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
     with urllib.request.urlopen(req, timeout=120) as resp:
         return resp.read()

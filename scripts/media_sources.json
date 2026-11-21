@@ -1,5 +1,5 @@
 {
-  "_comment": "Curated sound, particle-effect and font sources for the asset dataset. Used by harness/media.py (buildoff assets media). CC0 is preferred; CC-BY items are kept only where nothing CC0 fits, and media.py writes their credits into the folder's ATTRIBUTION.md. Every file's sha256 lands in the item's info.json.",
+  "_comment": "Curated sound, particle-effect and font sources for the asset dataset. Used by harness/media.py (buildoff assets media). CC0 is preferred; CC-BY items are kept only where nothing CC0 fits; `buildoff assets dataset` writes their credits into the folder's ATTRIBUTION.md from each item's info.json. Every file's sha256 lands in the item's info.json.",
   "opengameart": {
     "folder": "audio-opengameart",
     "items": {

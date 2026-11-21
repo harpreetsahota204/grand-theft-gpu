@@ -600,8 +600,7 @@ def split_camel(name: str) -> list[str]:
 def media_sets(root: Path) -> list[dict[str, Any]]:
     """Sounds, particle sprites and fonts: one record per sound/sprite family or font."""
     out = []
-    oga = root / "audio-opengameart"
-    for info in info_records(oga):
+    for info in info_records(root / "audio-opengameart"):
         paths = [f"audio-opengameart/{info['id']}/{f}" for f in sorted(info["files"])]
         audio = [p for p in paths if p.endswith((".ogg", ".wav"))]
         out.append(

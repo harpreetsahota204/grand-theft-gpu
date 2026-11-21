@@ -2,7 +2,7 @@
 
 Two uses:
 - `core()`: the seeded set every race workspace starts with (the full web tier,
-  ~640 MB: people, motions, Kenney, SF city, props, GPU, Quaternius clips, vehicles,
+  ~650 MB: people, motions, Kenney, SF city, props, GPU, Quaternius clips, vehicles,
   trees, 1k skies, textures, sounds, sprites, fonts, plus each folder's license
   and attribution files). `harness.seed` copies it into
   each workspace under `public/assets/gt-gpu/`.

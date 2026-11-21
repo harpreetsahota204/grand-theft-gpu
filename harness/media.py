@@ -13,38 +13,19 @@ LICENSE.md and ATTRIBUTION.md (`harness.dataset.media_docs`), so CC-BY credits
 can't drift from what was actually downloaded. Called by `buildoff assets media`.
 """
 
-import hashlib
 import io
 import json
-import urllib.request
 import zipfile
 from pathlib import Path
 from typing import Any
 
 from harness.assets import kenney_zip
 from harness.config import MIRROR_DIR, REPO_ROOT
+from harness.textures import get, write_checked
 
 PLAN_PATH: Path = REPO_ROOT / "scripts" / "media_sources.json"
 OGA_FILES: str = "https://opengameart.org/sites/default/files"
 OGA_PAGE: str = "https://opengameart.org/content"
-# OpenGameArt rejects urllib's default user agent.
-USER_AGENT: str = (
-    "grand-theft-gpu-asset-builder/0.1 (+https://github.com/harpreetsahota204/grand-theft-gpu)"
-)
-
-
-def get(url: str) -> bytes:
-    """Downloads a URL with the project's User-Agent."""
-    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
-    with urllib.request.urlopen(req, timeout=120) as resp:
-        return resp.read()
-
-
-def save(path: Path, data: bytes) -> str:
-    """Writes a file (creating folders) and returns its sha256."""
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_bytes(data)
-    return hashlib.sha256(data).hexdigest()
 
 
 def write_info(folder: Path, record: dict[str, Any]) -> None:
@@ -55,8 +36,9 @@ def write_info(folder: Path, record: dict[str, Any]) -> None:
 def unzip_kept(archive: zipfile.ZipFile, prefixes: list[str], dest: Path) -> dict[str, str]:
     """Extracts the archive members under any of `prefixes` into `dest`.
 
-    Paths keep everything after the matched prefix. macOS resource forks
-    (`__MACOSX/`, `._*`) are skipped.
+    Paths keep everything after the matched prefix; with several prefixes, each
+    file also keeps the prefix's last folder (`footsteps/boots/0.ogg` -> `boots/0.ogg`).
+    macOS resource forks (`__MACOSX/`, `._*`) are skipped.
 
     Returns:
         {relative path: sha256} for every file written
@@ -68,11 +50,11 @@ def unzip_kept(archive: zipfile.ZipFile, prefixes: list[str], dest: Path) -> dic
         prefix = next((p for p in prefixes if name.startswith(p)), None)
         if prefix is None:
             continue
-        rel = name.removeprefix(prefix) or Path(name).name
+        rel = name.removeprefix(prefix)
         # Keep the surface/category folder for multi-prefix zips (footsteps/boots/...).
         if len(prefixes) > 1:
             rel = f"{Path(prefix).name}/{rel}"
-        hashes[rel] = save(dest / rel, archive.read(name))
+        hashes[rel] = write_checked(dest / rel, archive.read(name))
     if not hashes:
         raise ValueError(f"no files matched {prefixes} in the archive")
     return hashes
@@ -91,7 +73,10 @@ def fetch_opengameart(spec: dict[str, Any], out: Path) -> list[dict[str, Any]]:
             archive = zipfile.ZipFile(io.BytesIO(get(f"{OGA_FILES}/{item['zip']}")))
             files = unzip_kept(archive, item["zip_keep"], dest)
         else:
-            files = {name: save(dest / name, get(f"{OGA_FILES}/{name}")) for name in item["files"]}
+            files = {
+                name: write_checked(dest / name, get(f"{OGA_FILES}/{name}"))
+                for name in item["files"]
+            }
         record = {
             "id": item_id,
             "what": item["what"],
@@ -118,7 +103,9 @@ def fetch_kenney(spec: dict[str, Any], out: Path) -> list[dict[str, Any]]:
     for slug, item in sorted(spec["items"].items()):
         archive = kenney_zip(slug)
         files = unzip_kept(archive, [item["keep_prefix"]], out / slug)
-        files["License.txt"] = save(out / slug / "License.txt", archive.read("License.txt"))
+        files["License.txt"] = write_checked(
+            out / slug / "License.txt", archive.read("License.txt")
+        )
         record = {
             "id": slug,
             "what": item["what"],
@@ -143,7 +130,7 @@ def fetch_google_fonts(spec: dict[str, Any], out: Path) -> list[dict[str, Any]]:
     records = []
     for family, item in sorted(spec["items"].items()):
         names = [*item["files"], "OFL.txt"]
-        files = {n: save(out / family / n, get(f"{raw}/{family}/{n}")) for n in names}
+        files = {n: write_checked(out / family / n, get(f"{raw}/{family}/{n}")) for n in names}
         record = {
             "id": family,
             "what": item["what"],
