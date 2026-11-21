@@ -10,7 +10,7 @@ _Last updated: 2026-11-20_
 
 ## 1. The project in one paragraph
 
-This is a DevRel piece for Fireworks. Kimi K3.1 Pro (an open model on Fireworks) and Claude Opus 5.5 each get $100 of inference and the same spec, and each builds a browser GTA-style game in Claude Code. Results are scored on a GTA 1→4 tier ladder and cut into a split-screen race video. Part 2 (later) trains Kimi with RL to play its own game. Nexus, the Fireworks tool that routes Claude Code to Fireworks models, is the plumbing: routing, refereeing spend, and telemetry. It is the tool in the story, never the topic. The internal program brief is `PROGRAM_BRIEF.md`; it stays local and is gitignored, so never commit it.
+This is a DevRel piece for Fireworks. Kimi K3.1 Pro (an open model on Fireworks) and Claude Opus 5.5 each get $100 of inference and the same spec, and each builds a browser GTA-style game in Claude Code. Results are scored on a four-tier heist ladder (Small-time → Kingpin, labeled GTA 1→4 in the video) and cut into a split-screen race video. Part 2 (later) trains Kimi with RL to play its own game. Nexus, the Fireworks tool that routes Claude Code to Fireworks models, is the plumbing: routing, refereeing spend, and telemetry. It is the tool in the story, never the topic. The internal program brief is `PROGRAM_BRIEF.md`; it stays local and is gitignored, so never commit it.
 
 ## 1b. The game: Grand Theft GPU (GT-GPU)
 
@@ -71,7 +71,7 @@ The user is the architect and decision-maker. The agent writes the code and runs
 | Game prompt (`prompts/game_spec.md`, `run_rules.md`, `nudge.md`) | 🔒 **LOCKED 2026-11-20**, git tag `prompt-v1`. Do not edit without the user's explicit OK; any change is a new tag (`prompt-v2`) and invalidates comparisons with earlier runs. |
 | Harness seeding + per-turn Vite build + gameplay screenshots | ✅ `harness/seed.py`, `snapshot.build`. The smoke test on the seeded base (`smoke-seed-002`) passed for both models: turn 0 builds, both added the GPU from our assets, and the screenshots show gameplay. |
 | Scoring checklist (pass/fail checks per tier, for judges) | ⬜ The tiers are in the prompt; the detailed checks are still to write |
-| Small test run of each model on the real spec | ⬜ |
+| $5 test run of each model on the locked prompt | 🔄 Running (`test-5usd-001`, started 2026-11-20). Turn 0 clean for both. |
 | Full $100 race | ⬜ |
 | Scoring commits against the checklist | ⬜ |
 | Rendering the race video from logs | ⬜ |
@@ -108,7 +108,7 @@ The user is the architect and decision-maker. The agent writes the code and runs
 - **Nexus `usage --json` shape:** `rows[].displayModel`, `subagents[].rows[]`, `grandTotals.cost` (subagents included), `unpriced`.
 - **The `nexus claude demo` command is a one-shot toy** (tetris/snake, single HTML file). It's not usable for the race, but it confirmed the pattern: `claude -p --model X` on a shared profile, with settings untouched.
 - **Headless Chromium needs SwiftShader flags** to render WebGL (set in `snapshot.py`).
-- **Long foreground commands can get killed** (exit 137). Run races in the background.
+- **Long foreground commands can get killed** (exit 137), and Claude Code background tasks are capped at 10 minutes. **Launch real races detached:** `nohup uv run buildoff race ... > ~/gta-race-runs/<id>.log 2>&1 & disown`, then watch `logs/turns.jsonl`.
 - **In zsh, never name a variable `path`.** It's tied to `$PATH`, so `read ... path` wipes every command. Use bash for loops over CSVs.
 - **USD conversion goes through Blender** (`brew install --cask blender`, 5.3). `usd-core` alone can read USD but can't write glTF with materials. Blender bundles `pxr`, so the converter reads joints in-process without a pip install.
 - **`hf download --include` patterns:** `"<folder>/*"` matches nested files (the `*` crosses `/`). One call with many `--include` flags downloads only the curated folders, about 120 MB for 45 props.
@@ -139,6 +139,8 @@ uv run buildoff smoke   # ~$0.30, ~2 min, real setup
 | What | Approx. cost |
 |---|---|
 | Harness development and tests (smoke, stress, leak test, verify) | ~$2 |
+| Smoke tests on the seeded base game (3 runs) | ~$1 |
+| $5 test race (`test-5usd-001`) | up to $10 |
 
 ## 8. Next up
 

@@ -37,7 +37,11 @@ If `doctor` reports missing items, each line says how to fix it. The required it
 | `uv run buildoff race --budget N --yes` | Runs the locked prompt (`prompts/game_spec.md`) | up to $N per model |
 | `uv run buildoff assets [gpu\|cars\|props\|all] [--out DIR]` | Rebuilds `assets/` from the original sources | free (props needs Blender) |
 
-Races run for a long time. Run them in the background, not as a foreground command that can time out.
+Races run for a long time: 30 minutes to hours. Launch them detached so a tool timeout can't kill them partway, then follow `logs/turns.jsonl`:
+
+```bash
+nohup uv run buildoff race --budget N --yes --race-id my-race > ~/gta-race-runs/my-race.log 2>&1 &
+```
 
 ## Checking a run
 

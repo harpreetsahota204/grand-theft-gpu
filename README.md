@@ -57,9 +57,10 @@ flowchart LR
 
 Each contender loops through turns. A turn is one `claude -p` process.
 
+0. **Seeding** (before the clock starts): the workspace gets the base game at a pinned commit, our assets at `public/assets/gt-gpu/`, and a clean `npm install`. Turn 0 records the untouched base game.
 1. **Turn 1** gets the spec plus the run rules. Every later turn gets the same fixed nudge (`prompts/nudge.md`) and resumes the same session.
 2. **During a turn,** a watchdog polls Nexus every 15 seconds. It kills the turn if spend reaches the budget, or if any model other than the contender's shows up (a leak).
-3. **After every turn,** the harness makes a git commit, takes a headless screenshot of `index.html`, and writes a row to `turns.jsonl`.
+3. **After every turn,** the harness makes a git commit, runs `npm install && npm run build`, screenshots the built game, and writes a row to `turns.jsonl`. The screenshot waits for the game to finish loading, then clicks past any "click to play" screen, so it shows gameplay. A failed build counts as not playable for that turn.
 4. **Stop rules,** in order: budget, leak or crash → the model created `DONE.md` → 3 nudges used.
 
 ## Rules of the race
@@ -84,9 +85,9 @@ These are the decisions behind the design.
     ├── workspace/            git repo the model built, one commit per turn
     ├── logs/turn-NNN.jsonl   transcript, each line {"t": seconds, "event": ...}
     ├── logs/cost.csv         seconds,cost_usd from each Nexus poll
-    ├── logs/turns.jsonl      per turn: end, commit, cost, loaded, console errors
+    ├── logs/turns.jsonl      per turn: end, commit, cost, build_ok, loaded, console errors
     ├── logs/events.jsonl     leaks and unpriced warnings (only if any)
-    ├── shots/turn-NNN.png    screenshot of the game after each turn
+    ├── shots/turn-NNN.png    gameplay screenshot after each turn (000 = base game)
     └── result.json           stop reason, cost, turns, first playable turn
 ```
 
@@ -121,7 +122,7 @@ USDCraft ships OpenUSD for Isaac Sim, which three.js can't load. For each prop, 
 | `harness/race.py` | CLI entry: runs the contenders in parallel and writes the summary |
 | `harness/runner.py` | One contender: turn loop, watchdog, stop rules |
 | `harness/meter.py` | Reads cost and models from Nexus |
-| `harness/snapshot.py` | Per-turn git commit and Playwright screenshot |
+| `harness/snapshot.py` | Per-turn git commit, Vite build, and gameplay screenshot |
 | `harness/viewer.py` | Live terminal view of a contender (`python -m harness.viewer <dir>`) |
 | `harness/config.py` | Contenders, limits, paths |
 | `prompts/` | Game spec, run rules, nudge, smoke spec |
@@ -135,8 +136,6 @@ USDCraft ships OpenUSD for Isaac Sim, which three.js can't load. For each prop, 
 
 ## Not done yet
 
-- `prompts/game_spec.md` is a placeholder. It must be locked before the first $100 run.
-- The heist-tier checklist (T1 steal a GPU → T4 living San Silicon) for scoring commits.
-- Seeding each race workspace with the base game and assets.
+- The detailed pass/fail checks per tier (T1 steal a GPU → T4 living San Silicon) for scoring commits. The game prompt itself is locked (git tag `prompt-v1`).
 - The Claude side bills through your Claude login. For a true "list price" claim, give Nexus an Anthropic API key.
 - Rendering the race video from the logs.
