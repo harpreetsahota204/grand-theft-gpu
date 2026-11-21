@@ -190,7 +190,7 @@ USDCraft ships OpenUSD for Isaac Sim, which three.js can't load. For each prop, 
 
 ## Not done yet
 
-- The detailed pass/fail checks per tier (T1 steal a GPU → T4 living San Silicon) for scoring commits. The game prompt itself is locked (git tag `prompt-v1`).
+- The detailed pass/fail checks per tier (T1 steal a GPU → T4 living San Silicon) for scoring commits. The game prompt itself is locked (git tag `prompt-v2`).
 - The Claude side bills through your Claude login. For a true "list price" claim, give Nexus an Anthropic API key.
 - Rendering the race video from the logs.
 - More assets for prompt-v2: people (Quaternius, Microsoft Rocketbox, Meta MHR) and a real SF slice from OpenStreetMap. A dry run showed the models build every pedestrian from boxes when they're given no people.

@@ -48,13 +48,27 @@ Low-poly, PS2-era 3D. Chunky shapes, flat or simple textures, readable at a glan
 
 ## Assets you can use
 
-All of them are in `public/assets/gt-gpu/` and load with three.js `GLTFLoader`:
+About 1,200 ready-made 3D assets are already in `public/assets/gt-gpu/`. **Search them with the asset tool** instead of browsing folders:
 
-- `gpu/graphics-card-light.glb`: the loot. A graphics card whose fans (`*_fan_N_rotor_M`) and RGB strips (`*_light_strip_rgb_N`) are separate meshes, so you can animate them.
-- `cars/*.glb`: low-poly vehicles (sedan, sedan-sports, suv, suv-luxury, taxi, police, van, delivery, truck, ambulance, firetruck…) plus debris parts. The wheels are separate nodes. The files share `cars/Textures/colormap.png`.
-- `props/*.glb`: 45 props, including server racks, rack-mount servers, desktop towers, laptops, safes, an ATM, a forklift, pallet jacks, a quadcopter drone, a delivery robot, traffic lights, street lamps, parking meters, fire hydrants, bike share docks, scooters, EV chargers, vending machines, turnstiles and barrier gates. `props/manifest.json` lists each one's real-world size in metres and its movable parts and joints (safe doors, rack doors, drone rotors…).
+```bash
+node tools/assets.mjs help                        # commands and loading notes
+node tools/assets.mjs search vc                   # plain words: cop, pedestrian, robotaxi, phone call, office building...
+node tools/assets.mjs show rocketbox-avatars/business-female-01   # full record: url, size, parts, clips
+```
 
-You can also build anything else you need from three.js primitives.
+Every result has a `url` to load with three.js `GLTFLoader`. What's there:
+
+- **People:** 105 rigged, realistic people (business suits, police, security, medical, construction, chefs, everyday adults) and **326 motion-capture clips** (idle, talking, phone calls, sitting, cheering, dancing) that play on any of them. There are no walk or run clips for these people; walk, run and drive clips exist on a different rig (search `walk`).
+- **The real San Francisco:** `sf-city/sf-city.glb` is SoMa, the Financial District and the Embarcadero, with real terrain and hills, 2,168 buildings at their real heights, streets and the bay. `sf-city/streets.json` is a routable street graph and `sf-city/buildings.json` lists every building's footprint and height. Building San Silicon on top of it is up to you.
+- **City kits:** low-poly buildings, roads, street pieces, furniture and cars.
+- **Props:** server racks, safes, an ATM, a forklift, a drone, street furniture. Many have moving parts (doors, lids, rotors) listed in their records.
+- **The loot:** a graphics card whose fans and RGB strips you can animate.
+
+Files from the people, motions and city kits use meshopt compression: call `loader.setMeshoptDecoder(MeshoptDecoder)` (from `three/addons/libs/meshopt_decoder.module.js`).
+
+A few optional extras aren't pre-installed (more detailed versions of the people, a parametric human body). `node tools/assets.mjs list --not-seeded` lists them, and `fetch <id>` downloads one. Fetching uses your time and budget like anything else.
+
+The base game's own city model is still there if you'd rather use it. You can also build anything you need from three.js primitives.
 
 ## Hard rules
 
