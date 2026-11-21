@@ -152,7 +152,9 @@ def score(asset: dict[str, Any], words: list[str]) -> float:
     name_tokens = {stem(t) for t in tokens(asset["name"])}
     # Multi-word tags ("data-center") match word by word too.
     tags = {stem(w) for t in asset["tags"] for w in [t, *tokens(t)]}
-    haystack = " ".join([asset["id"], asset["name"], *asset["tags"]]).lower()
+    # Partial matches count only when the query word starts a word ("walk" matches
+    # "walking", not "sidewalk"), and only for words of 3+ letters.
+    starts = {t for t in tokens(" ".join([asset["id"], asset["name"], *asset["tags"]]))}
     total = 0.0
     words = [stem(w) for w in words]
     for w in words:
@@ -160,7 +162,7 @@ def score(asset: dict[str, Any], words: list[str]) -> float:
             WEIGHT_ID * (w in id_tokens)
             + WEIGHT_NAME * (w in name_tokens)
             + WEIGHT_TAG * (w in tags)
-            + WEIGHT_SUBSTRING * (w in haystack)
+            + WEIGHT_SUBSTRING * (len(w) >= 3 and any(t.startswith(w) for t in starts))
         )
         if hit == 0:
             return 0

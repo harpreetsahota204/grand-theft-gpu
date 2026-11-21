@@ -78,6 +78,15 @@ SYNONYMS: dict[str, list[str]] = {
     "adult": ["pedestrian", "civilian", "npc", "crowd"],
     "wood-": ["woodworker", "carpenter", "worker"],
     "gardener": ["worker"],
+    # city pieces (Kenney kits name buildings "building-a", so map the kits to plain words)
+    "city-kit-commercial": ["office", "shop", "store", "downtown", "commercial-building"],
+    "skyscraper": ["tower", "office", "highrise"],
+    "city-kit-suburban": ["house", "home", "residential"],
+    "city-kit-industrial": ["factory", "warehouse", "industrial-building"],
+    "modular-buildings": ["building", "facade"],
+    "retro-urban-kit": ["urban", "street", "downtown"],
+    "furniture-kit": ["furniture", "interior", "office"],
+    "city-kit-roads": ["road", "street"],
     # motions
     "cell": ["phone", "call", "texting"],
     "gestic": ["talk", "talking", "gesture", "pitch", "conversation"],
@@ -166,7 +175,8 @@ def record(
         "joints": [],
         "animations": [],
         "group": "",
-        "tags": sorted(tags | {category, kind} | set(tokens(item)) | synonyms(item)),
+        # Synonyms match against the whole dataset path, so kit names count too.
+        "tags": sorted(tags | {category, kind} | set(tokens(item)) | synonyms(hf_path)),
         "license": license_id,
         "source": source,
         "source_url": source_url,

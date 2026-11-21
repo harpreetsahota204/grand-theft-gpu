@@ -46,10 +46,12 @@ function score(a, words) {
   const idT = new Set(tokens(a.id).map(stem));
   const nameT = new Set(tokens(a.name).map(stem));
   const tagT = new Set(a.tags.flatMap((t) => [t, ...tokens(t)]).map(stem));
-  const hay = [a.id, a.name, ...a.tags].join(" ").toLowerCase();
+  // Partial matches only at the start of a word ("walk" ≠ "sidewalk"), 3+ letters.
+  const starts = new Set(tokens([a.id, a.name, ...a.tags].join(" ")));
+  const prefix = (w) => w.length >= 3 && [...starts].some((t) => t.startsWith(w));
   let total = 0;
   for (const w of words) {
-    const hit = W.id * idT.has(w) + W.name * nameT.has(w) + W.tag * tagT.has(w) + W.substring * hay.includes(w);
+    const hit = W.id * idT.has(w) + W.name * nameT.has(w) + W.tag * tagT.has(w) + W.substring * prefix(w);
     if (hit === 0) return 0;
     total += hit;
   }

@@ -4166,7 +4166,12 @@
         "city",
         "city-kit-commercial",
         "commercial",
-        "kit"
+        "commercial-building",
+        "downtown",
+        "kit",
+        "office",
+        "shop",
+        "store"
       ],
       "triangles": 1252,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-commercial__building-a/city-kit-commercial__building-a.glb"
@@ -4197,7 +4202,12 @@
         "city",
         "city-kit-commercial",
         "commercial",
-        "kit"
+        "commercial-building",
+        "downtown",
+        "kit",
+        "office",
+        "shop",
+        "store"
       ],
       "triangles": 1276,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-commercial__building-b/city-kit-commercial__building-b.glb"
@@ -4228,7 +4238,12 @@
         "city",
         "city-kit-commercial",
         "commercial",
-        "kit"
+        "commercial-building",
+        "downtown",
+        "kit",
+        "office",
+        "shop",
+        "store"
       ],
       "triangles": 1195,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-commercial__building-c/city-kit-commercial__building-c.glb"
@@ -4258,8 +4273,13 @@
         "city",
         "city-kit-commercial",
         "commercial",
+        "commercial-building",
         "d",
-        "kit"
+        "downtown",
+        "kit",
+        "office",
+        "shop",
+        "store"
       ],
       "triangles": 1100,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-commercial__building-d/city-kit-commercial__building-d.glb"
@@ -4289,8 +4309,13 @@
         "city",
         "city-kit-commercial",
         "commercial",
+        "commercial-building",
+        "downtown",
         "e",
-        "kit"
+        "kit",
+        "office",
+        "shop",
+        "store"
       ],
       "triangles": 1509,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-commercial__building-e/city-kit-commercial__building-e.glb"
@@ -4320,8 +4345,13 @@
         "city",
         "city-kit-commercial",
         "commercial",
+        "commercial-building",
+        "downtown",
         "f",
-        "kit"
+        "kit",
+        "office",
+        "shop",
+        "store"
       ],
       "triangles": 1794,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-commercial__building-f/city-kit-commercial__building-f.glb"
@@ -4351,8 +4381,13 @@
         "city",
         "city-kit-commercial",
         "commercial",
+        "commercial-building",
+        "downtown",
         "g",
-        "kit"
+        "kit",
+        "office",
+        "shop",
+        "store"
       ],
       "triangles": 2006,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-commercial__building-g/city-kit-commercial__building-g.glb"
@@ -4382,8 +4417,13 @@
         "city",
         "city-kit-commercial",
         "commercial",
+        "commercial-building",
+        "downtown",
         "h",
-        "kit"
+        "kit",
+        "office",
+        "shop",
+        "store"
       ],
       "triangles": 1512,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-commercial__building-h/city-kit-commercial__building-h.glb"
@@ -4413,8 +4453,13 @@
         "city",
         "city-kit-commercial",
         "commercial",
+        "commercial-building",
+        "downtown",
         "i",
-        "kit"
+        "kit",
+        "office",
+        "shop",
+        "store"
       ],
       "triangles": 2544,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-commercial__building-i/city-kit-commercial__building-i.glb"
@@ -4444,8 +4489,13 @@
         "city",
         "city-kit-commercial",
         "commercial",
+        "commercial-building",
+        "downtown",
         "j",
-        "kit"
+        "kit",
+        "office",
+        "shop",
+        "store"
       ],
       "triangles": 5246,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-commercial__building-j/city-kit-commercial__building-j.glb"
@@ -4475,8 +4525,13 @@
         "city",
         "city-kit-commercial",
         "commercial",
+        "commercial-building",
+        "downtown",
         "k",
-        "kit"
+        "kit",
+        "office",
+        "shop",
+        "store"
       ],
       "triangles": 2960,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-commercial__building-k/city-kit-commercial__building-k.glb"
@@ -4506,8 +4561,13 @@
         "city",
         "city-kit-commercial",
         "commercial",
+        "commercial-building",
+        "downtown",
         "kit",
-        "l"
+        "l",
+        "office",
+        "shop",
+        "store"
       ],
       "triangles": 3512,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-commercial__building-l/city-kit-commercial__building-l.glb"
@@ -4537,8 +4597,13 @@
         "city",
         "city-kit-commercial",
         "commercial",
+        "commercial-building",
+        "downtown",
         "kit",
-        "m"
+        "m",
+        "office",
+        "shop",
+        "store"
       ],
       "triangles": 3740,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-commercial__building-m/city-kit-commercial__building-m.glb"
@@ -4568,8 +4633,13 @@
         "city",
         "city-kit-commercial",
         "commercial",
+        "commercial-building",
+        "downtown",
         "kit",
-        "n"
+        "n",
+        "office",
+        "shop",
+        "store"
       ],
       "triangles": 4350,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-commercial__building-n/city-kit-commercial__building-n.glb"
@@ -4600,8 +4670,15 @@
         "city",
         "city-kit-commercial",
         "commercial",
+        "commercial-building",
+        "downtown",
+        "highrise",
         "kit",
-        "skyscraper"
+        "office",
+        "shop",
+        "skyscraper",
+        "store",
+        "tower"
       ],
       "triangles": 1292,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-commercial__building-skyscraper-a/city-kit-commercial__building-skyscraper-a.glb"
@@ -4632,8 +4709,15 @@
         "city",
         "city-kit-commercial",
         "commercial",
+        "commercial-building",
+        "downtown",
+        "highrise",
         "kit",
-        "skyscraper"
+        "office",
+        "shop",
+        "skyscraper",
+        "store",
+        "tower"
       ],
       "triangles": 1592,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-commercial__building-skyscraper-b/city-kit-commercial__building-skyscraper-b.glb"
@@ -4664,8 +4748,15 @@
         "city",
         "city-kit-commercial",
         "commercial",
+        "commercial-building",
+        "downtown",
+        "highrise",
         "kit",
-        "skyscraper"
+        "office",
+        "shop",
+        "skyscraper",
+        "store",
+        "tower"
       ],
       "triangles": 1704,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-commercial__building-skyscraper-c/city-kit-commercial__building-skyscraper-c.glb"
@@ -4695,9 +4786,16 @@
         "city",
         "city-kit-commercial",
         "commercial",
+        "commercial-building",
         "d",
+        "downtown",
+        "highrise",
         "kit",
-        "skyscraper"
+        "office",
+        "shop",
+        "skyscraper",
+        "store",
+        "tower"
       ],
       "triangles": 1892,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-commercial__building-skyscraper-d/city-kit-commercial__building-skyscraper-d.glb"
@@ -4727,9 +4825,16 @@
         "city",
         "city-kit-commercial",
         "commercial",
+        "commercial-building",
+        "downtown",
         "e",
+        "highrise",
         "kit",
-        "skyscraper"
+        "office",
+        "shop",
+        "skyscraper",
+        "store",
+        "tower"
       ],
       "triangles": 1156,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-commercial__building-skyscraper-e/city-kit-commercial__building-skyscraper-e.glb"
@@ -4759,8 +4864,13 @@
         "city",
         "city-kit-commercial",
         "commercial",
+        "commercial-building",
         "detail",
-        "kit"
+        "downtown",
+        "kit",
+        "office",
+        "shop",
+        "store"
       ],
       "triangles": 40,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-commercial__detail-awning/city-kit-commercial__detail-awning.glb"
@@ -4790,8 +4900,13 @@
         "city",
         "city-kit-commercial",
         "commercial",
+        "commercial-building",
         "detail",
+        "downtown",
         "kit",
+        "office",
+        "shop",
+        "store",
         "wide"
       ],
       "triangles": 40,
@@ -4821,9 +4936,14 @@
         "city",
         "city-kit-commercial",
         "commercial",
+        "commercial-building",
         "detail",
+        "downtown",
         "kit",
-        "overhang"
+        "office",
+        "overhang",
+        "shop",
+        "store"
       ],
       "triangles": 64,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-commercial__detail-overhang/city-kit-commercial__detail-overhang.glb"
@@ -4852,9 +4972,14 @@
         "city",
         "city-kit-commercial",
         "commercial",
+        "commercial-building",
         "detail",
+        "downtown",
         "kit",
+        "office",
         "overhang",
+        "shop",
+        "store",
         "wide"
       ],
       "triangles": 64,
@@ -4885,9 +5010,14 @@
         "city",
         "city-kit-commercial",
         "commercial",
+        "commercial-building",
         "detail",
+        "downtown",
         "kit",
-        "parasol"
+        "office",
+        "parasol",
+        "shop",
+        "store"
       ],
       "triangles": 96,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-commercial__detail-parasol-a/city-kit-commercial__detail-parasol-a.glb"
@@ -4917,9 +5047,14 @@
         "city",
         "city-kit-commercial",
         "commercial",
+        "commercial-building",
         "detail",
+        "downtown",
         "kit",
-        "parasol"
+        "office",
+        "parasol",
+        "shop",
+        "store"
       ],
       "triangles": 120,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-commercial__detail-parasol-b/city-kit-commercial__detail-parasol-b.glb"
@@ -4950,9 +5085,14 @@
         "city",
         "city-kit-commercial",
         "commercial",
+        "commercial-building",
         "detail",
+        "downtown",
         "kit",
-        "low"
+        "low",
+        "office",
+        "shop",
+        "store"
       ],
       "triangles": 188,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-commercial__low-detail-building-a/city-kit-commercial__low-detail-building-a.glb"
@@ -4983,9 +5123,14 @@
         "city",
         "city-kit-commercial",
         "commercial",
+        "commercial-building",
         "detail",
+        "downtown",
         "kit",
-        "low"
+        "low",
+        "office",
+        "shop",
+        "store"
       ],
       "triangles": 200,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-commercial__low-detail-building-b/city-kit-commercial__low-detail-building-b.glb"
@@ -5016,9 +5161,14 @@
         "city",
         "city-kit-commercial",
         "commercial",
+        "commercial-building",
         "detail",
+        "downtown",
         "kit",
-        "low"
+        "low",
+        "office",
+        "shop",
+        "store"
       ],
       "triangles": 142,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-commercial__low-detail-building-c/city-kit-commercial__low-detail-building-c.glb"
@@ -5048,10 +5198,15 @@
         "city",
         "city-kit-commercial",
         "commercial",
+        "commercial-building",
         "d",
         "detail",
+        "downtown",
         "kit",
-        "low"
+        "low",
+        "office",
+        "shop",
+        "store"
       ],
       "triangles": 106,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-commercial__low-detail-building-d/city-kit-commercial__low-detail-building-d.glb"
@@ -5081,10 +5236,15 @@
         "city",
         "city-kit-commercial",
         "commercial",
+        "commercial-building",
         "detail",
+        "downtown",
         "e",
         "kit",
-        "low"
+        "low",
+        "office",
+        "shop",
+        "store"
       ],
       "triangles": 96,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-commercial__low-detail-building-e/city-kit-commercial__low-detail-building-e.glb"
@@ -5114,10 +5274,15 @@
         "city",
         "city-kit-commercial",
         "commercial",
+        "commercial-building",
         "detail",
+        "downtown",
         "f",
         "kit",
-        "low"
+        "low",
+        "office",
+        "shop",
+        "store"
       ],
       "triangles": 88,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-commercial__low-detail-building-f/city-kit-commercial__low-detail-building-f.glb"
@@ -5147,10 +5312,15 @@
         "city",
         "city-kit-commercial",
         "commercial",
+        "commercial-building",
         "detail",
+        "downtown",
         "g",
         "kit",
-        "low"
+        "low",
+        "office",
+        "shop",
+        "store"
       ],
       "triangles": 200,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-commercial__low-detail-building-g/city-kit-commercial__low-detail-building-g.glb"
@@ -5180,10 +5350,15 @@
         "city",
         "city-kit-commercial",
         "commercial",
+        "commercial-building",
         "detail",
+        "downtown",
         "h",
         "kit",
-        "low"
+        "low",
+        "office",
+        "shop",
+        "store"
       ],
       "triangles": 378,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-commercial__low-detail-building-h/city-kit-commercial__low-detail-building-h.glb"
@@ -5213,10 +5388,15 @@
         "city",
         "city-kit-commercial",
         "commercial",
+        "commercial-building",
         "detail",
+        "downtown",
         "i",
         "kit",
-        "low"
+        "low",
+        "office",
+        "shop",
+        "store"
       ],
       "triangles": 152,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-commercial__low-detail-building-i/city-kit-commercial__low-detail-building-i.glb"
@@ -5246,10 +5426,15 @@
         "city",
         "city-kit-commercial",
         "commercial",
+        "commercial-building",
         "detail",
+        "downtown",
         "j",
         "kit",
-        "low"
+        "low",
+        "office",
+        "shop",
+        "store"
       ],
       "triangles": 188,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-commercial__low-detail-building-j/city-kit-commercial__low-detail-building-j.glb"
@@ -5279,10 +5464,15 @@
         "city",
         "city-kit-commercial",
         "commercial",
+        "commercial-building",
         "detail",
+        "downtown",
         "k",
         "kit",
-        "low"
+        "low",
+        "office",
+        "shop",
+        "store"
       ],
       "triangles": 86,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-commercial__low-detail-building-k/city-kit-commercial__low-detail-building-k.glb"
@@ -5312,10 +5502,15 @@
         "city",
         "city-kit-commercial",
         "commercial",
+        "commercial-building",
         "detail",
+        "downtown",
         "kit",
         "l",
-        "low"
+        "low",
+        "office",
+        "shop",
+        "store"
       ],
       "triangles": 150,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-commercial__low-detail-building-l/city-kit-commercial__low-detail-building-l.glb"
@@ -5345,10 +5540,15 @@
         "city",
         "city-kit-commercial",
         "commercial",
+        "commercial-building",
         "detail",
+        "downtown",
         "kit",
         "low",
-        "m"
+        "m",
+        "office",
+        "shop",
+        "store"
       ],
       "triangles": 188,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-commercial__low-detail-building-m/city-kit-commercial__low-detail-building-m.glb"
@@ -5378,10 +5578,15 @@
         "city",
         "city-kit-commercial",
         "commercial",
+        "commercial-building",
         "detail",
+        "downtown",
         "kit",
         "low",
-        "n"
+        "n",
+        "office",
+        "shop",
+        "store"
       ],
       "triangles": 62,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-commercial__low-detail-building-n/city-kit-commercial__low-detail-building-n.glb"
@@ -5412,9 +5617,14 @@
         "city",
         "city-kit-commercial",
         "commercial",
+        "commercial-building",
         "detail",
+        "downtown",
         "kit",
         "low",
+        "office",
+        "shop",
+        "store",
         "wide"
       ],
       "triangles": 156,
@@ -5446,9 +5656,14 @@
         "city",
         "city-kit-commercial",
         "commercial",
+        "commercial-building",
         "detail",
+        "downtown",
         "kit",
         "low",
+        "office",
+        "shop",
+        "store",
         "wide"
       ],
       "triangles": 246,
@@ -5479,8 +5694,11 @@
         "building",
         "city",
         "city-kit-industrial",
+        "factory",
         "industrial",
-        "kit"
+        "industrial-building",
+        "kit",
+        "warehouse"
       ],
       "triangles": 2046,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-industrial__building-a/city-kit-industrial__building-a.glb"
@@ -5510,8 +5728,11 @@
         "building",
         "city",
         "city-kit-industrial",
+        "factory",
         "industrial",
-        "kit"
+        "industrial-building",
+        "kit",
+        "warehouse"
       ],
       "triangles": 2422,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-industrial__building-b/city-kit-industrial__building-b.glb"
@@ -5541,8 +5762,11 @@
         "c",
         "city",
         "city-kit-industrial",
+        "factory",
         "industrial",
-        "kit"
+        "industrial-building",
+        "kit",
+        "warehouse"
       ],
       "triangles": 1928,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-industrial__building-c/city-kit-industrial__building-c.glb"
@@ -5572,8 +5796,11 @@
         "city",
         "city-kit-industrial",
         "d",
+        "factory",
         "industrial",
-        "kit"
+        "industrial-building",
+        "kit",
+        "warehouse"
       ],
       "triangles": 1158,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-industrial__building-d/city-kit-industrial__building-d.glb"
@@ -5603,8 +5830,11 @@
         "city",
         "city-kit-industrial",
         "e",
+        "factory",
         "industrial",
-        "kit"
+        "industrial-building",
+        "kit",
+        "warehouse"
       ],
       "triangles": 1484,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-industrial__building-e/city-kit-industrial__building-e.glb"
@@ -5634,8 +5864,11 @@
         "city",
         "city-kit-industrial",
         "f",
+        "factory",
         "industrial",
-        "kit"
+        "industrial-building",
+        "kit",
+        "warehouse"
       ],
       "triangles": 1552,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-industrial__building-f/city-kit-industrial__building-f.glb"
@@ -5664,9 +5897,12 @@
         "building",
         "city",
         "city-kit-industrial",
+        "factory",
         "g",
         "industrial",
-        "kit"
+        "industrial-building",
+        "kit",
+        "warehouse"
       ],
       "triangles": 1242,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-industrial__building-g/city-kit-industrial__building-g.glb"
@@ -5695,9 +5931,12 @@
         "building",
         "city",
         "city-kit-industrial",
+        "factory",
         "h",
         "industrial",
-        "kit"
+        "industrial-building",
+        "kit",
+        "warehouse"
       ],
       "triangles": 698,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-industrial__building-h/city-kit-industrial__building-h.glb"
@@ -5726,9 +5965,12 @@
         "building",
         "city",
         "city-kit-industrial",
+        "factory",
         "i",
         "industrial",
-        "kit"
+        "industrial-building",
+        "kit",
+        "warehouse"
       ],
       "triangles": 798,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-industrial__building-i/city-kit-industrial__building-i.glb"
@@ -5757,9 +5999,12 @@
         "building",
         "city",
         "city-kit-industrial",
+        "factory",
         "industrial",
+        "industrial-building",
         "j",
-        "kit"
+        "kit",
+        "warehouse"
       ],
       "triangles": 886,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-industrial__building-j/city-kit-industrial__building-j.glb"
@@ -5788,9 +6033,12 @@
         "building",
         "city",
         "city-kit-industrial",
+        "factory",
         "industrial",
+        "industrial-building",
         "k",
-        "kit"
+        "kit",
+        "warehouse"
       ],
       "triangles": 702,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-industrial__building-k/city-kit-industrial__building-k.glb"
@@ -5819,9 +6067,12 @@
         "building",
         "city",
         "city-kit-industrial",
+        "factory",
         "industrial",
+        "industrial-building",
         "kit",
-        "l"
+        "l",
+        "warehouse"
       ],
       "triangles": 1896,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-industrial__building-l/city-kit-industrial__building-l.glb"
@@ -5850,9 +6101,12 @@
         "building",
         "city",
         "city-kit-industrial",
+        "factory",
         "industrial",
+        "industrial-building",
         "kit",
-        "m"
+        "m",
+        "warehouse"
       ],
       "triangles": 1694,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-industrial__building-m/city-kit-industrial__building-m.glb"
@@ -5881,9 +6135,12 @@
         "building",
         "city",
         "city-kit-industrial",
+        "factory",
         "industrial",
+        "industrial-building",
         "kit",
-        "n"
+        "n",
+        "warehouse"
       ],
       "triangles": 1262,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-industrial__building-n/city-kit-industrial__building-n.glb"
@@ -5912,9 +6169,12 @@
         "building",
         "city",
         "city-kit-industrial",
+        "factory",
         "industrial",
+        "industrial-building",
         "kit",
-        "o"
+        "o",
+        "warehouse"
       ],
       "triangles": 868,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-industrial__building-o/city-kit-industrial__building-o.glb"
@@ -5943,9 +6203,12 @@
         "building",
         "city",
         "city-kit-industrial",
+        "factory",
         "industrial",
+        "industrial-building",
         "kit",
-        "p"
+        "p",
+        "warehouse"
       ],
       "triangles": 1162,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-industrial__building-p/city-kit-industrial__building-p.glb"
@@ -5974,9 +6237,12 @@
         "building",
         "city",
         "city-kit-industrial",
+        "factory",
         "industrial",
+        "industrial-building",
         "kit",
-        "q"
+        "q",
+        "warehouse"
       ],
       "triangles": 2062,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-industrial__building-q/city-kit-industrial__building-q.glb"
@@ -6005,9 +6271,12 @@
         "building",
         "city",
         "city-kit-industrial",
+        "factory",
         "industrial",
+        "industrial-building",
         "kit",
-        "r"
+        "r",
+        "warehouse"
       ],
       "triangles": 1912,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-industrial__building-r/city-kit-industrial__building-r.glb"
@@ -6036,9 +6305,12 @@
         "building",
         "city",
         "city-kit-industrial",
+        "factory",
         "industrial",
+        "industrial-building",
         "kit",
-        "s"
+        "s",
+        "warehouse"
       ],
       "triangles": 876,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-industrial__building-s/city-kit-industrial__building-s.glb"
@@ -6067,9 +6339,12 @@
         "building",
         "city",
         "city-kit-industrial",
+        "factory",
         "industrial",
+        "industrial-building",
         "kit",
-        "t"
+        "t",
+        "warehouse"
       ],
       "triangles": 1586,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-industrial__building-t/city-kit-industrial__building-t.glb"
@@ -6099,8 +6374,11 @@
         "chimney",
         "city",
         "city-kit-industrial",
+        "factory",
         "industrial",
-        "kit"
+        "industrial-building",
+        "kit",
+        "warehouse"
       ],
       "triangles": 88,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-industrial__chimney-basic/city-kit-industrial__chimney-basic.glb"
@@ -6129,9 +6407,12 @@
         "chimney",
         "city",
         "city-kit-industrial",
+        "factory",
         "industrial",
+        "industrial-building",
         "kit",
-        "large"
+        "large",
+        "warehouse"
       ],
       "triangles": 218,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-industrial__chimney-large/city-kit-industrial__chimney-large.glb"
@@ -6160,9 +6441,12 @@
         "chimney",
         "city",
         "city-kit-industrial",
+        "factory",
         "industrial",
+        "industrial-building",
         "kit",
-        "medium"
+        "medium",
+        "warehouse"
       ],
       "triangles": 160,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-industrial__chimney-medium/city-kit-industrial__chimney-medium.glb"
@@ -6191,9 +6475,12 @@
         "chimney",
         "city",
         "city-kit-industrial",
+        "factory",
         "industrial",
+        "industrial-building",
         "kit",
-        "small"
+        "small",
+        "warehouse"
       ],
       "triangles": 124,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-industrial__chimney-small/city-kit-industrial__chimney-small.glb"
@@ -6222,9 +6509,12 @@
         "city",
         "city-kit-industrial",
         "detail",
+        "factory",
         "industrial",
+        "industrial-building",
         "kit",
-        "tank"
+        "tank",
+        "warehouse"
       ],
       "triangles": 310,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-industrial__detail-tank/city-kit-industrial__detail-tank.glb"
@@ -6253,10 +6543,13 @@
         "city",
         "city-kit-industrial",
         "detail",
+        "factory",
         "industrial",
+        "industrial-building",
         "kit",
         "large",
-        "tank"
+        "tank",
+        "warehouse"
       ],
       "triangles": 566,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-industrial__detail-tank-large/city-kit-industrial__detail-tank-large.glb"
@@ -6286,9 +6579,12 @@
         "city",
         "city-kit-industrial",
         "container",
+        "factory",
         "industrial",
+        "industrial-building",
         "kit",
-        "shipping"
+        "shipping",
+        "warehouse"
       ],
       "triangles": 402,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-industrial__shipping-container-a/city-kit-industrial__shipping-container-a.glb"
@@ -6318,9 +6614,12 @@
         "city",
         "city-kit-industrial",
         "container",
+        "factory",
         "industrial",
+        "industrial-building",
         "kit",
-        "shipping"
+        "shipping",
+        "warehouse"
       ],
       "triangles": 402,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-industrial__shipping-container-b/city-kit-industrial__shipping-container-b.glb"
@@ -6350,9 +6649,12 @@
         "city",
         "city-kit-industrial",
         "container",
+        "factory",
         "industrial",
+        "industrial-building",
         "kit",
-        "shipping"
+        "shipping",
+        "warehouse"
       ],
       "triangles": 402,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-industrial__shipping-container-c/city-kit-industrial__shipping-container-c.glb"
@@ -6380,11 +6682,14 @@
       "tags": [
         "city",
         "city-kit-industrial",
+        "factory",
         "flat",
         "industrial",
+        "industrial-building",
         "kit",
         "panel",
-        "solar"
+        "solar",
+        "warehouse"
       ],
       "triangles": 164,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-industrial__solar-panel-flat/city-kit-industrial__solar-panel-flat.glb"
@@ -6412,11 +6717,14 @@
       "tags": [
         "city",
         "city-kit-industrial",
+        "factory",
         "industrial",
+        "industrial-building",
         "kit",
         "landscape",
         "panel",
-        "solar"
+        "solar",
+        "warehouse"
       ],
       "triangles": 244,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-industrial__solar-panel-landscape/city-kit-industrial__solar-panel-landscape.glb"
@@ -6444,12 +6752,15 @@
       "tags": [
         "city",
         "city-kit-industrial",
+        "factory",
         "group",
         "industrial",
+        "industrial-building",
         "kit",
         "landscape",
         "panel",
-        "solar"
+        "solar",
+        "warehouse"
       ],
       "triangles": 976,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-industrial__solar-panel-landscape-group/city-kit-industrial__solar-panel-landscape-group.glb"
@@ -6477,11 +6788,14 @@
       "tags": [
         "city",
         "city-kit-industrial",
+        "factory",
         "industrial",
+        "industrial-building",
         "kit",
         "panel",
         "portrait",
-        "solar"
+        "solar",
+        "warehouse"
       ],
       "triangles": 244,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-industrial__solar-panel-portrait/city-kit-industrial__solar-panel-portrait.glb"
@@ -6509,12 +6823,15 @@
       "tags": [
         "city",
         "city-kit-industrial",
+        "factory",
         "group",
         "industrial",
+        "industrial-building",
         "kit",
         "panel",
         "portrait",
-        "solar"
+        "solar",
+        "warehouse"
       ],
       "triangles": 976,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-industrial__solar-panel-portrait-group/city-kit-industrial__solar-panel-portrait-group.glb"
@@ -6542,9 +6859,12 @@
       "tags": [
         "city",
         "city-kit-industrial",
+        "factory",
         "industrial",
+        "industrial-building",
         "kit",
         "tower",
+        "warehouse",
         "water"
       ],
       "triangles": 968,
@@ -6573,8 +6893,11 @@
       "tags": [
         "city",
         "city-kit-industrial",
+        "factory",
         "industrial",
+        "industrial-building",
         "kit",
+        "warehouse",
         "windmill"
       ],
       "triangles": 456,
@@ -6603,9 +6926,12 @@
       "tags": [
         "city",
         "city-kit-industrial",
+        "factory",
         "industrial",
+        "industrial-building",
         "kit",
         "low",
+        "warehouse",
         "windmill"
       ],
       "triangles": 456,
@@ -6637,7 +6963,9 @@
         "city-kit-roads",
         "kit",
         "pillar",
-        "roads"
+        "road",
+        "roads",
+        "street"
       ],
       "triangles": 38,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__bridge-pillar/city-kit-roads__bridge-pillar.glb"
@@ -6668,7 +6996,9 @@
         "city-kit-roads",
         "kit",
         "pillar",
+        "road",
         "roads",
+        "street",
         "wide"
       ],
       "triangles": 38,
@@ -6702,6 +7032,7 @@
         "construction",
         "hardhat",
         "kit",
+        "road",
         "roadblock",
         "roads",
         "street",
@@ -6738,7 +7069,9 @@
         "construction",
         "hardhat",
         "kit",
+        "road",
         "roads",
+        "street",
         "worker"
       ],
       "triangles": 66,
@@ -6772,7 +7105,9 @@
         "fence",
         "hardhat",
         "kit",
+        "road",
         "roads",
+        "street",
         "worker"
       ],
       "triangles": 136,
@@ -6806,7 +7141,9 @@
         "hardhat",
         "kit",
         "light",
+        "road",
         "roads",
+        "street",
         "worker"
       ],
       "triangles": 144,
@@ -6837,7 +7174,9 @@
         "city-kit-roads",
         "dumpster",
         "kit",
-        "roads"
+        "road",
+        "roads",
+        "street"
       ],
       "triangles": 234,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__dumpster/city-kit-roads__dumpster.glb"
@@ -6868,7 +7207,9 @@
         "electricity",
         "kit",
         "pole",
-        "roads"
+        "road",
+        "roads",
+        "street"
       ],
       "triangles": 416,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__electricity-pole/city-kit-roads__electricity-pole.glb"
@@ -6899,8 +7240,10 @@
         "electricity",
         "kit",
         "pole",
+        "road",
         "roads",
-        "single"
+        "single",
+        "street"
       ],
       "triangles": 176,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__electricity-pole-single/city-kit-roads__electricity-pole-single.glb"
@@ -6931,7 +7274,9 @@
         "electricity",
         "kit",
         "pole",
+        "road",
         "roads",
+        "street",
         "wide"
       ],
       "triangles": 544,
@@ -6962,8 +7307,10 @@
         "city-kit-roads",
         "electricity",
         "kit",
+        "road",
         "roads",
-        "side"
+        "side",
+        "street"
       ],
       "triangles": 416,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__electricity-side/city-kit-roads__electricity-side.glb"
@@ -6993,9 +7340,11 @@
         "city-kit-roads",
         "electricity",
         "kit",
+        "road",
         "roads",
         "side",
-        "single"
+        "single",
+        "street"
       ],
       "triangles": 176,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__electricity-side-single/city-kit-roads__electricity-side-single.glb"
@@ -7025,8 +7374,10 @@
         "city-kit-roads",
         "electricity",
         "kit",
+        "road",
         "roads",
         "side",
+        "street",
         "wide"
       ],
       "triangles": 544,
@@ -7057,7 +7408,9 @@
         "city-kit-roads",
         "electricity",
         "kit",
+        "road",
         "roads",
+        "street",
         "wires"
       ],
       "triangles": 72,
@@ -7088,7 +7441,9 @@
         "city-kit-roads",
         "electricity",
         "kit",
+        "road",
         "roads",
+        "street",
         "wide",
         "wires"
       ],
@@ -7121,7 +7476,9 @@
         "curved",
         "kit",
         "light",
-        "roads"
+        "road",
+        "roads",
+        "street"
       ],
       "triangles": 92,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__light-curved/city-kit-roads__light-curved.glb"
@@ -7153,7 +7510,9 @@
         "curved",
         "kit",
         "light",
-        "roads"
+        "road",
+        "roads",
+        "street"
       ],
       "triangles": 270,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__light-curved-cross/city-kit-roads__light-curved-cross.glb"
@@ -7185,7 +7544,9 @@
         "double",
         "kit",
         "light",
-        "roads"
+        "road",
+        "roads",
+        "street"
       ],
       "triangles": 152,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__light-curved-double/city-kit-roads__light-curved-double.glb"
@@ -7215,8 +7576,10 @@
         "city-kit-roads",
         "kit",
         "light",
+        "road",
         "roads",
-        "square"
+        "square",
+        "street"
       ],
       "triangles": 60,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__light-square/city-kit-roads__light-square.glb"
@@ -7247,8 +7610,10 @@
         "cross",
         "kit",
         "light",
+        "road",
         "roads",
-        "square"
+        "square",
+        "street"
       ],
       "triangles": 134,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__light-square-cross/city-kit-roads__light-square-cross.glb"
@@ -7279,8 +7644,10 @@
         "double",
         "kit",
         "light",
+        "road",
         "roads",
-        "square"
+        "square",
+        "street"
       ],
       "triangles": 88,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__light-square-double/city-kit-roads__light-square-double.glb"
@@ -7311,7 +7678,8 @@
         "city-kit-roads",
         "kit",
         "road",
-        "roads"
+        "roads",
+        "street"
       ],
       "triangles": 260,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__road-bend/city-kit-roads__road-bend.glb"
@@ -7377,7 +7745,8 @@
         "kit",
         "road",
         "roads",
-        "sidewalk"
+        "sidewalk",
+        "street"
       ],
       "triangles": 220,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__road-bend-sidewalk/city-kit-roads__road-bend-sidewalk.glb"
@@ -7409,7 +7778,8 @@
         "kit",
         "road",
         "roads",
-        "square"
+        "square",
+        "street"
       ],
       "triangles": 60,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__road-bend-square/city-kit-roads__road-bend-square.glb"
@@ -7475,7 +7845,8 @@
         "city-kit-roads",
         "kit",
         "road",
-        "roads"
+        "roads",
+        "street"
       ],
       "triangles": 240,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__road-bridge/city-kit-roads__road-bridge.glb"
@@ -7506,7 +7877,8 @@
         "crossing",
         "kit",
         "road",
-        "roads"
+        "roads",
+        "street"
       ],
       "triangles": 104,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__road-crossing/city-kit-roads__road-crossing.glb"
@@ -7537,7 +7909,8 @@
         "crossroad",
         "kit",
         "road",
-        "roads"
+        "roads",
+        "street"
       ],
       "triangles": 116,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__road-crossroad/city-kit-roads__road-crossroad.glb"
@@ -7603,7 +7976,8 @@
         "kit",
         "line",
         "road",
-        "roads"
+        "roads",
+        "street"
       ],
       "triangles": 108,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__road-crossroad-line/city-kit-roads__road-crossroad-line.glb"
@@ -7635,7 +8009,8 @@
         "kit",
         "path",
         "road",
-        "roads"
+        "roads",
+        "street"
       ],
       "triangles": 276,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__road-crossroad-path/city-kit-roads__road-crossroad-path.glb"
@@ -7666,7 +8041,8 @@
         "curve",
         "kit",
         "road",
-        "roads"
+        "roads",
+        "street"
       ],
       "triangles": 308,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__road-curve/city-kit-roads__road-curve.glb"
@@ -7732,7 +8108,8 @@
         "intersection",
         "kit",
         "road",
-        "roads"
+        "roads",
+        "street"
       ],
       "triangles": 298,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__road-curve-intersection/city-kit-roads__road-curve-intersection.glb"
@@ -7799,7 +8176,8 @@
         "kit",
         "pavement",
         "road",
-        "roads"
+        "roads",
+        "street"
       ],
       "triangles": 220,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__road-curve-pavement/city-kit-roads__road-curve-pavement.glb"
@@ -7831,7 +8209,8 @@
         "driveway",
         "kit",
         "road",
-        "roads"
+        "roads",
+        "street"
       ],
       "triangles": 72,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__road-driveway-double/city-kit-roads__road-driveway-double.glb"
@@ -7898,7 +8277,8 @@
         "kit",
         "road",
         "roads",
-        "single"
+        "single",
+        "street"
       ],
       "triangles": 60,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__road-driveway-single/city-kit-roads__road-driveway-single.glb"
@@ -7964,7 +8344,8 @@
         "end",
         "kit",
         "road",
-        "roads"
+        "roads",
+        "street"
       ],
       "triangles": 42,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__road-end/city-kit-roads__road-end.glb"
@@ -8030,7 +8411,8 @@
         "kit",
         "road",
         "roads",
-        "round"
+        "round",
+        "street"
       ],
       "triangles": 218,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__road-end-round/city-kit-roads__road-end-round.glb"
@@ -8096,7 +8478,8 @@
         "intersection",
         "kit",
         "road",
-        "roads"
+        "roads",
+        "street"
       ],
       "triangles": 84,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__road-intersection/city-kit-roads__road-intersection.glb"
@@ -8162,7 +8545,8 @@
         "kit",
         "line",
         "road",
-        "roads"
+        "roads",
+        "street"
       ],
       "triangles": 76,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__road-intersection-line/city-kit-roads__road-intersection-line.glb"
@@ -8194,7 +8578,8 @@
         "kit",
         "path",
         "road",
-        "roads"
+        "roads",
+        "street"
       ],
       "triangles": 204,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__road-intersection-path/city-kit-roads__road-intersection-path.glb"
@@ -8225,7 +8610,8 @@
         "kit",
         "road",
         "roads",
-        "roundabout"
+        "roundabout",
+        "street"
       ],
       "triangles": 1636,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__road-roundabout/city-kit-roads__road-roundabout.glb"
@@ -8290,7 +8676,8 @@
         "kit",
         "road",
         "roads",
-        "side"
+        "side",
+        "street"
       ],
       "triangles": 44,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__road-side/city-kit-roads__road-side.glb"
@@ -8356,7 +8743,8 @@
         "kit",
         "road",
         "roads",
-        "side"
+        "side",
+        "street"
       ],
       "triangles": 306,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__road-side-entry/city-kit-roads__road-side-entry.glb"
@@ -8423,7 +8811,8 @@
         "kit",
         "road",
         "roads",
-        "side"
+        "side",
+        "street"
       ],
       "triangles": 306,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__road-side-exit/city-kit-roads__road-side-exit.glb"
@@ -8490,7 +8879,8 @@
         "kit",
         "road",
         "roads",
-        "sign"
+        "sign",
+        "street"
       ],
       "triangles": 42,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__road-sign-empty/city-kit-roads__road-sign-empty.glb"
@@ -8523,7 +8913,8 @@
         "kit",
         "road",
         "roads",
-        "sign"
+        "sign",
+        "street"
       ],
       "triangles": 112,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__road-sign-empty-hanging/city-kit-roads__road-sign-empty-hanging.glb"
@@ -8556,7 +8947,8 @@
         "road",
         "roads",
         "sign",
-        "stop"
+        "stop",
+        "street"
       ],
       "triangles": 62,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__road-sign-object-stop/city-kit-roads__road-sign-object-stop.glb"
@@ -8622,6 +9014,7 @@
         "road",
         "roads",
         "sign",
+        "street",
         "warning"
       ],
       "triangles": 62,
@@ -8654,7 +9047,8 @@
         "road",
         "roads",
         "sign",
-        "stop"
+        "stop",
+        "street"
       ],
       "triangles": 104,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__road-sign-stop/city-kit-roads__road-sign-stop.glb"
@@ -8718,6 +9112,7 @@
         "road",
         "roads",
         "sign",
+        "street",
         "warning"
       ],
       "triangles": 104,
@@ -8749,7 +9144,8 @@
         "kit",
         "road",
         "roads",
-        "slant"
+        "slant",
+        "street"
       ],
       "triangles": 44,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__road-slant/city-kit-roads__road-slant.glb"
@@ -8815,7 +9211,8 @@
         "kit",
         "road",
         "roads",
-        "slant"
+        "slant",
+        "street"
       ],
       "triangles": 544,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__road-slant-curve/city-kit-roads__road-slant-curve.glb"
@@ -8882,7 +9279,8 @@
         "kit",
         "road",
         "roads",
-        "slant"
+        "slant",
+        "street"
       ],
       "triangles": 44,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__road-slant-flat/city-kit-roads__road-slant-flat.glb"
@@ -8915,7 +9313,8 @@
         "kit",
         "road",
         "roads",
-        "slant"
+        "slant",
+        "street"
       ],
       "triangles": 648,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__road-slant-flat-curve/city-kit-roads__road-slant-flat-curve.glb"
@@ -8948,7 +9347,8 @@
         "kit",
         "road",
         "roads",
-        "slant"
+        "slant",
+        "street"
       ],
       "triangles": 44,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__road-slant-flat-high/city-kit-roads__road-slant-flat-high.glb"
@@ -8980,7 +9380,8 @@
         "kit",
         "road",
         "roads",
-        "slant"
+        "slant",
+        "street"
       ],
       "triangles": 44,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__road-slant-high/city-kit-roads__road-slant-high.glb"
@@ -9046,7 +9447,8 @@
         "kit",
         "road",
         "roads",
-        "split"
+        "split",
+        "street"
       ],
       "triangles": 862,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__road-split/city-kit-roads__road-split.glb"
@@ -9111,7 +9513,8 @@
         "kit",
         "road",
         "roads",
-        "square"
+        "square",
+        "street"
       ],
       "triangles": 36,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__road-square/city-kit-roads__road-square.glb"
@@ -9176,7 +9579,8 @@
         "kit",
         "road",
         "roads",
-        "straight"
+        "straight",
+        "street"
       ],
       "triangles": 44,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__road-straight/city-kit-roads__road-straight.glb"
@@ -9312,7 +9716,8 @@
         "kit",
         "road",
         "roads",
-        "straight"
+        "straight",
+        "street"
       ],
       "triangles": 44,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__road-straight-half/city-kit-roads__road-straight-half.glb"
@@ -9342,8 +9747,10 @@
         "city-kit-roads",
         "highway",
         "kit",
+        "road",
         "roads",
-        "sign"
+        "sign",
+        "street"
       ],
       "triangles": 180,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__sign-highway/city-kit-roads__sign-highway.glb"
@@ -9374,8 +9781,10 @@
         "detailed",
         "highway",
         "kit",
+        "road",
         "roads",
-        "sign"
+        "sign",
+        "street"
       ],
       "triangles": 256,
       "url": "/assets/gt-gpu/kenney/objects/city-kit-roads__sign-highway-detailed/city-kit-roads__sign-highway-detailed.glb"
@@ -9405,8 +9814,10 @@
         "city-kit-roads",
         "highway",
         "kit",
+        "road",
         "roads",
         "sign",
+        "street",
         "wide"
       ],
       "triangles": 144,
@@ -9437,7 +9848,9 @@
         "city-kit-roads",
         "high",
         "kit",
+        "road",
         "roads",
+        "street",
         "tile"
       ],
       "triangles": 12,
@@ -9468,7 +9881,9 @@
         "city-kit-roads",
         "kit",
         "low",
+        "road",
         "roads",
+        "street",
         "tile"
       ],
       "triangles": 12,
@@ -9498,8 +9913,10 @@
         "city",
         "city-kit-roads",
         "kit",
+        "road",
         "roads",
         "slant",
+        "street",
         "tile"
       ],
       "triangles": 12,
@@ -9529,8 +9946,10 @@
         "city",
         "city-kit-roads",
         "kit",
+        "road",
         "roads",
         "slanthigh",
+        "street",
         "tile"
       ],
       "triangles": 12,
@@ -9562,6 +9981,7 @@
         "intersection",
         "kit",
         "light",
+        "road",
         "roads",
         "street",
         "traffic"
@@ -9596,6 +10016,7 @@
         "intersection",
         "kit",
         "light",
+        "road",
         "roads",
         "street",
         "traffic"
@@ -9631,6 +10052,7 @@
         "kit",
         "light",
         "object",
+        "road",
         "roads",
         "street",
         "traffic"
@@ -9666,6 +10088,7 @@
         "kit",
         "light",
         "object",
+        "road",
         "roads",
         "street",
         "traffic"
@@ -9700,6 +10123,7 @@
         "kit",
         "light",
         "object",
+        "road",
         "roads",
         "street",
         "traffic",
@@ -9733,7 +10157,10 @@
         "building",
         "city",
         "city-kit-suburban",
+        "home",
+        "house",
         "kit",
+        "residential",
         "suburban",
         "type"
       ],
@@ -9765,7 +10192,10 @@
         "building",
         "city",
         "city-kit-suburban",
+        "home",
+        "house",
         "kit",
+        "residential",
         "suburban",
         "type"
       ],
@@ -9797,7 +10227,10 @@
         "c",
         "city",
         "city-kit-suburban",
+        "home",
+        "house",
         "kit",
+        "residential",
         "suburban",
         "type"
       ],
@@ -9829,7 +10262,10 @@
         "city",
         "city-kit-suburban",
         "d",
+        "home",
+        "house",
         "kit",
+        "residential",
         "suburban",
         "type"
       ],
@@ -9861,7 +10297,10 @@
         "city",
         "city-kit-suburban",
         "e",
+        "home",
+        "house",
         "kit",
+        "residential",
         "suburban",
         "type"
       ],
@@ -9893,7 +10332,10 @@
         "city",
         "city-kit-suburban",
         "f",
+        "home",
+        "house",
         "kit",
+        "residential",
         "suburban",
         "type"
       ],
@@ -9925,7 +10367,10 @@
         "city",
         "city-kit-suburban",
         "g",
+        "home",
+        "house",
         "kit",
+        "residential",
         "suburban",
         "type"
       ],
@@ -9957,7 +10402,10 @@
         "city",
         "city-kit-suburban",
         "h",
+        "home",
+        "house",
         "kit",
+        "residential",
         "suburban",
         "type"
       ],
@@ -9988,8 +10436,11 @@
         "building",
         "city",
         "city-kit-suburban",
+        "home",
+        "house",
         "i",
         "kit",
+        "residential",
         "suburban",
         "type"
       ],
@@ -10020,8 +10471,11 @@
         "building",
         "city",
         "city-kit-suburban",
+        "home",
+        "house",
         "j",
         "kit",
+        "residential",
         "suburban",
         "type"
       ],
@@ -10052,8 +10506,11 @@
         "building",
         "city",
         "city-kit-suburban",
+        "home",
+        "house",
         "k",
         "kit",
+        "residential",
         "suburban",
         "type"
       ],
@@ -10084,8 +10541,11 @@
         "building",
         "city",
         "city-kit-suburban",
+        "home",
+        "house",
         "kit",
         "l",
+        "residential",
         "suburban",
         "type"
       ],
@@ -10116,8 +10576,11 @@
         "building",
         "city",
         "city-kit-suburban",
+        "home",
+        "house",
         "kit",
         "m",
+        "residential",
         "suburban",
         "type"
       ],
@@ -10148,8 +10611,11 @@
         "building",
         "city",
         "city-kit-suburban",
+        "home",
+        "house",
         "kit",
         "n",
+        "residential",
         "suburban",
         "type"
       ],
@@ -10180,8 +10646,11 @@
         "building",
         "city",
         "city-kit-suburban",
+        "home",
+        "house",
         "kit",
         "o",
+        "residential",
         "suburban",
         "type"
       ],
@@ -10212,8 +10681,11 @@
         "building",
         "city",
         "city-kit-suburban",
+        "home",
+        "house",
         "kit",
         "p",
+        "residential",
         "suburban",
         "type"
       ],
@@ -10244,8 +10716,11 @@
         "building",
         "city",
         "city-kit-suburban",
+        "home",
+        "house",
         "kit",
         "q",
+        "residential",
         "suburban",
         "type"
       ],
@@ -10276,8 +10751,11 @@
         "building",
         "city",
         "city-kit-suburban",
+        "home",
+        "house",
         "kit",
         "r",
+        "residential",
         "suburban",
         "type"
       ],
@@ -10308,7 +10786,10 @@
         "building",
         "city",
         "city-kit-suburban",
+        "home",
+        "house",
         "kit",
+        "residential",
         "s",
         "suburban",
         "type"
@@ -10340,7 +10821,10 @@
         "building",
         "city",
         "city-kit-suburban",
+        "home",
+        "house",
         "kit",
+        "residential",
         "suburban",
         "t",
         "type"
@@ -10372,7 +10856,10 @@
         "building",
         "city",
         "city-kit-suburban",
+        "home",
+        "house",
         "kit",
+        "residential",
         "suburban",
         "type",
         "u"
@@ -10404,8 +10891,11 @@
         "city",
         "city-kit-suburban",
         "driveway",
+        "home",
+        "house",
         "kit",
         "long",
+        "residential",
         "suburban"
       ],
       "triangles": 12,
@@ -10435,7 +10925,10 @@
         "city",
         "city-kit-suburban",
         "driveway",
+        "home",
+        "house",
         "kit",
+        "residential",
         "short",
         "suburban"
       ],
@@ -10466,7 +10959,10 @@
         "city",
         "city-kit-suburban",
         "fence",
+        "home",
+        "house",
         "kit",
+        "residential",
         "suburban"
       ],
       "triangles": 88,
@@ -10497,7 +10993,10 @@
         "city",
         "city-kit-suburban",
         "fence",
+        "home",
+        "house",
         "kit",
+        "residential",
         "suburban"
       ],
       "triangles": 156,
@@ -10528,7 +11027,10 @@
         "city",
         "city-kit-suburban",
         "fence",
+        "home",
+        "house",
         "kit",
+        "residential",
         "suburban"
       ],
       "triangles": 204,
@@ -10559,7 +11061,10 @@
         "city",
         "city-kit-suburban",
         "fence",
+        "home",
+        "house",
         "kit",
+        "residential",
         "suburban"
       ],
       "triangles": 252,
@@ -10590,7 +11095,10 @@
         "city",
         "city-kit-suburban",
         "fence",
+        "home",
+        "house",
         "kit",
+        "residential",
         "suburban"
       ],
       "triangles": 236,
@@ -10621,7 +11129,10 @@
         "city",
         "city-kit-suburban",
         "fence",
+        "home",
+        "house",
         "kit",
+        "residential",
         "suburban"
       ],
       "triangles": 284,
@@ -10652,7 +11163,10 @@
         "city",
         "city-kit-suburban",
         "fence",
+        "home",
+        "house",
         "kit",
+        "residential",
         "suburban"
       ],
       "triangles": 316,
@@ -10683,7 +11197,10 @@
         "city",
         "city-kit-suburban",
         "fence",
+        "home",
+        "house",
         "kit",
+        "residential",
         "suburban"
       ],
       "triangles": 364,
@@ -10713,8 +11230,11 @@
         "city",
         "city-kit-suburban",
         "fence",
+        "home",
+        "house",
         "kit",
         "low",
+        "residential",
         "suburban"
       ],
       "triangles": 180,
@@ -10743,9 +11263,12 @@
       "tags": [
         "city",
         "city-kit-suburban",
+        "home",
+        "house",
         "kit",
         "long",
         "path",
+        "residential",
         "suburban"
       ],
       "triangles": 12,
@@ -10774,8 +11297,11 @@
       "tags": [
         "city",
         "city-kit-suburban",
+        "home",
+        "house",
         "kit",
         "path",
+        "residential",
         "short",
         "suburban"
       ],
@@ -10805,9 +11331,12 @@
       "tags": [
         "city",
         "city-kit-suburban",
+        "home",
+        "house",
         "kit",
         "long",
         "path",
+        "residential",
         "stones",
         "suburban"
       ],
@@ -10837,9 +11366,12 @@
       "tags": [
         "city",
         "city-kit-suburban",
+        "home",
+        "house",
         "kit",
         "messy",
         "path",
+        "residential",
         "stones",
         "suburban"
       ],
@@ -10869,8 +11401,11 @@
       "tags": [
         "city",
         "city-kit-suburban",
+        "home",
+        "house",
         "kit",
         "path",
+        "residential",
         "short",
         "stones",
         "suburban"
@@ -10901,8 +11436,11 @@
       "tags": [
         "city",
         "city-kit-suburban",
+        "home",
+        "house",
         "kit",
         "planter",
+        "residential",
         "suburban"
       ],
       "triangles": 204,
@@ -10931,8 +11469,11 @@
       "tags": [
         "city",
         "city-kit-suburban",
+        "home",
+        "house",
         "kit",
         "large",
+        "residential",
         "suburban",
         "tree"
       ],
@@ -10962,7 +11503,10 @@
       "tags": [
         "city",
         "city-kit-suburban",
+        "home",
+        "house",
         "kit",
+        "residential",
         "small",
         "suburban",
         "tree"
@@ -10995,7 +11539,9 @@
         "city",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 64,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__bathroomCabinet/furniture-kit__bathroomCabinet.glb"
@@ -11025,7 +11571,9 @@
         "city",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 508,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__bathroomCabinetDrawer/furniture-kit__bathroomCabinetDrawer.glb"
@@ -11055,7 +11603,9 @@
         "city",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 72,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__bathroomMirror/furniture-kit__bathroomMirror.glb"
@@ -11085,7 +11635,9 @@
         "city",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 316,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__bathroomSink/furniture-kit__bathroomSink.glb"
@@ -11115,7 +11667,9 @@
         "city",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 234,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__bathroomSinkSquare/furniture-kit__bathroomSinkSquare.glb"
@@ -11145,7 +11699,9 @@
         "city",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 602,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__bathtub/furniture-kit__bathtub.glb"
@@ -11175,7 +11731,9 @@
         "city",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 134,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__bear/furniture-kit__bear.glb"
@@ -11205,7 +11763,9 @@
         "city",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 580,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__bedBunk/furniture-kit__bedBunk.glb"
@@ -11235,7 +11795,9 @@
         "city",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 264,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__bedDouble/furniture-kit__bedDouble.glb"
@@ -11265,7 +11827,9 @@
         "city",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 214,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__bedSingle/furniture-kit__bedSingle.glb"
@@ -11295,7 +11859,9 @@
         "city",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 170,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__bench/furniture-kit__bench.glb"
@@ -11325,7 +11891,9 @@
         "city",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 196,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__benchCushion/furniture-kit__benchCushion.glb"
@@ -11355,7 +11923,9 @@
         "city",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 138,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__benchCushionLow/furniture-kit__benchCushionLow.glb"
@@ -11385,7 +11955,9 @@
         "city",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 372,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__bookcaseClosed/furniture-kit__bookcaseClosed.glb"
@@ -11415,7 +11987,9 @@
         "city",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 296,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__bookcaseClosedDoors/furniture-kit__bookcaseClosedDoors.glb"
@@ -11445,7 +12019,9 @@
         "city",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 372,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__bookcaseClosedWide/furniture-kit__bookcaseClosedWide.glb"
@@ -11475,7 +12051,9 @@
         "city",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 320,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__bookcaseOpen/furniture-kit__bookcaseOpen.glb"
@@ -11505,7 +12083,9 @@
         "city",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 184,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__bookcaseOpenLow/furniture-kit__bookcaseOpenLow.glb"
@@ -11535,7 +12115,9 @@
         "city",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 62,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__books/furniture-kit__books.glb"
@@ -11565,7 +12147,9 @@
         "city",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 72,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__cabinetBed/furniture-kit__cabinetBed.glb"
@@ -11595,7 +12179,9 @@
         "city",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 182,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__cabinetBedDrawer/furniture-kit__cabinetBedDrawer.glb"
@@ -11625,7 +12211,9 @@
         "city",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 140,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__cabinetBedDrawerTable/furniture-kit__cabinetBedDrawerTable.glb"
@@ -11655,7 +12243,9 @@
         "city",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 154,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__cabinetTelevision/furniture-kit__cabinetTelevision.glb"
@@ -11685,7 +12275,9 @@
         "city",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 210,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__cabinetTelevisionDoors/furniture-kit__cabinetTelevisionDoors.glb"
@@ -11715,7 +12307,9 @@
         "city",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 60,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__cardboardBoxClosed/furniture-kit__cardboardBoxClosed.glb"
@@ -11745,7 +12339,9 @@
         "city",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 60,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__cardboardBoxOpen/furniture-kit__cardboardBoxOpen.glb"
@@ -11775,7 +12371,9 @@
         "city",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 214,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__ceilingFan/furniture-kit__ceilingFan.glb"
@@ -11805,7 +12403,9 @@
         "city",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 170,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__chair/furniture-kit__chair.glb"
@@ -11835,7 +12435,9 @@
         "city",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 198,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__chairCushion/furniture-kit__chairCushion.glb"
@@ -11865,7 +12467,9 @@
         "city",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 588,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__chairDesk/furniture-kit__chairDesk.glb"
@@ -11895,7 +12499,9 @@
         "city",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 92,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__chairModernCushion/furniture-kit__chairModernCushion.glb"
@@ -11925,7 +12531,9 @@
         "city",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 284,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__chairModernFrameCushion/furniture-kit__chairModernFrameCushion.glb"
@@ -11955,7 +12563,9 @@
         "city",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 280,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__chairRounded/furniture-kit__chairRounded.glb"
@@ -11985,7 +12595,9 @@
         "coatrack",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 132,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__coatRack/furniture-kit__coatRack.glb"
@@ -12015,7 +12627,9 @@
         "coatrackstanding",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 190,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__coatRackStanding/furniture-kit__coatRackStanding.glb"
@@ -12045,7 +12659,9 @@
         "computerkeyboard",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 32,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__computerKeyboard/furniture-kit__computerKeyboard.glb"
@@ -12075,7 +12691,9 @@
         "computermouse",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 71,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__computerMouse/furniture-kit__computerMouse.glb"
@@ -12105,7 +12723,9 @@
         "computerscreen",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 72,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__computerScreen/furniture-kit__computerScreen.glb"
@@ -12135,7 +12755,9 @@
         "desk",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 198,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__desk/furniture-kit__desk.glb"
@@ -12165,7 +12787,9 @@
         "deskcorner",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 250,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__deskCorner/furniture-kit__deskCorner.glb"
@@ -12195,7 +12819,9 @@
         "doorway",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 188,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__doorway/furniture-kit__doorway.glb"
@@ -12225,7 +12851,9 @@
         "doorwayfront",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 156,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__doorwayFront/furniture-kit__doorwayFront.glb"
@@ -12255,7 +12883,9 @@
         "doorwayopen",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 28,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__doorwayOpen/furniture-kit__doorwayOpen.glb"
@@ -12285,7 +12915,9 @@
         "dryer",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 262,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__dryer/furniture-kit__dryer.glb"
@@ -12315,7 +12947,9 @@
         "floorcorner",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 16,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__floorCorner/furniture-kit__floorCorner.glb"
@@ -12345,7 +12979,9 @@
         "floorcornerround",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 60,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__floorCornerRound/furniture-kit__floorCornerRound.glb"
@@ -12375,7 +13011,9 @@
         "floorfull",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 12,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__floorFull/furniture-kit__floorFull.glb"
@@ -12405,7 +13043,9 @@
         "floorhalf",
         "furniture",
         "furniture-kit",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 12,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__floorHalf/furniture-kit__floorHalf.glb"
@@ -12435,7 +13075,9 @@
         "furniture",
         "furniture-kit",
         "hoodlarge",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 36,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__hoodLarge/furniture-kit__hoodLarge.glb"
@@ -12465,7 +13107,9 @@
         "furniture",
         "furniture-kit",
         "hoodmodern",
-        "kit"
+        "interior",
+        "kit",
+        "office"
       ],
       "triangles": 28,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__hoodModern/furniture-kit__hoodModern.glb"
@@ -12494,8 +13138,10 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
-        "kitchenbar"
+        "kitchenbar",
+        "office"
       ],
       "triangles": 76,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__kitchenBar/furniture-kit__kitchenBar.glb"
@@ -12524,8 +13170,10 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
-        "kitchenbarend"
+        "kitchenbarend",
+        "office"
       ],
       "triangles": 152,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__kitchenBarEnd/furniture-kit__kitchenBarEnd.glb"
@@ -12554,8 +13202,10 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
-        "kitchenblender"
+        "kitchenblender",
+        "office"
       ],
       "triangles": 246,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__kitchenBlender/furniture-kit__kitchenBlender.glb"
@@ -12584,8 +13234,10 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
-        "kitchencabinet"
+        "kitchencabinet",
+        "office"
       ],
       "triangles": 114,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__kitchenCabinet/furniture-kit__kitchenCabinet.glb"
@@ -12614,8 +13266,10 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
-        "kitchencabinetcornerinner"
+        "kitchencabinetcornerinner",
+        "office"
       ],
       "triangles": 54,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__kitchenCabinetCornerInner/furniture-kit__kitchenCabinetCornerInner.glb"
@@ -12644,8 +13298,10 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
-        "kitchencabinetcornerround"
+        "kitchencabinetcornerround",
+        "office"
       ],
       "triangles": 194,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__kitchenCabinetCornerRound/furniture-kit__kitchenCabinetCornerRound.glb"
@@ -12674,8 +13330,10 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
-        "kitchencabinetdrawer"
+        "kitchencabinetdrawer",
+        "office"
       ],
       "triangles": 174,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__kitchenCabinetDrawer/furniture-kit__kitchenCabinetDrawer.glb"
@@ -12704,8 +13362,10 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
-        "kitchencabinetupper"
+        "kitchencabinetupper",
+        "office"
       ],
       "triangles": 80,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__kitchenCabinetUpper/furniture-kit__kitchenCabinetUpper.glb"
@@ -12734,8 +13394,10 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
-        "kitchencabinetuppercorner"
+        "kitchencabinetuppercorner",
+        "office"
       ],
       "triangles": 204,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__kitchenCabinetUpperCorner/furniture-kit__kitchenCabinetUpperCorner.glb"
@@ -12764,8 +13426,10 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
-        "kitchencabinetupperdouble"
+        "kitchencabinetupperdouble",
+        "office"
       ],
       "triangles": 234,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__kitchenCabinetUpperDouble/furniture-kit__kitchenCabinetUpperDouble.glb"
@@ -12794,8 +13458,10 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
-        "kitchencabinetupperlow"
+        "kitchencabinetupperlow",
+        "office"
       ],
       "triangles": 64,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__kitchenCabinetUpperLow/furniture-kit__kitchenCabinetUpperLow.glb"
@@ -12824,8 +13490,10 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
-        "kitchencoffeemachine"
+        "kitchencoffeemachine",
+        "office"
       ],
       "triangles": 166,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__kitchenCoffeeMachine/furniture-kit__kitchenCoffeeMachine.glb"
@@ -12854,8 +13522,10 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
-        "kitchenfridge"
+        "kitchenfridge",
+        "office"
       ],
       "triangles": 250,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__kitchenFridge/furniture-kit__kitchenFridge.glb"
@@ -12884,8 +13554,10 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
-        "kitchenfridgebuiltin"
+        "kitchenfridgebuiltin",
+        "office"
       ],
       "triangles": 268,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__kitchenFridgeBuiltIn/furniture-kit__kitchenFridgeBuiltIn.glb"
@@ -12914,8 +13586,10 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
-        "kitchenfridgelarge"
+        "kitchenfridgelarge",
+        "office"
       ],
       "triangles": 436,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__kitchenFridgeLarge/furniture-kit__kitchenFridgeLarge.glb"
@@ -12944,8 +13618,10 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
-        "kitchenfridgesmall"
+        "kitchenfridgesmall",
+        "office"
       ],
       "triangles": 152,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__kitchenFridgeSmall/furniture-kit__kitchenFridgeSmall.glb"
@@ -12974,8 +13650,10 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
-        "kitchenmicrowave"
+        "kitchenmicrowave",
+        "office"
       ],
       "triangles": 152,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__kitchenMicrowave/furniture-kit__kitchenMicrowave.glb"
@@ -13004,8 +13682,10 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
-        "kitchensink"
+        "kitchensink",
+        "office"
       ],
       "triangles": 318,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__kitchenSink/furniture-kit__kitchenSink.glb"
@@ -13034,8 +13714,10 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
-        "kitchenstove"
+        "kitchenstove",
+        "office"
       ],
       "triangles": 830,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__kitchenStove/furniture-kit__kitchenStove.glb"
@@ -13064,8 +13746,10 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
-        "kitchenstoveelectric"
+        "kitchenstoveelectric",
+        "office"
       ],
       "triangles": 338,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__kitchenStoveElectric/furniture-kit__kitchenStoveElectric.glb"
@@ -13094,8 +13778,10 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
-        "lamproundfloor"
+        "lamproundfloor",
+        "office"
       ],
       "triangles": 76,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__lampRoundFloor/furniture-kit__lampRoundFloor.glb"
@@ -13124,8 +13810,10 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
-        "lamproundtable"
+        "lamproundtable",
+        "office"
       ],
       "triangles": 76,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__lampRoundTable/furniture-kit__lampRoundTable.glb"
@@ -13154,8 +13842,10 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
-        "lampsquareceiling"
+        "lampsquareceiling",
+        "office"
       ],
       "triangles": 60,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__lampSquareCeiling/furniture-kit__lampSquareCeiling.glb"
@@ -13184,8 +13874,10 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
-        "lampsquarefloor"
+        "lampsquarefloor",
+        "office"
       ],
       "triangles": 60,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__lampSquareFloor/furniture-kit__lampSquareFloor.glb"
@@ -13214,8 +13906,10 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
-        "lampsquaretable"
+        "lampsquaretable",
+        "office"
       ],
       "triangles": 60,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__lampSquareTable/furniture-kit__lampSquareTable.glb"
@@ -13244,8 +13938,10 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
-        "lampwall"
+        "lampwall",
+        "office"
       ],
       "triangles": 42,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__lampWall/furniture-kit__lampWall.glb"
@@ -13275,9 +13971,11 @@
         "computer",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
         "laptop",
-        "loot"
+        "loot",
+        "office"
       ],
       "triangles": 68,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__laptop/furniture-kit__laptop.glb"
@@ -13306,8 +14004,10 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
-        "loungechair"
+        "loungechair",
+        "office"
       ],
       "triangles": 128,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__loungeChair/furniture-kit__loungeChair.glb"
@@ -13336,8 +14036,10 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
-        "loungechairrelax"
+        "loungechairrelax",
+        "office"
       ],
       "triangles": 188,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__loungeChairRelax/furniture-kit__loungeChairRelax.glb"
@@ -13366,8 +14068,10 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
-        "loungedesignchair"
+        "loungedesignchair",
+        "office"
       ],
       "triangles": 116,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__loungeDesignChair/furniture-kit__loungeDesignChair.glb"
@@ -13396,8 +14100,10 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
-        "loungedesignsofa"
+        "loungedesignsofa",
+        "office"
       ],
       "triangles": 116,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__loungeDesignSofa/furniture-kit__loungeDesignSofa.glb"
@@ -13426,8 +14132,10 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
-        "loungedesignsofacorner"
+        "loungedesignsofacorner",
+        "office"
       ],
       "triangles": 176,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__loungeDesignSofaCorner/furniture-kit__loungeDesignSofaCorner.glb"
@@ -13456,8 +14164,10 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
-        "loungesofa"
+        "loungesofa",
+        "office"
       ],
       "triangles": 128,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__loungeSofa/furniture-kit__loungeSofa.glb"
@@ -13486,8 +14196,10 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
-        "loungesofacorner"
+        "loungesofacorner",
+        "office"
       ],
       "triangles": 190,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__loungeSofaCorner/furniture-kit__loungeSofaCorner.glb"
@@ -13516,8 +14228,10 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
-        "loungesofalong"
+        "loungesofalong",
+        "office"
       ],
       "triangles": 186,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__loungeSofaLong/furniture-kit__loungeSofaLong.glb"
@@ -13546,8 +14260,10 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
-        "loungesofaottoman"
+        "loungesofaottoman",
+        "office"
       ],
       "triangles": 84,
       "url": "/assets/gt-gpu/kenney/objects/furniture-kit__loungeSofaOttoman/furniture-kit__loungeSofaOttoman.glb"
@@ -13576,7 +14292,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "paneling"
       ],
       "triangles": 40,
@@ -13606,7 +14324,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "pillow"
       ],
       "triangles": 50,
@@ -13636,7 +14356,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "pillowblue"
       ],
       "triangles": 50,
@@ -13666,7 +14388,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "pillowbluelong"
       ],
       "triangles": 50,
@@ -13696,7 +14420,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "pillowlong"
       ],
       "triangles": 50,
@@ -13726,7 +14452,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "plantsmall1"
       ],
       "triangles": 102,
@@ -13756,7 +14484,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "plantsmall2"
       ],
       "triangles": 158,
@@ -13786,7 +14516,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "plantsmall3"
       ],
       "triangles": 98,
@@ -13816,7 +14548,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "pottedplant"
       ],
       "triangles": 60,
@@ -13846,7 +14580,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "radio"
       ],
       "triangles": 432,
@@ -13876,7 +14612,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "rugdoormat"
       ],
       "triangles": 204,
@@ -13906,7 +14644,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "rugrectangle"
       ],
       "triangles": 28,
@@ -13936,7 +14676,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "ruground"
       ],
       "triangles": 188,
@@ -13966,7 +14708,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "rugrounded"
       ],
       "triangles": 204,
@@ -13996,7 +14740,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "rugsquare"
       ],
       "triangles": 28,
@@ -14026,7 +14772,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "shower"
       ],
       "triangles": 810,
@@ -14056,7 +14804,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "showerround"
       ],
       "triangles": 960,
@@ -14086,7 +14836,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "sidetable"
       ],
       "triangles": 118,
@@ -14116,7 +14868,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "sidetabledrawers"
       ],
       "triangles": 238,
@@ -14146,7 +14900,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "speaker"
       ],
       "triangles": 228,
@@ -14176,7 +14932,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "speakersmall"
       ],
       "triangles": 220,
@@ -14206,7 +14964,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "stairs"
       ],
       "triangles": 308,
@@ -14236,7 +14996,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "stairscorner"
       ],
       "triangles": 312,
@@ -14266,7 +15028,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "stairsopen"
       ],
       "triangles": 558,
@@ -14296,7 +15060,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "stairsopensingle"
       ],
       "triangles": 326,
@@ -14326,7 +15092,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "stoolbar"
       ],
       "triangles": 176,
@@ -14356,7 +15124,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "stoolbarsquare"
       ],
       "triangles": 142,
@@ -14386,7 +15156,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "table"
       ],
       "triangles": 120,
@@ -14416,7 +15188,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "tablecloth"
       ],
       "triangles": 144,
@@ -14446,7 +15220,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "tablecoffee"
       ],
       "triangles": 124,
@@ -14476,7 +15252,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "tablecoffeeglass"
       ],
       "triangles": 140,
@@ -14506,7 +15284,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "tablecoffeeglasssquare"
       ],
       "triangles": 140,
@@ -14536,7 +15316,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "tablecoffeesquare"
       ],
       "triangles": 124,
@@ -14566,7 +15348,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "tablecross"
       ],
       "triangles": 178,
@@ -14596,7 +15380,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "tablecrosscloth"
       ],
       "triangles": 202,
@@ -14626,7 +15412,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "tableglass"
       ],
       "triangles": 144,
@@ -14656,7 +15444,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "tableround"
       ],
       "triangles": 80,
@@ -14686,7 +15476,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "televisionantenna"
       ],
       "triangles": 44,
@@ -14716,7 +15508,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "televisionmodern"
       ],
       "triangles": 72,
@@ -14746,7 +15540,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "televisionvintage"
       ],
       "triangles": 280,
@@ -14776,7 +15572,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "toaster"
       ],
       "triangles": 220,
@@ -14806,7 +15604,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "toilet"
       ],
       "triangles": 230,
@@ -14836,7 +15636,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "toiletsquare"
       ],
       "triangles": 228,
@@ -14866,7 +15668,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "trashcan"
       ],
       "triangles": 68,
@@ -14896,7 +15700,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "wall"
       ],
       "triangles": 12,
@@ -14926,7 +15732,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "wallcorner"
       ],
       "triangles": 28,
@@ -14956,7 +15764,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "wallcornerrond"
       ],
       "triangles": 116,
@@ -14986,7 +15796,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "walldoorway"
       ],
       "triangles": 60,
@@ -15016,7 +15828,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "walldoorwaywide"
       ],
       "triangles": 60,
@@ -15046,7 +15860,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "wallhalf"
       ],
       "triangles": 12,
@@ -15076,7 +15892,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "wallwindow"
       ],
       "triangles": 108,
@@ -15106,7 +15924,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "wallwindowslide"
       ],
       "triangles": 152,
@@ -15136,7 +15956,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "washer"
       ],
       "triangles": 720,
@@ -15166,7 +15988,9 @@
         "city",
         "furniture",
         "furniture-kit",
+        "interior",
         "kit",
+        "office",
         "washerdryerstacked"
       ],
       "triangles": 992,
@@ -15197,6 +16021,7 @@
         "building",
         "buildings",
         "city",
+        "facade",
         "modular",
         "modular-buildings"
       ],
@@ -15228,6 +16053,7 @@
         "buildings",
         "city",
         "corner",
+        "facade",
         "modular",
         "modular-buildings"
       ],
@@ -15260,6 +16086,7 @@
         "buildings",
         "city",
         "corner",
+        "facade",
         "modular",
         "modular-buildings"
       ],
@@ -15291,6 +16118,7 @@
         "buildings",
         "city",
         "corner",
+        "facade",
         "modular",
         "modular-buildings",
         "top"
@@ -15323,6 +16151,7 @@
         "buildings",
         "city",
         "corner",
+        "facade",
         "modular",
         "modular-buildings",
         "window"
@@ -15355,6 +16184,7 @@
         "buildings",
         "city",
         "corner",
+        "facade",
         "middle",
         "modular",
         "modular-buildings",
@@ -15388,6 +16218,7 @@
         "buildings",
         "city",
         "corner",
+        "facade",
         "modular",
         "modular-buildings",
         "narrow",
@@ -15421,6 +16252,7 @@
         "buildings",
         "city",
         "corner",
+        "facade",
         "modular",
         "modular-buildings",
         "sill",
@@ -15454,6 +16286,7 @@
         "buildings",
         "city",
         "corner",
+        "facade",
         "modular",
         "modular-buildings",
         "round",
@@ -15488,6 +16321,7 @@
         "buildings",
         "city",
         "corner",
+        "facade",
         "modular",
         "modular-buildings",
         "square",
@@ -15522,6 +16356,7 @@
         "buildings",
         "city",
         "door",
+        "facade",
         "modular",
         "modular-buildings"
       ],
@@ -15553,6 +16388,7 @@
         "buildings",
         "city",
         "door",
+        "facade",
         "modular",
         "modular-buildings",
         "window"
@@ -15585,6 +16421,7 @@
         "buildings",
         "city",
         "door",
+        "facade",
         "modular",
         "modular-buildings",
         "narrow",
@@ -15619,6 +16456,7 @@
         "city",
         "door",
         "edges",
+        "facade",
         "modular",
         "modular-buildings"
       ],
@@ -15650,6 +16488,7 @@
         "building",
         "buildings",
         "city",
+        "facade",
         "house",
         "modular",
         "modular-buildings",
@@ -15683,6 +16522,7 @@
         "building",
         "buildings",
         "city",
+        "facade",
         "house",
         "modular",
         "modular-buildings",
@@ -15716,6 +16556,7 @@
         "buildings",
         "c",
         "city",
+        "facade",
         "house",
         "modular",
         "modular-buildings",
@@ -15749,6 +16590,7 @@
         "building",
         "buildings",
         "city",
+        "facade",
         "modular",
         "modular-buildings",
         "sample",
@@ -15782,6 +16624,7 @@
         "building",
         "buildings",
         "city",
+        "facade",
         "modular",
         "modular-buildings",
         "sample",
@@ -15815,6 +16658,7 @@
         "buildings",
         "c",
         "city",
+        "facade",
         "modular",
         "modular-buildings",
         "sample",
@@ -15848,6 +16692,7 @@
         "buildings",
         "city",
         "d",
+        "facade",
         "modular",
         "modular-buildings",
         "sample",
@@ -15880,6 +16725,7 @@
         "building",
         "buildings",
         "city",
+        "facade",
         "modular",
         "modular-buildings",
         "narrow",
@@ -15912,6 +16758,7 @@
         "building",
         "buildings",
         "city",
+        "facade",
         "modular",
         "modular-buildings",
         "narrow",
@@ -15945,6 +16792,7 @@
         "building",
         "buildings",
         "city",
+        "facade",
         "modular",
         "modular-buildings",
         "narrow",
@@ -15979,6 +16827,7 @@
         "building",
         "buildings",
         "city",
+        "facade",
         "modular",
         "modular-buildings",
         "steps",
@@ -16011,6 +16860,7 @@
         "building",
         "buildings",
         "city",
+        "facade",
         "modular",
         "modular-buildings",
         "window"
@@ -16043,6 +16893,7 @@
         "building",
         "buildings",
         "city",
+        "facade",
         "modular",
         "modular-buildings",
         "window"
@@ -16075,6 +16926,7 @@
         "building",
         "buildings",
         "city",
+        "facade",
         "modular",
         "modular-buildings",
         "window"
@@ -16107,6 +16959,7 @@
         "buildings",
         "city",
         "door",
+        "facade",
         "modular",
         "modular-buildings",
         "window"
@@ -16139,6 +16992,7 @@
         "buildings",
         "city",
         "door",
+        "facade",
         "modular",
         "modular-buildings",
         "round",
@@ -16171,6 +17025,7 @@
         "building",
         "buildings",
         "city",
+        "facade",
         "large",
         "modular",
         "modular-buildings",
@@ -16203,6 +17058,7 @@
         "building",
         "buildings",
         "city",
+        "facade",
         "large",
         "left",
         "modular",
@@ -16236,6 +17092,7 @@
         "building",
         "buildings",
         "city",
+        "facade",
         "large",
         "middle",
         "modular",
@@ -16269,6 +17126,7 @@
         "building",
         "buildings",
         "city",
+        "facade",
         "large",
         "modular",
         "modular-buildings",
@@ -16302,6 +17160,7 @@
         "building",
         "buildings",
         "city",
+        "facade",
         "left",
         "modular",
         "modular-buildings",
@@ -16334,6 +17193,7 @@
         "building",
         "buildings",
         "city",
+        "facade",
         "left",
         "modular",
         "modular-buildings",
@@ -16367,6 +17227,7 @@
         "building",
         "buildings",
         "city",
+        "facade",
         "modular",
         "modular-buildings",
         "right",
@@ -16399,6 +17260,7 @@
         "building",
         "buildings",
         "city",
+        "facade",
         "modular",
         "modular-buildings",
         "right",
@@ -16432,6 +17294,7 @@
         "building",
         "buildings",
         "city",
+        "facade",
         "modular",
         "modular-buildings",
         "sill",
@@ -16464,6 +17327,7 @@
         "building",
         "buildings",
         "city",
+        "facade",
         "modular",
         "modular-buildings",
         "wide",
@@ -16496,6 +17360,7 @@
         "building",
         "buildings",
         "city",
+        "facade",
         "modular",
         "modular-buildings",
         "sill",
@@ -16529,6 +17394,7 @@
         "building",
         "buildings",
         "city",
+        "facade",
         "modular",
         "modular-buildings",
         "windows"
@@ -16560,6 +17426,7 @@
         "building",
         "buildings",
         "city",
+        "facade",
         "high",
         "middle",
         "modular",
@@ -16593,6 +17460,7 @@
         "building",
         "buildings",
         "city",
+        "facade",
         "high",
         "modular",
         "modular-buildings",
@@ -16627,6 +17495,7 @@
         "building",
         "buildings",
         "city",
+        "facade",
         "high",
         "modular",
         "modular-buildings",
@@ -16661,6 +17530,7 @@
         "building",
         "buildings",
         "city",
+        "facade",
         "modular",
         "modular-buildings",
         "round",
@@ -16693,6 +17563,7 @@
         "building",
         "buildings",
         "city",
+        "facade",
         "modular",
         "modular-buildings",
         "sills",
@@ -16725,6 +17596,7 @@
         "building",
         "buildings",
         "city",
+        "facade",
         "modular",
         "modular-buildings",
         "round",
@@ -16757,9 +17629,11 @@
       "tags": [
         "a",
         "ac",
+        "building",
         "buildings",
         "city",
         "detail",
+        "facade",
         "modular",
         "modular-buildings"
       ],
@@ -16789,9 +17663,11 @@
       "tags": [
         "ac",
         "b",
+        "building",
         "buildings",
         "city",
         "detail",
+        "facade",
         "modular",
         "modular-buildings"
       ],
@@ -16820,9 +17696,11 @@
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
         "brown",
+        "building",
         "buildings",
         "city",
         "door",
+        "facade",
         "modular",
         "modular-buildings"
       ],
@@ -16851,9 +17729,11 @@
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
         "brown",
+        "building",
         "buildings",
         "city",
         "door",
+        "facade",
         "glass",
         "modular",
         "modular-buildings"
@@ -16883,9 +17763,11 @@
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
         "brown",
+        "building",
         "buildings",
         "city",
         "door",
+        "facade",
         "modular",
         "modular-buildings",
         "window"
@@ -16914,9 +17796,11 @@
       "source": "Kenney Modular Buildings (web conversion: codepawl)",
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
+        "building",
         "buildings",
         "city",
         "door",
+        "facade",
         "modular",
         "modular-buildings",
         "white"
@@ -16945,9 +17829,11 @@
       "source": "Kenney Modular Buildings (web conversion: codepawl)",
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
+        "building",
         "buildings",
         "city",
         "door",
+        "facade",
         "glass",
         "modular",
         "modular-buildings",
@@ -16977,9 +17863,11 @@
       "source": "Kenney Modular Buildings (web conversion: codepawl)",
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
+        "building",
         "buildings",
         "city",
         "door",
+        "facade",
         "modular",
         "modular-buildings",
         "white",
@@ -17011,8 +17899,10 @@
       "tags": [
         "a",
         "awning",
+        "building",
         "buildings",
         "city",
+        "facade",
         "flat",
         "modular",
         "modular-buildings",
@@ -17044,8 +17934,10 @@
       "tags": [
         "awning",
         "b",
+        "building",
         "buildings",
         "city",
+        "facade",
         "flat",
         "modular",
         "modular-buildings",
@@ -17076,9 +17968,11 @@
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
         "awning",
+        "building",
         "buildings",
         "c",
         "city",
+        "facade",
         "flat",
         "modular",
         "modular-buildings",
@@ -17109,9 +18003,11 @@
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
         "border",
+        "building",
         "buildings",
         "center",
         "city",
+        "facade",
         "flat",
         "modular",
         "modular-buildings",
@@ -17142,10 +18038,12 @@
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
         "border",
+        "building",
         "buildings",
         "center",
         "city",
         "corner",
+        "facade",
         "flat",
         "modular",
         "modular-buildings",
@@ -17176,9 +18074,11 @@
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
         "border",
+        "building",
         "buildings",
         "city",
         "corner",
+        "facade",
         "flat",
         "modular",
         "modular-buildings",
@@ -17209,9 +18109,11 @@
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
         "border",
+        "building",
         "buildings",
         "city",
         "corner",
+        "facade",
         "flat",
         "modular",
         "modular-buildings",
@@ -17243,9 +18145,11 @@
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
         "border",
+        "building",
         "buildings",
         "city",
         "corner",
+        "facade",
         "flat",
         "modular",
         "modular-buildings",
@@ -17278,9 +18182,11 @@
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
         "border",
+        "building",
         "buildings",
         "city",
         "end",
+        "facade",
         "flat",
         "modular",
         "modular-buildings",
@@ -17311,8 +18217,10 @@
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
         "border",
+        "building",
         "buildings",
         "city",
+        "facade",
         "flat",
         "modular",
         "modular-buildings",
@@ -17344,8 +18252,10 @@
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
         "border",
+        "building",
         "buildings",
         "city",
+        "facade",
         "flat",
         "modular",
         "modular-buildings",
@@ -17376,9 +18286,11 @@
       "source": "Kenney Modular Buildings (web conversion: codepawl)",
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
+        "building",
         "buildings",
         "center",
         "city",
+        "facade",
         "flat",
         "modular",
         "modular-buildings",
@@ -17408,9 +18320,11 @@
       "source": "Kenney Modular Buildings (web conversion: codepawl)",
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
+        "building",
         "buildings",
         "city",
         "corner",
+        "facade",
         "flat",
         "modular",
         "modular-buildings",
@@ -17440,9 +18354,11 @@
       "source": "Kenney Modular Buildings (web conversion: codepawl)",
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
+        "building",
         "buildings",
         "city",
         "corner",
+        "facade",
         "flat",
         "high",
         "modular",
@@ -17474,9 +18390,11 @@
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
         "a",
+        "building",
         "buildings",
         "city",
         "detail",
+        "facade",
         "flat",
         "modular",
         "modular-buildings",
@@ -17507,9 +18425,11 @@
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
         "b",
+        "building",
         "buildings",
         "city",
         "detail",
+        "facade",
         "flat",
         "modular",
         "modular-buildings",
@@ -17539,10 +18459,12 @@
       "source": "Kenney Modular Buildings (web conversion: codepawl)",
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
+        "building",
         "buildings",
         "c",
         "city",
         "detail",
+        "facade",
         "flat",
         "modular",
         "modular-buildings",
@@ -17572,10 +18494,12 @@
       "source": "Kenney Modular Buildings (web conversion: codepawl)",
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
+        "building",
         "buildings",
         "city",
         "d",
         "detail",
+        "facade",
         "flat",
         "modular",
         "modular-buildings",
@@ -17605,8 +18529,10 @@
       "source": "Kenney Modular Buildings (web conversion: codepawl)",
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
+        "building",
         "buildings",
         "city",
+        "facade",
         "flat",
         "modular",
         "modular-buildings",
@@ -17637,8 +18563,10 @@
       "source": "Kenney Modular Buildings (web conversion: codepawl)",
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
+        "building",
         "buildings",
         "city",
+        "facade",
         "gable",
         "modular",
         "modular-buildings",
@@ -17668,9 +18596,11 @@
       "source": "Kenney Modular Buildings (web conversion: codepawl)",
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
+        "building",
         "buildings",
         "city",
         "corner",
+        "facade",
         "gable",
         "modular",
         "modular-buildings",
@@ -17700,9 +18630,11 @@
       "source": "Kenney Modular Buildings (web conversion: codepawl)",
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
+        "building",
         "buildings",
         "city",
         "end",
+        "facade",
         "gable",
         "modular",
         "modular-buildings",
@@ -17732,8 +18664,10 @@
       "source": "Kenney Modular Buildings (web conversion: codepawl)",
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
+        "building",
         "buildings",
         "city",
+        "facade",
         "modular",
         "modular-buildings",
         "roof",
@@ -17764,9 +18698,11 @@
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
         "a",
+        "building",
         "buildings",
         "city",
         "corner",
+        "facade",
         "modular",
         "modular-buildings",
         "roof",
@@ -17797,9 +18733,11 @@
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
         "b",
+        "building",
         "buildings",
         "city",
         "corner",
+        "facade",
         "modular",
         "modular-buildings",
         "roof",
@@ -17829,10 +18767,12 @@
       "source": "Kenney Modular Buildings (web conversion: codepawl)",
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
+        "building",
         "buildings",
         "c",
         "city",
         "corner",
+        "facade",
         "modular",
         "modular-buildings",
         "roof",
@@ -17862,9 +18802,11 @@
       "source": "Kenney Modular Buildings (web conversion: codepawl)",
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
+        "building",
         "buildings",
         "city",
         "corner",
+        "facade",
         "inner",
         "modular",
         "modular-buildings",
@@ -17895,9 +18837,11 @@
       "source": "Kenney Modular Buildings (web conversion: codepawl)",
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
+        "building",
         "buildings",
         "city",
         "detail",
+        "facade",
         "modular",
         "modular-buildings",
         "roof",
@@ -17927,8 +18871,10 @@
       "source": "Kenney Modular Buildings (web conversion: codepawl)",
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
+        "building",
         "buildings",
         "city",
+        "facade",
         "flat",
         "modular",
         "modular-buildings",
@@ -17959,8 +18905,10 @@
       "source": "Kenney Modular Buildings (web conversion: codepawl)",
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
+        "building",
         "buildings",
         "city",
+        "facade",
         "modular",
         "modular-buildings",
         "roof",
@@ -17992,8 +18940,10 @@
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
         "brown",
+        "building",
         "buildings",
         "city",
+        "facade",
         "modular",
         "modular-buildings",
         "window"
@@ -18023,9 +18973,11 @@
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
         "brown",
+        "building",
         "buildings",
         "city",
         "detailed",
+        "facade",
         "modular",
         "modular-buildings",
         "window"
@@ -18055,8 +19007,10 @@
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
         "brown",
+        "building",
         "buildings",
         "city",
+        "facade",
         "large",
         "modular",
         "modular-buildings",
@@ -18087,8 +19041,10 @@
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
         "brown",
+        "building",
         "buildings",
         "city",
+        "facade",
         "modular",
         "modular-buildings",
         "narrow",
@@ -18119,8 +19075,10 @@
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
         "brown",
+        "building",
         "buildings",
         "city",
+        "facade",
         "low",
         "modular",
         "modular-buildings",
@@ -18152,8 +19110,10 @@
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
         "brown",
+        "building",
         "buildings",
         "city",
+        "facade",
         "middle",
         "modular",
         "modular-buildings",
@@ -18185,8 +19145,10 @@
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
         "brown",
+        "building",
         "buildings",
         "city",
+        "facade",
         "modular",
         "modular-buildings",
         "narrow",
@@ -18218,8 +19180,10 @@
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
         "brown",
+        "building",
         "buildings",
         "city",
+        "facade",
         "modular",
         "modular-buildings",
         "round",
@@ -18251,8 +19215,10 @@
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
         "brown",
+        "building",
         "buildings",
         "city",
+        "facade",
         "modular",
         "modular-buildings",
         "round",
@@ -18284,8 +19250,10 @@
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
         "brown",
+        "building",
         "buildings",
         "city",
+        "facade",
         "modular",
         "modular-buildings",
         "tall",
@@ -18316,8 +19284,10 @@
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
         "brown",
+        "building",
         "buildings",
         "city",
+        "facade",
         "modular",
         "modular-buildings",
         "wide",
@@ -18347,8 +19317,10 @@
       "source": "Kenney Modular Buildings (web conversion: codepawl)",
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
+        "building",
         "buildings",
         "city",
+        "facade",
         "modular",
         "modular-buildings",
         "white",
@@ -18378,9 +19350,11 @@
       "source": "Kenney Modular Buildings (web conversion: codepawl)",
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
+        "building",
         "buildings",
         "city",
         "detailed",
+        "facade",
         "modular",
         "modular-buildings",
         "white",
@@ -18410,8 +19384,10 @@
       "source": "Kenney Modular Buildings (web conversion: codepawl)",
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
+        "building",
         "buildings",
         "city",
+        "facade",
         "large",
         "modular",
         "modular-buildings",
@@ -18442,8 +19418,10 @@
       "source": "Kenney Modular Buildings (web conversion: codepawl)",
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
+        "building",
         "buildings",
         "city",
+        "facade",
         "modular",
         "modular-buildings",
         "narrow",
@@ -18474,8 +19452,10 @@
       "source": "Kenney Modular Buildings (web conversion: codepawl)",
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
+        "building",
         "buildings",
         "city",
+        "facade",
         "low",
         "modular",
         "modular-buildings",
@@ -18507,8 +19487,10 @@
       "source": "Kenney Modular Buildings (web conversion: codepawl)",
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
+        "building",
         "buildings",
         "city",
+        "facade",
         "middle",
         "modular",
         "modular-buildings",
@@ -18540,8 +19522,10 @@
       "source": "Kenney Modular Buildings (web conversion: codepawl)",
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
+        "building",
         "buildings",
         "city",
+        "facade",
         "modular",
         "modular-buildings",
         "narrow",
@@ -18573,8 +19557,10 @@
       "source": "Kenney Modular Buildings (web conversion: codepawl)",
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
+        "building",
         "buildings",
         "city",
+        "facade",
         "modular",
         "modular-buildings",
         "round",
@@ -18606,8 +19592,10 @@
       "source": "Kenney Modular Buildings (web conversion: codepawl)",
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
+        "building",
         "buildings",
         "city",
+        "facade",
         "modular",
         "modular-buildings",
         "round",
@@ -18639,8 +19627,10 @@
       "source": "Kenney Modular Buildings (web conversion: codepawl)",
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
+        "building",
         "buildings",
         "city",
+        "facade",
         "modular",
         "modular-buildings",
         "tall",
@@ -18671,8 +19661,10 @@
       "source": "Kenney Modular Buildings (web conversion: codepawl)",
       "source_url": "https://kenney.nl/assets/modular-buildings",
       "tags": [
+        "building",
         "buildings",
         "city",
+        "facade",
         "modular",
         "modular-buildings",
         "white",
@@ -18706,10 +19698,12 @@
         "balcony",
         "bottom",
         "city",
+        "downtown",
         "kit",
         "ladder",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban"
       ],
       "triangles": 28,
@@ -18738,10 +19732,12 @@
       "tags": [
         "balcony",
         "city",
+        "downtown",
         "kit",
         "ladder",
         "retro",
         "retro-urban-kit",
+        "street",
         "top",
         "urban"
       ],
@@ -18772,9 +19768,11 @@
         "a",
         "balcony",
         "city",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "type",
         "urban"
       ],
@@ -18805,9 +19803,11 @@
         "city",
         "cliff",
         "corner",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban"
       ],
       "triangles": 12,
@@ -18836,10 +19836,12 @@
       "tags": [
         "city",
         "cliff",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
         "side",
+        "street",
         "urban"
       ],
       "triangles": 24,
@@ -18869,10 +19871,12 @@
         "awning",
         "city",
         "detail",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
         "small",
+        "street",
         "urban"
       ],
       "triangles": 24,
@@ -18902,9 +19906,11 @@
         "awning",
         "city",
         "detail",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban",
         "wide"
       ],
@@ -18936,6 +19942,7 @@
         "city",
         "damaged",
         "detail",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
@@ -18972,6 +19979,7 @@
         "barrier",
         "city",
         "detail",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
@@ -19009,6 +20017,7 @@
         "barrier",
         "city",
         "detail",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
@@ -19046,6 +20055,7 @@
         "barrier",
         "city",
         "detail",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
@@ -19082,6 +20092,7 @@
         "barrier",
         "city",
         "detail",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
@@ -19117,9 +20128,11 @@
         "beam",
         "city",
         "detail",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban"
       ],
       "triangles": 44,
@@ -19149,9 +20162,11 @@
         "bench",
         "city",
         "detail",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban"
       ],
       "triangles": 84,
@@ -19181,9 +20196,11 @@
         "block",
         "city",
         "detail",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban"
       ],
       "triangles": 12,
@@ -19214,9 +20231,11 @@
         "bricks",
         "city",
         "detail",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "type",
         "urban"
       ],
@@ -19248,9 +20267,11 @@
         "bricks",
         "city",
         "detail",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "type",
         "urban"
       ],
@@ -19282,9 +20303,11 @@
         "cables",
         "city",
         "detail",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "type",
         "urban"
       ],
@@ -19316,9 +20339,11 @@
         "cables",
         "city",
         "detail",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "type",
         "urban"
       ],
@@ -19349,10 +20374,12 @@
         "city",
         "closed",
         "detail",
+        "downtown",
         "dumpster",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban"
       ],
       "triangles": 22,
@@ -19381,11 +20408,13 @@
       "tags": [
         "city",
         "detail",
+        "downtown",
         "dumpster",
         "kit",
         "open",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban"
       ],
       "triangles": 24,
@@ -19415,10 +20444,12 @@
         "city",
         "detail",
         "double",
+        "downtown",
         "kit",
         "light",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban"
       ],
       "triangles": 96,
@@ -19447,11 +20478,13 @@
       "tags": [
         "city",
         "detail",
+        "downtown",
         "kit",
         "light",
         "retro",
         "retro-urban-kit",
         "single",
+        "street",
         "urban"
       ],
       "triangles": 68,
@@ -19480,6 +20513,7 @@
       "tags": [
         "city",
         "detail",
+        "downtown",
         "intersection",
         "kit",
         "light",
@@ -19516,9 +20550,11 @@
         "a",
         "city",
         "door",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "type",
         "urban"
       ],
@@ -19549,9 +20585,11 @@
         "b",
         "city",
         "door",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "type",
         "urban"
       ],
@@ -19580,10 +20618,12 @@
       "source_url": "https://kenney.nl/assets/retro-urban-kit",
       "tags": [
         "city",
+        "downtown",
         "grass",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban"
       ],
       "triangles": 2,
@@ -19612,10 +20652,12 @@
       "tags": [
         "city",
         "corner",
+        "downtown",
         "grass",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban"
       ],
       "triangles": 2,
@@ -19644,11 +20686,13 @@
       "tags": [
         "city",
         "corner",
+        "downtown",
         "grass",
         "inner",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban"
       ],
       "triangles": 2,
@@ -19676,11 +20720,13 @@
       "source_url": "https://kenney.nl/assets/retro-urban-kit",
       "tags": [
         "city",
+        "downtown",
         "grass",
         "hill",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban"
       ],
       "triangles": 2,
@@ -19708,10 +20754,12 @@
       "source_url": "https://kenney.nl/assets/retro-urban-kit",
       "tags": [
         "city",
+        "downtown",
         "kit",
         "pallet",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban"
       ],
       "triangles": 84,
@@ -19739,11 +20787,13 @@
       "source_url": "https://kenney.nl/assets/retro-urban-kit",
       "tags": [
         "city",
+        "downtown",
         "kit",
         "pallet",
         "retro",
         "retro-urban-kit",
         "small",
+        "street",
         "urban"
       ],
       "triangles": 60,
@@ -19771,10 +20821,12 @@
       "source_url": "https://kenney.nl/assets/retro-urban-kit",
       "tags": [
         "city",
+        "downtown",
         "kit",
         "planks",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban"
       ],
       "triangles": 36,
@@ -19804,10 +20856,12 @@
         "asphalt",
         "center",
         "city",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
         "road",
+        "street",
         "urban"
       ],
       "triangles": 2,
@@ -19837,10 +20891,12 @@
         "asphalt",
         "city",
         "corner",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
         "road",
+        "street",
         "urban"
       ],
       "triangles": 50,
@@ -19870,11 +20926,13 @@
         "asphalt",
         "city",
         "corner",
+        "downtown",
         "inner",
         "kit",
         "retro",
         "retro-urban-kit",
         "road",
+        "street",
         "urban"
       ],
       "triangles": 24,
@@ -19904,11 +20962,13 @@
         "asphalt",
         "city",
         "corner",
+        "downtown",
         "kit",
         "outer",
         "retro",
         "retro-urban-kit",
         "road",
+        "street",
         "urban"
       ],
       "triangles": 22,
@@ -19938,10 +20998,12 @@
         "asphalt",
         "city",
         "damaged",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
         "road",
+        "street",
         "urban"
       ],
       "triangles": 24,
@@ -19970,11 +21032,13 @@
       "tags": [
         "asphalt",
         "city",
+        "downtown",
         "kit",
         "pavement",
         "retro",
         "retro-urban-kit",
         "road",
+        "street",
         "urban"
       ],
       "triangles": 2,
@@ -20003,11 +21067,13 @@
       "tags": [
         "asphalt",
         "city",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
         "road",
         "side",
+        "street",
         "urban"
       ],
       "triangles": 12,
@@ -20036,11 +21102,13 @@
       "tags": [
         "asphalt",
         "city",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
         "road",
         "straight",
+        "street",
         "urban"
       ],
       "triangles": 22,
@@ -20070,10 +21138,12 @@
         "center",
         "city",
         "dirt",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
         "road",
+        "street",
         "urban"
       ],
       "triangles": 2,
@@ -20103,10 +21173,12 @@
         "city",
         "corner",
         "dirt",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
         "road",
+        "street",
         "urban"
       ],
       "triangles": 50,
@@ -20136,11 +21208,13 @@
         "city",
         "corner",
         "dirt",
+        "downtown",
         "inner",
         "kit",
         "retro",
         "retro-urban-kit",
         "road",
+        "street",
         "urban"
       ],
       "triangles": 24,
@@ -20170,11 +21244,13 @@
         "city",
         "corner",
         "dirt",
+        "downtown",
         "kit",
         "outer",
         "retro",
         "retro-urban-kit",
         "road",
+        "street",
         "urban"
       ],
       "triangles": 22,
@@ -20204,10 +21280,12 @@
         "city",
         "damaged",
         "dirt",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
         "road",
+        "street",
         "urban"
       ],
       "triangles": 24,
@@ -20236,11 +21314,13 @@
       "tags": [
         "city",
         "dirt",
+        "downtown",
         "kit",
         "pavement",
         "retro",
         "retro-urban-kit",
         "road",
+        "street",
         "urban"
       ],
       "triangles": 2,
@@ -20269,11 +21349,13 @@
       "tags": [
         "city",
         "dirt",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
         "road",
         "side",
+        "street",
         "urban"
       ],
       "triangles": 12,
@@ -20302,11 +21384,13 @@
       "tags": [
         "city",
         "dirt",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
         "road",
         "straight",
+        "street",
         "urban"
       ],
       "triangles": 22,
@@ -20335,10 +21419,12 @@
       "tags": [
         "city",
         "dirt",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
         "road",
+        "street",
         "tile",
         "urban"
       ],
@@ -20367,12 +21453,14 @@
       "source_url": "https://kenney.nl/assets/retro-urban-kit",
       "tags": [
         "city",
+        "downtown",
         "kit",
         "metal",
         "poles",
         "retro",
         "retro-urban-kit",
         "roof",
+        "street",
         "urban"
       ],
       "triangles": 48,
@@ -20401,11 +21489,13 @@
       "tags": [
         "a",
         "city",
+        "downtown",
         "kit",
         "metal",
         "retro",
         "retro-urban-kit",
         "roof",
+        "street",
         "type",
         "urban"
       ],
@@ -20435,11 +21525,13 @@
       "tags": [
         "b",
         "city",
+        "downtown",
         "kit",
         "metal",
         "retro",
         "retro-urban-kit",
         "roof",
+        "street",
         "type",
         "urban"
       ],
@@ -20468,11 +21560,13 @@
       "source_url": "https://kenney.nl/assets/retro-urban-kit",
       "tags": [
         "city",
+        "downtown",
         "floor",
         "kit",
         "retro",
         "retro-urban-kit",
         "scaffolding",
+        "street",
         "urban"
       ],
       "triangles": 38,
@@ -20500,11 +21594,13 @@
       "source_url": "https://kenney.nl/assets/retro-urban-kit",
       "tags": [
         "city",
+        "downtown",
         "kit",
         "poles",
         "retro",
         "retro-urban-kit",
         "scaffolding",
+        "street",
         "urban"
       ],
       "triangles": 48,
@@ -20532,10 +21628,12 @@
       "source_url": "https://kenney.nl/assets/retro-urban-kit",
       "tags": [
         "city",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
         "scaffolding",
+        "street",
         "structure",
         "urban"
       ],
@@ -20564,10 +21662,12 @@
       "source_url": "https://kenney.nl/assets/retro-urban-kit",
       "tags": [
         "city",
+        "downtown",
         "kit",
         "large",
         "retro",
         "retro-urban-kit",
+        "street",
         "tree",
         "urban"
       ],
@@ -20596,11 +21696,13 @@
       "source_url": "https://kenney.nl/assets/retro-urban-kit",
       "tags": [
         "city",
+        "downtown",
         "kit",
         "large",
         "park",
         "retro",
         "retro-urban-kit",
+        "street",
         "tree",
         "urban"
       ],
@@ -20629,12 +21731,14 @@
       "source_url": "https://kenney.nl/assets/retro-urban-kit",
       "tags": [
         "city",
+        "downtown",
         "kit",
         "large",
         "park",
         "pine",
         "retro",
         "retro-urban-kit",
+        "street",
         "tree",
         "urban"
       ],
@@ -20663,11 +21767,13 @@
       "source_url": "https://kenney.nl/assets/retro-urban-kit",
       "tags": [
         "city",
+        "downtown",
         "kit",
         "large",
         "pine",
         "retro",
         "retro-urban-kit",
+        "street",
         "tree",
         "urban"
       ],
@@ -20696,11 +21802,13 @@
       "source_url": "https://kenney.nl/assets/retro-urban-kit",
       "tags": [
         "city",
+        "downtown",
         "kit",
         "pine",
         "retro",
         "retro-urban-kit",
         "small",
+        "street",
         "tree",
         "urban"
       ],
@@ -20729,10 +21837,12 @@
       "source_url": "https://kenney.nl/assets/retro-urban-kit",
       "tags": [
         "city",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
         "shrub",
+        "street",
         "tree",
         "urban"
       ],
@@ -20761,10 +21871,12 @@
       "source_url": "https://kenney.nl/assets/retro-urban-kit",
       "tags": [
         "city",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
         "small",
+        "street",
         "tree",
         "urban"
       ],
@@ -20793,10 +21905,12 @@
       "source_url": "https://kenney.nl/assets/retro-urban-kit",
       "tags": [
         "city",
+        "downtown",
         "flat",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "truck",
         "urban"
       ],
@@ -20825,10 +21939,12 @@
       "source_url": "https://kenney.nl/assets/retro-urban-kit",
       "tags": [
         "city",
+        "downtown",
         "green",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "truck",
         "urban"
       ],
@@ -20858,10 +21974,12 @@
       "tags": [
         "cargo",
         "city",
+        "downtown",
         "green",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "truck",
         "urban"
       ],
@@ -20890,10 +22008,12 @@
       "source_url": "https://kenney.nl/assets/retro-urban-kit",
       "tags": [
         "city",
+        "downtown",
         "grey",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "truck",
         "urban"
       ],
@@ -20923,10 +22043,12 @@
       "tags": [
         "cargo",
         "city",
+        "downtown",
         "grey",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "truck",
         "urban"
       ],
@@ -20956,9 +22078,11 @@
       "tags": [
         "a",
         "city",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban",
         "wall"
       ],
@@ -20989,9 +22113,11 @@
         "a",
         "city",
         "column",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban",
         "wall"
       ],
@@ -21022,10 +22148,12 @@
         "a",
         "city",
         "column",
+        "downtown",
         "kit",
         "painted",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban",
         "wall"
       ],
@@ -21056,9 +22184,11 @@
         "a",
         "city",
         "corner",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban",
         "wall"
       ],
@@ -21089,10 +22219,12 @@
         "a",
         "city",
         "corner",
+        "downtown",
         "kit",
         "painted",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban",
         "wall"
       ],
@@ -21123,9 +22255,11 @@
         "a",
         "city",
         "detail",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban",
         "wall"
       ],
@@ -21156,10 +22290,12 @@
         "a",
         "city",
         "detail",
+        "downtown",
         "kit",
         "painted",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban",
         "wall"
       ],
@@ -21190,9 +22326,11 @@
         "a",
         "city",
         "diagonal",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban",
         "wall"
       ],
@@ -21223,9 +22361,11 @@
         "a",
         "city",
         "door",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban",
         "wall"
       ],
@@ -21255,10 +22395,12 @@
       "tags": [
         "a",
         "city",
+        "downtown",
         "flat",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban",
         "wall"
       ],
@@ -21288,11 +22430,13 @@
       "tags": [
         "a",
         "city",
+        "downtown",
         "flat",
         "garage",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban",
         "wall"
       ],
@@ -21322,11 +22466,13 @@
       "tags": [
         "a",
         "city",
+        "downtown",
         "flat",
         "kit",
         "painted",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban",
         "wall"
       ],
@@ -21356,10 +22502,12 @@
       "tags": [
         "a",
         "city",
+        "downtown",
         "flat",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban",
         "wall",
         "window"
@@ -21390,10 +22538,12 @@
       "tags": [
         "a",
         "city",
+        "downtown",
         "garage",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban",
         "wall"
       ],
@@ -21423,10 +22573,12 @@
       "tags": [
         "a",
         "city",
+        "downtown",
         "kit",
         "low",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban",
         "wall"
       ],
@@ -21456,11 +22608,13 @@
       "tags": [
         "a",
         "city",
+        "downtown",
         "kit",
         "low",
         "painted",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban",
         "wall"
       ],
@@ -21490,10 +22644,12 @@
       "tags": [
         "a",
         "city",
+        "downtown",
         "kit",
         "open",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban",
         "wall"
       ],
@@ -21523,10 +22679,12 @@
       "tags": [
         "a",
         "city",
+        "downtown",
         "kit",
         "painted",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban",
         "wall"
       ],
@@ -21557,10 +22715,12 @@
         "a",
         "city",
         "diagonal",
+        "downtown",
         "kit",
         "painted",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban",
         "wall"
       ],
@@ -21590,10 +22750,12 @@
       "tags": [
         "a",
         "city",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
         "roof",
+        "street",
         "urban",
         "wall"
       ],
@@ -21624,10 +22786,12 @@
         "a",
         "city",
         "detailed",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
         "roof",
+        "street",
         "urban",
         "wall"
       ],
@@ -21657,11 +22821,13 @@
       "tags": [
         "a",
         "city",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
         "roof",
         "slant",
+        "street",
         "urban",
         "wall"
       ],
@@ -21692,11 +22858,13 @@
         "a",
         "city",
         "detailed",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
         "roof",
         "slant",
+        "street",
         "urban",
         "wall"
       ],
@@ -21726,9 +22894,11 @@
       "tags": [
         "a",
         "city",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban",
         "wall",
         "window"
@@ -21759,9 +22929,11 @@
       "tags": [
         "b",
         "city",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban",
         "wall"
       ],
@@ -21792,9 +22964,11 @@
         "b",
         "city",
         "column",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban",
         "wall"
       ],
@@ -21825,9 +22999,11 @@
         "b",
         "city",
         "corner",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban",
         "wall"
       ],
@@ -21858,10 +23034,12 @@
         "b",
         "city",
         "detail",
+        "downtown",
         "kit",
         "painted",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban",
         "wall"
       ],
@@ -21892,9 +23070,11 @@
         "b",
         "city",
         "diagonal",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban",
         "wall"
       ],
@@ -21925,9 +23105,11 @@
         "b",
         "city",
         "door",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban",
         "wall"
       ],
@@ -21957,10 +23139,12 @@
       "tags": [
         "b",
         "city",
+        "downtown",
         "flat",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban",
         "wall"
       ],
@@ -21990,11 +23174,13 @@
       "tags": [
         "b",
         "city",
+        "downtown",
         "flat",
         "garage",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban",
         "wall"
       ],
@@ -22024,10 +23210,12 @@
       "tags": [
         "b",
         "city",
+        "downtown",
         "flat",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban",
         "wall",
         "window"
@@ -22058,10 +23246,12 @@
       "tags": [
         "b",
         "city",
+        "downtown",
         "garage",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban",
         "wall"
       ],
@@ -22091,10 +23281,12 @@
       "tags": [
         "b",
         "city",
+        "downtown",
         "kit",
         "low",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban",
         "wall"
       ],
@@ -22124,10 +23316,12 @@
       "tags": [
         "b",
         "city",
+        "downtown",
         "kit",
         "open",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban",
         "wall"
       ],
@@ -22157,10 +23351,12 @@
       "tags": [
         "b",
         "city",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
         "roof",
+        "street",
         "urban",
         "wall"
       ],
@@ -22191,10 +23387,12 @@
         "b",
         "city",
         "detailed",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
         "roof",
+        "street",
         "urban",
         "wall"
       ],
@@ -22224,11 +23422,13 @@
       "tags": [
         "b",
         "city",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
         "roof",
         "slant",
+        "street",
         "urban",
         "wall"
       ],
@@ -22259,11 +23459,13 @@
         "b",
         "city",
         "detailed",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
         "roof",
         "slant",
+        "street",
         "urban",
         "wall"
       ],
@@ -22293,9 +23495,11 @@
       "tags": [
         "b",
         "city",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban",
         "wall",
         "window"
@@ -22327,9 +23531,11 @@
         "a",
         "broken",
         "city",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "type",
         "urban",
         "wall"
@@ -22361,9 +23567,11 @@
         "b",
         "broken",
         "city",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "type",
         "urban",
         "wall"
@@ -22394,10 +23602,12 @@
       "tags": [
         "c",
         "city",
+        "downtown",
         "flat",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban",
         "wall"
       ],
@@ -22427,11 +23637,13 @@
       "tags": [
         "c",
         "city",
+        "downtown",
         "flat",
         "kit",
         "low",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban",
         "wall"
       ],
@@ -22460,10 +23672,12 @@
       "source_url": "https://kenney.nl/assets/retro-urban-kit",
       "tags": [
         "city",
+        "downtown",
         "fence",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "urban",
         "wall"
       ],
@@ -22493,10 +23707,12 @@
       "tags": [
         "a",
         "city",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
         "steps",
+        "street",
         "type",
         "urban",
         "wall"
@@ -22527,10 +23743,12 @@
       "tags": [
         "b",
         "city",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
         "steps",
+        "street",
         "type",
         "urban",
         "wall"
@@ -22561,9 +23779,11 @@
       "tags": [
         "a",
         "city",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "type",
         "urban",
         "wall"
@@ -22594,9 +23814,11 @@
       "tags": [
         "b",
         "city",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "type",
         "urban",
         "wall"
@@ -22627,10 +23849,12 @@
       "tags": [
         "a",
         "city",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
         "small",
+        "street",
         "type",
         "urban",
         "window"
@@ -22661,10 +23885,12 @@
       "tags": [
         "b",
         "city",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
         "small",
+        "street",
         "type",
         "urban",
         "window"
@@ -22695,9 +23921,11 @@
       "tags": [
         "a",
         "city",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "type",
         "urban",
         "wide",
@@ -22729,9 +23957,11 @@
       "tags": [
         "b",
         "city",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "type",
         "urban",
         "wide",
@@ -22763,9 +23993,11 @@
       "tags": [
         "c",
         "city",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "type",
         "urban",
         "wide",
@@ -22797,9 +24029,11 @@
       "tags": [
         "city",
         "d",
+        "downtown",
         "kit",
         "retro",
         "retro-urban-kit",
+        "street",
         "type",
         "urban",
         "wide",
