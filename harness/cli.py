@@ -16,6 +16,7 @@ Each subcommand is a thin wrapper: the work lives in `harness.doctor`,
 """
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
@@ -37,11 +38,14 @@ def cmd_doctor(_: argparse.Namespace) -> int:
 def cmd_assets(args: argparse.Namespace) -> int:
     """Rebuilds the requested asset set from source, then refreshes the catalog."""
     # Lazy imports: huggingface_hub and trimesh are only needed here.
-    from harness import assets, catalog, dataset, mirror, sfcity
+    from harness import assets, catalog, dataset, mirror, sfcity, textures
 
     staging = args.out if args.out != ASSETS_DIR else MIRROR_DIR
     if args.what == "city":
         sfcity.build(staging)
+        return 0
+    if args.what == "textures":
+        print(json.dumps(textures.build(staging)))
         return 0
     if args.what == "dataset":
         dataset.build(staging)
@@ -189,7 +193,18 @@ def build_parser() -> argparse.ArgumentParser:
         "what",
         nargs="?",
         default="all",
-        choices=["gpu", "cars", "props", "catalog", "mirror", "city", "dataset", "publish", "all"],
+        choices=[
+            "gpu",
+            "cars",
+            "props",
+            "catalog",
+            "mirror",
+            "city",
+            "textures",
+            "dataset",
+            "publish",
+            "all",
+        ],
     )
     a.add_argument("--source", default=None, help="mirror only this source id")
     a.add_argument("--out", type=Path, default=ASSETS_DIR, help="assets root (default: assets/)")
