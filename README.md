@@ -95,7 +95,7 @@ These are the decisions behind the design.
 
 ## Assets
 
-All assets live in the Hugging Face dataset **[harpreetsahota/grand-theft-gpu-assets](https://huggingface.co/datasets/harpreetsahota/grand-theft-gpu-assets)**, not in this repo. This repo tracks only `assets/catalog.json`, the index of all 1,294 assets, pinned to the dataset revision races use (`HF_ASSETS_REVISION` in `harness/config.py`).
+All assets live in the Hugging Face dataset **[harpreetsahota/grand-theft-gpu-assets](https://huggingface.co/datasets/harpreetsahota/grand-theft-gpu-assets)**, not in this repo. This repo tracks only `assets/catalog.json`, the index of all 1,302 assets, pinned to the dataset revision races use (`HF_ASSETS_REVISION` in `harness/config.py`).
 
 | Folder | What | License |
 |---|---|---|
@@ -103,14 +103,14 @@ All assets live in the Hugging Face dataset **[harpreetsahota/grand-theft-gpu-as
 | `rocketbox-motions/` | 326 motion-capture clips that play on any Rocketbox person | MIT (Microsoft Rocketbox) |
 | `quaternius-animations/` | 89 walk/run/drive/climb clips on one humanoid rig | CC0 (Quaternius) |
 | `sf-city/` | Real SF slice (SoMa → FiDi → Embarcadero): terrain, 2,168 buildings, streets, bay, street graph | ODbL / © OpenStreetMap contributors |
-| `vehicles-objaverse/`, `vehicles-quaternius/` | 15 realistic low-poly vehicles: police sedan, taxis, compact cars, SUV, muscle cars, vans, ambulance, fire truck, city bus | CC-BY 4.0 (per-artist credit) / CC0 |
+| `vehicles-objaverse/`, `vehicles-quaternius/` | 15 realistic low-poly vehicles at real size, all facing +z: police sedan, taxis, compact cars, SUV, muscle cars, vans, ambulance, fire truck, city bus | CC-BY 4.0 (per-artist credit) / CC0 |
 | `kenney/` | 664 low-poly city pieces and furniture | CC0 (Kenney) |
 | `usdcraft-props/` | 45 props with joints: servers, safes, an ATM, a forklift, a drone | Apache 2.0 (NVIDIA USDCraft-10K) |
 | `gpu/` | The loot: a graphics card with animatable fans and RGB | CC0 (Grab3D) |
 | `meta-mhr/` | Meta's parametric human body, 7 LODs (on demand only) | Apache 2.0 (Meta) |
-| `trees-google-poly/` | 8 street trees and palms | CC-BY 3.0 (per-artist credit) |
+| `trees-google-poly/` | 8 street trees and palms, at real heights | CC-BY 3.0 (per-artist credit) |
 | `polyhaven-hdris/`, `polyhaven-textures/`, `ambientcg-textures/` | 8 HDRI skies (1k seeded, 2k on demand); 36 PBR materials incl. day/night office facades | CC0 (Poly Haven, ambientCG) |
-| `audio-opengameart/`, `kenney-media/` | Engine, tires, siren, alarm, ambience, footsteps, impacts, UI sounds; particle sprites | CC0 / CC-BY 3.0 per item (credited) |
+| `audio-opengameart/`, `audio-freesound/`, `kenney-media/` | Engine, tires, police and ambulance sirens, crashes, horn, traffic ambience, alarm, footsteps, impacts, UI sounds; particle sprites | CC0 / CC-BY 3.0 per item (credited) |
 | `google-fonts/` | Bebas Neue, Anton, Rajdhani, Share Tech Mono | OFL 1.1 |
 
 **In a race,** every workspace is seeded with the full web tier (about 650 MB: everything except people's extra LOD/mobile/collision tiers, 2k skies and the MHR bodies), copied from the Hugging Face cache into `public/assets/gt-gpu/` in the dataset's layout. Each workspace also gets `tools/assets.mjs`, a zero-dependency Node tool the models use to search the catalog and fetch extras (`node tools/assets.mjs help`), and `tools/screenshot`, which builds and renders the game to a PNG the model can look at.

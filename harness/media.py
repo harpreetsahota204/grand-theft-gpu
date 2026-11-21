@@ -4,6 +4,7 @@ Reads `scripts/media_sources.json` and writes, under the staging folder
 (`config.MIRROR_DIR`):
 
     audio-opengameart/<id>/<files>, info.json     single sounds and loops
+    audio-freesound/<id>/<id>.mp3, info.json      sirens, crashes, traffic, horn
     kenney-media/<pack>/<files>, info.json        Kenney audio and particle packs
     google-fonts/<family>/<file>.ttf, OFL.txt, info.json
 
@@ -26,6 +27,7 @@ from harness.textures import get, write_checked
 PLAN_PATH: Path = REPO_ROOT / "scripts" / "media_sources.json"
 OGA_FILES: str = "https://opengameart.org/sites/default/files"
 OGA_PAGE: str = "https://opengameart.org/content"
+FREESOUND_PREVIEWS: str = "https://cdn.freesound.org/previews"
 
 
 def write_info(folder: Path, record: dict[str, Any]) -> None:
@@ -93,6 +95,31 @@ def fetch_opengameart(spec: dict[str, Any], out: Path) -> list[dict[str, Any]]:
     return records
 
 
+def fetch_freesound(spec: dict[str, Any], out: Path) -> list[dict[str, Any]]:
+    """Downloads each Freesound item's high-quality preview (MP3) with an info.json.
+
+    Returns:
+        the info records written
+    """
+    records = []
+    for item_id, item in sorted(spec["items"].items()):
+        name = f"{item_id}.mp3"
+        data = get(f"{FREESOUND_PREVIEWS}/{item['preview']}-hq.mp3")
+        record = {
+            "id": item_id,
+            "what": item["what"],
+            "author": item["author"],
+            "license": item["license"],
+            "source": f"https://freesound.org/s/{item['sound_id']}/",
+            "files": {name: write_checked(out / item_id / name, data)},
+            "license_note": "Freesound HQ preview (MP3); the original is on the source page.",
+        }
+        write_info(out / item_id, record)
+        records.append(record)
+        print(f"freesound {item_id}")
+    return records
+
+
 def fetch_kenney(spec: dict[str, Any], out: Path) -> list[dict[str, Any]]:
     """Downloads each Kenney pack and keeps its audio or sprite folder plus License.txt.
 
@@ -154,6 +181,7 @@ def build(root: Path = MIRROR_DIR) -> dict[str, int]:
     plan = json.loads(PLAN_PATH.read_text())
     steps = [
         ("opengameart", fetch_opengameart),
+        ("freesound", fetch_freesound),
         ("kenney", fetch_kenney),
         ("google_fonts", fetch_google_fonts),
     ]

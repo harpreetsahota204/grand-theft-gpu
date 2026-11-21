@@ -128,11 +128,12 @@ const HELP = {
   },
   notes: [
     "Load any model in the game from its `url` with three.js GLTFLoader.",
+    "Vehicles and trees are real size in metres, standing on y = 0 and centred; vehicles face +z. `size_m` gives the box; `parts` names separate wheel meshes where a model has them.",
     "Files under objects/ (people, motions, Kenney, vehicles, trees) need loader.setMeshoptDecoder(MeshoptDecoder) from three/addons/libs/meshopt_decoder.module.js.",
     "Skies (category sky) are .hdr: RGBELoader, then PMREMGenerator for scene.environment and scene.background.",
     "Textures (category texture): load each URL in `maps` with TextureLoader; set wrapS/wrapT = RepeatWrapping and repeat = surface metres / tile_m. Night facades have an emission map (lit windows).",
     "sf-city UVs are in metres (see the map record's uv field), so a texture's repeat is 1 / tile_m.",
-    "Sounds (category sound) are .ogg/.wav for AudioLoader; `files` lists every variant. Sprites (vfx) are transparent .png. Fonts are .ttf for CSS @font-face.",
+    "Sounds (category sound) are .ogg/.wav/.mp3 for AudioLoader; `files` lists every variant. Sprites (vfx) are transparent .png. Fonts are .ttf for CSS @font-face.",
     "Rocketbox motion clips play on any Rocketbox person (shared skeleton). Quaternius clips (walk/run) need retargeting.",
     "sf-city: buildings.json and streets.json (see the map record's data_files) give footprints, heights and a routable street graph.",
   ],

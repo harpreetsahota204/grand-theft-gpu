@@ -835,6 +835,266 @@
     },
     {
       "animations": [],
+      "bytes": 448221,
+      "category": "sound",
+      "files": [
+        "/assets/gt-gpu/audio-freesound/ambulance-siren/ambulance-siren.mp3"
+      ],
+      "group": "",
+      "hf_path": "audio-freesound/ambulance-siren/ambulance-siren.mp3",
+      "id": "audio-freesound/ambulance-siren",
+      "joints": [],
+      "kind": "sfx",
+      "license": "CC0-1.0",
+      "name": "ambulance siren",
+      "parts": [],
+      "seeded": true,
+      "size_m": null,
+      "source": "LanDub \u00b7 Freesound",
+      "source_url": "https://freesound.org/s/184623/",
+      "tags": [
+        "ambulance",
+        "audio",
+        "emergency",
+        "sfx",
+        "siren",
+        "sound"
+      ],
+      "triangles": null,
+      "url": "/assets/gt-gpu/audio-freesound/ambulance-siren/ambulance-siren.mp3"
+    },
+    {
+      "animations": [],
+      "bytes": 223584,
+      "category": "sound",
+      "files": [
+        "/assets/gt-gpu/audio-freesound/car-crash/car-crash.mp3"
+      ],
+      "group": "",
+      "hf_path": "audio-freesound/car-crash/car-crash.mp3",
+      "id": "audio-freesound/car-crash",
+      "joints": [],
+      "kind": "sfx",
+      "license": "CC0-1.0",
+      "name": "car crash, exterior: impact and debris",
+      "parts": [],
+      "seeded": true,
+      "size_m": null,
+      "source": "PauliusI \u00b7 Freesound",
+      "source_url": "https://freesound.org/s/346299/",
+      "tags": [
+        "and",
+        "audio",
+        "car",
+        "crash",
+        "debris",
+        "exterior",
+        "impact",
+        "sfx",
+        "sound"
+      ],
+      "triangles": null,
+      "url": "/assets/gt-gpu/audio-freesound/car-crash/car-crash.mp3"
+    },
+    {
+      "animations": [],
+      "bytes": 98930,
+      "category": "sound",
+      "files": [
+        "/assets/gt-gpu/audio-freesound/car-horn/car-horn.mp3"
+      ],
+      "group": "",
+      "hf_path": "audio-freesound/car-horn/car-horn.mp3",
+      "id": "audio-freesound/car-horn",
+      "joints": [],
+      "kind": "sfx",
+      "license": "CC0-1.0",
+      "name": "car horn honks",
+      "parts": [],
+      "seeded": true,
+      "size_m": null,
+      "source": "keweldog \u00b7 Freesound",
+      "source_url": "https://freesound.org/s/182474/",
+      "tags": [
+        "audio",
+        "car",
+        "honks",
+        "horn",
+        "sfx",
+        "sound"
+      ],
+      "triangles": null,
+      "url": "/assets/gt-gpu/audio-freesound/car-horn/car-horn.mp3"
+    },
+    {
+      "animations": [],
+      "bytes": 9358377,
+      "category": "sound",
+      "files": [
+        "/assets/gt-gpu/audio-freesound/city-traffic/city-traffic.mp3"
+      ],
+      "group": "",
+      "hf_path": "audio-freesound/city-traffic/city-traffic.mp3",
+      "id": "audio-freesound/city-traffic",
+      "joints": [],
+      "kind": "loop",
+      "license": "CC0-1.0",
+      "name": "downtown traffic and crowd ambience (8.6 min)",
+      "parts": [],
+      "seeded": true,
+      "size_m": null,
+      "source": "LookIMadeAThing \u00b7 Freesound",
+      "source_url": "https://freesound.org/s/250268/",
+      "tags": [
+        "6",
+        "8",
+        "ambience",
+        "and",
+        "audio",
+        "city",
+        "crowd",
+        "downtown",
+        "intersection",
+        "loop",
+        "min",
+        "sound",
+        "street",
+        "traffic"
+      ],
+      "triangles": null,
+      "url": "/assets/gt-gpu/audio-freesound/city-traffic/city-traffic.mp3"
+    },
+    {
+      "animations": [],
+      "bytes": 63610,
+      "category": "sound",
+      "files": [
+        "/assets/gt-gpu/audio-freesound/crash-short/crash-short.mp3"
+      ],
+      "group": "",
+      "hf_path": "audio-freesound/crash-short/crash-short.mp3",
+      "id": "audio-freesound/crash-short",
+      "joints": [],
+      "kind": "sfx",
+      "license": "CC0-1.0",
+      "name": "short crash hit",
+      "parts": [],
+      "seeded": true,
+      "size_m": null,
+      "source": "CogFireStudios \u00b7 Freesound",
+      "source_url": "https://freesound.org/s/420356/",
+      "tags": [
+        "audio",
+        "crash",
+        "hit",
+        "sfx",
+        "short",
+        "sound"
+      ],
+      "triangles": null,
+      "url": "/assets/gt-gpu/audio-freesound/crash-short/crash-short.mp3"
+    },
+    {
+      "animations": [],
+      "bytes": 226636,
+      "category": "sound",
+      "files": [
+        "/assets/gt-gpu/audio-freesound/handbrake-skid/handbrake-skid.mp3"
+      ],
+      "group": "",
+      "hf_path": "audio-freesound/handbrake-skid/handbrake-skid.mp3",
+      "id": "audio-freesound/handbrake-skid",
+      "joints": [],
+      "kind": "sfx",
+      "license": "CC0-1.0",
+      "name": "handbrake turn with tire skid",
+      "parts": [],
+      "seeded": true,
+      "size_m": null,
+      "source": "audible-edge \u00b7 Freesound",
+      "source_url": "https://freesound.org/s/76804/",
+      "tags": [
+        "audio",
+        "handbrake",
+        "sfx",
+        "skid",
+        "sound",
+        "tire",
+        "turn",
+        "with"
+      ],
+      "triangles": null,
+      "url": "/assets/gt-gpu/audio-freesound/handbrake-skid/handbrake-skid.mp3"
+    },
+    {
+      "animations": [],
+      "bytes": 317822,
+      "category": "sound",
+      "files": [
+        "/assets/gt-gpu/audio-freesound/passing-car/passing-car.mp3"
+      ],
+      "group": "",
+      "hf_path": "audio-freesound/passing-car/passing-car.mp3",
+      "id": "audio-freesound/passing-car",
+      "joints": [],
+      "kind": "sfx",
+      "license": "CC0-1.0",
+      "name": "car driving past",
+      "parts": [],
+      "seeded": true,
+      "size_m": null,
+      "source": "NachtmahrTV \u00b7 Freesound",
+      "source_url": "https://freesound.org/s/553259/",
+      "tags": [
+        "audio",
+        "car",
+        "driving",
+        "passing",
+        "past",
+        "sfx",
+        "sound"
+      ],
+      "triangles": null,
+      "url": "/assets/gt-gpu/audio-freesound/passing-car/passing-car.mp3"
+    },
+    {
+      "animations": [],
+      "bytes": 515209,
+      "category": "sound",
+      "files": [
+        "/assets/gt-gpu/audio-freesound/police-siren/police-siren.mp3"
+      ],
+      "group": "",
+      "hf_path": "audio-freesound/police-siren/police-siren.mp3",
+      "id": "audio-freesound/police-siren",
+      "joints": [],
+      "kind": "sfx",
+      "license": "CC0-1.0",
+      "name": "police siren wail for chases",
+      "parts": [],
+      "seeded": true,
+      "size_m": null,
+      "source": "MultiMax2121 \u00b7 Freesound",
+      "source_url": "https://freesound.org/s/156869/",
+      "tags": [
+        "audio",
+        "chase",
+        "chases",
+        "cop",
+        "cops",
+        "for",
+        "police",
+        "pursuit",
+        "sfx",
+        "siren",
+        "sound",
+        "wail"
+      ],
+      "triangles": null,
+      "url": "/assets/gt-gpu/audio-freesound/police-siren/police-siren.mp3"
+    },
+    {
+      "animations": [],
       "bytes": 384044,
       "category": "sound",
       "files": [
@@ -44414,7 +44674,7 @@
     },
     {
       "animations": [],
-      "bytes": 157940,
+      "bytes": 158040,
       "category": "nature",
       "group": "",
       "hf_path": "trees-google-poly/objects/date-palm-tree-f9hq8fjxn-o/date-palm-tree-f9hq8fjxn-o.glb",
@@ -44423,13 +44683,13 @@
       "kind": "palm",
       "license": "CC-BY-3.0",
       "name": "date palm tree",
-      "notes": "Normalised to about 1 m tall: scale up to real size (street trees 8-12 m, palms 10-20 m).",
+      "notes": "Real height, base at y = 0, centred on the origin. Add as-is.",
       "parts": [],
       "seeded": true,
       "size_m": {
-        "x": 0.779,
-        "y": 1.0,
-        "z": 0.783
+        "x": 7.79,
+        "y": 10.0,
+        "z": 7.83
       },
       "source": "Poly by Google \u00b7 Google Poly (web conversion: codepawl)",
       "source_url": "https://polygone.art/#page=model&guid=f9HQ8FJxn-o",
@@ -44448,7 +44708,7 @@
     },
     {
       "animations": [],
-      "bytes": 316360,
+      "bytes": 316456,
       "category": "nature",
       "group": "",
       "hf_path": "trees-google-poly/objects/elm-tree-68ool4zl6co/elm-tree-68ool4zl6co.glb",
@@ -44457,13 +44717,13 @@
       "kind": "tree",
       "license": "CC-BY-3.0",
       "name": "elm tree",
-      "notes": "Normalised to about 1 m tall: scale up to real size (street trees 8-12 m, palms 10-20 m).",
+      "notes": "Real height, base at y = 0, centred on the origin. Add as-is.",
       "parts": [],
       "seeded": true,
       "size_m": {
-        "x": 0.683,
-        "y": 1.0,
-        "z": 0.475
+        "x": 8.2,
+        "y": 12.0,
+        "z": 5.7
       },
       "source": "Poly by Google \u00b7 Google Poly (web conversion: codepawl)",
       "source_url": "https://polygone.art/#page=model&guid=68OOL4zL6Co",
@@ -44481,7 +44741,7 @@
     },
     {
       "animations": [],
-      "bytes": 183996,
+      "bytes": 184092,
       "category": "nature",
       "group": "",
       "hf_path": "trees-google-poly/objects/lady-palm-tree-e0abya90ux5/lady-palm-tree-e0abya90ux5.glb",
@@ -44490,13 +44750,13 @@
       "kind": "palm",
       "license": "CC-BY-3.0",
       "name": "lady palm tree",
-      "notes": "Normalised to about 1 m tall: scale up to real size (street trees 8-12 m, palms 10-20 m).",
+      "notes": "Real height, base at y = 0, centred on the origin. Add as-is.",
       "parts": [],
       "seeded": true,
       "size_m": {
-        "x": 0.8,
-        "y": 1.0,
-        "z": 0.767
+        "x": 1.44,
+        "y": 1.8,
+        "z": 1.38
       },
       "source": "Poly by Google \u00b7 Google Poly (web conversion: codepawl)",
       "source_url": "https://polygone.art/#page=model&guid=e0AbYA90ux5",
@@ -44515,7 +44775,7 @@
     },
     {
       "animations": [],
-      "bytes": 268752,
+      "bytes": 268932,
       "category": "nature",
       "group": "",
       "hf_path": "trees-google-poly/objects/oak-tree-0dtszfstwza/oak-tree-0dtszfstwza.glb",
@@ -44524,13 +44784,13 @@
       "kind": "tree",
       "license": "CC-BY-3.0",
       "name": "oak tree",
-      "notes": "Normalised to about 1 m tall: scale up to real size (street trees 8-12 m, palms 10-20 m).",
+      "notes": "Real height, base at y = 0, centred on the origin. Add as-is.",
       "parts": [],
       "seeded": true,
       "size_m": {
-        "x": 1.0,
-        "y": 0.813,
-        "z": 0.771
+        "x": 12.3,
+        "y": 10.0,
+        "z": 9.49
       },
       "source": "Poly by Google \u00b7 Google Poly (web conversion: codepawl)",
       "source_url": "https://polygone.art/#page=model&guid=0DtsZfSTWzA",
@@ -44548,7 +44808,7 @@
     },
     {
       "animations": [],
-      "bytes": 208592,
+      "bytes": 208688,
       "category": "nature",
       "group": "",
       "hf_path": "trees-google-poly/objects/palm-tree-0wynxxlgrpx/palm-tree-0wynxxlgrpx.glb",
@@ -44557,13 +44817,13 @@
       "kind": "palm",
       "license": "CC-BY-3.0",
       "name": "palm tree",
-      "notes": "Normalised to about 1 m tall: scale up to real size (street trees 8-12 m, palms 10-20 m).",
+      "notes": "Real height, base at y = 0, centred on the origin. Add as-is.",
       "parts": [],
       "seeded": true,
       "size_m": {
-        "x": 0.74,
-        "y": 1.0,
-        "z": 0.631
+        "x": 6.66,
+        "y": 9.0,
+        "z": 5.68
       },
       "source": "Poly by Google \u00b7 Google Poly (web conversion: codepawl)",
       "source_url": "https://polygone.art/#page=model&guid=0wynxxLgrpX",
@@ -44581,7 +44841,7 @@
     },
     {
       "animations": [],
-      "bytes": 247884,
+      "bytes": 247984,
       "category": "nature",
       "group": "",
       "hf_path": "trees-google-poly/objects/queen-palm-tree-ficlbijglik/queen-palm-tree-ficlbijglik.glb",
@@ -44590,13 +44850,13 @@
       "kind": "palm",
       "license": "CC-BY-3.0",
       "name": "queen palm tree",
-      "notes": "Normalised to about 1 m tall: scale up to real size (street trees 8-12 m, palms 10-20 m).",
+      "notes": "Real height, base at y = 0, centred on the origin. Add as-is.",
       "parts": [],
       "seeded": true,
       "size_m": {
-        "x": 0.755,
-        "y": 1.0,
-        "z": 0.71
+        "x": 9.06,
+        "y": 12.0,
+        "z": 8.52
       },
       "source": "Poly by Google \u00b7 Google Poly (web conversion: codepawl)",
       "source_url": "https://polygone.art/#page=model&guid=ficLBIjGliK",
@@ -44615,7 +44875,7 @@
     },
     {
       "animations": [],
-      "bytes": 223948,
+      "bytes": 224048,
       "category": "nature",
       "group": "",
       "hf_path": "trees-google-poly/objects/royal-palm-tree-7b7jn9ax3qs/royal-palm-tree-7b7jn9ax3qs.glb",
@@ -44624,13 +44884,13 @@
       "kind": "palm",
       "license": "CC-BY-3.0",
       "name": "royal palm tree",
-      "notes": "Normalised to about 1 m tall: scale up to real size (street trees 8-12 m, palms 10-20 m).",
+      "notes": "Real height, base at y = 0, centred on the origin. Add as-is.",
       "parts": [],
       "seeded": true,
       "size_m": {
-        "x": 0.566,
-        "y": 1.0,
-        "z": 0.567
+        "x": 8.5,
+        "y": 15.0,
+        "z": 8.5
       },
       "source": "Poly by Google \u00b7 Google Poly (web conversion: codepawl)",
       "source_url": "https://polygone.art/#page=model&guid=7b7jN9aX3qS",
@@ -44649,7 +44909,7 @@
     },
     {
       "animations": [],
-      "bytes": 187292,
+      "bytes": 187448,
       "category": "nature",
       "group": "",
       "hf_path": "trees-google-poly/objects/sycamore-tree-2s3-h6xexyc/sycamore-tree-2s3-h6xexyc.glb",
@@ -44658,13 +44918,13 @@
       "kind": "tree",
       "license": "CC-BY-3.0",
       "name": "sycamore tree",
-      "notes": "Normalised to about 1 m tall: scale up to real size (street trees 8-12 m, palms 10-20 m).",
+      "notes": "Real height, base at y = 0, centred on the origin. Add as-is.",
       "parts": [],
       "seeded": true,
       "size_m": {
-        "x": 1.0,
-        "y": 0.939,
-        "z": 0.869
+        "x": 12.79,
+        "y": 12.0,
+        "z": 11.1
       },
       "source": "Poly by Google \u00b7 Google Poly (web conversion: codepawl)",
       "source_url": "https://polygone.art/#page=model&guid=2S3-H6XeXyC",
@@ -47437,7 +47697,7 @@
     },
     {
       "animations": [],
-      "bytes": 134076,
+      "bytes": 134916,
       "category": "vehicle",
       "group": "",
       "hf_path": "vehicles-objaverse/objects/ambulance-van-f3daf79e/ambulance-van-f3daf79e.glb",
@@ -47446,13 +47706,18 @@
       "kind": "emergency",
       "license": "CC-BY-4.0",
       "name": "ambulance van",
+      "notes": "Real size in metres, front facing +z, wheels on y = 0, centred on the origin. Wheels you can spin are listed in parts when the model has them as separate meshes.",
       "optional_tiers": {
         "collision": "vehicles-objaverse/collision/ambulance-van-f3daf79e/ambulance-van-f3daf79e_collision.glb",
         "lods": "vehicles-objaverse/lods/ambulance-van-f3daf79e/ambulance-van-f3daf79e_lod1.glb"
       },
       "parts": [],
       "seeded": true,
-      "size_m": null,
+      "size_m": {
+        "x": 1.92,
+        "y": 2.62,
+        "z": 5.8
+      },
       "source": "Yo.Ri \u00b7 Objaverse (credit the artist; see ATTRIBUTION.md)",
       "source_url": "https://sketchfab.com/3d-models/f3daf79ea4e843c8a159e8ead7af6e74",
       "tags": [
@@ -47467,7 +47732,7 @@
     },
     {
       "animations": [],
-      "bytes": 259364,
+      "bytes": 259600,
       "category": "vehicle",
       "group": "",
       "hf_path": "vehicles-objaverse/objects/british-compact-car-low-poly-model-e9dd83b4/british-compact-car-low-poly-model-e9dd83b4.glb",
@@ -47476,13 +47741,69 @@
       "kind": "van",
       "license": "CC-BY-4.0",
       "name": "compact van",
+      "notes": "Real size in metres, front facing +z, wheels on y = 0, centred on the origin. Wheels you can spin are listed in parts when the model has them as separate meshes.",
       "optional_tiers": {
         "collision": "vehicles-objaverse/collision/british-compact-car-low-poly-model-e9dd83b4/british-compact-car-low-poly-model-e9dd83b4_collision.glb",
         "lods": "vehicles-objaverse/lods/british-compact-car-low-poly-model-e9dd83b4/british-compact-car-low-poly-model-e9dd83b4_lod1.glb"
       },
-      "parts": [],
+      "parts": [
+        "backlights_left_miner_bottom_0",
+        "backlights_left_miner_chrome_0",
+        "backlights_left_miner_headlights_0",
+        "backlights_right_miner_bottom_0",
+        "backlights_right_miner_chrome_0",
+        "backlights_right_miner_headlights_0",
+        "body_miner_body_0",
+        "body_miner_bottom_0",
+        "body_miner_chrome_0",
+        "body_miner_doorshut_0",
+        "body_miner_glass_0",
+        "body_miner_headlights_0",
+        "body_miner_interior_0",
+        "bumper_front_miner_chrome_0",
+        "door_left_miner_body_0",
+        "door_left_miner_bottom_0",
+        "door_left_miner_chrome_0",
+        "door_left_miner_doorshut_0",
+        "door_left_miner_glass_0",
+        "door_left_miner_interior_0",
+        "door_right_miner_body_0",
+        "door_right_miner_bottom_0",
+        "door_right_miner_chrome_0",
+        "door_right_miner_doorshut_0",
+        "door_right_miner_glass_0",
+        "door_right_miner_interior_0",
+        "headlights_miner_glass_0",
+        "headlights_miner_headlights_0",
+        "hood_miner_body_0",
+        "hood_miner_doorshut_0",
+        "suspension_front_miner_bottom_0",
+        "suspension_rear_miner_bottom_0",
+        "trunk_door_miner_body_0",
+        "trunk_door_miner_bottom_0",
+        "trunk_door_miner_chrome_0",
+        "trunk_door_miner_doorshut_0",
+        "trunk_door_miner_glass_0",
+        "trunk_door_miner_interior_0",
+        "wheel_front_left_miner_body_0",
+        "wheel_front_left_rimcolour_0",
+        "wheel_front_left_tier_0",
+        "wheel_front_right_miner_body_0",
+        "wheel_front_right_rimcolour_0",
+        "wheel_front_right_tier_0",
+        "wheel_right_left_miner_body_0",
+        "wheel_right_left_rimcolour_0",
+        "wheel_right_left_tier_0",
+        "wheel_right_right_miner_body_0",
+        "wheel_right_right_rimcolour_0",
+        "wheel_right_right_tier_0"
+      ],
       "seeded": true,
-      "size_m": null,
+      "size_m": {
+        "x": 1.74,
+        "y": 1.51,
+        "z": 4.0
+      },
       "source": "Daniel Zhabotinsky \u00b7 Objaverse (credit the artist; see ATTRIBUTION.md)",
       "source_url": "https://sketchfab.com/3d-models/e9dd83b45ce841ac85da3feaa02b9274",
       "tags": [
@@ -47496,7 +47817,7 @@
     },
     {
       "animations": [],
-      "bytes": 164792,
+      "bytes": 165052,
       "category": "vehicle",
       "group": "",
       "hf_path": "vehicles-objaverse/objects/british-compact-car-low-poly-model-f1e9c43c/british-compact-car-low-poly-model-f1e9c43c.glb",
@@ -47505,13 +47826,53 @@
       "kind": "car",
       "license": "CC-BY-4.0",
       "name": "compact car",
+      "notes": "Real size in metres, front facing +z, wheels on y = 0, centred on the origin. Wheels you can spin are listed in parts when the model has them as separate meshes.",
       "optional_tiers": {
         "collision": "vehicles-objaverse/collision/british-compact-car-low-poly-model-f1e9c43c/british-compact-car-low-poly-model-f1e9c43c_collision.glb",
         "lods": "vehicles-objaverse/lods/british-compact-car-low-poly-model-f1e9c43c/british-compact-car-low-poly-model-f1e9c43c_lod1.glb"
       },
-      "parts": [],
+      "parts": [
+        "backlights_glass_ASTNMINI_headlights_ucb_0",
+        "backlights_trim_ASTNMINI_CHROME_0",
+        "bodyshell_ASTNMINI_BODY_0",
+        "bodyshell_chrometrim_ASTNMINI_CHROME_0",
+        "bottom_ASTNMINI_VOID_0",
+        "bumper_front_ASTNMINI_CHROME_0",
+        "bumper_rear_ASTNMINI_CHROME_0",
+        "glass_ASTNMINI_GLASS_0",
+        "grill_ASTNMINI_CHROME_0",
+        "grill_void_ASTNMINI_VOID_0",
+        "headlights_ASTNMINI_CHROME_0",
+        "headlights_glass_ASTNMINI_GLASS_0",
+        "headlights_reflector_ASTNMINI_headlights_ucb_0",
+        "interior_ASTNMINI_VOID_0",
+        "numberplate_front_ASTNMINI_PLASTIC_0",
+        "rear_numperplate_ASTNMINI_PLASTIC_0",
+        "rim001_ASTNMINI_RIMCOLOUR_0",
+        "rim002_ASTNMINI_RIMCOLOUR_0",
+        "rim003_ASTNMINI_RIMCOLOUR_0",
+        "rim_ASTNMINI_RIMCOLOUR_0",
+        "rim_chrome001_ASTNMINI_CHROME_0",
+        "rim_chrome002_ASTNMINI_CHROME_0",
+        "rim_chrome003_ASTNMINI_CHROME_0",
+        "rim_chrome_ASTNMINI_CHROME_0",
+        "roof_ASTNMINI_ROOFCOLOUR_0",
+        "sidemirrors_ASTNMINI_CHROME_0",
+        "suspension_front_ASTNMINI_VOID_0",
+        "suspension_rear_ASTNMINI_VOID_0",
+        "tier001_ASTNMINI_tier_1t_0",
+        "tier002_ASTNMINI_tier_1t_0",
+        "tier003_ASTNMINI_tier_1t_0",
+        "tier_ASTNMINI_tier_1t_0",
+        "turnsighal_glass_ASTNMINI_headlights_ucb_0",
+        "turnsignals_trim_ASTNMINI_CHROME_0"
+      ],
       "seeded": true,
-      "size_m": null,
+      "size_m": {
+        "x": 1.69,
+        "y": 1.58,
+        "z": 3.6
+      },
       "source": "Daniel Zhabotinsky \u00b7 Objaverse (credit the artist; see ATTRIBUTION.md)",
       "source_url": "https://sketchfab.com/3d-models/f1e9c43c61bb492a9b15d84f9a16c0f7",
       "tags": [
@@ -47525,7 +47886,7 @@
     },
     {
       "animations": [],
-      "bytes": 97936,
+      "bytes": 98152,
       "category": "vehicle",
       "group": "",
       "hf_path": "vehicles-objaverse/objects/city-bus-050e8acd/city-bus-050e8acd.glb",
@@ -47534,13 +47895,20 @@
       "kind": "bus",
       "license": "CC-BY-4.0",
       "name": "city bus",
+      "notes": "Real size in metres, front facing +z, wheels on y = 0, centred on the origin. Wheels you can spin are listed in parts when the model has them as separate meshes.",
       "optional_tiers": {
         "collision": "vehicles-objaverse/collision/city-bus-050e8acd/city-bus-050e8acd_collision.glb",
         "lods": "vehicles-objaverse/lods/city-bus-050e8acd/city-bus-050e8acd_lod1.glb"
       },
-      "parts": [],
+      "parts": [
+        "Object_2"
+      ],
       "seeded": true,
-      "size_m": null,
+      "size_m": {
+        "x": 2.85,
+        "y": 3.25,
+        "z": 12.0
+      },
       "source": "own.guest \u00b7 Objaverse (credit the artist; see ATTRIBUTION.md)",
       "source_url": "https://sketchfab.com/3d-models/050e8acd0bbc4da0902a8a874ef10fca",
       "tags": [
@@ -47554,7 +47922,7 @@
     },
     {
       "animations": [],
-      "bytes": 64232,
+      "bytes": 64400,
       "category": "vehicle",
       "group": "",
       "hf_path": "vehicles-objaverse/objects/classic-muscle-car-641efc88/classic-muscle-car-641efc88.glb",
@@ -47563,13 +47931,39 @@
       "kind": "car",
       "license": "CC-BY-4.0",
       "name": "muscle car",
+      "notes": "Real size in metres, front facing +z, wheels on y = 0, centred on the origin. Wheels you can spin are listed in parts when the model has them as separate meshes.",
       "optional_tiers": {
         "collision": "vehicles-objaverse/collision/classic-muscle-car-641efc88/classic-muscle-car-641efc88_collision.glb",
         "lods": "vehicles-objaverse/lods/classic-muscle-car-641efc88/classic-muscle-car-641efc88_lod1.glb"
       },
-      "parts": [],
+      "parts": [
+        "Object_10",
+        "Object_11",
+        "Object_13",
+        "Object_14",
+        "Object_15",
+        "Object_17",
+        "Object_18",
+        "Object_19",
+        "Object_21",
+        "Object_22",
+        "Object_23",
+        "Object_25",
+        "Object_26",
+        "Object_27",
+        "Object_4",
+        "Object_5",
+        "Object_6",
+        "Object_7",
+        "Object_8",
+        "Object_9"
+      ],
       "seeded": true,
-      "size_m": null,
+      "size_m": {
+        "x": 2.15,
+        "y": 1.42,
+        "z": 4.8
+      },
       "source": "Lexyc16 \u00b7 Objaverse (credit the artist; see ATTRIBUTION.md)",
       "source_url": "https://sketchfab.com/3d-models/641efc889e5f4543bae51d0922e6f4b3",
       "tags": [
@@ -47583,7 +47977,7 @@
     },
     {
       "animations": [],
-      "bytes": 238088,
+      "bytes": 238304,
       "category": "vehicle",
       "group": "",
       "hf_path": "vehicles-objaverse/objects/fancy-car-780c75b7/fancy-car-780c75b7.glb",
@@ -47592,13 +47986,20 @@
       "kind": "car",
       "license": "CC-BY-4.0",
       "name": "vintage sedan",
+      "notes": "Real size in metres, front facing +z, wheels on y = 0, centred on the origin. Wheels you can spin are listed in parts when the model has them as separate meshes.",
       "optional_tiers": {
         "collision": "vehicles-objaverse/collision/fancy-car-780c75b7/fancy-car-780c75b7_collision.glb",
         "lods": "vehicles-objaverse/lods/fancy-car-780c75b7/fancy-car-780c75b7_lod1.glb"
       },
-      "parts": [],
+      "parts": [
+        "Object_2"
+      ],
       "seeded": true,
-      "size_m": null,
+      "size_m": {
+        "x": 1.86,
+        "y": 1.82,
+        "z": 4.8
+      },
       "source": "rajibkc \u00b7 Objaverse (credit the artist; see ATTRIBUTION.md)",
       "source_url": "https://sketchfab.com/3d-models/780c75b7713b4811b0f7b447df310889",
       "tags": [
@@ -47614,7 +48015,7 @@
     },
     {
       "animations": [],
-      "bytes": 130364,
+      "bytes": 130524,
       "category": "vehicle",
       "group": "",
       "hf_path": "vehicles-objaverse/objects/fire-truck-e0fadd42/fire-truck-e0fadd42.glb",
@@ -47623,13 +48024,23 @@
       "kind": "emergency",
       "license": "CC-BY-4.0",
       "name": "fire truck",
+      "notes": "Real size in metres, front facing +z, wheels on y = 0, centred on the origin. Wheels you can spin are listed in parts when the model has them as separate meshes.",
       "optional_tiers": {
         "collision": "vehicles-objaverse/collision/fire-truck-e0fadd42/fire-truck-e0fadd42_collision.glb",
         "lods": "vehicles-objaverse/lods/fire-truck-e0fadd42/fire-truck-e0fadd42_lod1.glb"
       },
-      "parts": [],
+      "parts": [
+        "camion bomberos_bomberbase_0",
+        "camion bomberos_bombllanta_0",
+        "camion bomberos_bombruedafron_0",
+        "camion bomberos_bomruedaback_0"
+      ],
       "seeded": true,
-      "size_m": null,
+      "size_m": {
+        "x": 3.16,
+        "y": 2.66,
+        "z": 9.5
+      },
       "source": "codexito \u00b7 Objaverse (credit the artist; see ATTRIBUTION.md)",
       "source_url": "https://sketchfab.com/3d-models/e0fadd42bd3b448eaa0eb660764c170a",
       "tags": [
@@ -47644,7 +48055,7 @@
     },
     {
       "animations": [],
-      "bytes": 465640,
+      "bytes": 465808,
       "category": "vehicle",
       "group": "",
       "hf_path": "vehicles-objaverse/objects/french-delivery-van-a350a422/french-delivery-van-a350a422.glb",
@@ -47653,13 +48064,35 @@
       "kind": "van",
       "license": "CC-BY-4.0",
       "name": "delivery van",
+      "notes": "Real size in metres, front facing +z, wheels on y = 0, centred on the origin. Wheels you can spin are listed in parts when the model has them as separate meshes.",
       "optional_tiers": {
         "collision": "vehicles-objaverse/collision/french-delivery-van-a350a422/french-delivery-van-a350a422_collision.glb",
         "lods": "vehicles-objaverse/lods/french-delivery-van-a350a422/french-delivery-van-a350a422_lod1.glb"
       },
-      "parts": [],
+      "parts": [
+        "body_body_0",
+        "bottom_Material #361_0",
+        "bumpers_body_0",
+        "chrome_chrome_0",
+        "decals_Material #362_0",
+        "glass_glass_0",
+        "lihgts_light_0",
+        "void_void_0",
+        "wheel_003_rims_0",
+        "wheel_003_tire_0",
+        "wheel_004_rims_0",
+        "wheel_004_tire_0",
+        "wheel_01_rims_0",
+        "wheel_01_tire_0",
+        "wheel_02_rims_0",
+        "wheel_02_tire_0"
+      ],
       "seeded": true,
-      "size_m": null,
+      "size_m": {
+        "x": 2.39,
+        "y": 2.59,
+        "z": 4.9
+      },
       "source": "Daniel Zhabotinsky \u00b7 Objaverse (credit the artist; see ATTRIBUTION.md)",
       "source_url": "https://sketchfab.com/3d-models/a350a422d200485ea57778dc42139edc",
       "tags": [
@@ -47675,7 +48108,7 @@
     },
     {
       "animations": [],
-      "bytes": 357528,
+      "bytes": 357704,
       "category": "vehicle",
       "group": "",
       "hf_path": "vehicles-objaverse/objects/japanese-mini-truck-d5d93879/japanese-mini-truck-d5d93879.glb",
@@ -47684,13 +48117,26 @@
       "kind": "truck",
       "license": "CC-BY-4.0",
       "name": "mini pickup truck",
+      "notes": "Real size in metres, front facing +z, wheels on y = 0, centred on the origin. Wheels you can spin are listed in parts when the model has them as separate meshes.",
       "optional_tiers": {
         "collision": "vehicles-objaverse/collision/japanese-mini-truck-d5d93879/japanese-mini-truck-d5d93879_collision.glb",
         "lods": "vehicles-objaverse/lods/japanese-mini-truck-d5d93879/japanese-mini-truck-d5d93879_lod1.glb"
       },
-      "parts": [],
+      "parts": [
+        "Object_3",
+        "Object_4",
+        "Object_5",
+        "Object_6",
+        "Object_7",
+        "Object_8",
+        "Object_9"
+      ],
       "seeded": true,
-      "size_m": null,
+      "size_m": {
+        "x": 1.7,
+        "y": 1.78,
+        "z": 3.4
+      },
       "source": "chirag.swamy.1993 \u00b7 Objaverse (credit the artist; see ATTRIBUTION.md)",
       "source_url": "https://sketchfab.com/3d-models/d5d938791b30473498507ade5ad92066",
       "tags": [
@@ -47705,7 +48151,7 @@
     },
     {
       "animations": [],
-      "bytes": 401908,
+      "bytes": 402156,
       "category": "vehicle",
       "group": "",
       "hf_path": "vehicles-objaverse/objects/low-poly-car-6cee6dbd/low-poly-car-6cee6dbd.glb",
@@ -47714,13 +48160,27 @@
       "kind": "car",
       "license": "CC-BY-4.0",
       "name": "sedan",
+      "notes": "Real size in metres, front facing +z, wheels on y = 0, centred on the origin. Wheels you can spin are listed in parts when the model has them as separate meshes.",
       "optional_tiers": {
         "collision": "vehicles-objaverse/collision/low-poly-car-6cee6dbd/low-poly-car-6cee6dbd_collision.glb",
         "lods": "vehicles-objaverse/lods/low-poly-car-6cee6dbd/low-poly-car-6cee6dbd_lod1.glb"
       },
-      "parts": [],
+      "parts": [
+        "Object_10",
+        "Object_3",
+        "Object_4",
+        "Object_5",
+        "Object_6",
+        "Object_7",
+        "Object_8",
+        "Object_9"
+      ],
       "seeded": true,
-      "size_m": null,
+      "size_m": {
+        "x": 2.27,
+        "y": 1.69,
+        "z": 4.6
+      },
       "source": "artyrey \u00b7 Objaverse (credit the artist; see ATTRIBUTION.md)",
       "source_url": "https://sketchfab.com/3d-models/6cee6dbdb78849bc89c6526a824744e2",
       "tags": [
@@ -47735,7 +48195,7 @@
     },
     {
       "animations": [],
-      "bytes": 321132,
+      "bytes": 321328,
       "category": "vehicle",
       "group": "",
       "hf_path": "vehicles-objaverse/objects/muscle-low-poly-011ebf82/muscle-low-poly-011ebf82.glb",
@@ -47744,13 +48204,25 @@
       "kind": "car",
       "license": "CC-BY-4.0",
       "name": "convertible muscle car",
+      "notes": "Real size in metres, front facing +z, wheels on y = 0, centred on the origin. Wheels you can spin are listed in parts when the model has them as separate meshes.",
       "optional_tiers": {
         "collision": "vehicles-objaverse/collision/muscle-low-poly-011ebf82/muscle-low-poly-011ebf82_collision.glb",
         "lods": "vehicles-objaverse/lods/muscle-low-poly-011ebf82/muscle-low-poly-011ebf82_lod1.glb"
       },
-      "parts": [],
+      "parts": [
+        "LowPolyMuscle.001__0",
+        "LowPolyMuscle.002__0",
+        "LowPolyMuscle.003__0",
+        "LowPolyMuscle.004__0",
+        "LowPolyMuscle.005__0",
+        "LowPolyMuscle__0"
+      ],
       "seeded": true,
-      "size_m": null,
+      "size_m": {
+        "x": 1.89,
+        "y": 1.32,
+        "z": 4.8
+      },
       "source": "Ashkelon \u00b7 Objaverse (credit the artist; see ATTRIBUTION.md)",
       "source_url": "https://sketchfab.com/3d-models/011ebf82993745b89f48405820145c35",
       "tags": [
@@ -47765,7 +48237,7 @@
     },
     {
       "animations": [],
-      "bytes": 148868,
+      "bytes": 149036,
       "category": "vehicle",
       "group": "",
       "hf_path": "vehicles-objaverse/objects/police-sedan-692c68c4/police-sedan-692c68c4.glb",
@@ -47774,13 +48246,20 @@
       "kind": "police",
       "license": "CC-BY-4.0",
       "name": "police sedan",
+      "notes": "Real size in metres, front facing +z, wheels on y = 0, centred on the origin. Wheels you can spin are listed in parts when the model has them as separate meshes.",
       "optional_tiers": {
         "collision": "vehicles-objaverse/collision/police-sedan-692c68c4/police-sedan-692c68c4_collision.glb",
         "lods": "vehicles-objaverse/lods/police-sedan-692c68c4/police-sedan-692c68c4_lod1.glb"
       },
-      "parts": [],
+      "parts": [
+        "e7_police_0__0"
+      ],
       "seeded": true,
-      "size_m": null,
+      "size_m": {
+        "x": 2.03,
+        "y": 1.64,
+        "z": 4.9
+      },
       "source": "TSB3DMODELS \u00b7 Objaverse (credit the artist; see ATTRIBUTION.md)",
       "source_url": "https://sketchfab.com/3d-models/692c68c4f6374a3c8f114c11497fe1c2",
       "tags": [
@@ -47800,7 +48279,7 @@
     },
     {
       "animations": [],
-      "bytes": 172212,
+      "bytes": 172384,
       "category": "vehicle",
       "group": "",
       "hf_path": "vehicles-objaverse/objects/taxi-sedan-210f95a0/taxi-sedan-210f95a0.glb",
@@ -47809,13 +48288,20 @@
       "kind": "taxi",
       "license": "CC-BY-4.0",
       "name": "taxi sedan",
+      "notes": "Real size in metres, front facing +z, wheels on y = 0, centred on the origin. Wheels you can spin are listed in parts when the model has them as separate meshes.",
       "optional_tiers": {
         "collision": "vehicles-objaverse/collision/taxi-sedan-210f95a0/taxi-sedan-210f95a0_collision.glb",
         "lods": "vehicles-objaverse/lods/taxi-sedan-210f95a0/taxi-sedan-210f95a0_lod1.glb"
       },
-      "parts": [],
+      "parts": [
+        "e7_taxi_0__0"
+      ],
       "seeded": true,
-      "size_m": null,
+      "size_m": {
+        "x": 2.0,
+        "y": 1.6,
+        "z": 4.8
+      },
       "source": "TSB3DMODELS \u00b7 Objaverse (credit the artist; see ATTRIBUTION.md)",
       "source_url": "https://sketchfab.com/3d-models/210f95a0ea374c4fbdd27849f8c3c7a0",
       "tags": [
@@ -47841,10 +48327,20 @@
       "kind": "car",
       "license": "CC0-1.0",
       "name": "SUV",
+      "notes": "Real size in metres, front facing +z, wheels on y = 0, centred on the origin. Wheels you can spin are listed in parts when the model has them as separate meshes.",
       "optional_tiers": {},
-      "parts": [],
+      "parts": [
+        "SUV",
+        "SUV_BackWheels",
+        "SUV_FrontLeftWheel",
+        "SUV_FrontRightWheel"
+      ],
       "seeded": true,
-      "size_m": null,
+      "size_m": {
+        "x": 2.11,
+        "y": 1.53,
+        "z": 4.21
+      },
       "source": "Quaternius \u00b7 Quaternius Cars Pack (web conversion: codepawl)",
       "source_url": "https://quaternius.com/packs/cars.html",
       "tags": [
@@ -47867,10 +48363,20 @@
       "kind": "taxi",
       "license": "CC0-1.0",
       "name": "taxi",
+      "notes": "Real size in metres, front facing +z, wheels on y = 0, centred on the origin. Wheels you can spin are listed in parts when the model has them as separate meshes.",
       "optional_tiers": {},
-      "parts": [],
+      "parts": [
+        "Taxi",
+        "Taxi_BackWheels",
+        "Taxi_FrontLeftWheel",
+        "Taxi_FrontRightWheel"
+      ],
       "seeded": true,
-      "size_m": null,
+      "size_m": {
+        "x": 1.81,
+        "y": 1.31,
+        "z": 4.22
+      },
       "source": "Quaternius \u00b7 Quaternius Cars Pack (web conversion: codepawl)",
       "source_url": "https://quaternius.com/packs/cars.html",
       "tags": [
@@ -47884,7 +48390,7 @@
       "url": "/assets/gt-gpu/vehicles-quaternius/objects/cars__Taxi/cars__Taxi.glb"
     }
   ],
-  "count": 1294,
+  "count": 1302,
   "dataset": "harpreetsahota/grand-theft-gpu-assets",
   "revision": "00367a7c63d4a21fc0c6ae7595ffa18eed44caae",
   "url_prefix": "/assets/gt-gpu",

@@ -158,7 +158,31 @@
         "isuzu-erga-mio-bus-050e8acd": "city-bus-050e8acd",
         "3221-gaz-3221-ambulance-r-2-f3daf79e": "ambulance-van-f3daf79e"
       },
-      "_rename_items_why": "Original folder names contain real manufacturer names; the game uses no real brands. Original titles and links are kept in ATTRIBUTION.md credits."
+      "_rename_items_why": "Original folder names contain real manufacturer names; the game uses no real brands. Original titles and links are kept in ATTRIBUTION.md credits.",
+      "real_size": {
+        "_why": "Upstream normalised every model to ~1 m on its longest side, with mixed orientations. Lengths are typical for each vehicle type; every vehicle ends up with its length along z and its front facing +z (checked on renders).",
+        "measure": "length",
+        "items": {
+          "police-sedan-692c68c4": 4.9,
+          "taxi-sedan-210f95a0": 4.8,
+          "british-compact-car-low-poly-model-f1e9c43c": 3.6,
+          "british-compact-car-low-poly-model-e9dd83b4": 4.0,
+          "low-poly-car-6cee6dbd": 4.6,
+          "classic-muscle-car-641efc88": 4.8,
+          "muscle-low-poly-011ebf82": 4.8,
+          "french-delivery-van-a350a422": 4.9,
+          "ambulance-van-f3daf79e": 5.8,
+          "fire-truck-e0fadd42": 9.5,
+          "city-bus-050e8acd": 12.0,
+          "japanese-mini-truck-d5d93879": 3.4,
+          "fancy-car-780c75b7": 4.8
+        },
+        "reverse": [
+          "city-bus-050e8acd",
+          "fire-truck-e0fadd42",
+          "fancy-car-780c75b7"
+        ]
+      }
     },
     {
       "id": "vehicles-quaternius",
@@ -216,7 +240,21 @@
       "creator": "Google Poly artists (per-model credits in ATTRIBUTION.md)",
       "creator_url": "https://poly.google.com/",
       "converted_by": "codepawl",
-      "what": "8 low-poly trees: street trees (elm, sycamore, oak), Embarcadero palms (queen, royal, date, palm) and a potted lady palm"
+      "what": "8 low-poly trees: street trees (elm, sycamore, oak), Embarcadero palms (queen, royal, date, palm) and a potted lady palm",
+      "real_size": {
+        "_why": "Upstream normalised every model to ~1 m. Heights are typical for SF street trees and Embarcadero palms.",
+        "measure": "height",
+        "items": {
+          "elm-tree-68ool4zl6co": 12.0,
+          "sycamore-tree-2s3-h6xexyc": 12.0,
+          "oak-tree-0dtszfstwza": 10.0,
+          "queen-palm-tree-ficlbijglik": 12.0,
+          "royal-palm-tree-7b7jn9ax3qs": 15.0,
+          "date-palm-tree-f9hq8fjxn-o": 10.0,
+          "palm-tree-0wynxxlgrpx": 9.0,
+          "lady-palm-tree-e0abya90ux5": 1.8
+        }
+      }
     }
   ]
 }

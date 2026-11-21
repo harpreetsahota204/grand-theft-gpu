@@ -44,20 +44,21 @@ licenses ask.
 | `quaternius-animations/` | Walk, run, sprint, crouch, drive, climb and more on one humanoid rig, plus a mannequin | 89 clips | 15 MB | CC0 | Quaternius |
 | `meta-mhr/` | Meta's parametric human body (Momentum Human Rig), 7 LODs with blendshapes | 7 | 211 MB | Apache 2.0 | Meta |
 | `sf-city/` | SoMa → FiDi → Embarcadero: terrain with hills, 2,168 buildings at real heights, streets, bay, plus a street graph and building data | 1 scene + data | 16 MB | ODbL (data) / OSM credit (scene) | © OpenStreetMap contributors; USGS 3DEP elevation |
-| `vehicles-objaverse/` | Realistic low-poly vehicles: police sedan, taxi, compact cars, sedan, muscle cars, delivery vans, ambulance, fire truck, city bus, mini truck, vintage sedan. Tiers: `objects`, `lods`, `collision` | 13 | 24 MB | CC-BY 4.0 (credit each artist) | Sketchfab artists via Objaverse; web conversion by codepawl |
+| `vehicles-objaverse/` | Realistic low-poly vehicles: police sedan, taxi, compact cars, sedan, muscle cars, delivery vans, ambulance, fire truck, city bus, mini truck, vintage sedan. **Set to real size, front facing +z, wheels on the ground.** Tiers: `objects`, `lods`, `collision` | 13 | 24 MB | CC-BY 4.0 (credit each artist) | Sketchfab artists via Objaverse; web conversion by codepawl |
 | `vehicles-quaternius/` | Modern SUV and taxi for traffic and robotaxis | 2 | 0.7 MB | CC0 | Quaternius; web conversion by codepawl |
 | `kenney/` | Low-poly city kits (commercial, suburban, industrial, roads), retro urban kit, modular buildings, furniture | 664 | 13 MB | CC0 | Kenney; web conversion by codepawl |
 | `usdcraft-props/` | Server racks, safes, an ATM, a forklift, a drone, street furniture, with joints for doors and lids | 45 | 9.4 MB | Apache 2.0 | NVIDIA USDCraft-10K; converted by us |
 | `gpu/` | The loot: a graphics card with fans and RGB strips you can animate | 1 | 0.9 MB | CC0 | Grab3D |
-| `trees-google-poly/` | Street trees (elm, sycamore, oak) and palms (queen, royal, date, plain, potted lady palm). Normalised to about 1 m tall; scale up | 8 | 1.7 MB | CC-BY 3.0 (credit each artist) | Google Poly artists; web conversion by codepawl |
+| `trees-google-poly/` | Street trees (elm, sycamore, oak) and palms (queen, royal, date, plain, potted lady palm), **set to real heights** (9–15 m; the lady palm 1.8 m), base on the ground | 8 | 1.7 MB | CC-BY 3.0 (credit each artist) | Google Poly artists; web conversion by codepawl |
 | `polyhaven-hdris/` | Sky and lighting HDRIs: midday, SF fog, golden hour, sunset, dusk, clear night, city-glow night, Golden Gate hills. `_1k.hdr` and `_2k.hdr` | 8 | 48 MB | CC0 | Poly Haven |
 | `polyhaven-textures/` | PBR surfaces at 1k (color, normal_gl, roughness, ao): asphalt, pavers, concrete, plaster, brick, grass, roof tiles, metal, floors | 16 | 35 MB | CC0 | Poly Haven |
 | `ambientcg-textures/` | PBR at 1k: office facades in day/night pairs (night ones have emission maps for lit windows), glass towers, roads with lane markings, asphalt | 20 | 67 MB | CC0 | ambientCG |
 | `audio-opengameart/` | Engine start, engine loops idle → high revs, tire squeal, alarm, siren, city ambience, footsteps on 6 surfaces | 7 sets | 2.9 MB | CC0 and CC-BY 3.0 (per item) | OpenGameArt artists |
+| `audio-freesound/` | Police and ambulance sirens, a car crash and a short crash hit, downtown traffic ambience (8.6 min), car horn, handbrake skid, a car driving past. Freesound's HQ previews (MP3) | 8 | 11 MB | CC0 | Freesound recordists |
 | `kenney-media/` | Impact sounds (punches, glass, metal, wood), interface sounds, and transparent particle sprites (smoke, fire, sparks, muzzle flashes) | 3 packs | 7.7 MB | CC0 | Kenney |
 | `google-fonts/` | HUD and title fonts: Bebas Neue, Anton, Rajdhani, Share Tech Mono | 4 | 1.4 MB | OFL 1.1 | Their designers, via Google Fonts |
 
-All models are `.glb` (binary glTF 2.0), in metres, with y up. Every item in the six media
+All models are `.glb` (binary glTF 2.0), in metres, with y up. Every item in the seven media
 folders (skies, textures, sounds, sprites, fonts) has an `info.json` with what it is, who made it,
 its licence, a sha256 per file and, for textures, the real-world size one image covers (`size_m`).
 
@@ -115,6 +116,9 @@ const person = await loader.loadAsync('rocketbox-avatars/objects/business-female
   `sf-city.glb` is split into layers (`walls_<type>`, `roofs_<type>`, `roads`, `terrain`, `water`)
   with named materials and **UVs in metres**, so a texture covering `size_m` metres tiles with
   `texture.repeat.set(1 / size_m[0], 1 / size_m[1])`. `meta.json` documents the convention.
+* **Vehicles and trees** come at real size, standing on y = 0 and centred on the origin; vehicles
+  face +z (the glTF front). We set this by adding one transform node to each file; the geometry
+  is unchanged. Some vehicles have separate wheel meshes, named in the catalog's `parts`.
 * **Skies:** load an `.hdr` with `RGBELoader`, run it through `PMREMGenerator`, and set it as
   `scene.environment` (lighting) and `scene.background`.
 * **Textures:** `normal_gl` / `NormalGL` maps use the OpenGL convention three.js expects. Night
@@ -136,6 +140,7 @@ const person = await loader.loadAsync('rocketbox-avatars/objects/business-female
 | `trees-google-poly/` | CC-BY 3.0 | **Credit each model's artist**; see the table in `trees-google-poly/ATTRIBUTION.md`. Via Google Poly; web conversion: codepawl |
 | `polyhaven-hdris/`, `polyhaven-textures/` | CC0 1.0 | Poly Haven (polyhaven.com), appreciated but not required |
 | `ambientcg-textures/` | CC0 1.0 | ambientCG (ambientcg.com), appreciated but not required |
+| `audio-freesound/` | CC0 1.0 | Freesound recordists, appreciated but not required; names and links in `ATTRIBUTION.md` |
 | `audio-opengameart/` | CC0 1.0 or CC-BY 3.0, per item | **Credit the CC-BY items** (tire squeal: qubodup; siren: FiveBrosStopMosYT; footsteps: congusbongus and the Freesound recordists in each `license.txt`). Full table in `ATTRIBUTION.md` |
 | `kenney-media/` | CC0 1.0 | Kenney (kenney.nl), appreciated but not required |
 | `google-fonts/` | SIL Open Font License 1.1 (`OFL.txt` next to each font) | Each font's copyright line is in its `OFL.txt` |

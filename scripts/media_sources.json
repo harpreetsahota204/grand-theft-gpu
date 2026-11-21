@@ -5,42 +5,59 @@
     "items": {
       "car-engine-start": {
         "page": "car-engine-start-01",
-        "files": ["generic_car_startengine.wav"],
+        "files": [
+          "generic_car_startengine.wav"
+        ],
         "author": "looneybits",
         "license": "CC0-1.0",
         "what": "car engine cranking and starting"
       },
       "car-engine-loops": {
         "page": "racing-car-engine-sound-loops",
-        "files": ["loop_0.wav", "loop_1_0.wav", "loop_2_0.wav", "loop_3_0.wav", "loop_4_0.wav", "loop_5_0.wav"],
+        "files": [
+          "loop_0.wav",
+          "loop_1_0.wav",
+          "loop_2_0.wav",
+          "loop_3_0.wav",
+          "loop_4_0.wav",
+          "loop_5_0.wav"
+        ],
         "author": "domasx2",
         "license": "CC0-1.0",
         "what": "engine loops from idle (loop_0) to high revs (loop_5); crossfade by speed"
       },
       "tire-squeal-loop": {
         "page": "car-tire-squeal-skid-loop",
-        "files": ["tires_squal_loop.wav"],
+        "files": [
+          "tires_squal_loop.wav"
+        ],
         "author": "qubodup",
         "license": "CC-BY-3.0",
         "what": "looping tire squeal for skids and hard turns"
       },
       "alarm": {
         "page": "alarm-2",
-        "files": ["alarm_0.wav"],
+        "files": [
+          "alarm_0.wav"
+        ],
         "author": "Frenchyboy",
         "license": "CC0-1.0",
         "what": "building alarm bell for when the heist is noticed"
       },
       "siren": {
         "page": "facility-alert-siren",
-        "files": ["facility_breach_siren.wav"],
+        "files": [
+          "facility_breach_siren.wav"
+        ],
         "author": "FiveBrosStopMosYT",
         "license": "CC-BY-3.0",
         "what": "wailing siren for police chases"
       },
       "city-ambience": {
         "page": "scifi-city-ambient-loop",
-        "files": ["busy_cyberworld.ogg"],
+        "files": [
+          "busy_cyberworld.ogg"
+        ],
         "author": "TinyWorlds",
         "license": "CC0-1.0",
         "what": "busy futuristic city ambience loop"
@@ -48,7 +65,14 @@
       "footsteps": {
         "page": "footsteps-on-different-surfaces",
         "zip": "footsteps_0.zip",
-        "zip_keep": ["footsteps/boots/", "footsteps/grass/", "footsteps/gravel/", "footsteps/metal/", "footsteps/tile/", "footsteps/wood/"],
+        "zip_keep": [
+          "footsteps/boots/",
+          "footsteps/grass/",
+          "footsteps/gravel/",
+          "footsteps/metal/",
+          "footsteps/tile/",
+          "footsteps/wood/"
+        ],
         "author": "congusbongus",
         "license": "CC-BY-3.0",
         "license_note": "Each surface folder keeps its license.txt naming the Freesound recording it was derived from; gravel is CC0, the rest CC-BY-3.0.",
@@ -79,20 +103,92 @@
     "revision": "06bfe0d62a98375cb09c942fa18e68bd32cff057",
     "items": {
       "bebasneue": {
-        "files": ["BebasNeue-Regular.ttf"],
+        "files": [
+          "BebasNeue-Regular.ttf"
+        ],
         "what": "tall condensed caps for titles, mission names, WANTED banners"
       },
       "anton": {
-        "files": ["Anton-Regular.ttf"],
+        "files": [
+          "Anton-Regular.ttf"
+        ],
         "what": "heavy condensed display face for big on-screen callouts"
       },
       "rajdhani": {
-        "files": ["Rajdhani-Regular.ttf", "Rajdhani-SemiBold.ttf", "Rajdhani-Bold.ttf"],
+        "files": [
+          "Rajdhani-Regular.ttf",
+          "Rajdhani-SemiBold.ttf",
+          "Rajdhani-Bold.ttf"
+        ],
         "what": "squared techy sans for the HUD, money and minimap labels"
       },
       "sharetechmono": {
-        "files": ["ShareTechMono-Regular.ttf"],
+        "files": [
+          "ShareTechMono-Regular.ttf"
+        ],
         "what": "monospace for terminals, hacking screens and phone texts"
+      }
+    }
+  },
+  "freesound": {
+    "folder": "audio-freesound",
+    "_why_previews": "Freesound's original files need a logged-in (OAuth) download, so we take its public high-quality previews (MP3, ~128 kbps). All items are CC0, so redistributing the preview is allowed.",
+    "items": {
+      "police-siren": {
+        "sound_id": 156869,
+        "author": "MultiMax2121",
+        "preview": "156/156869_2538033",
+        "license": "CC0-1.0",
+        "what": "police siren wail for chases"
+      },
+      "ambulance-siren": {
+        "sound_id": 184623,
+        "author": "LanDub",
+        "preview": "184/184623_3296721",
+        "license": "CC0-1.0",
+        "what": "ambulance siren"
+      },
+      "car-crash": {
+        "sound_id": 346299,
+        "author": "PauliusI",
+        "preview": "346/346299_3038712",
+        "license": "CC0-1.0",
+        "what": "car crash, exterior: impact and debris"
+      },
+      "crash-short": {
+        "sound_id": 420356,
+        "author": "CogFireStudios",
+        "preview": "420/420356_7614679",
+        "license": "CC0-1.0",
+        "what": "short crash hit"
+      },
+      "city-traffic": {
+        "sound_id": 250268,
+        "author": "LookIMadeAThing",
+        "preview": "250/250268_3968707",
+        "license": "CC0-1.0",
+        "what": "downtown traffic and crowd ambience (8.6 min)"
+      },
+      "car-horn": {
+        "sound_id": 182474,
+        "author": "keweldog",
+        "preview": "182/182474_3153523",
+        "license": "CC0-1.0",
+        "what": "car horn honks"
+      },
+      "handbrake-skid": {
+        "sound_id": 76804,
+        "author": "audible-edge",
+        "preview": "76/76804_995351",
+        "license": "CC0-1.0",
+        "what": "handbrake turn with tire skid"
+      },
+      "passing-car": {
+        "sound_id": 553259,
+        "author": "NachtmahrTV",
+        "preview": "553/553259_5620304",
+        "license": "CC0-1.0",
+        "what": "car driving past"
       }
     }
   }

@@ -51,7 +51,8 @@ SCHEMA: dict[str, Any] = {
         "loadable with three.js GLTFLoader from their `url` inside a race workspace; "
         "files under objects/ need loader.setMeshoptDecoder(MeshoptDecoder). Skies are "
         ".hdr (RGBELoader), textures .jpg (TextureLoader), sounds .ogg/.wav "
-        "(AudioLoader), sprites .png, fonts .ttf (CSS @font-face or FontFace)."
+        "(AudioLoader), sprites .png, fonts .ttf (CSS @font-face or FontFace). Vehicles "
+        "and trees are real size, on y = 0 and centred; vehicles face +z."
     ),
     "fields": {
         "id": "Stable unique id, '<dataset folder>/<item>'. Use with `show`.",

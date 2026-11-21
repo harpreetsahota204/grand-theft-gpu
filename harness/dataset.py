@@ -20,11 +20,15 @@ Called by `buildoff assets dataset` (see `harness.cli`).
 """
 
 import json
+import math
 import shutil
+import struct
 from pathlib import Path
+from typing import Any
 
 from huggingface_hub import HfApi
 
+from harness.catalog import gltf_json, json_bounds
 from harness.config import ASSETS_DIR, MIRROR_DIR, REPO_ROOT
 from harness.mirror import MirrorSource, load_plan
 
@@ -62,6 +66,7 @@ MEDIA_FOLDERS: dict[str, str] = {
     "polyhaven-textures": "Poly Haven PBR textures",
     "ambientcg-textures": "ambientCG PBR textures",
     "audio-opengameart": "OpenGameArt sounds",
+    "audio-freesound": "Freesound sounds",
     "kenney-media": "Kenney sounds and particle sprites",
     "google-fonts": "Google Fonts",
 }
@@ -168,6 +173,13 @@ def attribution(src: MirrorSource, items: int) -> str:
         if renames
         else "nothing in the files themselves. "
     )
+    sized = src.get("real_size")
+    resized = (
+        f"set every model to real-world {sized['measure']} ({sized['_why']}) by adding one "
+        "transform node to the glTF scene; geometry, materials and textures are unchanged. "
+        if sized
+        else ""
+    )
     return f"""# {src["id"]}: attribution
 
 **What:** {src["what"]}.
@@ -184,7 +196,7 @@ def attribution(src: MirrorSource, items: int) -> str:
 Kept item names start with: {", ".join(f"`{p}`" for p in src["include_prefixes"] if p) or "(all)"}.
 {f"Excluded: {', '.join(f'`{e}`' for e in excluded)}. {why}" if excluded else ""}
 
-**What we changed:** {renamed}`metadata.jsonl` is filtered to
+**What we changed:** {renamed}{resized}`metadata.jsonl` is filtered to
 the items kept; rows still point at upstream tiers (`engine/`, `thumbs/`, `objects_ktx2/`)
 that aren't mirrored here, and those remain available in the source dataset.
 
@@ -255,6 +267,95 @@ def apply_renames(folder: Path, renames: dict[str, str]) -> int:
     return done
 
 
+# Name of the wrapper node `real_size` adds, so re-running replaces it instead of stacking.
+REAL_SIZE_NODE: str = "gt-gpu-real-size"
+
+
+def write_glb_json(path: Path, gltf: dict[str, Any]) -> None:
+    """Replaces a .glb's JSON chunk, keeping its binary chunk byte for byte."""
+    data = path.read_bytes()
+    old_len = struct.unpack_from("<I", data, 12)[0]
+    rest = data[20 + old_len :]  # the BIN chunk (header + payload), untouched
+    body = json.dumps(gltf, separators=(",", ":")).encode()
+    body += b" " * (-len(body) % 4)  # chunks are 4-byte aligned; JSON pads with spaces
+    chunk = struct.pack("<II", len(body), 0x4E4F534A) + body
+    header = struct.pack("<III", 0x46546C67, 2, 12 + len(chunk) + len(rest))
+    path.write_bytes(header + chunk + rest)
+
+
+def real_size(path: Path, metres: float, measure: str, reverse: bool = False) -> float:
+    """Scales a .glb to a real-world size by wrapping its scene in one transform node.
+
+    Upstream converters normalised some models to ~1 m. Only the glTF JSON
+    changes (no geometry is decoded or re-encoded), so meshopt files stay
+    byte-identical in their binary chunk. The wrapper also turns the model so
+    its length runs along z, sets it on the ground (min y = 0) and centres it
+    in x/z. Idempotent: an existing wrapper is removed before measuring.
+
+    Args:
+        path: the .glb to rewrite in place
+        metres: target size
+        measure: "height" (y extent) or "length" (longest horizontal extent)
+        reverse: also turn it 180° about y, for models whose front ends up at -z
+            (glTF puts an asset's front at +z)
+
+    Returns:
+        the scale factor applied
+    """
+    gltf = gltf_json(path)
+    nodes = gltf["nodes"]
+    scene = gltf["scenes"][gltf.get("scene", 0)]
+    wrapper = scene["nodes"][0] if nodes[scene["nodes"][0]].get("name") == REAL_SIZE_NODE else None
+    if wrapper is not None:
+        # Measure the original model: unhook the old wrapper (reused below).
+        scene["nodes"] = nodes[wrapper]["children"]
+    lo, hi = json_bounds(gltf)
+    ext = hi - lo
+    # Quarter turns about y: one if the long axis is on x, two more to face +z.
+    quarters = (1 if measure == "length" and ext[0] > ext[2] else 0) + (2 if reverse else 0)
+    f = metres / (ext[1] if measure == "height" else max(ext[0], ext[2]))
+    centre = (lo + hi) / 2
+    # Each +90° turn about y maps (x, z) to (z, -x); the centre moves with it.
+    cx, cz = centre[0], centre[2]
+    for _ in range(quarters):
+        cx, cz = cz, -cx
+    node: dict[str, Any] = {
+        "name": REAL_SIZE_NODE,
+        "children": scene["nodes"],
+        "scale": [f, f, f],
+        "translation": [-cx * f, -lo[1] * f, -cz * f],
+    }
+    if quarters:
+        half = quarters * math.pi / 4  # quaternion uses half the angle
+        node["rotation"] = [0.0, math.sin(half), 0.0, math.cos(half)]
+    if wrapper is None:
+        nodes.append(node)
+        wrapper = len(nodes) - 1
+    nodes[wrapper] = node
+    scene["nodes"] = [wrapper]
+    write_glb_json(path, gltf)
+    return f
+
+
+def apply_real_sizes(folder: Path, spec: dict[str, Any]) -> int:
+    """Applies `real_size` to every tier's .glb of each listed item.
+
+    Args:
+        folder: a mirrored source folder
+        spec: {"measure": "height"|"length", "items": {item: metres},
+            "reverse": [items whose front would otherwise face -z]}
+
+    Returns:
+        files rewritten
+    """
+    done = 0
+    for item, metres in spec["items"].items():
+        for glb in sorted(folder.glob(f"*/{item}/*.glb")):
+            real_size(glb, metres, spec["measure"], item in spec.get("reverse", []))
+            done += 1
+    return done
+
+
 def build(out: Path = MIRROR_DIR) -> dict[str, int]:
     """Finishes the staging folder: filtered metadata, attribution files, own sets.
 
@@ -269,6 +370,10 @@ def build(out: Path = MIRROR_DIR) -> dict[str, int]:
         if (folder / "README.md").exists():
             (folder / "README.md").replace(folder / "SOURCE_README.md")
         apply_renames(folder, src.get("rename_items", {}))
+        if "real_size" in src:
+            print(
+                f"{src['id']}: {apply_real_sizes(folder, src['real_size'])} files set to real size"
+            )
         kept = filter_metadata(folder)
         items = sum(1 for _ in (folder / "objects").iterdir())
         text = attribution(src, items)

@@ -14,7 +14,7 @@ Called by `buildoff assets mirror` (see `harness.cli`).
 
 import json
 from pathlib import Path
-from typing import TypedDict
+from typing import Any, TypedDict
 
 from huggingface_hub import HfApi, snapshot_download
 
@@ -35,6 +35,7 @@ class MirrorSource(TypedDict):
     exclude_items: list[str]
     include_items: list[str]
     rename_items: dict[str, str]
+    real_size: dict[str, Any]
     top_level: list[str]
     license: str
     creator: str

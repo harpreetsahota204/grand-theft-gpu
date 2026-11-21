@@ -21,12 +21,14 @@ paths, and strict JSON (no Infinity/NaN), so unchanged inputs give a
 byte-identical file.
 """
 
+import itertools
 import json
 import re
 import struct
 from pathlib import Path
 from typing import Any
 
+import numpy as np
 import trimesh
 
 from harness.config import ASSETS_DIR, HF_ASSETS_REPO, HF_ASSETS_REVISION, MIRROR_DIR
@@ -114,6 +116,60 @@ def gltf_json(path: Path) -> dict[str, Any]:
     # GLB layout: 12-byte header, then chunk 0 = [length u32][type u32][JSON bytes].
     length = struct.unpack_from("<I", data, 12)[0]
     return json.loads(data[20 : 20 + length])
+
+
+# Divisors that turn normalized integer accessor values back into [-1, 1] / [0, 1]
+# (KHR_mesh_quantization), keyed by glTF componentType.
+NORMALIZED_DIVISOR: dict[int, float] = {5120: 127.0, 5121: 255.0, 5122: 32767.0, 5123: 65535.0}
+
+
+def node_matrix(node: dict[str, Any]) -> np.ndarray:
+    """A glTF node's local 4x4 transform (matrix, or translation/rotation/scale)."""
+    if "matrix" in node:
+        return np.array(node["matrix"], dtype=float).reshape(4, 4).T  # glTF is column-major
+    t = np.eye(4)
+    t[:3, 3] = node.get("translation", [0, 0, 0])
+    x, y, z, w = node.get("rotation", [0, 0, 0, 1])
+    r = np.eye(4)
+    r[:3, :3] = [
+        [1 - 2 * (y * y + z * z), 2 * (x * y - z * w), 2 * (x * z + y * w)],
+        [2 * (x * y + z * w), 1 - 2 * (x * x + z * z), 2 * (y * z - x * w)],
+        [2 * (x * z - y * w), 2 * (y * z + x * w), 1 - 2 * (x * x + y * y)],
+    ]
+    s = np.diag([*node.get("scale", [1, 1, 1]), 1.0])
+    return t @ r @ s
+
+
+def json_bounds(gltf: dict[str, Any]) -> tuple[np.ndarray, np.ndarray]:
+    """World-space bounding box of a glTF scene, from accessor min/max only.
+
+    Works on meshopt-compressed files (which trimesh can't decode) because the
+    POSITION accessors' min/max live in the JSON. Each primitive's box corners
+    are pushed through its node's world transform, so the result can be a
+    little loose for rotated nodes, never too small.
+
+    Returns:
+        (min xyz, max xyz) in metres
+    """
+    nodes, acc = gltf["nodes"], gltf["accessors"]
+    lo, hi = np.full(3, np.inf), np.full(3, -np.inf)
+    roots = gltf["scenes"][gltf.get("scene", 0)]["nodes"]
+    stack = [(i, np.eye(4)) for i in roots]
+    while stack:
+        i, parent = stack.pop()
+        world = parent @ node_matrix(nodes[i])
+        stack += [(c, world) for c in nodes[i].get("children", [])]
+        if "mesh" not in nodes[i]:
+            continue
+        for prim in gltf["meshes"][nodes[i]["mesh"]]["primitives"]:
+            a = acc[prim["attributes"]["POSITION"]]
+            div = NORMALIZED_DIVISOR.get(a["componentType"], 1.0) if a.get("normalized") else 1.0
+            pmin, pmax = np.array(a["min"]) / div, np.array(a["max"]) / div
+            # The 8 corners of the box, as homogeneous points.
+            corners = np.array(list(itertools.product(*zip(pmin, pmax, strict=True), [1.0])))
+            pts = (world @ corners.T).T[:, :3]
+            lo, hi = np.minimum(lo, pts.min(0)), np.maximum(hi, pts.max(0))
+    return lo, hi
 
 
 def mesh_node_names(gltf: dict[str, Any]) -> list[str]:
@@ -321,6 +377,7 @@ def vehicles(root: Path) -> list[dict[str, Any]]:
         for row in read_jsonl(root / folder / "metadata.jsonl"):
             item = row["file_name"].split("/")[1]
             name, kind = VEHICLE_NAMES.get(item, (row.get("title", item), "car"))
+            glb = root / folder / "objects" / item / f"{item}.glb"
             tiers = {
                 t: f"{folder}/{t}/{item}/{item}{suffix}.glb"
                 for t, suffix in (("lods", "_lod1"), ("collision", "_collision"))
@@ -340,6 +397,14 @@ def vehicles(root: Path) -> list[dict[str, Any]]:
                     id_tags=False,
                     triangles=row.get("triangles"),
                     optional_tiers=tiers,
+                    size_m=glb_size(glb),
+                    # Readable names only (some upstream names are mis-encoded bytes).
+                    parts=[n for n in mesh_node_names(gltf_json(glb)) if n.isascii()],
+                    notes=(
+                        "Real size in metres, front facing +z, wheels on y = 0, centred "
+                        "on the origin. Wheels you can spin are listed in parts when the "
+                        "model has them as separate meshes."
+                    ),
                 )
             )
     return out
@@ -469,6 +534,12 @@ def city(root: Path) -> list[dict[str, Any]]:
     ]
 
 
+def glb_size(path: Path) -> dict[str, float]:
+    """Bounding-box size in metres (x, y, z) of a .glb, from its glTF JSON only."""
+    lo, hi = json_bounds(gltf_json(path))
+    return {k: round(float(v), 2) for k, v in zip("xyz", hi - lo, strict=True)}
+
+
 def info_records(folder: Path) -> list[dict[str, Any]]:
     """Reads every item's info.json in a media folder, sorted by item id."""
     return [json.loads(f.read_text()) for f in sorted(folder.glob("*/info.json"))]
@@ -559,8 +630,6 @@ def trees(root: Path) -> list[dict[str, Any]]:
     for row in read_jsonl(root / "trees-google-poly" / "metadata.jsonl"):
         item = row["file_name"].split("/")[1]
         kind = "palm" if "palm" in item else "tree"
-        ext = row.get("original_extents")
-        scale = row.get("scale") or 1.0
         out.append(
             record(
                 hf_path=f"trees-google-poly/objects/{item}/{item}.glb",
@@ -574,14 +643,8 @@ def trees(root: Path) -> list[dict[str, Any]]:
                 tags={"tree", "plant", "vegetation", "street", "park", *tokens(row["title"])},
                 id_tags=False,
                 triangles=row.get("triangles"),
-                notes=(
-                    "Normalised to about 1 m tall: scale up to real size "
-                    "(street trees 8-12 m, palms 10-20 m)."
-                ),
-                # codepawl rescaled each model by `scale`; extents are pre-scale.
-                size_m={k: round(v * scale, 3) for k, v in zip("xyz", ext, strict=True)}
-                if ext
-                else None,
+                notes="Real height, base at y = 0, centred on the origin. Add as-is.",
+                size_m=glb_size(root / "trees-google-poly" / "objects" / item / f"{item}.glb"),
             )
         )
     return out
@@ -600,23 +663,26 @@ def split_camel(name: str) -> list[str]:
 def media_sets(root: Path) -> list[dict[str, Any]]:
     """Sounds, particle sprites and fonts: one record per sound/sprite family or font."""
     out = []
-    for info in info_records(root / "audio-opengameart"):
-        paths = [f"audio-opengameart/{info['id']}/{f}" for f in sorted(info["files"])]
-        audio = [p for p in paths if p.endswith((".ogg", ".wav"))]
-        out.append(
-            record(
-                hf_path=audio[0],
-                category="sound",
-                kind="loop" if "loop" in info["id"] or "ambience" in info["id"] else "sfx",
-                name=info["what"],
-                root=root,
-                license_id=info["license"],
-                source=f"{info['author']} · OpenGameArt",
-                source_url=info["source"],
-                tags={"audio", "sound", *tokens(info["what"])},
-                files=[media_url(p) for p in audio],
+    for folder, site in (("audio-opengameart", "OpenGameArt"), ("audio-freesound", "Freesound")):
+        for info in info_records(root / folder):
+            paths = [f"{folder}/{info['id']}/{f}" for f in sorted(info["files"])]
+            audio = [p for p in paths if p.endswith((".ogg", ".wav", ".mp3"))]
+            out.append(
+                record(
+                    hf_path=audio[0],
+                    category="sound",
+                    kind="loop"
+                    if any(w in info["id"] for w in ("loop", "ambience", "traffic"))
+                    else "sfx",
+                    name=info["what"],
+                    root=root,
+                    license_id=info["license"],
+                    source=f"{info['author']} · {site}",
+                    source_url=info["source"],
+                    tags={"audio", "sound", *tokens(info["what"])},
+                    files=[media_url(p) for p in audio],
+                )
             )
-        )
     kenney_media = root / "kenney-media"
     for pack, category, suffix in (
         ("impact-sounds", "sound", ".ogg"),
