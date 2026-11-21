@@ -112,6 +112,7 @@ class Asset(TypedDict):
     parts: list[str]
     joints: list[dict[str, object]]
     tags: list[str]
+    group: str
     source: str
     source_url: str
     license: str
@@ -198,8 +199,6 @@ def build_entry(folder: str, path: Path, props: dict[str, dict[str, object]]) ->
         # Props' geometry nodes are generic ("Geom", "mesh"); the USD links are the movable parts.
         parts = sorted(meta.get("links", []))  # type: ignore[arg-type]
         joints = list(meta.get("joints", []))  # type: ignore[arg-type]
-        if meta.get("group"):
-            tags |= set(tokens(str(meta["group"])))
         if joints:
             tags.add("articulated")
     if folder == "cars":
@@ -224,6 +223,7 @@ def build_entry(folder: str, path: Path, props: dict[str, dict[str, object]]) ->
         parts=parts,
         joints=joints,
         tags=sorted(tags),
+        group=str(props.get(path.name, {}).get("group", "")) if folder == "props" else "",
         source=src["source"],
         source_url=src["source_url"],
         license=src["license"],
@@ -258,5 +258,6 @@ def write_catalog(path: Path = CATALOG_PATH) -> int:
         number of assets written
     """
     catalog = build_catalog()
-    path.write_text(json.dumps(catalog, indent=2, sort_keys=True) + "\n")
+    # allow_nan=False: JSON has no Infinity/NaN, and browsers' JSON.parse rejects them.
+    path.write_text(json.dumps(catalog, indent=2, sort_keys=True, allow_nan=False) + "\n")
     return int(catalog["count"])  # type: ignore[call-overload]

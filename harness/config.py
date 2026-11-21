@@ -49,6 +49,11 @@ BASE_REPO_COMMIT: str = "babb6232df0f50d92e66a4b994a5fbc14fcc37d9"
 # Vite serves public/ at the site root, so the game loads /assets/gt-gpu/...
 ASSETS_DIR: Path = REPO_ROOT / "assets"
 
+# Local staging copy of the Hugging Face asset dataset
+# (harpreetsahota/grand-theft-gpu-assets). `buildoff assets mirror` downloads
+# the third-party sets in scripts/mirror_sources.json here, outside the repo.
+MIRROR_DIR: Path = Path.home() / "grand-theft-gpu-assets"
+
 # Blender runs the USDCraft converter; $BLENDER overrides this macOS default.
 DEFAULT_BLENDER: str = "/Applications/Blender.app/Contents/MacOS/Blender"
 GAME_ASSETS_SUBDIR: str = "public/assets/gt-gpu"

@@ -105,6 +105,19 @@ Both models get the same assets. Each folder keeps its license file.
 
 The base game is [kartik786-git/gta-clone-threejs](https://github.com/kartik786-git/gta-clone-threejs), used with attribution.
 
+### The asset dataset on Hugging Face
+
+All game assets, including the people, motion clips, city kits and a real San Francisco slice, live in **[harpreetsahota/grand-theft-gpu-assets](https://huggingface.co/datasets/harpreetsahota/grand-theft-gpu-assets)** (about 1 GB, every folder with its license and attribution). It's built and published with:
+
+```bash
+uv run buildoff assets mirror    # third-party sets at pinned revisions (scripts/mirror_sources.json)
+uv run buildoff assets city      # SF slice from OpenStreetMap + elevation (harness/sfcity.py)
+uv run buildoff assets dataset   # attribution files + dataset card (dataset_card/)
+uv run buildoff assets publish   # upload (only after a human reviews the cards)
+```
+
+These stage into `~/grand-theft-gpu-assets/`.
+
 ### Searching the assets
 
 Every asset is listed in `assets/catalog.json`: id, category, URL, size in metres, triangles, movable parts, joints, tags and license. `buildoff inventory` searches it. It doesn't prompt, it's deterministic, and it prints JSON, so agents can use it directly:
@@ -148,6 +161,10 @@ USDCraft ships OpenUSD for Isaac Sim, which three.js can't load. For each prop, 
 | `harness/assets.py` | Rebuilds `assets/` from the original sources |
 | `harness/catalog.py` | Builds `assets/catalog.json` by inspecting every `.glb` |
 | `harness/inventory.py` | The `buildoff inventory` search and query layer |
+| `harness/mirror.py`, `scripts/mirror_sources.json` | Mirror pinned third-party asset sets (Rocketbox, Kenney) |
+| `harness/sfcity.py` | Builds the real SF slice: terrain, buildings, streets, street graph |
+| `harness/dataset.py`, `dataset_card/` | Assemble and publish the Hugging Face asset dataset |
+| `scripts/convert_mhr.py` | Meta MHR body FBX → glb (runs in Blender) |
 | `scripts/convert_usdcraft.py` | USDCraft OpenUSD → `.glb` converter (runs in Blender) |
 | `scripts/usdcraft_props.csv` | The curated list of 45 USDCraft props |
 | `assets/` | GPU, cars and props the models build with |

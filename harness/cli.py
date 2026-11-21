@@ -21,7 +21,7 @@ from pathlib import Path
 from typing import NoReturn
 
 from harness import doctor, inventory, race
-from harness.config import ASSETS_DIR, PROMPTS_DIR
+from harness.config import ASSETS_DIR, MIRROR_DIR, PROMPTS_DIR
 
 # Races above this budget need --yes, so an agent (or a typo) can't start a
 # $100-per-model run by accident. The smoke test stays under it.
@@ -37,8 +37,23 @@ def cmd_doctor(_: argparse.Namespace) -> int:
 def cmd_assets(args: argparse.Namespace) -> int:
     """Rebuilds the requested asset set from source, then refreshes the catalog."""
     # Lazy imports: huggingface_hub and trimesh are only needed here.
-    from harness import assets, catalog
+    from harness import assets, catalog, dataset, mirror, sfcity
 
+    staging = args.out if args.out != ASSETS_DIR else MIRROR_DIR
+    if args.what == "city":
+        sfcity.build(staging)
+        return 0
+    if args.what == "dataset":
+        dataset.build(staging)
+        return 0
+    if args.what == "publish":
+        print(dataset.publish(staging))
+        return 0
+    if args.what == "mirror":
+        # Third-party sets go to a staging folder (the local copy of the HF dataset),
+        # never into the repo's assets/.
+        mirror.mirror(staging, args.source)
+        return 0
     if args.what != "catalog":
         assets.build(args.what, args.out)
     # The catalog describes this repo's assets/, so only refresh it when that
@@ -150,8 +165,12 @@ def build_parser() -> argparse.ArgumentParser:
 
     a = sub.add_parser("assets", help="rebuild assets/ from original sources")
     a.add_argument(
-        "what", nargs="?", default="all", choices=["gpu", "cars", "props", "catalog", "all"]
+        "what",
+        nargs="?",
+        default="all",
+        choices=["gpu", "cars", "props", "catalog", "mirror", "city", "dataset", "publish", "all"],
     )
+    a.add_argument("--source", default=None, help="mirror only this source id")
     a.add_argument("--out", type=Path, default=ASSETS_DIR, help="assets root (default: assets/)")
     a.set_defaults(func=cmd_assets)
 

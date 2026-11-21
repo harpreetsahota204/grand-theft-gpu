@@ -23,6 +23,7 @@ produced while curating the prop list (see AGENT_ONBOARDING.md, section 1b).
 
 import csv
 import json
+import math
 import re
 import sys
 from pathlib import Path
@@ -56,7 +57,7 @@ class JointInfo(TypedDict):
     parent_link: str
     child_link: str
     axis: str
-    lower: float | None
+    lower: float | None  # None = no limit (USD stores ±inf)
     upper: float | None
 
 
@@ -76,6 +77,14 @@ class PropEntry(TypedDict):
 def slugify(text: str) -> str:
     """Turns a category name like 'ATM Machine' into a filename slug 'atm-machine'."""
     return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
+
+
+def finite_or_none(value: float | None) -> float | None:
+    """Maps USD's ±inf ("no limit") to None, so manifest.json stays valid JSON.
+
+    JSON has no Infinity; Python writes it anyway and browsers' JSON.parse rejects it.
+    """
+    return value if value is not None and math.isfinite(value) else None
 
 
 def read_joints(usd_path: Path) -> list[JointInfo]:
@@ -105,8 +114,8 @@ def read_joints(usd_path: Path) -> list[JointInfo]:
                 parent_link=body0[0].name if body0 else "",
                 child_link=body1[0].name if body1 else "",
                 axis=str(prim.GetAttribute("physics:axis").Get()),
-                lower=prim.GetAttribute("physics:lowerLimit").Get(),
-                upper=prim.GetAttribute("physics:upperLimit").Get(),
+                lower=finite_or_none(prim.GetAttribute("physics:lowerLimit").Get()),
+                upper=finite_or_none(prim.GetAttribute("physics:upperLimit").Get()),
             )
         )
     return joints
@@ -253,7 +262,7 @@ def main(picked_csv: Path, raw_dir: Path, out_dir: Path) -> None:
         ),
         "props": entries,
     }
-    (out_dir / "manifest.json").write_text(json.dumps(manifest, indent=2))
+    (out_dir / "manifest.json").write_text(json.dumps(manifest, indent=2, allow_nan=False))
     print(f"converted {len(entries)}, failed {len(failures)}")
     for line in failures:
         print("FAILED", line)

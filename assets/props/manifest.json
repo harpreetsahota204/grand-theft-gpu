@@ -36,8 +36,8 @@
           "parent_link": "door",
           "child_link": "dial",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         }
       ]
     },
@@ -558,8 +558,8 @@
           "parent_link": "fork_frame",
           "child_link": "steer_wheel_right",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         },
         {
           "name": "load_roll_right",
@@ -567,8 +567,8 @@
           "parent_link": "fork_frame",
           "child_link": "load_roller_right",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         },
         {
           "name": "steer_spin_left",
@@ -576,8 +576,8 @@
           "parent_link": "fork_frame",
           "child_link": "steer_wheel_left",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         },
         {
           "name": "load_roll_left",
@@ -585,8 +585,8 @@
           "parent_link": "fork_frame",
           "child_link": "load_roller_left",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         },
         {
           "name": "tiller_pivot",
@@ -624,8 +624,8 @@
           "parent_link": "frame",
           "child_link": "wheel_left",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         },
         {
           "name": "wheel_axle_right",
@@ -633,8 +633,8 @@
           "parent_link": "frame",
           "child_link": "wheel_right",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         },
         {
           "name": "toe_plate_hinge",
@@ -712,8 +712,8 @@
           "parent_link": "chassis",
           "child_link": "steering_wheel",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         },
         {
           "name": "lift_lever_pivot",
@@ -730,8 +730,8 @@
           "parent_link": "chassis",
           "child_link": "wheel_front_left",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         },
         {
           "name": "axle_front_right",
@@ -739,8 +739,8 @@
           "parent_link": "chassis",
           "child_link": "wheel_front_right",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         },
         {
           "name": "axle_rear_left",
@@ -748,8 +748,8 @@
           "parent_link": "chassis",
           "child_link": "wheel_rear_left",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         },
         {
           "name": "axle_rear_right",
@@ -757,8 +757,8 @@
           "parent_link": "chassis",
           "child_link": "wheel_rear_right",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         }
       ]
     },
@@ -893,8 +893,8 @@
           "parent_link": "hydrant_body",
           "child_link": "operating_nut",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         },
         {
           "name": "cap_pivot_hinge",
@@ -911,8 +911,8 @@
           "parent_link": "hydrant_body",
           "child_link": "left_nozzle_cap",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         },
         {
           "name": "front_cap_screw",
@@ -920,8 +920,8 @@
           "parent_link": "hydrant_body",
           "child_link": "front_pumper_cap",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         }
       ]
     },
@@ -1170,8 +1170,8 @@
           "parent_link": "housing",
           "child_link": "hub",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         }
       ]
     },
@@ -1257,8 +1257,8 @@
           "parent_link": "steering",
           "child_link": "front_wheel",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         },
         {
           "name": "rear_wheel_spin",
@@ -1266,8 +1266,8 @@
           "parent_link": "frame",
           "child_link": "rear_wheel",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         },
         {
           "name": "crank_spin",
@@ -1275,8 +1275,8 @@
           "parent_link": "frame",
           "child_link": "crank",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         },
         {
           "name": "pedal_spin_left",
@@ -1284,8 +1284,8 @@
           "parent_link": "crank",
           "child_link": "pedal_left",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         },
         {
           "name": "pedal_spin_right",
@@ -1293,8 +1293,8 @@
           "parent_link": "crank",
           "child_link": "pedal_right",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         },
         {
           "name": "brake_lever_hinge",
@@ -1340,8 +1340,8 @@
           "parent_link": "steering",
           "child_link": "front_wheel",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         },
         {
           "name": "rear_wheel_spin",
@@ -1349,8 +1349,8 @@
           "parent_link": "deck",
           "child_link": "rear_wheel",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         }
       ]
     },
@@ -1394,8 +1394,8 @@
           "parent_link": "arm_front_right",
           "child_link": "prop_front_right",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         },
         {
           "name": "fold_front_left",
@@ -1412,8 +1412,8 @@
           "parent_link": "arm_front_left",
           "child_link": "prop_front_left",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         },
         {
           "name": "fold_rear_right",
@@ -1430,8 +1430,8 @@
           "parent_link": "arm_rear_right",
           "child_link": "prop_rear_right",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         },
         {
           "name": "fold_rear_left",
@@ -1448,8 +1448,8 @@
           "parent_link": "arm_rear_left",
           "child_link": "prop_rear_left",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         },
         {
           "name": "camera_tilt",
@@ -1714,8 +1714,8 @@
           "parent_link": "frame",
           "child_link": "caster_front_left",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         },
         {
           "name": "wheel_front_left_spin",
@@ -1723,8 +1723,8 @@
           "parent_link": "caster_front_left",
           "child_link": "wheel_front_left",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         },
         {
           "name": "swivel_front_right",
@@ -1732,8 +1732,8 @@
           "parent_link": "frame",
           "child_link": "caster_front_right",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         },
         {
           "name": "wheel_front_right_spin",
@@ -1741,8 +1741,8 @@
           "parent_link": "caster_front_right",
           "child_link": "wheel_front_right",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         },
         {
           "name": "wheel_rear_left_spin",
@@ -1750,8 +1750,8 @@
           "parent_link": "caster_rear_left",
           "child_link": "wheel_rear_left",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         },
         {
           "name": "wheel_rear_right_spin",
@@ -1759,8 +1759,8 @@
           "parent_link": "caster_rear_right",
           "child_link": "wheel_rear_right",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         }
       ]
     },
@@ -1805,8 +1805,8 @@
           "parent_link": "chassis",
           "child_link": "drive_wheel_left",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         },
         {
           "name": "drive_axle_right",
@@ -1814,8 +1814,8 @@
           "parent_link": "chassis",
           "child_link": "drive_wheel_right",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         },
         {
           "name": "caster_swivel_front_left",
@@ -1823,8 +1823,8 @@
           "parent_link": "chassis",
           "child_link": "caster_fork_front_left",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         },
         {
           "name": "caster_axle_front_left",
@@ -1832,8 +1832,8 @@
           "parent_link": "caster_fork_front_left",
           "child_link": "caster_wheel_front_left",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         },
         {
           "name": "caster_swivel_front_right",
@@ -1841,8 +1841,8 @@
           "parent_link": "chassis",
           "child_link": "caster_fork_front_right",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         },
         {
           "name": "caster_axle_front_right",
@@ -1850,8 +1850,8 @@
           "parent_link": "caster_fork_front_right",
           "child_link": "caster_wheel_front_right",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         },
         {
           "name": "caster_swivel_rear_left",
@@ -1859,8 +1859,8 @@
           "parent_link": "chassis",
           "child_link": "caster_fork_rear_left",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         },
         {
           "name": "caster_axle_rear_left",
@@ -1868,8 +1868,8 @@
           "parent_link": "caster_fork_rear_left",
           "child_link": "caster_wheel_rear_left",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         },
         {
           "name": "caster_swivel_rear_right",
@@ -1877,8 +1877,8 @@
           "parent_link": "chassis",
           "child_link": "caster_fork_rear_right",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         },
         {
           "name": "caster_axle_rear_right",
@@ -1886,8 +1886,8 @@
           "parent_link": "caster_fork_rear_right",
           "child_link": "caster_wheel_rear_right",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         }
       ]
     },
@@ -2015,8 +2015,8 @@
           "parent_link": "deck",
           "child_link": "front_wheel",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         },
         {
           "name": "rear_wheel_spin",
@@ -2024,8 +2024,8 @@
           "parent_link": "deck",
           "child_link": "rear_wheel",
           "axis": "X",
-          "lower": -Infinity,
-          "upper": Infinity
+          "lower": null,
+          "upper": null
         }
       ]
     }

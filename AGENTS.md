@@ -36,6 +36,8 @@ If `doctor` reports missing items, each line says how to fix it. The required it
 | `uv run buildoff smoke` | End-to-end check: both models add a floating GPU to the base game | about $0.30 total |
 | `uv run buildoff race --budget N --yes` | Runs the locked prompt (`prompts/game_spec.md`) | up to $N per model |
 | `uv run buildoff assets [gpu\|cars\|props\|catalog\|all] [--out DIR]` | Rebuilds `assets/` (and the catalog) from the original sources | free (props needs Blender) |
+| `uv run buildoff assets <mirror\|city\|dataset>` | Build the Hugging Face asset dataset locally in `~/grand-theft-gpu-assets/` | free |
+| `uv run buildoff assets publish` | Upload the dataset. **Public and outward-facing: only with the user's explicit OK** | free |
 | `uv run buildoff inventory <categories\|list\|search\|show\|schema>` | Searches the asset catalog. JSON on stdout, JSON errors on stderr, deterministic. Start with `inventory schema`. | free |
 
 Races run for a long time: 30 minutes to hours. Launch them detached so a tool timeout can't kill them partway, then follow `logs/turns.jsonl`:
@@ -67,6 +69,7 @@ A healthy smoke run shows `declared_done`, `build_ok: true` and `loaded: true` o
 | `harness/viewer.py` | Live terminal view of a contender |
 | `harness/doctor.py`, `harness/assets.py` | Prerequisite checks; asset rebuild |
 | `harness/catalog.py`, `harness/inventory.py` | Builds `assets/catalog.json`; the `inventory` query layer |
+| `harness/mirror.py`, `harness/sfcity.py`, `harness/dataset.py` | Asset dataset: pinned mirrors, the SF slice, cards and upload ([on the Hub](https://huggingface.co/datasets/harpreetsahota/grand-theft-gpu-assets)) |
 | `harness/config.py` | Every constant: contenders, limits, paths, pinned base commit |
 | `scripts/convert_usdcraft.py` | OpenUSD → glb converter (runs inside Blender) |
 | `prompts/` | The locked game prompt, run rules, nudge, smoke spec |

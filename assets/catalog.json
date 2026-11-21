@@ -4,6 +4,7 @@
       "bytes": 233612,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/ambulance",
       "joints": [],
       "kind": "vehicle",
@@ -38,6 +39,7 @@
       "bytes": 14108,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/box",
       "joints": [],
       "kind": "vehicle-part",
@@ -65,6 +67,7 @@
       "bytes": 16696,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/cone",
       "joints": [],
       "kind": "vehicle-part",
@@ -92,6 +95,7 @@
       "bytes": 16712,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/cone-flat",
       "joints": [],
       "kind": "vehicle-part",
@@ -120,6 +124,7 @@
       "bytes": 4768,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/debris-bolt",
       "joints": [],
       "kind": "vehicle-part",
@@ -148,6 +153,7 @@
       "bytes": 11312,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/debris-bumper",
       "joints": [],
       "kind": "vehicle-part",
@@ -176,6 +182,7 @@
       "bytes": 7052,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/debris-door",
       "joints": [],
       "kind": "vehicle-part",
@@ -204,6 +211,7 @@
       "bytes": 7576,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/debris-door-window",
       "joints": [],
       "kind": "vehicle-part",
@@ -233,6 +241,7 @@
       "bytes": 36896,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/debris-drivetrain",
       "joints": [],
       "kind": "vehicle-part",
@@ -261,6 +270,7 @@
       "bytes": 18740,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/debris-drivetrain-axle",
       "joints": [],
       "kind": "vehicle-part",
@@ -290,6 +300,7 @@
       "bytes": 4744,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/debris-nut",
       "joints": [],
       "kind": "vehicle-part",
@@ -318,6 +329,7 @@
       "bytes": 5048,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/debris-plate-a",
       "joints": [],
       "kind": "vehicle-part",
@@ -347,6 +359,7 @@
       "bytes": 5380,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/debris-plate-b",
       "joints": [],
       "kind": "vehicle-part",
@@ -376,6 +389,7 @@
       "bytes": 4224,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/debris-plate-small-a",
       "joints": [],
       "kind": "vehicle-part",
@@ -406,6 +420,7 @@
       "bytes": 5392,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/debris-plate-small-b",
       "joints": [],
       "kind": "vehicle-part",
@@ -436,6 +451,7 @@
       "bytes": 5616,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/debris-spoiler-a",
       "joints": [],
       "kind": "vehicle-part",
@@ -465,6 +481,7 @@
       "bytes": 8596,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/debris-spoiler-b",
       "joints": [],
       "kind": "vehicle-part",
@@ -494,6 +511,7 @@
       "bytes": 26548,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/debris-tire",
       "joints": [],
       "kind": "vehicle-part",
@@ -522,6 +540,7 @@
       "bytes": 240264,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/delivery",
       "joints": [],
       "kind": "vehicle",
@@ -554,6 +573,7 @@
       "bytes": 214456,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/delivery-flat",
       "joints": [],
       "kind": "vehicle",
@@ -586,6 +606,7 @@
       "bytes": 232448,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/firetruck",
       "joints": [],
       "kind": "vehicle",
@@ -620,6 +641,7 @@
       "bytes": 268224,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/garbage-truck",
       "joints": [],
       "kind": "vehicle",
@@ -654,6 +676,7 @@
       "bytes": 197804,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/hatchback-sports",
       "joints": [],
       "kind": "vehicle",
@@ -686,6 +709,7 @@
       "bytes": 251516,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/kart-oobi",
       "joints": [],
       "kind": "vehicle",
@@ -719,6 +743,7 @@
       "bytes": 230984,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/kart-oodi",
       "joints": [],
       "kind": "vehicle",
@@ -752,6 +777,7 @@
       "bytes": 233380,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/kart-ooli",
       "joints": [],
       "kind": "vehicle",
@@ -785,6 +811,7 @@
       "bytes": 236196,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/kart-oopi",
       "joints": [],
       "kind": "vehicle",
@@ -818,6 +845,7 @@
       "bytes": 240776,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/kart-oozi",
       "joints": [],
       "kind": "vehicle",
@@ -851,6 +879,7 @@
       "bytes": 195336,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/police",
       "joints": [],
       "kind": "vehicle",
@@ -887,6 +916,7 @@
       "bytes": 167272,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/race",
       "joints": [],
       "kind": "vehicle",
@@ -918,6 +948,7 @@
       "bytes": 173164,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/race-future",
       "joints": [],
       "kind": "vehicle",
@@ -950,6 +981,7 @@
       "bytes": 172216,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/sedan",
       "joints": [],
       "kind": "vehicle",
@@ -983,6 +1015,7 @@
       "bytes": 177676,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/sedan-sports",
       "joints": [],
       "kind": "vehicle",
@@ -1018,6 +1051,7 @@
       "bytes": 207572,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/suv",
       "joints": [],
       "kind": "vehicle",
@@ -1052,6 +1086,7 @@
       "bytes": 175908,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/suv-luxury",
       "joints": [],
       "kind": "vehicle",
@@ -1086,6 +1121,7 @@
       "bytes": 175608,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/taxi",
       "joints": [],
       "kind": "vehicle",
@@ -1119,6 +1155,7 @@
       "bytes": 175960,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/tractor",
       "joints": [],
       "kind": "vehicle",
@@ -1150,6 +1187,7 @@
       "bytes": 196308,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/tractor-police",
       "joints": [],
       "kind": "vehicle",
@@ -1187,6 +1225,7 @@
       "bytes": 222584,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/tractor-shovel",
       "joints": [],
       "kind": "vehicle",
@@ -1220,6 +1259,7 @@
       "bytes": 176360,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/truck",
       "joints": [],
       "kind": "vehicle",
@@ -1251,6 +1291,7 @@
       "bytes": 207424,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/truck-flat",
       "joints": [],
       "kind": "vehicle",
@@ -1283,6 +1324,7 @@
       "bytes": 175664,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/van",
       "joints": [],
       "kind": "vehicle",
@@ -1314,6 +1356,7 @@
       "bytes": 29116,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/wheel-dark",
       "joints": [],
       "kind": "vehicle-part",
@@ -1342,6 +1385,7 @@
       "bytes": 26820,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/wheel-default",
       "joints": [],
       "kind": "vehicle-part",
@@ -1370,6 +1414,7 @@
       "bytes": 29120,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/wheel-racing",
       "joints": [],
       "kind": "vehicle-part",
@@ -1398,6 +1443,7 @@
       "bytes": 36628,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/wheel-tractor-back",
       "joints": [],
       "kind": "vehicle-part",
@@ -1427,6 +1473,7 @@
       "bytes": 36644,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/wheel-tractor-dark-back",
       "joints": [],
       "kind": "vehicle-part",
@@ -1457,6 +1504,7 @@
       "bytes": 29156,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/wheel-tractor-dark-front",
       "joints": [],
       "kind": "vehicle-part",
@@ -1487,6 +1535,7 @@
       "bytes": 29140,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/wheel-tractor-front",
       "joints": [],
       "kind": "vehicle-part",
@@ -1516,6 +1565,7 @@
       "bytes": 34304,
       "category": "vehicle",
       "format": "glb",
+      "group": "",
       "id": "cars/wheel-truck",
       "joints": [],
       "kind": "vehicle-part",
@@ -1544,6 +1594,7 @@
       "bytes": 891448,
       "category": "loot",
       "format": "glb",
+      "group": "",
       "id": "gpu/graphics-card-light",
       "joints": [],
       "kind": "loot",
@@ -1581,6 +1632,7 @@
       "bytes": 132364,
       "category": "prop",
       "format": "glb",
+      "group": "office_commercial_hospitality",
       "id": "props/anti-theft-security-gate",
       "joints": [],
       "kind": "prop",
@@ -1599,11 +1651,8 @@
       "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
       "tags": [
         "anti",
-        "commercial",
         "entrance",
         "gate",
-        "hospitality",
-        "office",
         "prop",
         "security",
         "theft"
@@ -1615,6 +1664,7 @@
       "bytes": 122956,
       "category": "prop",
       "format": "glb",
+      "group": "office_commercial_hospitality",
       "id": "props/atm-machine",
       "joints": [
         {
@@ -1726,12 +1776,9 @@
         "articulated",
         "atm",
         "cash",
-        "commercial",
         "heist-target",
-        "hospitality",
         "machine",
         "money",
-        "office",
         "prop"
       ],
       "triangles": 1752,
@@ -1741,6 +1788,7 @@
       "bytes": 222008,
       "category": "prop",
       "format": "glb",
+      "group": "industrial_warehouse_construction_energy",
       "id": "props/autonomous-mobile-robot",
       "joints": [
         {
@@ -1755,92 +1803,92 @@
         {
           "axis": "X",
           "child_link": "drive_wheel_left",
-          "lower": -Infinity,
+          "lower": null,
           "name": "drive_axle_left",
           "parent_link": "chassis",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         },
         {
           "axis": "X",
           "child_link": "drive_wheel_right",
-          "lower": -Infinity,
+          "lower": null,
           "name": "drive_axle_right",
           "parent_link": "chassis",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         },
         {
           "axis": "X",
           "child_link": "caster_fork_front_left",
-          "lower": -Infinity,
+          "lower": null,
           "name": "caster_swivel_front_left",
           "parent_link": "chassis",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         },
         {
           "axis": "X",
           "child_link": "caster_wheel_front_left",
-          "lower": -Infinity,
+          "lower": null,
           "name": "caster_axle_front_left",
           "parent_link": "caster_fork_front_left",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         },
         {
           "axis": "X",
           "child_link": "caster_fork_front_right",
-          "lower": -Infinity,
+          "lower": null,
           "name": "caster_swivel_front_right",
           "parent_link": "chassis",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         },
         {
           "axis": "X",
           "child_link": "caster_wheel_front_right",
-          "lower": -Infinity,
+          "lower": null,
           "name": "caster_axle_front_right",
           "parent_link": "caster_fork_front_right",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         },
         {
           "axis": "X",
           "child_link": "caster_fork_rear_left",
-          "lower": -Infinity,
+          "lower": null,
           "name": "caster_swivel_rear_left",
           "parent_link": "chassis",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         },
         {
           "axis": "X",
           "child_link": "caster_wheel_rear_left",
-          "lower": -Infinity,
+          "lower": null,
           "name": "caster_axle_rear_left",
           "parent_link": "caster_fork_rear_left",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         },
         {
           "axis": "X",
           "child_link": "caster_fork_rear_right",
-          "lower": -Infinity,
+          "lower": null,
           "name": "caster_swivel_rear_right",
           "parent_link": "chassis",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         },
         {
           "axis": "X",
           "child_link": "caster_wheel_rear_right",
-          "lower": -Infinity,
+          "lower": null,
           "name": "caster_axle_rear_right",
           "parent_link": "caster_fork_rear_right",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         }
       ],
       "kind": "prop",
@@ -1871,14 +1919,10 @@
       "tags": [
         "articulated",
         "autonomous",
-        "construction",
         "delivery",
-        "energy",
-        "industrial",
         "mobile",
         "prop",
-        "robot",
-        "warehouse"
+        "robot"
       ],
       "triangles": 7128,
       "url": "/assets/gt-gpu/props/autonomous-mobile-robot.glb"
@@ -1887,6 +1931,7 @@
       "bytes": 242284,
       "category": "prop",
       "format": "glb",
+      "group": "industrial_warehouse_construction_energy",
       "id": "props/battery-rack",
       "joints": [],
       "kind": "prop",
@@ -1915,14 +1960,10 @@
       "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
       "tags": [
         "battery",
-        "construction",
         "datacenter",
-        "energy",
-        "industrial",
         "prop",
         "rack",
-        "storage",
-        "warehouse"
+        "storage"
       ],
       "triangles": 6300,
       "url": "/assets/gt-gpu/props/battery-rack.glb"
@@ -1931,6 +1972,7 @@
       "bytes": 721020,
       "category": "prop",
       "format": "glb",
+      "group": "medical_outdoor_garden_transport_sports",
       "id": "props/bicycle",
       "joints": [
         {
@@ -1945,47 +1987,47 @@
         {
           "axis": "X",
           "child_link": "front_wheel",
-          "lower": -Infinity,
+          "lower": null,
           "name": "front_wheel_spin",
           "parent_link": "steering",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         },
         {
           "axis": "X",
           "child_link": "rear_wheel",
-          "lower": -Infinity,
+          "lower": null,
           "name": "rear_wheel_spin",
           "parent_link": "frame",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         },
         {
           "axis": "X",
           "child_link": "crank",
-          "lower": -Infinity,
+          "lower": null,
           "name": "crank_spin",
           "parent_link": "frame",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         },
         {
           "axis": "X",
           "child_link": "pedal_left",
-          "lower": -Infinity,
+          "lower": null,
           "name": "pedal_spin_left",
           "parent_link": "crank",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         },
         {
           "axis": "X",
           "child_link": "pedal_right",
-          "lower": -Infinity,
+          "lower": null,
           "name": "pedal_spin_right",
           "parent_link": "crank",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         },
         {
           "axis": "X",
@@ -2022,13 +2064,8 @@
         "articulated",
         "bicycle",
         "bike",
-        "garden",
-        "medical",
-        "outdoor",
         "prop",
-        "rideable",
-        "sports",
-        "transport"
+        "rideable"
       ],
       "triangles": 30884,
       "url": "/assets/gt-gpu/props/bicycle.glb"
@@ -2037,6 +2074,7 @@
       "bytes": 62884,
       "category": "prop",
       "format": "glb",
+      "group": "medical_outdoor_garden_transport_sports",
       "id": "props/bike-share-dock",
       "joints": [
         {
@@ -2068,13 +2106,8 @@
         "articulated",
         "bike",
         "dock",
-        "garden",
-        "medical",
-        "outdoor",
         "prop",
-        "share",
-        "sports",
-        "transport"
+        "share"
       ],
       "triangles": 1732,
       "url": "/assets/gt-gpu/props/bike-share-dock.glb"
@@ -2083,6 +2116,7 @@
       "bytes": 105876,
       "category": "prop",
       "format": "glb",
+      "group": "medical_outdoor_garden_transport_sports",
       "id": "props/boom-barrier-gate",
       "joints": [
         {
@@ -2115,16 +2149,11 @@
         "barrier",
         "boom",
         "entrance",
-        "garden",
         "gate",
-        "medical",
-        "outdoor",
         "prop",
         "roadblock",
         "security",
-        "sports",
-        "street",
-        "transport"
+        "street"
       ],
       "triangles": 3392,
       "url": "/assets/gt-gpu/props/boom-barrier-gate.glb"
@@ -2133,6 +2162,7 @@
       "bytes": 114696,
       "category": "prop",
       "format": "glb",
+      "group": "medical_outdoor_garden_transport_sports",
       "id": "props/bus-stop-sign",
       "joints": [],
       "kind": "prop",
@@ -2153,14 +2183,9 @@
       "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
       "tags": [
         "bus",
-        "garden",
-        "medical",
-        "outdoor",
         "prop",
         "sign",
-        "sports",
-        "stop",
-        "transport"
+        "stop"
       ],
       "triangles": 3236,
       "url": "/assets/gt-gpu/props/bus-stop-sign.glb"
@@ -2169,6 +2194,7 @@
       "bytes": 167348,
       "category": "prop",
       "format": "glb",
+      "group": "living_bedroom_electronics_toys",
       "id": "props/computer-desk",
       "joints": [],
       "kind": "prop",
@@ -2188,13 +2214,9 @@
       "source": "NVIDIA USDCraft-10K (converted)",
       "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
       "tags": [
-        "bedroom",
         "computer",
         "desk",
-        "electronics",
-        "living",
-        "prop",
-        "toys"
+        "prop"
       ],
       "triangles": 5336,
       "url": "/assets/gt-gpu/props/computer-desk.glb"
@@ -2203,6 +2225,7 @@
       "bytes": 93308,
       "category": "prop",
       "format": "glb",
+      "group": "living_bedroom_electronics_toys",
       "id": "props/computer-monitor",
       "joints": [
         {
@@ -2242,13 +2265,9 @@
       "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
       "tags": [
         "articulated",
-        "bedroom",
         "computer",
-        "electronics",
-        "living",
         "monitor",
-        "prop",
-        "toys"
+        "prop"
       ],
       "triangles": 3976,
       "url": "/assets/gt-gpu/props/computer-monitor.glb"
@@ -2257,6 +2276,7 @@
       "bytes": 14688,
       "category": "prop",
       "format": "glb",
+      "group": "industrial_warehouse_construction_energy",
       "id": "props/corrugated-parcel-box",
       "joints": [
         {
@@ -2317,15 +2337,11 @@
       "tags": [
         "articulated",
         "box",
-        "construction",
         "corrugated",
-        "energy",
         "entrance",
-        "industrial",
         "parcel",
         "prop",
-        "security",
-        "warehouse"
+        "security"
       ],
       "triangles": 132,
       "url": "/assets/gt-gpu/props/corrugated-parcel-box.glb"
@@ -2334,6 +2350,7 @@
       "bytes": 273528,
       "category": "prop",
       "format": "glb",
+      "group": "living_bedroom_electronics_toys",
       "id": "props/desktop-computer-tower",
       "joints": [
         {
@@ -2365,15 +2382,11 @@
       "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
       "tags": [
         "articulated",
-        "bedroom",
         "computer",
         "desktop",
-        "electronics",
-        "living",
         "loot",
         "prop",
-        "tower",
-        "toys"
+        "tower"
       ],
       "triangles": 12288,
       "url": "/assets/gt-gpu/props/desktop-computer-tower.glb"
@@ -2382,6 +2395,7 @@
       "bytes": 557404,
       "category": "prop",
       "format": "glb",
+      "group": "medical_outdoor_garden_transport_sports",
       "id": "props/electric-scooter",
       "joints": [
         {
@@ -2414,20 +2428,20 @@
         {
           "axis": "X",
           "child_link": "front_wheel",
-          "lower": -Infinity,
+          "lower": null,
           "name": "front_wheel_spin",
           "parent_link": "deck",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         },
         {
           "axis": "X",
           "child_link": "rear_wheel",
-          "lower": -Infinity,
+          "lower": null,
           "name": "rear_wheel_spin",
           "parent_link": "deck",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         }
       ],
       "kind": "prop",
@@ -2452,15 +2466,10 @@
       "tags": [
         "articulated",
         "electric",
-        "garden",
-        "medical",
         "micromobility",
-        "outdoor",
         "prop",
         "rideable",
-        "scooter",
-        "sports",
-        "transport"
+        "scooter"
       ],
       "triangles": 21348,
       "url": "/assets/gt-gpu/props/electric-scooter.glb"
@@ -2469,6 +2478,7 @@
       "bytes": 309616,
       "category": "prop",
       "format": "glb",
+      "group": "industrial_warehouse_construction_energy",
       "id": "props/ev-charging-station",
       "joints": [
         {
@@ -2512,13 +2522,9 @@
       "tags": [
         "articulated",
         "charging",
-        "construction",
-        "energy",
         "ev",
-        "industrial",
         "prop",
-        "station",
-        "warehouse"
+        "station"
       ],
       "triangles": 10823,
       "url": "/assets/gt-gpu/props/ev-charging-station.glb"
@@ -2527,16 +2533,17 @@
       "bytes": 228004,
       "category": "prop",
       "format": "glb",
+      "group": "industrial_warehouse_construction_energy",
       "id": "props/fire-hydrant",
       "joints": [
         {
           "axis": "X",
           "child_link": "operating_nut",
-          "lower": -Infinity,
+          "lower": null,
           "name": "operating_nut_screw",
           "parent_link": "hydrant_body",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         },
         {
           "axis": "X",
@@ -2550,20 +2557,20 @@
         {
           "axis": "X",
           "child_link": "left_nozzle_cap",
-          "lower": -Infinity,
+          "lower": null,
           "name": "left_cap_screw",
           "parent_link": "hydrant_body",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         },
         {
           "axis": "X",
           "child_link": "front_pumper_cap",
-          "lower": -Infinity,
+          "lower": null,
           "name": "front_cap_screw",
           "parent_link": "hydrant_body",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         }
       ],
       "kind": "prop",
@@ -2586,13 +2593,9 @@
       "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
       "tags": [
         "articulated",
-        "construction",
-        "energy",
         "fire",
         "hydrant",
-        "industrial",
-        "prop",
-        "warehouse"
+        "prop"
       ],
       "triangles": 9648,
       "url": "/assets/gt-gpu/props/fire-hydrant.glb"
@@ -2601,6 +2604,7 @@
       "bytes": 98192,
       "category": "prop",
       "format": "glb",
+      "group": "medical_outdoor_garden_transport_sports",
       "id": "props/flap-barrier-gate",
       "joints": [
         {
@@ -2634,16 +2638,11 @@
         "barrier",
         "entrance",
         "flap",
-        "garden",
         "gate",
-        "medical",
-        "outdoor",
         "prop",
         "roadblock",
         "security",
-        "sports",
-        "street",
-        "transport"
+        "street"
       ],
       "triangles": 2748,
       "url": "/assets/gt-gpu/props/flap-barrier-gate.glb"
@@ -2652,6 +2651,7 @@
       "bytes": 563456,
       "category": "prop",
       "format": "glb",
+      "group": "industrial_warehouse_construction_energy",
       "id": "props/forklift",
       "joints": [
         {
@@ -2666,11 +2666,11 @@
         {
           "axis": "X",
           "child_link": "steering_wheel",
-          "lower": -Infinity,
+          "lower": null,
           "name": "steering",
           "parent_link": "chassis",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         },
         {
           "axis": "X",
@@ -2684,38 +2684,38 @@
         {
           "axis": "X",
           "child_link": "wheel_front_left",
-          "lower": -Infinity,
+          "lower": null,
           "name": "axle_front_left",
           "parent_link": "chassis",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         },
         {
           "axis": "X",
           "child_link": "wheel_front_right",
-          "lower": -Infinity,
+          "lower": null,
           "name": "axle_front_right",
           "parent_link": "chassis",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         },
         {
           "axis": "X",
           "child_link": "wheel_rear_left",
-          "lower": -Infinity,
+          "lower": null,
           "name": "axle_rear_left",
           "parent_link": "chassis",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         },
         {
           "axis": "X",
           "child_link": "wheel_rear_right",
-          "lower": -Infinity,
+          "lower": null,
           "name": "axle_rear_right",
           "parent_link": "chassis",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         }
       ],
       "kind": "prop",
@@ -2744,12 +2744,8 @@
       "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
       "tags": [
         "articulated",
-        "construction",
-        "energy",
         "forklift",
-        "industrial",
-        "prop",
-        "warehouse"
+        "prop"
       ],
       "triangles": 22996,
       "url": "/assets/gt-gpu/props/forklift.glb"
@@ -2758,25 +2754,26 @@
       "bytes": 254356,
       "category": "prop",
       "format": "glb",
+      "group": "industrial_warehouse_construction_energy",
       "id": "props/hand-truck",
       "joints": [
         {
           "axis": "X",
           "child_link": "wheel_left",
-          "lower": -Infinity,
+          "lower": null,
           "name": "wheel_axle_left",
           "parent_link": "frame",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         },
         {
           "axis": "X",
           "child_link": "wheel_right",
-          "lower": -Infinity,
+          "lower": null,
           "name": "wheel_axle_right",
           "parent_link": "frame",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         },
         {
           "axis": "X",
@@ -2817,13 +2814,9 @@
       "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
       "tags": [
         "articulated",
-        "construction",
-        "energy",
         "hand",
-        "industrial",
         "prop",
-        "truck",
-        "warehouse"
+        "truck"
       ],
       "triangles": 9972,
       "url": "/assets/gt-gpu/props/hand-truck.glb"
@@ -2832,6 +2825,7 @@
       "bytes": 92612,
       "category": "prop",
       "format": "glb",
+      "group": "living_bedroom_electronics_toys",
       "id": "props/home-safe",
       "joints": [
         {
@@ -2846,11 +2840,11 @@
         {
           "axis": "X",
           "child_link": "dial",
-          "lower": -Infinity,
+          "lower": null,
           "name": "dial_spin",
           "parent_link": "door",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         }
       ],
       "kind": "prop",
@@ -2871,14 +2865,10 @@
       "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
       "tags": [
         "articulated",
-        "bedroom",
-        "electronics",
         "heist-target",
         "home",
-        "living",
         "prop",
         "safe",
-        "toys",
         "vault"
       ],
       "triangles": 2618,
@@ -2888,6 +2878,7 @@
       "bytes": 86536,
       "category": "prop",
       "format": "glb",
+      "group": "industrial_warehouse_construction_energy",
       "id": "props/industrial-workbench",
       "joints": [
         {
@@ -2938,11 +2929,8 @@
       "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
       "tags": [
         "articulated",
-        "construction",
-        "energy",
         "industrial",
         "prop",
-        "warehouse",
         "workbench"
       ],
       "triangles": 1540,
@@ -2952,6 +2940,7 @@
       "bytes": 3804,
       "category": "prop",
       "format": "glb",
+      "group": "industrial_warehouse_construction_energy",
       "id": "props/jersey-barrier",
       "joints": [],
       "kind": "prop",
@@ -2970,14 +2959,10 @@
       "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
       "tags": [
         "barrier",
-        "construction",
-        "energy",
-        "industrial",
         "jersey",
         "prop",
         "roadblock",
-        "street",
-        "warehouse"
+        "street"
       ],
       "triangles": 56,
       "url": "/assets/gt-gpu/props/jersey-barrier.glb"
@@ -2986,6 +2971,7 @@
       "bytes": 209320,
       "category": "prop",
       "format": "glb",
+      "group": "medical_outdoor_garden_transport_sports",
       "id": "props/kick-scooter",
       "joints": [
         {
@@ -3000,20 +2986,20 @@
         {
           "axis": "X",
           "child_link": "front_wheel",
-          "lower": -Infinity,
+          "lower": null,
           "name": "front_wheel_spin",
           "parent_link": "steering",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         },
         {
           "axis": "X",
           "child_link": "rear_wheel",
-          "lower": -Infinity,
+          "lower": null,
           "name": "rear_wheel_spin",
           "parent_link": "deck",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         }
       ],
       "kind": "prop",
@@ -3035,16 +3021,11 @@
       "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
       "tags": [
         "articulated",
-        "garden",
         "kick",
-        "medical",
         "micromobility",
-        "outdoor",
         "prop",
         "rideable",
-        "scooter",
-        "sports",
-        "transport"
+        "scooter"
       ],
       "triangles": 7274,
       "url": "/assets/gt-gpu/props/kick-scooter.glb"
@@ -3053,6 +3034,7 @@
       "bytes": 237028,
       "category": "prop",
       "format": "glb",
+      "group": "living_bedroom_electronics_toys",
       "id": "props/laptop",
       "joints": [
         {
@@ -3122,14 +3104,10 @@
       "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
       "tags": [
         "articulated",
-        "bedroom",
         "computer",
-        "electronics",
         "laptop",
-        "living",
         "loot",
-        "prop",
-        "toys"
+        "prop"
       ],
       "triangles": 6544,
       "url": "/assets/gt-gpu/props/laptop.glb"
@@ -3138,6 +3116,7 @@
       "bytes": 20696,
       "category": "prop",
       "format": "glb",
+      "group": "industrial_warehouse_construction_energy",
       "id": "props/pallet",
       "joints": [],
       "kind": "prop",
@@ -3155,12 +3134,8 @@
       "source": "NVIDIA USDCraft-10K (converted)",
       "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
       "tags": [
-        "construction",
-        "energy",
-        "industrial",
         "pallet",
-        "prop",
-        "warehouse"
+        "prop"
       ],
       "triangles": 276,
       "url": "/assets/gt-gpu/props/pallet.glb"
@@ -3169,43 +3144,44 @@
       "bytes": 119896,
       "category": "prop",
       "format": "glb",
+      "group": "industrial_warehouse_construction_energy",
       "id": "props/pallet-jack",
       "joints": [
         {
           "axis": "X",
           "child_link": "steer_wheel_right",
-          "lower": -Infinity,
+          "lower": null,
           "name": "steer_spin_right",
           "parent_link": "fork_frame",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         },
         {
           "axis": "X",
           "child_link": "load_roller_right",
-          "lower": -Infinity,
+          "lower": null,
           "name": "load_roll_right",
           "parent_link": "fork_frame",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         },
         {
           "axis": "X",
           "child_link": "steer_wheel_left",
-          "lower": -Infinity,
+          "lower": null,
           "name": "steer_spin_left",
           "parent_link": "fork_frame",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         },
         {
           "axis": "X",
           "child_link": "load_roller_left",
-          "lower": -Infinity,
+          "lower": null,
           "name": "load_roll_left",
           "parent_link": "fork_frame",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         },
         {
           "axis": "X",
@@ -3238,13 +3214,9 @@
       "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
       "tags": [
         "articulated",
-        "construction",
-        "energy",
-        "industrial",
         "jack",
         "pallet",
-        "prop",
-        "warehouse"
+        "prop"
       ],
       "triangles": 3980,
       "url": "/assets/gt-gpu/props/pallet-jack.glb"
@@ -3253,6 +3225,7 @@
       "bytes": 50548,
       "category": "prop",
       "format": "glb",
+      "group": "industrial_warehouse_construction_energy",
       "id": "props/pallet-rack",
       "joints": [],
       "kind": "prop",
@@ -3270,15 +3243,11 @@
       "source": "NVIDIA USDCraft-10K (converted)",
       "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
       "tags": [
-        "construction",
         "datacenter",
-        "energy",
-        "industrial",
         "pallet",
         "prop",
         "rack",
-        "storage",
-        "warehouse"
+        "storage"
       ],
       "triangles": 504,
       "url": "/assets/gt-gpu/props/pallet-rack.glb"
@@ -3287,6 +3256,7 @@
       "bytes": 110464,
       "category": "prop",
       "format": "glb",
+      "group": "medical_outdoor_garden_transport_sports",
       "id": "props/park-bench",
       "joints": [],
       "kind": "prop",
@@ -3307,13 +3277,8 @@
       "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
       "tags": [
         "bench",
-        "garden",
-        "medical",
-        "outdoor",
         "park",
-        "prop",
-        "sports",
-        "transport"
+        "prop"
       ],
       "triangles": 3768,
       "url": "/assets/gt-gpu/props/park-bench.glb"
@@ -3322,6 +3287,7 @@
       "bytes": 150876,
       "category": "prop",
       "format": "glb",
+      "group": "medical_outdoor_garden_transport_sports",
       "id": "props/parking-meter",
       "joints": [
         {
@@ -3422,14 +3388,9 @@
       "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
       "tags": [
         "articulated",
-        "garden",
-        "medical",
         "meter",
-        "outdoor",
         "parking",
-        "prop",
-        "sports",
-        "transport"
+        "prop"
       ],
       "triangles": 4831,
       "url": "/assets/gt-gpu/props/parking-meter.glb"
@@ -3438,61 +3399,62 @@
       "bytes": 307192,
       "category": "prop",
       "format": "glb",
+      "group": "industrial_warehouse_construction_energy",
       "id": "props/platform-truck",
       "joints": [
         {
           "axis": "X",
           "child_link": "caster_front_left",
-          "lower": -Infinity,
+          "lower": null,
           "name": "swivel_front_left",
           "parent_link": "frame",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         },
         {
           "axis": "X",
           "child_link": "wheel_front_left",
-          "lower": -Infinity,
+          "lower": null,
           "name": "wheel_front_left_spin",
           "parent_link": "caster_front_left",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         },
         {
           "axis": "X",
           "child_link": "caster_front_right",
-          "lower": -Infinity,
+          "lower": null,
           "name": "swivel_front_right",
           "parent_link": "frame",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         },
         {
           "axis": "X",
           "child_link": "wheel_front_right",
-          "lower": -Infinity,
+          "lower": null,
           "name": "wheel_front_right_spin",
           "parent_link": "caster_front_right",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         },
         {
           "axis": "X",
           "child_link": "wheel_rear_left",
-          "lower": -Infinity,
+          "lower": null,
           "name": "wheel_rear_left_spin",
           "parent_link": "caster_rear_left",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         },
         {
           "axis": "X",
           "child_link": "wheel_rear_right",
-          "lower": -Infinity,
+          "lower": null,
           "name": "wheel_rear_right_spin",
           "parent_link": "caster_rear_right",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         }
       ],
       "kind": "prop",
@@ -3520,13 +3482,9 @@
       "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
       "tags": [
         "articulated",
-        "construction",
-        "energy",
-        "industrial",
         "platform",
         "prop",
-        "truck",
-        "warehouse"
+        "truck"
       ],
       "triangles": 12608,
       "url": "/assets/gt-gpu/props/platform-truck.glb"
@@ -3535,6 +3493,7 @@
       "bytes": 184892,
       "category": "prop",
       "format": "glb",
+      "group": "medical_outdoor_garden_transport_sports",
       "id": "props/public-trash-can",
       "joints": [],
       "kind": "prop",
@@ -3555,13 +3514,8 @@
       "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
       "tags": [
         "can",
-        "garden",
-        "medical",
-        "outdoor",
         "prop",
         "public",
-        "sports",
-        "transport",
         "trash"
       ],
       "triangles": 7456,
@@ -3571,6 +3525,7 @@
       "bytes": 244772,
       "category": "prop",
       "format": "glb",
+      "group": "living_bedroom_electronics_toys",
       "id": "props/quadcopter-drone",
       "joints": [
         {
@@ -3585,11 +3540,11 @@
         {
           "axis": "X",
           "child_link": "prop_front_right",
-          "lower": -Infinity,
+          "lower": null,
           "name": "spin_front_right",
           "parent_link": "arm_front_right",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         },
         {
           "axis": "X",
@@ -3603,11 +3558,11 @@
         {
           "axis": "X",
           "child_link": "prop_front_left",
-          "lower": -Infinity,
+          "lower": null,
           "name": "spin_front_left",
           "parent_link": "arm_front_left",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         },
         {
           "axis": "X",
@@ -3621,11 +3576,11 @@
         {
           "axis": "X",
           "child_link": "prop_rear_right",
-          "lower": -Infinity,
+          "lower": null,
           "name": "spin_rear_right",
           "parent_link": "arm_rear_right",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         },
         {
           "axis": "X",
@@ -3639,11 +3594,11 @@
         {
           "axis": "X",
           "child_link": "prop_rear_left",
-          "lower": -Infinity,
+          "lower": null,
           "name": "spin_rear_left",
           "parent_link": "arm_rear_left",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         },
         {
           "axis": "X",
@@ -3681,14 +3636,10 @@
       "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
       "tags": [
         "articulated",
-        "bedroom",
         "drone",
-        "electronics",
         "flying",
-        "living",
         "prop",
-        "quadcopter",
-        "toys"
+        "quadcopter"
       ],
       "triangles": 8448,
       "url": "/assets/gt-gpu/props/quadcopter-drone.glb"
@@ -3697,6 +3648,7 @@
       "bytes": 291028,
       "category": "prop",
       "format": "glb",
+      "group": "office_commercial_hospitality",
       "id": "props/rack-mount-server",
       "joints": [
         {
@@ -3726,14 +3678,11 @@
       "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
       "tags": [
         "articulated",
-        "commercial",
         "compute",
         "data-center",
         "datacenter",
         "heist-target",
-        "hospitality",
         "mount",
-        "office",
         "prop",
         "rack",
         "server",
@@ -3746,6 +3695,7 @@
       "bytes": 87552,
       "category": "prop",
       "format": "glb",
+      "group": "office_commercial_hospitality",
       "id": "props/room-safe",
       "joints": [
         {
@@ -3816,10 +3766,7 @@
       "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
       "tags": [
         "articulated",
-        "commercial",
         "heist-target",
-        "hospitality",
-        "office",
         "prop",
         "room",
         "safe",
@@ -3832,6 +3779,7 @@
       "bytes": 310336,
       "category": "prop",
       "format": "glb",
+      "group": "office_commercial_hospitality",
       "id": "props/safe-deposit-box-cabinet",
       "joints": [
         {
@@ -3913,11 +3861,8 @@
         "articulated",
         "box",
         "cabinet",
-        "commercial",
         "deposit",
         "heist-target",
-        "hospitality",
-        "office",
         "prop",
         "safe",
         "vault"
@@ -3929,6 +3874,7 @@
       "bytes": 317780,
       "category": "prop",
       "format": "glb",
+      "group": "office_commercial_hospitality",
       "id": "props/server-rack-cabinet",
       "joints": [
         {
@@ -3973,13 +3919,10 @@
       "tags": [
         "articulated",
         "cabinet",
-        "commercial",
         "compute",
         "data-center",
         "datacenter",
         "heist-target",
-        "hospitality",
-        "office",
         "prop",
         "rack",
         "server",
@@ -3992,6 +3935,7 @@
       "bytes": 216680,
       "category": "prop",
       "format": "glb",
+      "group": "industrial_warehouse_construction_energy",
       "id": "props/signal-tower-light",
       "joints": [],
       "kind": "prop",
@@ -4014,14 +3958,10 @@
       "source": "NVIDIA USDCraft-10K (converted)",
       "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
       "tags": [
-        "construction",
-        "energy",
-        "industrial",
         "light",
         "prop",
         "signal",
-        "tower",
-        "warehouse"
+        "tower"
       ],
       "triangles": 8784,
       "url": "/assets/gt-gpu/props/signal-tower-light.glb"
@@ -4030,6 +3970,7 @@
       "bytes": 201684,
       "category": "prop",
       "format": "glb",
+      "group": "medical_outdoor_garden_transport_sports",
       "id": "props/street-lamp",
       "joints": [],
       "kind": "prop",
@@ -4047,14 +3988,9 @@
       "source": "NVIDIA USDCraft-10K (converted)",
       "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
       "tags": [
-        "garden",
         "lamp",
-        "medical",
-        "outdoor",
         "prop",
-        "sports",
-        "street",
-        "transport"
+        "street"
       ],
       "triangles": 10390,
       "url": "/assets/gt-gpu/props/street-lamp.glb"
@@ -4063,6 +3999,7 @@
       "bytes": 136040,
       "category": "prop",
       "format": "glb",
+      "group": "medical_outdoor_garden_transport_sports",
       "id": "props/street-mailbox",
       "joints": [
         {
@@ -4093,14 +4030,9 @@
       "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
       "tags": [
         "articulated",
-        "garden",
         "mailbox",
-        "medical",
-        "outdoor",
         "prop",
-        "sports",
-        "street",
-        "transport"
+        "street"
       ],
       "triangles": 5744,
       "url": "/assets/gt-gpu/props/street-mailbox.glb"
@@ -4109,6 +4041,7 @@
       "bytes": 183760,
       "category": "prop",
       "format": "glb",
+      "group": "medical_outdoor_garden_transport_sports",
       "id": "props/street-sign-post",
       "joints": [],
       "kind": "prop",
@@ -4128,15 +4061,10 @@
       "source": "NVIDIA USDCraft-10K (converted)",
       "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
       "tags": [
-        "garden",
-        "medical",
-        "outdoor",
         "post",
         "prop",
         "sign",
-        "sports",
-        "street",
-        "transport"
+        "street"
       ],
       "triangles": 4970,
       "url": "/assets/gt-gpu/props/street-sign-post.glb"
@@ -4145,6 +4073,7 @@
       "bytes": 33956,
       "category": "prop",
       "format": "glb",
+      "group": "industrial_warehouse_construction_energy",
       "id": "props/traffic-barrier",
       "joints": [],
       "kind": "prop",
@@ -4163,15 +4092,11 @@
       "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
       "tags": [
         "barrier",
-        "construction",
-        "energy",
-        "industrial",
         "intersection",
         "prop",
         "roadblock",
         "street",
-        "traffic",
-        "warehouse"
+        "traffic"
       ],
       "triangles": 632,
       "url": "/assets/gt-gpu/props/traffic-barrier.glb"
@@ -4180,6 +4105,7 @@
       "bytes": 137152,
       "category": "prop",
       "format": "glb",
+      "group": "industrial_warehouse_construction_energy",
       "id": "props/traffic-cone",
       "joints": [],
       "kind": "prop",
@@ -4199,14 +4125,10 @@
       "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
       "tags": [
         "cone",
-        "construction",
-        "energy",
-        "industrial",
         "intersection",
         "prop",
         "street",
-        "traffic",
-        "warehouse"
+        "traffic"
       ],
       "triangles": 6292,
       "url": "/assets/gt-gpu/props/traffic-cone.glb"
@@ -4215,6 +4137,7 @@
       "bytes": 341588,
       "category": "prop",
       "format": "glb",
+      "group": "medical_outdoor_garden_transport_sports",
       "id": "props/traffic-light",
       "joints": [],
       "kind": "prop",
@@ -4232,16 +4155,11 @@
       "source": "NVIDIA USDCraft-10K (converted)",
       "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
       "tags": [
-        "garden",
         "intersection",
         "light",
-        "medical",
-        "outdoor",
         "prop",
-        "sports",
         "street",
-        "traffic",
-        "transport"
+        "traffic"
       ],
       "triangles": 11612,
       "url": "/assets/gt-gpu/props/traffic-light.glb"
@@ -4250,16 +4168,17 @@
       "bytes": 283944,
       "category": "prop",
       "format": "glb",
+      "group": "medical_outdoor_garden_transport_sports",
       "id": "props/turnstile",
       "joints": [
         {
           "axis": "X",
           "child_link": "hub",
-          "lower": -Infinity,
+          "lower": null,
           "name": "hub_spin",
           "parent_link": "housing",
           "type": "revolute",
-          "upper": Infinity
+          "upper": null
         }
       ],
       "kind": "prop",
@@ -4280,12 +4199,7 @@
       "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
       "tags": [
         "articulated",
-        "garden",
-        "medical",
-        "outdoor",
         "prop",
-        "sports",
-        "transport",
         "turnstile"
       ],
       "triangles": 13666,
@@ -4295,6 +4209,7 @@
       "bytes": 741240,
       "category": "prop",
       "format": "glb",
+      "group": "office_commercial_hospitality",
       "id": "props/vending-machine",
       "joints": [
         {
@@ -4367,10 +4282,7 @@
       "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
       "tags": [
         "articulated",
-        "commercial",
-        "hospitality",
         "machine",
-        "office",
         "prop",
         "vending"
       ],
@@ -4381,6 +4293,7 @@
       "bytes": 304144,
       "category": "prop",
       "format": "glb",
+      "group": "living_bedroom_electronics_toys",
       "id": "props/wi-fi-router",
       "joints": [
         {
@@ -4414,13 +4327,9 @@
       "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
       "tags": [
         "articulated",
-        "bedroom",
-        "electronics",
         "fi",
-        "living",
         "prop",
         "router",
-        "toys",
         "wi"
       ],
       "triangles": 11868,

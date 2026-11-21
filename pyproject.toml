@@ -22,6 +22,10 @@ packages = ["harness"]
 [dependency-groups]
 assets = [
     "huggingface-hub>=2.4.0",
+    "mapbox-earcut>=2.1.0",
+    "pillow>=13.0.0",
+    "scipy>=1.18.1",
+    "shapely>=2.2.0",
     "trimesh>=5.2.1",
 ]
 dev = [

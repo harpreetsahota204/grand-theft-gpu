@@ -27,6 +27,10 @@ WEIGHT_ID: int = 5
 WEIGHT_NAME: int = 4
 WEIGHT_TAG: int = 3
 WEIGHT_SUBSTRING: int = 1
+# Bonus scaled by the share of the asset id's words the query covers, so a
+# query matching all of "cars/police" outranks one matching 2 of 3 words of
+# "cars/tractor-police".
+WEIGHT_COVERAGE: int = 4
 
 # Fields included in list/search output unless --full is passed; full records
 # (parts, joints) can be large, and `show` gives the complete record anyway.
@@ -61,9 +65,10 @@ SCHEMA: dict[str, Any] = {
         "joints": (
             "Articulations (props only): name, type revolute|prismatic, parent_link, "
             "child_link, axis (USD Z-up letter; USD Z = glTF Y, USD Y = glTF -Z), "
-            "lower/upper limits (degrees for revolute, metres for prismatic)."
+            "lower/upper limits (degrees for revolute, metres for prismatic; null = no limit)."
         ),
         "tags": "Lowercase search keywords, including synonyms (cop, robotaxi, vault).",
+        "group": "Source dataset's own grouping, when it has one (USDCraft props).",
         "source": "Where the asset came from.",
         "source_url": "Link to the original.",
         "license": "SPDX license id.",
@@ -127,17 +132,23 @@ def filter_assets(
     return out
 
 
-def score(asset: dict[str, Any], words: list[str]) -> int:
+def stem(word: str) -> str:
+    """Folds simple plurals so "car" matches "cars" and "safes" matches "safe"."""
+    return word[:-1] if len(word) > 3 and word.endswith("s") else word
+
+
+def score(asset: dict[str, Any], words: list[str]) -> float:
     """Scores one asset against query words; 0 means no word matched.
 
     Every query word must match something, so "police car" doesn't return
     every car. Within that, id and name hits outrank tag and substring hits.
     """
-    id_tokens = set(tokens(asset["id"]))
-    name_tokens = set(tokens(asset["name"]))
-    tags = set(asset["tags"])
+    id_tokens = {stem(t) for t in tokens(asset["id"])}
+    name_tokens = {stem(t) for t in tokens(asset["name"])}
+    tags = {stem(t) for t in asset["tags"]}
     haystack = " ".join([asset["id"], asset["name"], *asset["tags"]]).lower()
-    total = 0
+    total = 0.0
+    words = [stem(w) for w in words]
     for w in words:
         hit = (
             WEIGHT_ID * (w in id_tokens)
@@ -148,7 +159,8 @@ def score(asset: dict[str, Any], words: list[str]) -> int:
         if hit == 0:
             return 0
         total += hit
-    return total
+    covered = len(id_tokens & set(words)) / len(id_tokens) if id_tokens else 0.0
+    return round(total + WEIGHT_COVERAGE * covered, 3)
 
 
 def search(assets: list[dict[str, Any]], query: list[str]) -> list[dict[str, Any]]:

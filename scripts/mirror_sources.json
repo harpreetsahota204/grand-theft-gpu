@@ -1,0 +1,118 @@
+{
+  "_comment": "Third-party Hugging Face datasets mirrored into harpreetsahota/grand-theft-gpu-assets. Each entry is pinned to an exact revision; 'include' lists the folder-name prefixes kept (people only: no animals, no children). Used by harness/mirror.py.",
+  "sources": [
+    {
+      "id": "rocketbox-avatars",
+      "repo": "codepawl/rocketbox-avatars-glb",
+      "revision": "0df5f539f8a243eca03e3eff5ef0e0297059e381",
+      "tiers": [
+        "objects",
+        "lods",
+        "mobile",
+        "collision"
+      ],
+      "include_prefixes": [
+        "business-",
+        "chef-",
+        "construction-",
+        "delivery-",
+        "female-",
+        "fire-",
+        "gardener-",
+        "male-",
+        "medical-",
+        "military-",
+        "pilot-",
+        "police-",
+        "security-",
+        "sports-",
+        "wood-"
+      ],
+      "exclude_substrings": [
+        "child",
+        "bird-",
+        "horse-",
+        "camel-",
+        "cow-",
+        "dog-",
+        "goat-",
+        "bull-",
+        "deer-",
+        "donkey-",
+        "pig-",
+        "sheep-"
+      ],
+      "top_level": [
+        "LICENSES.md",
+        "README.md",
+        "metadata.jsonl"
+      ],
+      "license": "MIT",
+      "creator": "Microsoft (Microsoft Rocketbox Avatar Library, Copyright (c) 2020 Microsoft)",
+      "creator_url": "https://github.com/microsoft/Microsoft-Rocketbox",
+      "converted_by": "codepawl",
+      "what": "Rigged 3D people: business, medical, police, fire, construction, pilots, sports, security, everyday adults",
+      "exclude_items": [
+        "female-adult-10",
+        "female-adult-16",
+        "male-adult-19",
+        "male-adult-21",
+        "sports-female-01",
+        "sports-male-01"
+      ],
+      "_exclude_items_why": "Decided 2026-11-20: religious/culturally specific dress (female-adult-10, female-adult-16, male-adult-19, male-adult-21) is excluded so no model can cast those characters as spies or enemies in a satire with cartoon violence; swimwear (sports-female-01, sports-male-01) doesn't fit city streets."
+    },
+    {
+      "id": "rocketbox-motions",
+      "repo": "codepawl/rocketbox-motions-glb",
+      "revision": "68ac3d12356eb5708b5ba0025d70bf364bcc060c",
+      "tiers": [
+        "objects"
+      ],
+      "include_prefixes": [
+        ""
+      ],
+      "exclude_substrings": [],
+      "top_level": [
+        "LICENSES.md",
+        "README.md",
+        "metadata.jsonl"
+      ],
+      "license": "MIT",
+      "creator": "Microsoft (Microsoft Rocketbox Avatar Library motion clips, Copyright (c) 2020 Microsoft)",
+      "creator_url": "https://github.com/microsoft/Microsoft-Rocketbox",
+      "converted_by": "codepawl",
+      "what": "326 motion-capture clips on the Rocketbox rig: idle, talking, sitting, phone calls, documents, dancing, cheering"
+    },
+    {
+      "id": "kenney",
+      "repo": "codepawl/kenney-glb",
+      "revision": "baae8d764f2e9ce3c7a2ac4849c5f3405026100f",
+      "tiers": [
+        "objects"
+      ],
+      "include_prefixes": [
+        "city-kit-commercial__",
+        "city-kit-suburban__",
+        "city-kit-roads__",
+        "city-kit-industrial__",
+        "retro-urban-kit__",
+        "modular-buildings__",
+        "building-kit__",
+        "furniture-kit__",
+        "car-kit__"
+      ],
+      "exclude_substrings": [],
+      "top_level": [
+        "LICENSES.md",
+        "README.md",
+        "metadata.jsonl"
+      ],
+      "license": "CC0-1.0",
+      "creator": "Kenney (kenney.nl)",
+      "creator_url": "https://kenney.nl",
+      "converted_by": "codepawl",
+      "what": "Low-poly city pieces: commercial, suburban, industrial buildings, roads, retro urban kit, modular buildings, furniture, cars"
+    }
+  ]
+}
