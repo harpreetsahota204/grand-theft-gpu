@@ -185,6 +185,38 @@
       "creator_url": "https://quaternius.com",
       "converted_by": "codepawl",
       "what": "Modern SUV and taxi for city traffic and robotaxis"
+    },
+    {
+      "id": "trees-google-poly",
+      "repo": "codepawl/google-poly-glb",
+      "revision": "f5d2974f859088bb587867192a85fca73611a750",
+      "tiers": [
+        "objects"
+      ],
+      "include_prefixes": [
+        ""
+      ],
+      "exclude_substrings": [],
+      "include_items": [
+        "elm-tree-68ool4zl6co",
+        "queen-palm-tree-ficlbijglik",
+        "palm-tree-0wynxxlgrpx",
+        "oak-tree-0dtszfstwza",
+        "date-palm-tree-f9hq8fjxn-o",
+        "sycamore-tree-2s3-h6xexyc",
+        "lady-palm-tree-e0abya90ux5",
+        "royal-palm-tree-7b7jn9ax3qs"
+      ],
+      "top_level": [
+        "LICENSES.md",
+        "README.md",
+        "metadata.jsonl"
+      ],
+      "license": "CC-BY-3.0",
+      "creator": "Google Poly artists (per-model credits in ATTRIBUTION.md)",
+      "creator_url": "https://poly.google.com/",
+      "converted_by": "codepawl",
+      "what": "8 low-poly trees: street trees (elm, sycamore, oak), Embarcadero palms (queen, royal, date, palm) and a potted lady palm"
     }
   ]
 }
