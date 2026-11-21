@@ -35,13 +35,15 @@ If `doctor` reports missing items, each line says how to fix it. The required it
 | `uv run buildoff doctor` | Checks prerequisites | free |
 | `uv run buildoff smoke` | End-to-end check: both models add a floating GPU to the base game | about $0.30 total |
 | `uv run buildoff race --budget N --yes` | Runs the locked prompt (`prompts/game_spec.md`) | up to $N per model |
+| `uv run buildoff status [race-id]` | Race progress as JSON: turns, spend, stop reason, Nexus session, latest screenshot (latest race by default) | free |
+| `uv run buildoff play <kimi\|opus> [--race-id ID] [--no-open]` | Serves a contender's latest build on localhost and opens the browser (blocks until Ctrl-C) | free |
 | `uv run buildoff assets [gpu\|cars\|props\|catalog\|all] [--out DIR]` | Rebuilds `assets/` (and the catalog) from the original sources | free (props needs Blender) |
 | `uv run buildoff fetch <id ...> [--tiers] \| --core \| --pattern G` | Download assets from the Hugging Face dataset at the pinned revision. JSON summary. | free |
 | `uv run buildoff assets <mirror\|city\|textures\|media\|dataset>` | Build the Hugging Face asset dataset locally in `~/grand-theft-gpu-assets/` (third-party mirrors, the SF city, skies + PBR textures, sounds + sprites + fonts, then cards and attribution) | free |
 | `uv run buildoff assets publish` | Upload the dataset. **Public and outward-facing: only with the user's explicit OK** | free |
 | `uv run buildoff inventory <categories\|list\|search\|show\|schema>` | Searches the asset catalog. JSON on stdout, JSON errors on stderr, deterministic. Start with `inventory schema`. | free |
 
-Races run for a long time: 30 minutes to hours. Launch them detached so a tool timeout can't kill them partway, then follow `logs/turns.jsonl`:
+Races run for a long time: 30 minutes to hours. Launch them detached so a tool timeout can't kill them partway, then check progress with `uv run buildoff status` (or follow `logs/turns.jsonl`):
 
 ```bash
 nohup uv run buildoff race --budget N --yes --race-id my-race > ~/gta-race-runs/my-race.log 2>&1 &
@@ -67,6 +69,7 @@ A healthy smoke run shows `declared_done`, `build_ok: true` and `loaded: true` o
 | `harness/seed.py` | Seeds a workspace with the base game (pinned commit) and assets |
 | `harness/snapshot.py` | Per-turn git commit, Vite build and gameplay screenshot |
 | `harness/meter.py` | Reads cost and models from `nexus claude usage --json` |
+| `harness/status.py` | `buildoff status` / `buildoff play`: race progress JSON, serve a build locally |
 | `harness/viewer.py` | Live terminal view of a contender |
 | `harness/doctor.py`, `harness/assets.py` | Prerequisite checks; asset rebuild |
 | `harness/catalog.py`, `harness/inventory.py` | Builds `assets/catalog.json`; the `inventory` query layer |

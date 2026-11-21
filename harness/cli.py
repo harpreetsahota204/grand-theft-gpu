@@ -9,6 +9,8 @@ remembering module paths:
     buildoff assets [mirror|city|textures|media|dataset]       stage the HF asset dataset
     buildoff inventory search police car   find assets (JSON out; see `inventory schema`)
     buildoff fetch <id ...> [--tiers] | --core | --pattern G   download from the HF dataset
+    buildoff status [race-id]        race progress as JSON (latest race by default)
+    buildoff play kimi|opus          open a contender's latest build in the browser
     buildoff smoke                   ~$0.30 end-to-end check on the real setup
     buildoff race --budget 100 --yes the real race (spends real money)
 
@@ -151,6 +153,28 @@ def cmd_race(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_status(args: argparse.Namespace) -> int:
+    """Prints a race's progress as JSON (the latest race by default)."""
+    from harness import status
+
+    try:
+        inventory.emit(status.status(args.race_id), "json")
+    except inventory.InventoryError as err:
+        return inventory.fail(err)
+    return 0
+
+
+def cmd_play(args: argparse.Namespace) -> int:
+    """Serves a contender's latest build on localhost and opens it in the browser."""
+    from harness import status
+
+    try:
+        status.play(args.race_id, args.contender, args.port, not args.no_open)
+    except inventory.InventoryError as err:
+        return inventory.fail(err)
+    return 0
+
+
 def add_inventory(sub: "argparse._SubParsersAction[JsonErrorParser]") -> None:
     """Adds `inventory` and its actions (categories, list, search, show, schema)."""
     inv = sub.add_parser(
@@ -226,6 +250,28 @@ def build_parser() -> argparse.ArgumentParser:
     r.add_argument("--no-viewers", action="store_true", help="skip live viewer windows")
     r.add_argument("--yes", action="store_true", help=f"confirm budgets above ${CONFIRM_ABOVE_USD}")
     r.set_defaults(func=cmd_race)
+
+    st = sub.add_parser(
+        "status",
+        help="race progress as JSON (free, read-only)",
+        description=(
+            "Summarise a race from its log files: turns, spend, stop reason, the Nexus "
+            "session to watch, and the latest screenshot. Works during and after a race."
+        ),
+    )
+    st.add_argument("race_id", nargs="?", default=None, help="default: the latest race")
+    st.set_defaults(func=cmd_status)
+
+    pl = sub.add_parser(
+        "play",
+        help="open a contender's latest build in your browser",
+        description="Serve <contender>'s latest build (workspace/dist) on localhost; Ctrl-C stops.",
+    )
+    pl.add_argument("contender", help="kimi or opus")
+    pl.add_argument("--race-id", default=None, help="default: the latest race")
+    pl.add_argument("--port", type=int, default=0, help="default: any free port")
+    pl.add_argument("--no-open", action="store_true", help="print the URL, don't open a browser")
+    pl.set_defaults(func=cmd_play)
 
     add_inventory(sub)
 

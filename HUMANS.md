@@ -71,6 +71,33 @@ Starting from an empty folder would turn the race into "who sets up three.js fas
 
 **Keep it honest.** The base game had a problem we only found by running it. It commits its own `node_modules`, without execute permissions and built for another OS. In the first smoke test, Kimi quietly spent part of its budget repairing the install, and Opus didn't. The harness now skips that folder and runs a clean `npm install` before the clock starts.
 
+## **How does Nexus put Kimi inside Claude Code?**
+
+Claude Code speaks one API: Anthropic Messages. [Nexus](https://docs.fireworks.ai/nexus) is a Fireworks CLI that points Claude Code at Fireworks, which serves that same API, so Claude Code can run open models like Kimi K3.1 Pro without changing anything else about how it works.
+
+Three commands cover the whole setup:
+
+```bash
+nexus login             # sign in with your browser (or paste a Fireworks API key)
+nexus claude            # route Claude Code through Fireworks
+nexus claude status     # check the provider, where the key comes from, and the model
+```
+
+After `nexus claude`, any Claude Code session can pick a model by name. The harness asks for `--model kimi-latest` on one side and `--model opus` on the other. Kimi turns run on Fireworks and bill to your Fireworks account. Claude turns keep using your Claude login. `nexus claude off` puts your original settings back.
+
+Nexus also keeps a meter for every Claude Code session: requests, tokens, model and cost per request. That meter is what makes it the referee here.
+
+```bash
+nexus claude usage                         # pick a session, open its live meter (q quits)
+nexus claude usage --session <id>          # open one session directly
+nexus claude usage --session <id> --json   # every request as JSON (what the watchdog reads)
+nexus claude usage --verbose               # one row per request, with rate details
+```
+
+The meter is a local estimate from token counts and published rates. For Fireworks spend there are two more views: the [usage dashboard](https://nexus.fireworks.ai/usage) breaks it down by model, user or API key, and your Fireworks billing page is the source of truth for the invoice.
+
+**Good to know. Do I need a particular Nexus plan?** The race calls Kimi K3.1 Pro by name. Per the [Nexus plans page](https://docs.fireworks.ai/nexus/plans), direct access to open models is part of Enterprise; Pro and Team route through Nexus Auto instead. Check `nexus claude status` before you spend anything.
+
 ## **How do you keep the race fair?**
 
 Every rule below exists because something could tilt the result.
@@ -148,6 +175,45 @@ nohup uv run buildoff race --budget 100 --yes --race-id my-race > ~/gta-race-run
 
 `--yes` is required for any budget over $2, because the race spends up to that amount *per model*. Running it detached keeps a long run from dying with your terminal.
 
+## **Step 5: Watch it run**
+
+A race runs for 30 minutes to hours. Everything you need to follow it is read-only and free:
+
+```bash
+uv run buildoff status                     # progress of the latest race, as JSON
+uv run buildoff status my-race             # or a specific one
+```
+
+For each model, `status` reports the turns recorded, spend so far, whether it has declared the game done, why it stopped, the latest screenshot, and the exact `nexus_meter` command for its session. Paste that command to watch requests and tokens arrive live:
+
+```bash
+nexus claude usage --session <session_id from status>
+```
+
+That's also how you confirm Kimi is really working: every row names `kimi-k3p1-pro` on Fireworks, with its input, cached and output tokens and its cost. If the spend keeps climbing, the model is producing tokens.
+
+To follow along in more detail:
+
+```bash
+tail -f ~/gta-race-runs/my-race/kimi/logs/cost.csv      # spend at every 15-second poll
+tail -f ~/gta-race-runs/my-race/kimi/logs/turns.jsonl   # one line per finished turn
+open ~/gta-race-runs/my-race/kimi/shots/                # gameplay screenshots
+git -C ~/gta-race-runs/my-race/kimi/workspace log --oneline   # one commit per turn
+```
+
+On macOS, the race also opens a viewer window per model that streams what it's doing. Pass `--no-viewers` to skip them.
+
+**Good to know. Why does a turn take so long?** A turn lasts until the model stops on its own. In our $25 dry run, Opus's first turn was one 38-minute session that built the whole game. The harness only records a turn (commit, build, screenshot) when it ends, so `turns_recorded` stays at 0 while spend climbs.
+
+## **Step 6: Play the builds**
+
+```bash
+uv run buildoff play opus                  # latest race, Opus's latest build
+uv run buildoff play kimi --race-id my-race
+```
+
+`play` serves that model's last build from `workspace/dist/` on localhost and opens it in your browser. Click to lock the mouse and start. Each game's controls are in its `DONE.md`. Ctrl-C stops the server. During a race, the build updates after every turn, so reload to see the newest one.
+
 ## **Results**
 
 _The full $100 race hasn't run yet. This section will hold the tier each model reached, time to first playable build, total spend and output speed, the blind playtest, and the before/after screenshots._
@@ -156,7 +222,7 @@ _The full $100 race hasn't run yet. This section will hold the tier each model r
 
 * Repo: [github.com/harpreetsahota204/grand-theft-gpu](https://github.com/harpreetsahota204/grand-theft-gpu)
 * For coding agents: [`AGENTS.md`](AGENTS.md)
-* Nexus: [docs.fireworks.ai/nexus](https://docs.fireworks.ai/nexus)
+* Nexus: [docs.fireworks.ai/nexus](https://docs.fireworks.ai/nexus) (session meter and usage: [docs.fireworks.ai/nexus/metrics](https://docs.fireworks.ai/nexus/metrics))
 * Kimi K3.1 Pro on Fireworks: [app.fireworks.ai/models/fireworks/kimi-k3p1-pro](https://app.fireworks.ai/models/fireworks/kimi-k3p1-pro)
 * NVIDIA USDCraft-10K: [huggingface.co/datasets/nvidia/USDCraft-10K](https://huggingface.co/datasets/nvidia/USDCraft-10K)
 

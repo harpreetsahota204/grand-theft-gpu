@@ -42,6 +42,16 @@ uv run buildoff race --budget 100 --yes
 
 `--yes` is required for any budget over $2, because a race spends up to that amount **per model**. Live viewer windows open in Terminal; pass `--no-viewers` to skip them, for example when not on macOS. Using an AI agent? Point it at [`AGENTS.md`](AGENTS.md).
 
+Follow it and play the results (free, read-only):
+
+```bash
+uv run buildoff status                     # progress as JSON: turns, spend, stop reason, Nexus session
+nexus claude usage --session <session_id>  # live per-request tokens and cost for one model
+uv run buildoff play opus                  # open a model's latest build in your browser
+```
+
+[HUMANS.md](HUMANS.md) explains each one, and how Nexus routes Kimi through Claude Code.
+
 ## How a race works
 
 ```mermaid
@@ -173,6 +183,7 @@ USDCraft ships OpenUSD for Isaac Sim, which three.js can't load. For each prop, 
 | `harness/race.py` | CLI entry: runs the contenders in parallel and writes the summary |
 | `harness/runner.py` | One contender: turn loop, watchdog, stop rules |
 | `harness/meter.py` | Reads cost and models from Nexus |
+| `harness/status.py` | `buildoff status` and `buildoff play`: race progress as JSON, serve a build |
 | `harness/snapshot.py` | Per-turn git commit, Vite build, and gameplay screenshot |
 | `harness/viewer.py` | Live terminal view of a contender (`python -m harness.viewer <dir>`) |
 | `harness/config.py` | Contenders, limits, paths |

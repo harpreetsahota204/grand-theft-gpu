@@ -178,7 +178,7 @@ def screenshot(
         return ShotResult(has_entry=False, loaded=False, console_errors=[])
 
     # Port 0 lets the OS pick a free port, so both contenders can snapshot at once.
-    handler = functools.partial(_QuietHandler, directory=str(site_dir))
+    handler = functools.partial(QuietHandler, directory=str(site_dir))
     server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
     threading.Thread(target=server.serve_forever, daemon=True).start()
     url = f"http://127.0.0.1:{server.server_address[1]}/{GAME_ENTRY}"
@@ -228,7 +228,17 @@ def screenshot(
     return ShotResult(has_entry=True, loaded=loaded, console_errors=errors)
 
 
-class _QuietHandler(SimpleHTTPRequestHandler):
+class AssetServer(ThreadingHTTPServer):
+    """Local static server sized for games that request hundreds of files at once.
+
+    The stdlib default listen backlog is 5, so a burst of asset requests gets
+    connections reset (`net::ERR_CONNECTION_RESET` in the browser console).
+    """
+
+    request_queue_size = 256
+
+
+class QuietHandler(SimpleHTTPRequestHandler):
     """Static file handler that doesn't spam the race console with access logs."""
 
     def log_message(self, format: str, *args: object) -> None:  # noqa: A002 - stdlib signature
