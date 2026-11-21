@@ -60,11 +60,12 @@ Every result has a `url` to load with three.js `GLTFLoader`. What's there:
 
 - **People:** 105 rigged, realistic people (business suits, police, security, medical, construction, chefs, everyday adults) and **326 motion-capture clips** (idle, talking, phone calls, sitting, cheering, dancing) that play on any of them. There are no walk or run clips for these people; walk, run and drive clips exist on a different rig (search `walk`).
 - **The real San Francisco:** `sf-city/sf-city.glb` is SoMa, the Financial District and the Embarcadero, with real terrain and hills, 2,168 buildings at their real heights, streets and the bay. `sf-city/streets.json` is a routable street graph and `sf-city/buildings.json` lists every building's footprint and height. Building San Silicon on top of it is up to you.
-- **City kits:** low-poly buildings, roads, street pieces, furniture and cars.
+- **Vehicles:** 15 realistic low-poly vehicles: a police sedan, taxis, compact cars, a sedan, an SUV, muscle cars, vans, an ambulance, a fire truck, a city bus and a mini truck.
+- **City kits:** low-poly buildings, roads, street pieces and furniture.
 - **Props:** server racks, safes, an ATM, a forklift, a drone, street furniture. Many have moving parts (doors, lids, rotors) listed in their records.
 - **The loot:** a graphics card whose fans and RGB strips you can animate.
 
-Files from the people, motions and city kits use meshopt compression: call `loader.setMeshoptDecoder(MeshoptDecoder)` (from `three/addons/libs/meshopt_decoder.module.js`).
+Files from the people, motions, vehicles and city kits use meshopt compression: call `loader.setMeshoptDecoder(MeshoptDecoder)` (from `three/addons/libs/meshopt_decoder.module.js`).
 
 A few optional extras aren't pre-installed (more detailed versions of the people, a parametric human body). `node tools/assets.mjs list --not-seeded` lists them, and `fetch <id>` downloads one. Fetching uses your time and budget like anything else.
 

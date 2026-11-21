@@ -155,9 +155,14 @@ def record(
     source: str,
     source_url: str,
     tags: set[str],
+    id_tags: bool = True,
     **fields: Any,
 ) -> dict[str, Any]:
-    """Builds one catalog record with the shared fields; extra fields pass through."""
+    """Builds one catalog record with the shared fields; extra fields pass through.
+
+    `id_tags=False` keeps words from the file id out of the tags, for items whose
+    original file names carry real brand names or hashes (vehicles).
+    """
     item = hf_path.split("/")[-2] if hf_path.count("/") >= 2 else Path(hf_path).stem
     folder = hf_path.split("/")[0]
     rec: dict[str, Any] = {
@@ -176,7 +181,9 @@ def record(
         "animations": [],
         "group": "",
         # Synonyms match against the whole dataset path, so kit names count too.
-        "tags": sorted(tags | {category, kind} | set(tokens(item)) | synonyms(hf_path)),
+        "tags": sorted(
+            tags | {category, kind} | (set(tokens(item)) | synonyms(hf_path) if id_tags else set())
+        ),
         "license": license_id,
         "source": source,
         "source_url": source_url,
@@ -251,7 +258,7 @@ def motions(root: Path) -> list[dict[str, Any]]:
 
 
 def kenney(root: Path) -> list[dict[str, Any]]:
-    """Kenney pieces: car-kit parts are vehicles, everything else is city building."""
+    """Kenney city pieces (buildings, roads, urban kit, furniture); the car kit is excluded."""
     out = []
     for row in read_jsonl(root / "kenney" / "metadata.jsonl"):
         item = row["file_name"].split("/")[1]
@@ -260,7 +267,7 @@ def kenney(root: Path) -> list[dict[str, Any]]:
         out.append(
             record(
                 hf_path=f"kenney/objects/{item}/{item}.glb",
-                category="vehicle" if kit == "car-kit" else "city",
+                category="city",
                 kind=kit,
                 name=row["title"],
                 root=root,
@@ -274,6 +281,63 @@ def kenney(root: Path) -> list[dict[str, Any]]:
                 group=row.get("kit", ""),
             )
         )
+    return out
+
+
+# Generic names for vehicles whose original titles name a real manufacturer or
+# model (the game uses no real brands). Original titles stay in ATTRIBUTION.md.
+VEHICLE_NAMES: dict[str, tuple[str, str]] = {
+    "police-sedan-692c68c4": ("police sedan", "police"),
+    "taxi-sedan-210f95a0": ("taxi sedan", "taxi"),
+    "british-compact-car-low-poly-model-f1e9c43c": ("compact car", "car"),
+    "british-compact-car-low-poly-model-e9dd83b4": ("compact van", "van"),
+    "low-poly-car-6cee6dbd": ("sedan", "car"),
+    "classic-muscle-car-641efc88": ("muscle car", "car"),
+    "muscle-low-poly-011ebf82": ("convertible muscle car", "car"),
+    "french-delivery-van-a350a422": ("delivery van", "van"),
+    "ambulance-van-f3daf79e": ("ambulance van", "emergency"),
+    "fire-truck-e0fadd42": ("fire truck", "emergency"),
+    "city-bus-050e8acd": ("city bus", "bus"),
+    "japanese-mini-truck-d5d93879": ("mini pickup truck", "truck"),
+    "fancy-car-780c75b7": ("vintage sedan", "car"),
+    "cars__SUV": ("SUV", "car"),
+    "cars__Taxi": ("taxi", "taxi"),
+}
+
+VEHICLE_SOURCES: dict[str, tuple[str, str, str]] = {
+    "vehicles-objaverse": ("CC-BY-4.0", "Objaverse (credit the artist; see ATTRIBUTION.md)", ""),
+    "vehicles-quaternius": ("CC0-1.0", "Quaternius Cars Pack (web conversion: codepawl)", ""),
+}
+
+
+def vehicles(root: Path) -> list[dict[str, Any]]:
+    """Hand-picked realistic vehicles (Objaverse + Quaternius), with generic names."""
+    out = []
+    for folder, (license_id, source, _) in VEHICLE_SOURCES.items():
+        for row in read_jsonl(root / folder / "metadata.jsonl"):
+            item = row["file_name"].split("/")[1]
+            name, kind = VEHICLE_NAMES.get(item, (row.get("title", item), "car"))
+            tiers = {
+                t: f"{folder}/{t}/{item}/{item}{suffix}.glb"
+                for t, suffix in (("lods", "_lod1"), ("collision", "_collision"))
+                if (root / folder / t / item / f"{item}{suffix}.glb").exists()
+            }
+            out.append(
+                record(
+                    hf_path=f"{folder}/objects/{item}/{item}.glb",
+                    category="vehicle",
+                    kind=kind,
+                    name=name,
+                    root=root,
+                    license_id=license_id,
+                    source=f"{row.get('authors', '')} · {source}",
+                    source_url=row.get("source_url", ""),
+                    tags={"vehicle", "drivable", *tokens(name)} | synonyms(name),
+                    id_tags=False,
+                    triangles=row.get("triangles"),
+                    optional_tiers=tiers,
+                )
+            )
     return out
 
 
@@ -409,6 +473,7 @@ def build_catalog(root: Path = MIRROR_DIR) -> dict[str, Any]:
         people(root)
         + motions(root)
         + kenney(root)
+        + vehicles(root)
         + own_sets(root)
         + animation_libraries(root)
         + bodies(root)

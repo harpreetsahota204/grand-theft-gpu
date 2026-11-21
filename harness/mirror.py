@@ -33,6 +33,8 @@ class MirrorSource(TypedDict):
     include_prefixes: list[str]
     exclude_substrings: list[str]
     exclude_items: list[str]
+    include_items: list[str]
+    rename_items: dict[str, str]
     top_level: list[str]
     license: str
     creator: str
@@ -50,7 +52,8 @@ def selected_files(src: MirrorSource) -> list[str]:
     """Lists the repo files to mirror for one source, at its pinned revision.
 
     A file is kept if it's a listed top-level file, or if it sits in a listed
-    tier and its item folder (`<tier>/<item>/...`) matches an include prefix,
+    tier and its item folder (`<tier>/<item>/...`) is wanted (listed in
+    `include_items` if the source has one, else matching an include prefix),
     contains no exclude substring, and isn't listed in `exclude_items`.
 
     Returns:
@@ -66,7 +69,13 @@ def selected_files(src: MirrorSource) -> list[str]:
         excluded = item in src.get("exclude_items", []) or any(
             s in item for s in src["exclude_substrings"]
         )
-        if any(item.startswith(p) for p in src["include_prefixes"]) and not excluded:
+        # An explicit include_items list (hand-picked items) overrides the prefixes.
+        wanted = (
+            item in src["include_items"]
+            if src.get("include_items")
+            else any(item.startswith(p) for p in src["include_prefixes"])
+        )
+        if wanted and not excluded:
             keep.add(path)
     return sorted(keep)
 

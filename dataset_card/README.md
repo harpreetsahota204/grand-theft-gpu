@@ -38,7 +38,9 @@ licenses ask.
 | `quaternius-animations/` | Walk, run, sprint, crouch, drive, climb and more on one humanoid rig, plus a mannequin | 89 clips | 15 MB | CC0 | Quaternius |
 | `meta-mhr/` | Meta's parametric human body (Momentum Human Rig), 7 LODs with blendshapes | 7 | 211 MB | Apache 2.0 | Meta |
 | `sf-city/` | SoMa → FiDi → Embarcadero: terrain with hills, 2,168 buildings at real heights, streets, bay, plus a street graph and building data | 1 scene + data | 16 MB | ODbL (data) / OSM credit (scene) | © OpenStreetMap contributors; USGS 3DEP elevation |
-| `kenney/` | Low-poly city kits (commercial, suburban, industrial, roads), retro urban kit, modular buildings, furniture, cars | 714 | 13 MB | CC0 | Kenney; web conversion by codepawl |
+| `vehicles-objaverse/` | Realistic low-poly vehicles: police sedan, taxi, compact cars, sedan, muscle cars, delivery vans, ambulance, fire truck, city bus, mini truck, vintage sedan. Tiers: `objects`, `lods`, `collision` | 13 | 24 MB | CC-BY 4.0 (credit each artist) | Sketchfab artists via Objaverse; web conversion by codepawl |
+| `vehicles-quaternius/` | Modern SUV and taxi for traffic and robotaxis | 2 | 0.7 MB | CC0 | Quaternius; web conversion by codepawl |
+| `kenney/` | Low-poly city kits (commercial, suburban, industrial, roads), retro urban kit, modular buildings, furniture | 664 | 13 MB | CC0 | Kenney; web conversion by codepawl |
 | `usdcraft-props/` | Server racks, safes, an ATM, a forklift, a drone, street furniture, with joints for doors and lids | 45 | 9.4 MB | Apache 2.0 | NVIDIA USDCraft-10K; converted by us |
 | `gpu/` | The loot: a graphics card with fans and RGB strips you can animate | 1 | 0.9 MB | CC0 | Grab3D |
 
@@ -77,8 +79,8 @@ Pin a revision (`--revision <commit>`) when you need the exact same files every 
 
 ## Using them in three.js
 
-Files in `rocketbox-avatars/objects`, `rocketbox-motions/objects` and `kenney/objects` use
-**meshopt** compression:
+Files in the `objects/` folders of `rocketbox-avatars`, `rocketbox-motions`, `kenney`,
+`vehicles-objaverse` and `vehicles-quaternius` use **meshopt** compression:
 
 ```js
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -104,13 +106,17 @@ const person = await loader.loadAsync('rocketbox-avatars/objects/business-female
 | `quaternius-animations/` | CC0 1.0 | Animations by Quaternius (quaternius.com), appreciated but not required |
 | `meta-mhr/` | Apache 2.0 | MHR by Meta (facebookresearch/MHR) |
 | `sf-city/` | ODbL 1.0 for the data; the scene is a Produced Work | Map data © OpenStreetMap contributors. Elevation: Mapzen / AWS Terrain Tiles, USGS 3DEP |
+| `vehicles-objaverse/` | CC-BY 4.0 (full text in `LICENSE`) | **Credit each model's artist**; the table in `vehicles-objaverse/ATTRIBUTION.md` lists every title, artist and original Sketchfab link. Via [Objaverse](https://objaverse.allenai.org/); web conversion: codepawl |
+| `vehicles-quaternius/` | CC0 1.0 | Models by Quaternius (quaternius.com), appreciated but not required. Web conversion: codepawl |
 | `kenney/` | CC0 1.0 | 3D models by Kenney (kenney.nl), appreciated but not required. Web conversion: codepawl |
 | `usdcraft-props/` | Apache 2.0 (see `NOTICE.md`) | NVIDIA USDCraft-10K; converted to GLB by grand-theft-gpu |
 | `gpu/` | CC0 1.0 | Grab3D, appreciated but not required |
 
 The mirrored folders are pinned copies of [`codepawl/rocketbox-avatars-glb`](https://huggingface.co/datasets/codepawl/rocketbox-avatars-glb),
 [`codepawl/rocketbox-motions-glb`](https://huggingface.co/datasets/codepawl/rocketbox-motions-glb) and
-[`codepawl/kenney-glb`](https://huggingface.co/datasets/codepawl/kenney-glb). Each folder's
+[`codepawl/kenney-glb`](https://huggingface.co/datasets/codepawl/kenney-glb),
+[`codepawl/objaverse-clean-glb`](https://huggingface.co/datasets/codepawl/objaverse-clean-glb) and
+[`codepawl/quaternius-glb`](https://huggingface.co/datasets/codepawl/quaternius-glb). Each folder's
 `ATTRIBUTION.md` records the exact revision.
 
 ## What we left out, and why
@@ -121,6 +127,10 @@ The mirrored folders are pinned copies of [`codepawl/rocketbox-avatars-glb`](htt
   swimwear avatars** were excluded because they don't fit city streets. They remain available
   in the upstream dataset.
 * **No real building names** in the city data. The game uses parody names.
+* **No Kenney car kit.** Its toy-like style clashed with the realistic people and the real city,
+  so it was replaced by the vehicle folders above. Some original vehicle titles name a real
+  manufacturer; the models themselves carry no brand logos, and the game catalog uses generic
+  names ("police sedan", "city bus").
 * **The base game** that Grand Theft GPU starts from
   ([kartik786-git/gta-clone-threejs](https://github.com/kartik786-git/gta-clone-threejs)) isn't
   included, because it has no license. It's fetched from its author at build time.

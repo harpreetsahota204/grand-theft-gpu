@@ -12,7 +12,7 @@ A harness that races two models, **Kimi K3.1 Pro** (on Fireworks, routed through
 ## Ground rules
 
 1. **Races spend real money.** `buildoff race` spends up to `--budget` *per model*, on the user's Fireworks and Anthropic accounts. **Never start a race above the smoke budget without the user's explicit OK** in this conversation. The CLI refuses budgets over $2 without `--yes`. Don't add `--yes` on your own.
-2. **The prompt is locked.** `prompts/game_spec.md`, `prompts/run_rules.md` and `prompts/nudge.md` are frozen at git tag `prompt-v2` (the current version). Don't edit them. A change makes new races incomparable with earlier ones, and needs the user's OK and a new tag.
+2. **The prompt is locked.** `prompts/game_spec.md`, `prompts/run_rules.md` and `prompts/nudge.md` are frozen at git tag `prompt-v3` (the current version). Don't edit them. A change makes new races incomparable with earlier ones, and needs the user's OK and a new tag.
 3. **Fairness is the product.** Both sides must get identical flags, tools, files and rules; only `--model` differs. Don't change one side's setup alone.
 4. **Don't read credentials.** Never open `~/.claude/settings.json` or other key files. Use `nexus claude status` to check routing.
 5. **Don't use `--dangerously-skip-permissions` or `claude --bare`.** The harness pre-approves tools with `--allowed-tools`. `--bare` breaks Nexus auth.
@@ -74,7 +74,7 @@ A healthy smoke run shows `declared_done`, `build_ok: true` and `loaded: true` o
 | `harness/config.py` | Every constant: contenders, limits, paths, pinned base commit |
 | `scripts/convert_usdcraft.py` | OpenUSD → glb converter (runs inside Blender) |
 | `prompts/` | The locked game prompt, run rules, nudge, smoke spec |
-| `assets/catalog.json` | Index of all 1,202 assets in the [Hugging Face dataset](https://huggingface.co/datasets/harpreetsahota/grand-theft-gpu-assets) (the assets themselves aren't in git) |
+| `assets/catalog.json` | Index of all 1,167 assets in the [Hugging Face dataset](https://huggingface.co/datasets/harpreetsahota/grand-theft-gpu-assets) (the assets themselves aren't in git) |
 | `harness/fetch.py`, `harness/workspace_tools/assets.mjs` | Fetching from the dataset; the racing models' own search + fetch tool |
 
 ## Code conventions

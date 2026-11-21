@@ -78,10 +78,48 @@ def filter_metadata(folder: Path) -> int:
     return len(kept)
 
 
+def credit_table(folder: Path) -> str:
+    """Per-item credit table for attribution licenses (CC-BY): title, artist, original.
+
+    CC-BY requires crediting each creator, and for Objaverse each model has its
+    own Sketchfab artist, so the table is generated from the filtered metadata.
+    """
+    meta = folder / "metadata.jsonl"
+    if not meta.exists():
+        return ""
+    rows = sorted(
+        (json.loads(line) for line in meta.read_text().splitlines() if line.strip()),
+        key=lambda r: str(r.get("id", "")),
+    )
+    lines = [
+        "",
+        "## Credits",
+        "",
+        "| Item | Title | Creator | Original | License |",
+        "|---|---|---|---|---|",
+    ]
+    for r in rows:
+        creator = r.get("authors", "")
+        if r.get("author_url"):
+            creator = f"[{creator}]({r['author_url']})"
+        original = f"[link]({r['source_url']})" if r.get("source_url") else ""
+        cells = [f"`{item_of(r)}`", r.get("title", ""), creator, original, r.get("license", "")]
+        lines.append("| " + " | ".join(str(c) for c in cells) + " |")
+    return "\n".join(lines) + "\n"
+
+
 def attribution(src: MirrorSource, items: int) -> str:
     """Builds the ATTRIBUTION.md text for one mirrored source."""
     excluded = src.get("exclude_items", [])
     why = src.get("_exclude_items_why", "")
+    renames = src.get("rename_items", {})
+    renamed = (
+        "renamed item folders and files to drop real brand names ("
+        + ", ".join(f"`{old}` → `{new}`" for old, new in renames.items())
+        + "); file contents are unchanged. "
+        if renames
+        else "nothing in the files themselves. "
+    )
     return f"""# {src["id"]}: attribution
 
 **What:** {src["what"]}.
@@ -98,7 +136,7 @@ def attribution(src: MirrorSource, items: int) -> str:
 Kept item names start with: {", ".join(f"`{p}`" for p in src["include_prefixes"] if p) or "(all)"}.
 {f"Excluded: {', '.join(f'`{e}`' for e in excluded)}. {why}" if excluded else ""}
 
-**What we changed:** nothing in the files themselves. `metadata.jsonl` is filtered to
+**What we changed:** {renamed}`metadata.jsonl` is filtered to
 the items kept; rows still point at upstream tiers (`engine/`, `thumbs/`, `objects_ktx2/`)
 that aren't mirrored here, and those remain available in the source dataset.
 
@@ -140,6 +178,35 @@ def copy_cards(out: Path) -> int:
     return len(files)
 
 
+def apply_renames(folder: Path, renames: dict[str, str]) -> int:
+    """Renames item folders and files (every tier) and rewrites metadata paths.
+
+    Used to strip real brand names from upstream folder names. Idempotent: an
+    item already renamed is skipped. Metadata rows keep their original `title`,
+    so credits still name the original work.
+
+    Returns:
+        items renamed
+    """
+    done = 0
+    for old, new in renames.items():
+        for tier in [p for p in folder.iterdir() if p.is_dir()]:
+            src = tier / old
+            if not src.exists():
+                continue
+            for f in src.iterdir():
+                f.rename(src / f.name.replace(old, new))
+            src.rename(tier / new)
+            done += 1
+    meta = folder / "metadata.jsonl"
+    if meta.exists() and renames:
+        text = meta.read_text()
+        for old, new in renames.items():
+            text = text.replace(old, new)
+        meta.write_text(text)
+    return done
+
+
 def build(out: Path = MIRROR_DIR) -> dict[str, int]:
     """Finishes the staging folder: filtered metadata, attribution files, own sets.
 
@@ -149,9 +216,17 @@ def build(out: Path = MIRROR_DIR) -> dict[str, int]:
     counts: dict[str, int] = {}
     for src in load_plan():
         folder = out / src["id"]
+        # Keep the upstream card for provenance, under a name that can't be
+        # mistaken for this folder's own description.
+        if (folder / "README.md").exists():
+            (folder / "README.md").replace(folder / "SOURCE_README.md")
+        apply_renames(folder, src.get("rename_items", {}))
         kept = filter_metadata(folder)
         items = sum(1 for _ in (folder / "objects").iterdir())
-        (folder / "ATTRIBUTION.md").write_text(attribution(src, items))
+        text = attribution(src, items)
+        if src["license"].startswith("CC-BY"):
+            text += credit_table(folder)
+        (folder / "ATTRIBUTION.md").write_text(text)
         counts[src["id"]] = kept or items
         print(f"{src['id']}: {items} items, metadata rows kept {kept}")
     for name, spec in OWN_SETS.items():
@@ -164,6 +239,11 @@ def build(out: Path = MIRROR_DIR) -> dict[str, int]:
 
 # Left behind by huggingface_hub downloads into local_dir; never upload them.
 IGNORE_ON_UPLOAD: list[str] = [".cache/**", "**/.cache/**", "**/.DS_Store"]
+
+
+# Remote paths to remove on publish: items we dropped after an earlier upload
+# (upload_folder only adds/updates files, it doesn't delete stale ones).
+DELETE_ON_PUBLISH: list[str] = ["kenney/objects/car-kit__*"]
 
 
 def publish(folder: Path = MIRROR_DIR, repo_id: str = HF_REPO) -> str:
@@ -182,6 +262,7 @@ def publish(folder: Path = MIRROR_DIR, repo_id: str = HF_REPO) -> str:
         repo_type="dataset",
         folder_path=folder,
         ignore_patterns=IGNORE_ON_UPLOAD,
+        delete_patterns=DELETE_ON_PUBLISH,
         commit_message="Upload Grand Theft GPU assets",
     )
     return f"https://huggingface.co/datasets/{repo_id}"

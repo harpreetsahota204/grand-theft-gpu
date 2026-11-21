@@ -99,8 +99,7 @@
         "retro-urban-kit__",
         "modular-buildings__",
         "building-kit__",
-        "furniture-kit__",
-        "car-kit__"
+        "furniture-kit__"
       ],
       "exclude_substrings": [],
       "top_level": [
@@ -112,7 +111,80 @@
       "creator": "Kenney (kenney.nl)",
       "creator_url": "https://kenney.nl",
       "converted_by": "codepawl",
-      "what": "Low-poly city pieces: commercial, suburban, industrial buildings, roads, retro urban kit, modular buildings, furniture, cars"
+      "what": "Low-poly city pieces: commercial, suburban, industrial buildings, roads, retro urban kit, modular buildings, furniture",
+      "_car_kit_removed_why": "Decided 2026-11-21: Kenney's car kit looked toy-like next to realistic people and the real SF map; replaced by Objaverse and Quaternius vehicles."
+    },
+    {
+      "id": "vehicles-objaverse",
+      "repo": "codepawl/objaverse-clean-glb",
+      "revision": "83269ae32d3169d0c10c33cc10cce37d02c6b162",
+      "tiers": [
+        "objects",
+        "lods",
+        "collision"
+      ],
+      "include_prefixes": [
+        ""
+      ],
+      "exclude_substrings": [],
+      "include_items": [
+        "carbon-motors-e7-police-cities-skylines-692c68c4",
+        "carbon-motors-e7-taxi-cities-skylines-210f95a0",
+        "british-compact-car-low-poly-model-f1e9c43c",
+        "low-poly-car-6cee6dbd",
+        "classic-muscle-car-641efc88",
+        "muscle-low-poly-011ebf82",
+        "british-compact-car-low-poly-model-e9dd83b4",
+        "french-delivery-van-a350a422",
+        "3221-gaz-3221-ambulance-r-2-f3daf79e",
+        "fire-truck-e0fadd42",
+        "isuzu-erga-mio-bus-050e8acd",
+        "japanese-mini-truck-d5d93879",
+        "fancy-car-780c75b7"
+      ],
+      "top_level": [
+        "LICENSES.md",
+        "README.md",
+        "metadata.jsonl"
+      ],
+      "license": "CC-BY-4.0",
+      "creator": "Individual Sketchfab artists (per-model credits in ATTRIBUTION.md), via Objaverse",
+      "creator_url": "https://objaverse.allenai.org/",
+      "converted_by": "codepawl",
+      "what": "13 realistic low-poly vehicles: police sedan, taxi, compact cars, sedan, muscle cars, vans, ambulance, fire truck, city bus, mini truck, vintage sedan",
+      "rename_items": {
+        "carbon-motors-e7-police-cities-skylines-692c68c4": "police-sedan-692c68c4",
+        "carbon-motors-e7-taxi-cities-skylines-210f95a0": "taxi-sedan-210f95a0",
+        "isuzu-erga-mio-bus-050e8acd": "city-bus-050e8acd",
+        "3221-gaz-3221-ambulance-r-2-f3daf79e": "ambulance-van-f3daf79e"
+      },
+      "_rename_items_why": "Original folder names contain real manufacturer names; the game uses no real brands. Original titles and links are kept in ATTRIBUTION.md credits."
+    },
+    {
+      "id": "vehicles-quaternius",
+      "repo": "codepawl/quaternius-glb",
+      "revision": "9e12c244ad281d644b94e01f23c07bc0f4b46709",
+      "tiers": [
+        "objects"
+      ],
+      "include_prefixes": [
+        ""
+      ],
+      "exclude_substrings": [],
+      "include_items": [
+        "cars__SUV",
+        "cars__Taxi"
+      ],
+      "top_level": [
+        "LICENSES.md",
+        "README.md",
+        "metadata.jsonl"
+      ],
+      "license": "CC0-1.0",
+      "creator": "Quaternius (Cars Pack)",
+      "creator_url": "https://quaternius.com",
+      "converted_by": "codepawl",
+      "what": "Modern SUV and taxi for city traffic and robotaxis"
     }
   ]
 }

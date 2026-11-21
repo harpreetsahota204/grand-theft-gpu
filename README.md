@@ -32,7 +32,7 @@ The game is **Grand Theft GPU**, a browser heist game set in San Silicon, a paro
    uv run buildoff smoke
    ```
 
-The assets download from Hugging Face automatically on the first race (about 513 MB, cached). See [Assets](#assets).
+The assets download from Hugging Face automatically on the first race (about 517 MB, cached). See [Assets](#assets).
 
 ## Run a race
 
@@ -95,7 +95,7 @@ These are the decisions behind the design.
 
 ## Assets
 
-All assets live in the Hugging Face dataset **[harpreetsahota/grand-theft-gpu-assets](https://huggingface.co/datasets/harpreetsahota/grand-theft-gpu-assets)**, not in this repo. This repo tracks only `assets/catalog.json`, the index of all 1,202 assets, pinned to the dataset revision races use (`HF_ASSETS_REVISION` in `harness/config.py`).
+All assets live in the Hugging Face dataset **[harpreetsahota/grand-theft-gpu-assets](https://huggingface.co/datasets/harpreetsahota/grand-theft-gpu-assets)**, not in this repo. This repo tracks only `assets/catalog.json`, the index of all 1,167 assets, pinned to the dataset revision races use (`HF_ASSETS_REVISION` in `harness/config.py`).
 
 | Folder | What | License |
 |---|---|---|
@@ -103,12 +103,13 @@ All assets live in the Hugging Face dataset **[harpreetsahota/grand-theft-gpu-as
 | `rocketbox-motions/` | 326 motion-capture clips that play on any Rocketbox person | MIT (Microsoft Rocketbox) |
 | `quaternius-animations/` | 89 walk/run/drive/climb clips on one humanoid rig | CC0 (Quaternius) |
 | `sf-city/` | Real SF slice (SoMa → FiDi → Embarcadero): terrain, 2,168 buildings, streets, bay, street graph | ODbL / © OpenStreetMap contributors |
-| `kenney/` | 714 low-poly city pieces, furniture and cars | CC0 (Kenney) |
+| `vehicles-objaverse/`, `vehicles-quaternius/` | 15 realistic low-poly vehicles: police sedan, taxis, compact cars, SUV, muscle cars, vans, ambulance, fire truck, city bus | CC-BY 4.0 (per-artist credit) / CC0 |
+| `kenney/` | 664 low-poly city pieces and furniture | CC0 (Kenney) |
 | `usdcraft-props/` | 45 props with joints: servers, safes, an ATM, a forklift, a drone | Apache 2.0 (NVIDIA USDCraft-10K) |
 | `gpu/` | The loot: a graphics card with animatable fans and RGB | CC0 (Grab3D) |
 | `meta-mhr/` | Meta's parametric human body, 7 LODs (on demand only) | Apache 2.0 (Meta) |
 
-**In a race,** every workspace is seeded with the full web tier (about 513 MB: everything except people's extra LOD/mobile/collision tiers and the MHR bodies), copied from the Hugging Face cache into `public/assets/gt-gpu/` in the dataset's layout. Each workspace also gets `tools/assets.mjs`, a zero-dependency Node tool the models use to search the catalog and fetch extras (`node tools/assets.mjs help`).
+**In a race,** every workspace is seeded with the full web tier (about 517 MB: everything except people's extra LOD/mobile/collision tiers and the MHR bodies), copied from the Hugging Face cache into `public/assets/gt-gpu/` in the dataset's layout. Each workspace also gets `tools/assets.mjs`, a zero-dependency Node tool the models use to search the catalog and fetch extras (`node tools/assets.mjs help`).
 
 **Fetch assets yourself:**
 
@@ -190,10 +191,10 @@ USDCraft ships OpenUSD for Isaac Sim, which three.js can't load. For each prop, 
 
 ## Not done yet
 
-- The detailed pass/fail checks per tier (T1 steal a GPU → T4 living San Silicon) for scoring commits. The game prompt itself is locked (git tag `prompt-v2`).
+- The detailed pass/fail checks per tier (T1 steal a GPU → T4 living San Silicon) for scoring commits. The game prompt itself is locked (git tag `prompt-v3`).
 - The Claude side bills through your Claude login. For a true "list price" claim, give Nexus an Anthropic API key.
 - Rendering the race video from the logs.
-- More assets for prompt-v2: people (Quaternius, Microsoft Rocketbox, Meta MHR) and a real SF slice from OpenStreetMap. A dry run showed the models build every pedestrian from boxes when they're given no people.
+- More assets for prompt-v3: people (Quaternius, Microsoft Rocketbox, Meta MHR) and a real SF slice from OpenStreetMap. A dry run showed the models build every pedestrian from boxes when they're given no people.
 
 ## License
 

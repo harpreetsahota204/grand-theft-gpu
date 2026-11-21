@@ -35,7 +35,10 @@ CORE_PATTERNS: list[str] = [
     "kenney/objects/*",
     "rocketbox-avatars/objects/*",
     "rocketbox-motions/objects/*",
-    *[f"{folder}/{f}" for folder in ("kenney", "rocketbox-avatars", "rocketbox-motions", "sf-city")
+    "vehicles-objaverse/objects/*",
+    "vehicles-quaternius/objects/*",
+    *[f"{folder}/{f}" for folder in ("kenney", "rocketbox-avatars", "rocketbox-motions", "sf-city",
+                   "vehicles-objaverse", "vehicles-quaternius")
       for f in STEWARDSHIP],
 ]  # fmt: skip
 
