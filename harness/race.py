@@ -1,8 +1,8 @@
 """CLI entry point: run every contender in parallel on one spec.
 
-Usage:
+Normally invoked through the `buildoff` CLI (`harness.cli`), which adds a
+confirmation guard for large budgets. Direct use:
     uv run python -m harness.race --spec prompts/game_spec.md --budget 100
-    uv run python -m harness.race --spec prompts/smoke_spec.md --budget 0.5 --no-viewers
 
 Creates `<RUNS_ROOT>/<race_id>/`, optionally opens a viewer window per contender,
 runs `harness.runner.ContenderRun` for each contender in its own thread, then

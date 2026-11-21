@@ -121,7 +121,7 @@ wheels = [
 [[package]]
 name = "gta-build-off"
 version = "0.1.0"
-source = { virtual = "." }
+source = { editable = "." }
 default-groups = "all"
 dependencies = [
     { name = "playwright" },

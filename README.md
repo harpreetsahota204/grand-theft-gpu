@@ -24,21 +24,21 @@ The game is **Grand Theft GPU**, a browser heist game set in San Silicon, a paro
    uv run playwright install chromium
    ```
 3. **Connect Nexus:** `nexus login`, then `nexus claude`. This routes Claude Code to Fireworks for the Kimi side.
-4. **Check everything:** `uv run python scripts/doctor.py`. It prints `ok` or a fix for each prerequisite.
-5. **Smoke test** (about $0.15, 1 minute):
+4. **Check everything:** `uv run buildoff doctor`. It prints `ok` or a fix for each prerequisite.
+5. **Smoke test** (about $0.30, 2 minutes). Both models add a floating GPU to the base game:
    ```bash
-   uv run python -m harness.race --spec prompts/smoke_spec.md --budget 0.5 --no-viewers
+   uv run buildoff smoke
    ```
 
-The assets are already in `assets/`. To rebuild them from the original sources, run `uv run python scripts/build_assets.py all` (see [Assets](#assets)).
+The assets are already in `assets/`. To rebuild them from the original sources, run `uv run buildoff assets` (see [Assets](#assets)).
 
 ## Run a race
 
 ```bash
-uv run python -m harness.race --spec prompts/game_spec.md --budget 100
+uv run buildoff race --budget 100 --yes
 ```
 
-Live viewer windows open in Terminal. Pass `--no-viewers` to skip them, for example when not on macOS.
+`--yes` is required for any budget over $2, because a race spends up to that amount **per model**. Live viewer windows open in Terminal; pass `--no-viewers` to skip them, for example when not on macOS. Using an AI agent? Point it at [`AGENTS.md`](AGENTS.md).
 
 ## How a race works
 
@@ -105,8 +105,8 @@ The base game is [kartik786-git/gta-clone-threejs](https://github.com/kartik786-
 ### Rebuilding the assets
 
 ```bash
-uv run python scripts/build_assets.py all              # or: gpu | cars | props
-uv run python scripts/build_assets.py props --out /tmp/assets   # rebuild somewhere else
+uv run buildoff assets                     # all sets; or: gpu | cars | props
+uv run buildoff assets props --out /tmp/x  # rebuild somewhere else, then diff
 ```
 
 - **gpu / cars:** downloaded from Grab3D and Kenney.
@@ -125,8 +125,10 @@ USDCraft ships OpenUSD for Isaac Sim, which three.js can't load. For each prop, 
 | `harness/viewer.py` | Live terminal view of a contender (`python -m harness.viewer <dir>`) |
 | `harness/config.py` | Contenders, limits, paths |
 | `prompts/` | Game spec, run rules, nudge, smoke spec |
-| `scripts/doctor.py` | Checks every prerequisite and prints how to fix what's missing |
-| `scripts/build_assets.py` | Rebuilds `assets/` from the original sources |
+| `harness/cli.py` | The `buildoff` command (doctor, assets, smoke, race) |
+| `harness/seed.py` | Seeds each workspace with the base game (pinned commit) and assets |
+| `harness/doctor.py` | Checks every prerequisite and prints how to fix what's missing |
+| `harness/assets.py` | Rebuilds `assets/` from the original sources |
 | `scripts/convert_usdcraft.py` | USDCraft OpenUSD → `.glb` converter (runs in Blender) |
 | `scripts/usdcraft_props.csv` | The curated list of 45 USDCraft props |
 | `assets/` | GPU, cars and props the models build with |

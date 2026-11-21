@@ -66,7 +66,7 @@ The user is the architect and decision-maker. The agent writes the code and runs
 | GPU asset | ✅ `assets/gpu/` (CC0, verified to have no logos) |
 | Car pack (CC0) | ✅ `assets/cars/` (Kenney Car Kit 3.1) |
 | USDCraft props → .glb | ✅ `assets/props/` (45 props + manifest), `scripts/convert_usdcraft.py` |
-| Replication setup (anyone can rebuild assets and run a race) | ✅ `.python-version`, `uv sync` (all groups by default), `scripts/doctor.py`, `scripts/build_assets.py`. Rebuilt from source and **byte-identical** to `assets/` |
+| Replication setup (anyone can rebuild assets and run a race) | ✅ `.python-version`, `uv sync` (all groups by default), `buildoff doctor`, `buildoff assets` (`harness/doctor.py`, `harness/assets.py`). Rebuilt from source and **byte-identical** to `assets/` |
 | Decide what goes in git | ✅ `assets/` committed (16 MB; licenses allow it). Base game fetched, not vendored. `PROGRAM_BRIEF.md` and `CLAUDE.local.md` gitignored. |
 | Game prompt (`prompts/game_spec.md`, `run_rules.md`, `nudge.md`) | 🔒 **LOCKED 2026-11-20**, git tag `prompt-v1`. Do not edit without the user's explicit OK; any change is a new tag (`prompt-v2`) and invalidates comparisons with earlier runs. |
 | Harness seeding + per-turn Vite build + gameplay screenshots | ✅ `harness/seed.py`, `snapshot.build`. The smoke test on the seeded base (`smoke-seed-002`) passed for both models: turn 0 builds, both added the GPU from our assets, and the screenshots show gameplay. |
@@ -130,8 +130,8 @@ The user is the architect and decision-maker. The agent writes the code and runs
 
 Cheap checks:
 ```bash
-uv run ruff check harness
-uv run python -m harness.race --spec prompts/smoke_spec.md --budget 0.5 --no-viewers   # ~$0.15, ~1 min
+uv run ruff check harness scripts
+uv run buildoff smoke   # ~$0.30, ~2 min, real setup
 ```
 
 ## 7. Spend log
@@ -157,6 +157,6 @@ After that (the user's order, 2026-11-20):
 1. ~~Harness seeding + per-turn Vite build~~ ✅
 2. ~~Smoke test on the real setup~~ ✅ (`smoke-seed-002`: Kimi $0.12 / 82 s, Opus $0.13 / 39 s, both playable)
 3. ~~Update the team in Notion~~ ✅ (Nov 20: added an "Update: Nov 20, 2026" section, milestone, check-in and appendix note): the internal program brief (link in CLAUDE.local.md) (status, decisions, what's built so far)
-4. Thin CLI (`uv run buildoff doctor|assets|race`) + `AGENTS.md` for people who clone the repo and point an agent at it
+4. ~~Thin CLI + `AGENTS.md`~~ ✅ `uv run buildoff doctor|assets|smoke|race` (race over $2 requires `--yes`). `AGENTS.md` is for people who clone the repo and point an agent at it; `CLAUDE.md` imports it.
 5. $5–10 test runs of each model on the locked prompt, then the full race
 6. Blog post (via the blog-writer skill) after the race. No separate HUMANS.md: the README is the human front door.

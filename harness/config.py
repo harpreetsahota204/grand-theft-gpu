@@ -42,6 +42,9 @@ BASE_REPO_COMMIT: str = "babb6232df0f50d92e66a4b994a5fbc14fcc37d9"
 # Our asset pack and where the prompt promises it inside each workspace.
 # Vite serves public/ at the site root, so the game loads /assets/gt-gpu/...
 ASSETS_DIR: Path = REPO_ROOT / "assets"
+
+# Blender runs the USDCraft converter; $BLENDER overrides this macOS default.
+DEFAULT_BLENDER: str = "/Applications/Blender.app/Contents/MacOS/Blender"
 GAME_ASSETS_SUBDIR: str = "public/assets/gt-gpu"
 
 # How long the game gets to finish loading after the network goes quiet, in ms.

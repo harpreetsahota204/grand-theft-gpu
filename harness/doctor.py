@@ -4,8 +4,8 @@ Run it first on a fresh clone; it prints one line per prerequisite and exits
 non-zero if anything required is missing. It only reads versions and status;
 it never changes configuration.
 
-Usage:
-    uv run python scripts/doctor.py
+Called by `buildoff doctor` (see `harness.cli`):
+    uv run buildoff doctor
 """
 
 import os
@@ -17,7 +17,7 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import NamedTuple
 
-DEFAULT_BLENDER: str = "/Applications/Blender.app/Contents/MacOS/Blender"
+from harness.config import DEFAULT_BLENDER
 
 
 def run(cmd: list[str]) -> str | None:
@@ -61,7 +61,7 @@ def check_python() -> str | None:
 
 
 def check_blender() -> str | None:
-    """Blender runs the USDCraft converter; honours $BLENDER like build_assets.py."""
+    """Blender runs the USDCraft converter; honours $BLENDER like harness.assets."""
     return run([os.environ.get("BLENDER", DEFAULT_BLENDER), "--version"])
 
 
@@ -105,8 +105,12 @@ CHECKS: list[Check] = [
 ]
 
 
-def main() -> None:
-    """Runs every check, prints one line each, exits 1 if a required item is missing."""
+def run_checks() -> int:
+    """Runs every check and prints one line each.
+
+    Returns:
+        process exit code: 1 if a required item is missing, else 0
+    """
     missing_required = False
     for check in CHECKS:
         try:
@@ -119,8 +123,4 @@ def main() -> None:
             tag = "MISS " if check.required else "opt  "
             print(f"  {tag} {check.name}  ->  {check.fix}")
             missing_required |= check.required
-    sys.exit(1 if missing_required else 0)
-
-
-if __name__ == "__main__":
-    main()
+    return 1 if missing_required else 0

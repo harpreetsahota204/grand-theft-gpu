@@ -11,14 +11,13 @@ gets the exact asset set both race contenders build with. It downloads:
   `scripts/usdcraft_props.csv`, downloaded from Hugging Face and converted to
   `.glb` by `scripts/convert_usdcraft.py` running inside Blender
 
-Usage (from the repo root):
-    uv run python scripts/build_assets.py all
-    uv run python scripts/build_assets.py props --out /tmp/assets
+Called by `buildoff assets` (see `harness.cli`):
+    uv run buildoff assets all
+    uv run buildoff assets props --out /tmp/assets
 
 Blender is found at `$BLENDER`, else the default macOS install path.
 """
 
-import argparse
 import csv
 import http.cookiejar
 import io
@@ -33,10 +32,10 @@ from pathlib import Path
 
 from huggingface_hub import snapshot_download
 
-REPO_ROOT: Path = Path(__file__).resolve().parent.parent
+from harness.config import ASSETS_DIR, DEFAULT_BLENDER, REPO_ROOT
+
 PROPS_CSV: Path = REPO_ROOT / "scripts" / "usdcraft_props.csv"
 CONVERTER: Path = REPO_ROOT / "scripts" / "convert_usdcraft.py"
-DEFAULT_BLENDER: str = "/Applications/Blender.app/Contents/MacOS/Blender"
 
 GPU_BASE_URL: str = "https://grab3d.com/dl/graphics-card"
 GPU_FILES: tuple[str, ...] = ("graphics-card-light.glb", "LICENSE.txt", "manifest.json")
@@ -139,23 +138,23 @@ def build_props(out: Path) -> None:
             ],
             check=True,
         )
-    shutil.copy(REPO_ROOT / "assets" / "props" / "NOTICE.md", out / "props" / "NOTICE.md")
+    shutil.copy(ASSETS_DIR / "props" / "NOTICE.md", out / "props" / "NOTICE.md")
     print(f"props: {len(folders)} converted -> {out / 'props'}")
 
 
 BUILDERS = {"gpu": build_gpu, "cars": build_cars, "props": build_props}
 
 
-def main() -> None:
-    """Parses the CLI and runs the requested builders."""
-    p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
-    p.add_argument("what", choices=[*BUILDERS, "all"], help="which asset set to rebuild")
-    p.add_argument("--out", type=Path, default=REPO_ROOT / "assets", help="assets root")
-    a = p.parse_args()
-    for name, build in BUILDERS.items():
-        if a.what in (name, "all"):
-            build(a.out)
+ASSET_SETS: tuple[str, ...] = (*BUILDERS, "all")
 
 
-if __name__ == "__main__":
-    main()
+def build(what: str, out: Path) -> None:
+    """Rebuilds one asset set, or all of them, into `out`.
+
+    Args:
+        what: "gpu", "cars", "props" or "all"
+        out: assets root; each set lands in its own subfolder
+    """
+    for name, builder in BUILDERS.items():
+        if what in (name, "all"):
+            builder(out)
