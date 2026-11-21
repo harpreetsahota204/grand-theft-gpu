@@ -2,7 +2,7 @@
 
 Two models get the same game spec and the same $100. Each one builds the game alone in headless Claude Code. The harness records everything so the results can be scored and turned into a video.
 
-The game is **Grand Theft GPU**, a browser heist game set in San Francisco: you steal GPUs, and the cast is satirical tech-Twitter archetypes. Both models start from the same three.js base game and the same asset pack (below).
+The game is **Grand Theft GPU**, a browser heist game set in San Silicon, a parody of San Francisco: you steal GPUs, and the cast is satirical tech-Twitter archetypes. Both models start from the same three.js base game and the same asset pack (below).
 
 | | Kimi K3.1 Pro | Claude Opus 5.5 |
 |---|---|---|
@@ -98,7 +98,7 @@ Both models get the same assets. Each folder keeps its license file.
 |---|---|---|---|
 | `assets/gpu/` | The loot: one graphics card, with spinnable fans and RGB strips | [Grab3D](https://grab3d.com/models/electronics/graphics-card/) | CC0 |
 | `assets/cars/` | 49 low-poly vehicles and parts (sedan, taxi, police, SUV, van…), wheels as separate nodes | [Kenney Car Kit 3.1](https://kenney.nl/assets/car-kit) | CC0 |
-| `assets/props/` | 45 props: servers, safes, an ATM, a forklift, a drone, SF street furniture. `manifest.json` lists sizes, movable parts and joints | [NVIDIA USDCraft-10K](https://huggingface.co/datasets/nvidia/USDCraft-10K), converted | Apache 2.0 |
+| `assets/props/` | 45 props: servers, safes, an ATM, a forklift, a drone, city street furniture. `manifest.json` lists sizes, movable parts and joints | [NVIDIA USDCraft-10K](https://huggingface.co/datasets/nvidia/USDCraft-10K), converted | Apache 2.0 |
 
 The base game is [kartik786-git/gta-clone-threejs](https://github.com/kartik786-git/gta-clone-threejs), used with attribution.
 
@@ -134,7 +134,7 @@ USDCraft ships OpenUSD for Isaac Sim, which three.js can't load. For each prop, 
 ## Not done yet
 
 - `prompts/game_spec.md` is a placeholder. It must be locked before the first $100 run.
-- The heist-tier checklist (T1 steal a GPU → T4 living SF) for scoring commits.
+- The heist-tier checklist (T1 steal a GPU → T4 living San Silicon) for scoring commits.
 - Seeding each race workspace with the base game and assets.
 - The Claude side bills through your Claude login. For a true "list price" claim, give Nexus an Anthropic API key.
 - Rendering the race video from the logs.

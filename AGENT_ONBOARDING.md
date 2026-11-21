@@ -17,7 +17,7 @@ This is a DevRel piece for Fireworks. Kimi K3.1 Pro (an open model on Fireworks)
 Decided 2026-11-20. Both models get the same framing and the same starting assets. Past that framing they choose freely; we stay hands-off.
 
 **Locked in the prompt (frame + cast):**
-- Title: **Grand Theft GPU**. Setting: **San Francisco**. Core goal: **steal GPUs**.
+- Title: **Grand Theft GPU**. Setting: **San Silicon**, a parody of San Francisco (decided 2026-11-20: parody names for the city, landmarks and neighborhoods; consistent with the no-real-brands rule). Core goal: **steal GPUs**.
 - Cast: **archetypes, never real people.** The kind of characters you'd find in a Twitter/X thread: VCs, hype beasts, grifters, anon accounts. They talk like the posts.
 - Brands: **archetypes too.** A "robotaxi with the spinning roof sensor," never "Waymo." No real company names, logos or people.
 - The plot, missions, dialogue and characters' details are **the models' to write.**
@@ -26,7 +26,7 @@ Decided 2026-11-20. Both models get the same framing and the same starting asset
 - **Base game:** https://github.com/kartik786-git/gta-clone-threejs. A third-person, on-foot three.js game (walk, sprint, jump, melee, enemies) with `city.glb` and FBX characters. All the code is in `src/main.js`, about 1.3K lines. **No cars.** It has no license file; the user's call is to give attribution and build on it.
   - **Decided: fetch it at seed time, pinned to commit `babb6232df0f50d92e66a4b994a5fbc14fcc37d9`** (2026-06-16). It is *not* vendored or added as a submodule, so nothing is re-hosted, our repo stays small, and the link doubles as attribution. When seeding a workspace: clone at that commit, drop the duplicate top-level `assets/` (the game loads from `public/assets/`), and copy in our `assets/`. The base is 71 MB, because `city.glb` alone is 90 MB per copy and every asset appears twice. It builds with Vite 8 and three 0.184 (`npm install`, `npm run build`).
 - **Props:** NVIDIA **USDCraft-10K** (Apache 2.0). **Done: 45 props** in `assets/props/*.glb`, 9.4 MB, all rendered and checked on a contact sheet. We took variant `01_` of each curated category. `assets/props/manifest.json` lists each prop's file, source object ID, triangle count, size in metres, links (movable parts) and **joints** (154 in total: revolute/prismatic, with parent/child link, axis and limits). The joint axes are in the USD Z-up frame; the manifest explains the mapping to Y-up. Converter: `scripts/convert_usdcraft.py`, run in Blender (details in the README).
-  - **The props:** heist targets (rack-mount server, server rack cabinet, desktop tower, laptop, monitor, home safe, room safe, safe deposit box cabinet, ATM, battery rack, wi-fi router); heist tools (forklift, pallet jack, hand truck, platform truck, pallet, pallet rack, parcel box, quadcopter drone, autonomous mobile robot, industrial workbench, computer desk); SF streets (traffic light, traffic cone, traffic barrier, jersey barrier, street lamp, street sign post, bus stop sign, parking meter, fire hydrant, bike share dock, bicycle, electric scooter, kick scooter, EV charging station, vending machine, turnstile, boom/flap barrier gates, park bench, public trash can, street mailbox, anti-theft security gate, signal tower light).
+  - **The props:** heist targets (rack-mount server, server rack cabinet, desktop tower, laptop, monitor, home safe, room safe, safe deposit box cabinet, ATM, battery rack, wi-fi router); heist tools (forklift, pallet jack, hand truck, platform truck, pallet, pallet rack, parcel box, quadcopter drone, autonomous mobile robot, industrial workbench, computer desk); city streets (traffic light, traffic cone, traffic barrier, jersey barrier, street lamp, street sign post, bus stop sign, parking meter, fire hydrant, bike share dock, bicycle, electric scooter, kick scooter, EV charging station, vending machine, turnstile, boom/flap barrier gates, park bench, public trash can, street mailbox, anti-theft security gate, signal tower light).
   - Every mesh is decimated to at most 4K tris (`MAX_TRIS_PER_MESH`), because some source parts had 65K. Collision meshes (USD purpose `guide`) are dropped.
 - **Cars:** **Kenney Car Kit 3.1, CC0**, in `assets/cars/`. That's 49 GLBs plus `License.txt` and `Preview.png`, 5.6 MB in total. They include sedan, sedan-sports, hatchback-sports, suv, suv-luxury, taxi, police, ambulance, firetruck, van, delivery, truck, garbage-truck, tractors, race cars, karts, cones, a box, and **debris parts** (doors, bumper, tire, plates), which are useful for damage. **Wheels are separate nodes** (`wheel-front-left`, …) and can spin and steer. All GLBs share one texture at `Textures/colormap.png`, which must sit next to them. There's no robotaxi model; the models can add the roof sensor to a sedan or SUV. USDCraft has no full-size cars, which is why we use this kit.
   - The download link sits behind a donation popup. To get it with a script: load the asset page with a cookie jar, then `GET https://kenney.nl/download-link/<hex id>` returns a signed `url`.
@@ -46,7 +46,7 @@ Decided 2026-11-20. Both models get the same framing and the same starting asset
 | T1 | "GTA 1" | You can steal a GPU |
 | T2 | "GTA 2" | You escape by car while being chased (heat/wanted) |
 | T3 | "GTA 3" | A multi-mission story with talking archetypes |
-| T4 | "GTA 4" | A living SF: traffic, robotaxis, day/night |
+| T4 | "GTA 4" | A living San Silicon: traffic, robotaxis, day/night |
 
 The exact pass/fail checks per tier still need writing and locking with the prompt.
 
@@ -68,10 +68,9 @@ The user is the architect and decision-maker. The agent writes the code and runs
 | USDCraft props → .glb | ✅ `assets/props/` (45 props + manifest), `scripts/convert_usdcraft.py` |
 | Replication setup (anyone can rebuild assets and run a race) | ✅ `.python-version`, `uv sync` (all groups by default), `scripts/doctor.py`, `scripts/build_assets.py`. Rebuilt from source and **byte-identical** to `assets/` |
 | Decide what goes in git | ✅ `assets/` committed (16 MB; licenses allow it). Base game fetched, not vendored. `PROGRAM_BRIEF.md` and `CLAUDE.local.md` gitignored. |
-| Base repo vendored into the starting workspace | ⬜ |
-| Harness change: seed each workspace with the base repo + assets (currently starts empty) | ⬜ |
-| Game spec (`prompts/game_spec.md`) | ⬜ Placeholder; must be **locked before the first $100 run** |
-| Tier checklist (redrawn for a 3D base → pass/fail checks) | ⬜ Not started; must be **locked before the first $100 run** |
+| Game prompt (`prompts/game_spec.md`, `run_rules.md`, `nudge.md`) | 🔒 **LOCKED 2026-11-20**, git tag `prompt-v1`. Do not edit without the user's explicit OK; any change is a new tag (`prompt-v2`) and invalidates comparisons with earlier runs. |
+| Harness change: seed each workspace (base game at `babb623` + `assets/` → `public/assets/gt-gpu/`) and run `npm install && npm run build` per turn, screenshotting `dist/index.html` | ⬜ **Next.** The prompt already promises this layout. |
+| Scoring checklist (pass/fail checks per tier, for judges) | ⬜ The tiers are in the prompt; the detailed checks are still to write |
 | Small test run of each model on the real spec | ⬜ |
 | Full $100 race | ⬜ |
 | Scoring commits against the checklist | ⬜ |
@@ -146,6 +145,10 @@ The user's order, set 2026-11-20:
 2. ~~README + onboarding update~~ ✅
 3. ~~Replication setup~~ ✅ (doctor, build_assets, byte-identical rebuild)
 4. ~~Decide what goes in git~~ ✅
-5. **Back to the prompts:** draft `game_spec.md` for Grand Theft GPU from 1b and lock it with the tier checks.
+5. ~~Back to the prompts~~ ✅ **Locked 2026-11-20, tag `prompt-v1`.** sha256: game_spec `729ffffa…a0b2`, run_rules `e32a44a0…6a6e`, nudge `e9cd6279…1902`.
+   - Decided: **the harness runs `npm install && npm run build` after each turn** and screenshots `dist/index.html`. A failed build means the turn isn't playable. (The base's `index.html` imports `three` by bare name, so it can't be served statically.) **The harness doesn't do this yet.** `snapshot.screenshot` still serves the workspace root.
+   - In the prompt, the tiers are **Tier 1 Small-time / Tier 2 Getaway / Tier 3 Crew / Tier 4 Kingpin**. The "GTA 1–4" labels are for the video only, so the models don't reach for a real product.
+   - Decided: **models see the tier ladder** (as goals) and **know they have about $100 of compute**. They are *not* told they're racing another model.
+   - The prompt promises assets at **`public/assets/gt-gpu/{gpu,cars,props}`**. Seeding must put them there (Vite serves `public/` at the site root).
 
 After that: seed each race workspace with the base repo and assets (the base uses Vite and npm, so the build step needs handling), then a small test run of each model ($5–10 each).
