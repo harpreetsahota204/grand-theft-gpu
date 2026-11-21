@@ -181,6 +181,8 @@ USDCraft ships OpenUSD for Isaac Sim, which three.js can't load. For each prop, 
 | `harness/inventory.py` | The `buildoff inventory` search and query layer |
 | `harness/fetch.py` | `buildoff fetch` and the seeded core set (`CORE_PATTERNS`) |
 | `harness/workspace_tools/assets.mjs` | The racing models' search + fetch tool (copied into every workspace) |
+| `harness/shot_tool.py` | `tools/screenshot` in every workspace: build + render the game to a PNG the model can look at |
+| `harness/cliutil.py` | Shared JSON usage-error parser for agent-facing CLIs |
 | `harness/mirror.py`, `scripts/mirror_sources.json` | Mirror pinned third-party asset sets (Rocketbox, Kenney) |
 | `harness/sfcity.py` | Builds the real SF slice: terrain, buildings, streets, street graph |
 | `harness/dataset.py`, `dataset_card/` | Assemble and publish the Hugging Face asset dataset |

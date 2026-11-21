@@ -16,12 +16,11 @@ Each subcommand is a thin wrapper: the work lives in `harness.doctor`,
 """
 
 import argparse
-import json
 import sys
 from pathlib import Path
-from typing import NoReturn
 
 from harness import doctor, inventory, race
+from harness.cliutil import JsonErrorParser
 from harness.config import ASSETS_DIR, MIRROR_DIR, PROMPTS_DIR
 
 # Races above this budget need --yes, so an agent (or a typo) can't start a
@@ -142,16 +141,6 @@ def cmd_race(args: argparse.Namespace) -> int:
         argv.append("--no-viewers")
     race.main(argv)
     return 0
-
-
-class JsonErrorParser(argparse.ArgumentParser):
-    """ArgumentParser whose usage errors are JSON on stderr (exit 2), for agents."""
-
-    def error(self, message: str) -> NoReturn:
-        """Reports a usage error as {"error", "hint"} JSON instead of free text."""
-        hint = f"run: {self.prog} --help"
-        sys.stderr.write(json.dumps({"error": message, "hint": hint}) + "\n")
-        sys.exit(2)
 
 
 def add_inventory(sub: "argparse._SubParsersAction[JsonErrorParser]") -> None:

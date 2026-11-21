@@ -75,6 +75,7 @@ A healthy smoke run shows `declared_done`, `build_ok: true` and `loaded: true` o
 | `scripts/convert_usdcraft.py` | OpenUSD → glb converter (runs inside Blender) |
 | `prompts/` | The locked game prompt, run rules, nudge, smoke spec |
 | `assets/catalog.json` | Index of all 1,167 assets in the [Hugging Face dataset](https://huggingface.co/datasets/harpreetsahota/grand-theft-gpu-assets) (the assets themselves aren't in git) |
+| `harness/shot_tool.py` | The models' `tools/screenshot`: build + render the game to a PNG (both models can read images) |
 | `harness/fetch.py`, `harness/workspace_tools/assets.mjs` | Fetching from the dataset; the racing models' own search + fetch tool |
 
 ## Code conventions

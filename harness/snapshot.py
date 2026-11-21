@@ -10,6 +10,7 @@ import contextlib
 import functools
 import subprocess
 import threading
+from collections.abc import Sequence
 from dataclasses import dataclass
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -150,7 +151,12 @@ def commit(workspace: Path, message: str) -> str:
     return sha.stdout.strip()
 
 
-def screenshot(site_dir: Path, out_png: Path) -> ShotResult:
+def screenshot(
+    site_dir: Path,
+    out_png: Path,
+    settle_ms: int = SCREENSHOT_SETTLE_MS,
+    hold: Sequence[tuple[str, int]] = (),
+) -> ShotResult:
     """Serves a built site over HTTP and screenshots its game entry page.
 
     The page is served (not opened via file://) because ES module imports, which
@@ -160,6 +166,10 @@ def screenshot(site_dir: Path, out_png: Path) -> ShotResult:
     Args:
         site_dir: the build output folder (the workspace's `dist/`)
         out_png: where to write the 1280x720 screenshot
+        settle_ms: wait after the network goes quiet, for the game to finish loading
+        hold: keys to hold down in order after play starts, as (key, milliseconds),
+            e.g. [("w", 2000)] to move forward for 2 s before the shot. Key names
+            follow Playwright (`w`, `Shift`, `Space`, `ArrowUp`, ...).
 
     Returns:
         whether the entry exists, whether it loaded, and any console errors
@@ -197,11 +207,16 @@ def screenshot(site_dir: Path, out_png: Path) -> ShotResult:
                     page.wait_for_load_state("networkidle", timeout=NETWORK_IDLE_TIMEOUT_MS)
                 # Models are parsed between downloads, so the network goes quiet
                 # before the game is ready; the base game takes ~9 s headless.
-                page.wait_for_timeout(SCREENSHOT_SETTLE_MS)
+                page.wait_for_timeout(settle_ms)
                 # Click the middle like a player would, to get past a
                 # "click to play" screen, then let a few frames of play render.
                 page.mouse.click(640, 360)
                 page.wait_for_timeout(AFTER_CLICK_MS)
+                # Optional scripted input, so a shot can show the game in motion.
+                for key, ms in hold:
+                    page.keyboard.down(key)
+                    page.wait_for_timeout(ms)
+                    page.keyboard.up(key)
                 out_png.parent.mkdir(parents=True, exist_ok=True)
                 page.screenshot(path=str(out_png))
             except Exception as exc:  # noqa: BLE001 - a broken build is data, not a harness crash

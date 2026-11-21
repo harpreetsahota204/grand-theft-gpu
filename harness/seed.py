@@ -7,6 +7,7 @@ Both contenders must start from byte-identical folders. `harness.runner` calls
       <base game at BASE_REPO_COMMIT>   minus its .git and duplicate top-level assets/
       public/assets/gt-gpu/<dataset layout>   the core asset set (harness.fetch.CORE_PATTERNS)
       tools/assets.mjs, tools/catalog.json    the models' own search + fetch tool
+      tools/screenshot                  build + render the game to a PNG (harness.shot_tool)
       .gitignore                        keeps node_modules/ and dist/ out of turn commits
       node_modules/                     from `npm install`
 
@@ -16,8 +17,10 @@ so a race doesn't re-download anything per contender.
 """
 
 import fnmatch
+import shlex
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 from harness import fetch
@@ -32,12 +35,34 @@ from harness.config import (
 
 # node_modules is reinstalled per workspace; dist is rebuilt every turn. Neither
 # belongs in the per-turn commits that the scoring timeline is built from.
-WORKSPACE_GITIGNORE: str = "node_modules/\ndist/\n"
+WORKSPACE_GITIGNORE: str = "node_modules/\ndist/\ntools/shots/\n"
 
 NPM_TIMEOUT_S: int = 600
 
 # The models' zero-dependency asset tool, copied into every workspace's tools/.
 TOOL_PATH: Path = REPO_ROOT / "harness" / "workspace_tools" / "assets.mjs"
+
+
+def write_screenshot_wrapper(workspace: Path) -> Path:
+    """Writes `tools/screenshot`, which runs `harness.shot_tool` on this workspace.
+
+    The wrapper pins this harness's Python interpreter and repo path, so the
+    model can call it from Bash without any setup. Both contenders get an
+    identical script apart from their own workspace path.
+
+    Returns:
+        path of the executable wrapper
+    """
+    script = workspace / "tools" / "screenshot"
+    script.write_text(
+        "#!/usr/bin/env bash\n"
+        "# Build the game and save a gameplay screenshot (JSON result on stdout).\n"
+        "# Usage: tools/screenshot [--hold KEY:MS ...] [--out PATH] [--no-build] [--help]\n"
+        f"PYTHONPATH={shlex.quote(str(REPO_ROOT))} exec {shlex.quote(sys.executable)} "
+        f'-m harness.shot_tool {shlex.quote(str(workspace.resolve()))} "$@"\n'
+    )
+    script.chmod(0o755)
+    return script
 
 
 def copy_core(dest: Path) -> int:
@@ -124,6 +149,7 @@ def seed_workspace(workspace: Path) -> None:
     tools.mkdir()
     shutil.copy2(TOOL_PATH, tools / "assets.mjs")
     shutil.copy2(CATALOG_PATH, tools / "catalog.json")
+    write_screenshot_wrapper(workspace)
     (workspace / ".gitignore").write_text(WORKSPACE_GITIGNORE)
 
     # Install before turn 1 so the model starts with a buildable project and the
