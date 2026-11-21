@@ -69,7 +69,7 @@ The user is the architect and decision-maker. The agent writes the code and runs
 | Replication setup (anyone can rebuild assets and run a race) | ✅ `.python-version`, `uv sync` (all groups by default), `scripts/doctor.py`, `scripts/build_assets.py`. Rebuilt from source and **byte-identical** to `assets/` |
 | Decide what goes in git | ✅ `assets/` committed (16 MB; licenses allow it). Base game fetched, not vendored. `PROGRAM_BRIEF.md` and `CLAUDE.local.md` gitignored. |
 | Game prompt (`prompts/game_spec.md`, `run_rules.md`, `nudge.md`) | 🔒 **LOCKED 2026-11-20**, git tag `prompt-v1`. Do not edit without the user's explicit OK; any change is a new tag (`prompt-v2`) and invalidates comparisons with earlier runs. |
-| Harness change: seed each workspace (base game at `babb623` + `assets/` → `public/assets/gt-gpu/`) and run `npm install && npm run build` per turn, screenshotting `dist/index.html` | ⬜ **Next.** The prompt already promises this layout. |
+| Harness seeding + per-turn Vite build + gameplay screenshots | ✅ `harness/seed.py`, `snapshot.build`. The smoke test on the seeded base (`smoke-seed-002`) passed for both models: turn 0 builds, both added the GPU from our assets, and the screenshots show gameplay. |
 | Scoring checklist (pass/fail checks per tier, for judges) | ⬜ The tiers are in the prompt; the detailed checks are still to write |
 | Small test run of each model on the real spec | ⬜ |
 | Full $100 race | ⬜ |
@@ -114,6 +114,8 @@ The user is the architect and decision-maker. The agent writes the code and runs
 - **`hf download --include` patterns:** `"<folder>/*"` matches nested files (the `*` crosses `/`). One call with many `--include` flags downloads only the curated folders, about 120 MB for 45 props.
 - **USDCraft stage layout:** `/Asset/Links/<link>/Visuals/...` holds the render meshes, `/Asset/Links/<link>/Collisions/...` holds collision meshes (purpose `guide`), `/Asset/Joints/*` holds `PhysicsRevoluteJoint`/`PhysicsPrismaticJoint` with body0/body1, and `/Asset/Looks/*` holds UsdPreviewSurface materials.
 - **`/code-cleanup` can only be run by the user.** The agent can't invoke it; ask the user to type it.
+- **The base repo commits `node_modules/`** without execute bits and with another OS's native binaries, so `vite` fails with "Permission denied". Seeding skips it (along with `assets/` and `dist/`) and runs a clean `npm install`. In the first smoke test, one model silently spent budget fixing it, which made that race unfair.
+- **Screenshots of the game need three things:** (1) wait for `networkidle`; (2) settle about 12 s, because the base game parses its FBX/GLB files between downloads and takes about 9 s headless; (3) click the center with a **pointer-lock shim** installed (`POINTER_LOCK_SHIM` in `snapshot.py`), since headless Chromium never grants pointer lock and "Click to Play" would never go away. Without these, every frame is a T-posed first frame or the menu.
 - **To check a .glb visually,** load it in a headless three.js page with Playwright (SwiftShader flags) and screenshot it. That's how the GPU, the props and the contact sheet were verified.
 
 ## 6. Where things are
@@ -151,4 +153,10 @@ The user's order, set 2026-11-20:
    - Decided: **models see the tier ladder** (as goals) and **know they have about $100 of compute**. They are *not* told they're racing another model.
    - The prompt promises assets at **`public/assets/gt-gpu/{gpu,cars,props}`**. Seeding must put them there (Vite serves `public/` at the site root).
 
-After that: seed each race workspace with the base repo and assets (the base uses Vite and npm, so the build step needs handling), then a small test run of each model ($5–10 each).
+After that (the user's order, 2026-11-20):
+1. ~~Harness seeding + per-turn Vite build~~ ✅
+2. ~~Smoke test on the real setup~~ ✅ (`smoke-seed-002`: Kimi $0.12 / 82 s, Opus $0.13 / 39 s, both playable)
+3. ~~Update the team in Notion~~ ✅ (Nov 20: added an "Update: Nov 20, 2026" section, milestone, check-in and appendix note): the internal program brief (link in CLAUDE.local.md) (status, decisions, what's built so far)
+4. Thin CLI (`uv run buildoff doctor|assets|race`) + `AGENTS.md` for people who clone the repo and point an agent at it
+5. $5–10 test runs of each model on the locked prompt, then the full race
+6. Blog post (via the blog-writer skill) after the race. No separate HUMANS.md: the README is the human front door.

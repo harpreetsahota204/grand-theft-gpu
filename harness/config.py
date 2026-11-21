@@ -28,12 +28,25 @@ MAX_NUDGES: int = 3
 # few dollars between polls, so expect final spend slightly over budget.
 METER_POLL_SECONDS: float = 15.0
 
-# Contract files the run rules tell each model about.
+# Contract files the run rules tell each model about. The game is a Vite
+# project: the harness builds it each turn and loads BUILD_DIR/GAME_ENTRY.
 DONE_FILE: str = "DONE.md"
+BUILD_DIR: str = "dist"
 GAME_ENTRY: str = "index.html"
 
-# How long the game page gets to boot before the snapshot is taken, in ms.
-SCREENSHOT_SETTLE_MS: int = 3000
+# The base game both contenders start from, pinned so every race starts from
+# identical code. Fetched at seed time (not vendored); the link is the attribution.
+BASE_REPO_URL: str = "https://github.com/kartik786-git/gta-clone-threejs.git"
+BASE_REPO_COMMIT: str = "babb6232df0f50d92e66a4b994a5fbc14fcc37d9"
+
+# Our asset pack and where the prompt promises it inside each workspace.
+# Vite serves public/ at the site root, so the game loads /assets/gt-gpu/...
+ASSETS_DIR: Path = REPO_ROOT / "assets"
+GAME_ASSETS_SUBDIR: str = "public/assets/gt-gpu"
+
+# How long the game gets to finish loading after the network goes quiet, in ms.
+# The base game needs ~9 s headless (models are parsed between downloads).
+SCREENSHOT_SETTLE_MS: int = 12000
 
 
 @dataclass(frozen=True)

@@ -20,6 +20,7 @@ from dataclasses import asdict
 from datetime import datetime
 from pathlib import Path
 
+from harness import seed
 from harness.config import REPO_ROOT, RaceConfig
 from harness.runner import ContenderRun, RunResult
 
@@ -73,6 +74,10 @@ def main(argv: list[str]) -> None:
         json.dumps({**asdict(cfg), "spec_path": str(cfg.spec_path)}, indent=2)
     )
     print(f"race dir: {cfg.race_dir}", flush=True)
+
+    # Fetch the pinned base game once, before the contender threads start, so
+    # they don't both try to populate the cache at the same time.
+    seed.base_cache()
 
     runs = [ContenderRun(c, cfg) for c in cfg.contenders]
     if cfg.open_viewers:

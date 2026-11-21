@@ -1,10 +1,12 @@
-"""Per-turn evidence: a git commit of the workspace and a screenshot of the game.
+"""Per-turn evidence: a git commit, a Vite build, and a screenshot of the game.
 
-`harness.runner` calls `commit` and `screenshot` after every turn. The commits
-give a timeline to score against the tier checklist; the screenshots give
-footage for the video and tell us when the first playable build appeared.
+`harness.runner` calls `commit`, `build` and `screenshot` after every turn. The
+commits give a timeline to score against the tier checklist; the build tells us
+whether the game still compiles; the screenshots give footage for the video and
+tell us when the first playable build appeared.
 """
 
+import contextlib
 import functools
 import subprocess
 import threading
@@ -13,6 +15,7 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 from playwright.sync_api import ConsoleMessage, sync_playwright
+from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 from harness.config import GAME_ENTRY, SCREENSHOT_SETTLE_MS
 
@@ -20,12 +23,47 @@ from harness.config import GAME_ENTRY, SCREENSHOT_SETTLE_MS
 CHROMIUM_ARGS: list[str] = ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"]
 
 
+# Characters of build output kept when a build fails, enough to show the error.
+BUILD_LOG_TAIL_CHARS: int = 2000
+BUILD_TIMEOUT_S: int = 600
+
+# Upper bound on waiting for the game's asset downloads after page load. A game
+# that streams forever still gets screenshotted once this expires.
+NETWORK_IDLE_TIMEOUT_MS: int = 60_000
+
+# Time for frames to render after the click that starts play.
+AFTER_CLICK_MS: int = 3000
+
+# Headless Chromium never grants pointer lock, so games that gate play behind
+# "click to play" (requestPointerLock) stay on their menu forever. This stub,
+# installed before any page script runs, makes the standard pointer-lock API
+# succeed on click. It only touches the browser API, not game code, so it works
+# for whatever start screen either model builds.
+POINTER_LOCK_SHIM: str = """
+(() => {
+  let locked = null;
+  Object.defineProperty(Document.prototype, "pointerLockElement", {
+    get() { return locked; }, configurable: true,
+  });
+  Element.prototype.requestPointerLock = function () {
+    locked = this;
+    document.dispatchEvent(new Event("pointerlockchange"));
+    return Promise.resolve();
+  };
+  Document.prototype.exitPointerLock = function () {
+    locked = null;
+    document.dispatchEvent(new Event("pointerlockchange"));
+  };
+})();
+"""
+
+
 @dataclass(frozen=True)
 class ShotResult:
     """Outcome of screenshotting the game after a turn.
 
     Attributes:
-        has_entry: whether the workspace has the game entry file yet
+        has_entry: whether the built site has the game entry file
         loaded: whether the page loaded without throwing
         console_errors: console errors and uncaught exceptions seen while settling
     """
@@ -35,13 +73,54 @@ class ShotResult:
     console_errors: list[str]
 
 
-def init_workspace(workspace: Path) -> None:
-    """Creates the contender's workspace as an empty git repo with a fixed identity.
+@dataclass(frozen=True)
+class BuildResult:
+    """Outcome of building the game after a turn.
+
+    Attributes:
+        ok: whether `npm install` and `npm run build` both succeeded
+        log_tail: the end of the combined output when the build failed, else ""
+    """
+
+    ok: bool
+    log_tail: str
+
+
+def build(workspace: Path) -> BuildResult:
+    """Installs dependencies and runs the Vite production build.
+
+    `npm install` runs every turn because the model may have added packages;
+    with nothing new it finishes in a second or two.
 
     Args:
-        workspace: folder the model builds in; created if missing
+        workspace: the contender's Vite project
+
+    Returns:
+        whether the build succeeded, plus the output tail if it didn't
     """
-    workspace.mkdir(parents=True, exist_ok=True)
+    output = ""
+    for cmd in (
+        ["npm", "install", "--no-audit", "--no-fund", "--loglevel=error"],
+        ["npm", "run", "build"],
+    ):
+        try:
+            proc = subprocess.run(
+                cmd, cwd=workspace, capture_output=True, text=True, timeout=BUILD_TIMEOUT_S
+            )
+        except subprocess.TimeoutExpired:
+            return BuildResult(ok=False, log_tail=f"{' '.join(cmd)} timed out")
+        output += proc.stdout + proc.stderr
+        if proc.returncode != 0:
+            return BuildResult(ok=False, log_tail=output[-BUILD_LOG_TAIL_CHARS:])
+    return BuildResult(ok=True, log_tail="")
+
+
+def init_workspace(workspace: Path) -> None:
+    """Turns the seeded workspace into a git repo with a fixed identity.
+
+    Args:
+        workspace: the seeded folder the model builds in
+    """
     subprocess.run(["git", "init", "-q"], cwd=workspace, check=True)
     # A local identity so commits never depend on (or leak) the user's git config.
     for key, value in (("user.name", "race-harness"), ("user.email", "harness@localhost")):
@@ -71,24 +150,25 @@ def commit(workspace: Path, message: str) -> str:
     return sha.stdout.strip()
 
 
-def screenshot(workspace: Path, out_png: Path) -> ShotResult:
-    """Serves the workspace over HTTP and screenshots the game entry page.
+def screenshot(site_dir: Path, out_png: Path) -> ShotResult:
+    """Serves a built site over HTTP and screenshots its game entry page.
 
     The page is served (not opened via file://) because ES module imports, which
-    most three.js builds use, are blocked on file URLs.
+    most three.js builds use, are blocked on file URLs. The site dir is served as
+    the web root, matching Vite's default absolute asset paths (`/assets/...`).
 
     Args:
-        workspace: folder containing the game
+        site_dir: the build output folder (the workspace's `dist/`)
         out_png: where to write the 1280x720 screenshot
 
     Returns:
         whether the entry exists, whether it loaded, and any console errors
     """
-    if not (workspace / GAME_ENTRY).exists():
+    if not (site_dir / GAME_ENTRY).exists():
         return ShotResult(has_entry=False, loaded=False, console_errors=[])
 
     # Port 0 lets the OS pick a free port, so both contenders can snapshot at once.
-    handler = functools.partial(_QuietHandler, directory=str(workspace))
+    handler = functools.partial(_QuietHandler, directory=str(site_dir))
     server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
     threading.Thread(target=server.serve_forever, daemon=True).start()
     url = f"http://127.0.0.1:{server.server_address[1]}/{GAME_ENTRY}"
@@ -105,13 +185,23 @@ def screenshot(workspace: Path, out_png: Path) -> ShotResult:
         with sync_playwright() as pw:
             browser = pw.chromium.launch(args=CHROMIUM_ARGS)
             page = browser.new_page(viewport={"width": 1280, "height": 720})
+            page.add_init_script(POINTER_LOCK_SHIM)
             page.on("console", on_console)
             page.on("pageerror", lambda e: errors.append(str(e)))
             try:
                 page.goto(url, wait_until="load", timeout=15_000)
                 loaded = True
-                # Give the game loop time to render a few frames before capture.
+                # The game fetches its models (a 90 MB city, FBX animations, our
+                # GLBs) after "load", so wait until the network goes quiet.
+                with contextlib.suppress(PlaywrightTimeoutError):
+                    page.wait_for_load_state("networkidle", timeout=NETWORK_IDLE_TIMEOUT_MS)
+                # Models are parsed between downloads, so the network goes quiet
+                # before the game is ready; the base game takes ~9 s headless.
                 page.wait_for_timeout(SCREENSHOT_SETTLE_MS)
+                # Click the middle like a player would, to get past a
+                # "click to play" screen, then let a few frames of play render.
+                page.mouse.click(640, 360)
+                page.wait_for_timeout(AFTER_CLICK_MS)
                 out_png.parent.mkdir(parents=True, exist_ok=True)
                 page.screenshot(path=str(out_png))
             except Exception as exc:  # noqa: BLE001 - a broken build is data, not a harness crash

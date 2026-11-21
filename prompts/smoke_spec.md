@@ -1,3 +1,3 @@
 # Smoke test spec
 
-Build a single-page browser toy: a colored square on a dark background that moves with the arrow keys and stays inside the window. Keep it small.
+This directory is a working three.js game. Make one small change: load the graphics card model from `public/assets/gt-gpu/gpu/graphics-card-light.glb` and show it floating and slowly spinning just above the player's head. Keep it small.

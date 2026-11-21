@@ -7,12 +7,12 @@ A watchdog polls Nexus (`harness.meter`) during the turn and kills the process
 if spend hits the budget or a foreign model shows up in the usage rows.
 
 Output layout under `<race_dir>/<contender>/`:
-    workspace/            the git repo the model builds in
+    workspace/            the seeded Vite project the model builds in (a git repo)
     logs/turn-NNN.jsonl   timestamped Claude Code stream-json transcript per turn
     logs/cost.csv         timestamped Nexus spend readings
-    logs/turns.jsonl      one summary row per turn
+    logs/turns.jsonl      one row per turn (turn 0 = seeded base): build, load, errors
     logs/events.jsonl     harness events: cross-model leak, unpriced rows (absent if none)
-    shots/turn-NNN.png    screenshot of the game after each turn
+    shots/turn-NNN.png    screenshot of the built game after each turn (000 = base)
     result.json           final outcome
 """
 
@@ -28,8 +28,9 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import IO, Literal, TextIO
 
-from harness import meter, snapshot
+from harness import meter, seed, snapshot
 from harness.config import (
+    BUILD_DIR,
     DONE_FILE,
     MAX_NUDGES,
     METER_POLL_SECONDS,
@@ -110,8 +111,14 @@ class ContenderRun:
         Returns:
             the contender's final result
         """
+        # Seeding happens before the clock starts: npm install and copying the
+        # base game aren't the model's time.
+        seed.seed_workspace(self.workspace)
         snapshot.init_workspace(self.workspace)
         self.logs.mkdir(parents=True, exist_ok=True)
+        # Turn 0 is the untouched base game: the "before" frame for the video
+        # and the diff base for scoring.
+        self._record_turn(0, "seed")
         self._start = time.monotonic()
 
         prompt = build_first_prompt(self.cfg.spec_path)
@@ -125,24 +132,9 @@ class ContenderRun:
 
             # Evidence after every turn, including the one the watchdog killed,
             # so the final state of the build is always captured.
-            sha = snapshot.commit(self.workspace, f"turn {turn}")
-            shot = snapshot.screenshot(self.workspace, self.shots / f"turn-{turn:03d}.png")
-            elapsed = time.monotonic() - self._start
-            if first_playable is None and shot.loaded and not shot.console_errors:
-                first_playable = (turn, elapsed)
-            self._append_jsonl(
-                "turns.jsonl",
-                {
-                    "turn": turn,
-                    "end": end,
-                    "commit": sha,
-                    "elapsed_s": round(elapsed, 1),
-                    "cost_usd": self._cost(),
-                    "has_entry": shot.has_entry,
-                    "loaded": shot.loaded,
-                    "console_errors": shot.console_errors[:20],
-                },
-            )
+            playable = self._record_turn(turn, end)
+            if first_playable is None and playable:
+                first_playable = (turn, time.monotonic() - self._start)
 
             reason = self._stop_reason(end, nudges)
             if reason is not None:
@@ -165,6 +157,43 @@ class ContenderRun:
         )
         (self.root / "result.json").write_text(json.dumps(asdict(result), indent=2))
         return result
+
+    def _record_turn(self, turn: int, end: TurnEnd | Literal["seed"]) -> bool:
+        """Commits, builds and screenshots the workspace, and logs a turns.jsonl row.
+
+        Args:
+            turn: turn number; 0 is the seeded base game before any model work
+            end: how the turn ended, or "seed" for turn 0
+
+        Returns:
+            whether this turn's game is playable: it built, loaded, and logged
+            no console errors
+        """
+        message = f"turn {turn}" if turn else "seed: base game + assets"
+        sha = snapshot.commit(self.workspace, message)
+        built = snapshot.build(self.workspace)
+        shot = (
+            snapshot.screenshot(self.workspace / BUILD_DIR, self.shots / f"turn-{turn:03d}.png")
+            if built.ok
+            else snapshot.ShotResult(has_entry=False, loaded=False, console_errors=[])
+        )
+        self._append_jsonl(
+            "turns.jsonl",
+            {
+                "turn": turn,
+                "end": end,
+                "commit": sha,
+                # Turn 0 is recorded before the race clock starts.
+                "elapsed_s": round(time.monotonic() - self._start, 1) if turn else 0.0,
+                "cost_usd": self._cost(),
+                "build_ok": built.ok,
+                "build_log_tail": built.log_tail,
+                "has_entry": shot.has_entry,
+                "loaded": shot.loaded,
+                "console_errors": shot.console_errors[:20],
+            },
+        )
+        return built.ok and shot.loaded and not shot.console_errors
 
     def _stop_reason(self, end: TurnEnd, nudges: int) -> StopReason | None:
         """Applies the stop rules after a turn, in priority order.
