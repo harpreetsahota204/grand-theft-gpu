@@ -139,3 +139,11 @@ USDCraft ships OpenUSD for Isaac Sim, which three.js can't load. For each prop, 
 - The detailed pass/fail checks per tier (T1 steal a GPU → T4 living San Silicon) for scoring commits. The game prompt itself is locked (git tag `prompt-v1`).
 - The Claude side bills through your Claude login. For a true "list price" claim, give Nexus an Anthropic API key.
 - Rendering the race video from the logs.
+
+## License
+
+The harness code and docs are under the [Business Source License 1.1](LICENSE). Non-commercial use is free, including replicating, studying, benchmarking, running your own model races and publishing the results. Commercial use needs a separate license. The code converts to Apache 2.0 on 2040-01-22, or on the fourth anniversary of each version's release, whichever comes first.
+
+Why 2040-01-22? It's **4,811 days** after this repo went public, which is exactly how long fans waited between GTA V (Sept 17, 2013) and GTA 6 (Nov 19, 2026). The license's own four-year rule means the code actually opens up sooner, but the date stays as a tribute.
+
+The assets keep their own licenses: the GPU and cars are CC0, and the USDCraft props are Apache 2.0 (see `assets/props/NOTICE.md`). The base game is fetched from [its author's repo](https://github.com/kartik786-git/gta-clone-threejs) at run time and isn't redistributed here.

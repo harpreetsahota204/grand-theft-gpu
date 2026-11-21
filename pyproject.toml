@@ -3,6 +3,8 @@ name = "gta-build-off"
 version = "0.1.0"
 description = "Harness for the $100 GTA Build-Off: race two models in Claude Code, routed and metered by Nexus."
 requires-python = ">=3.12"
+license = "BUSL-1.1"
+license-files = ["LICENSE"]
 dependencies = [
     "playwright>=1.48",
 ]
