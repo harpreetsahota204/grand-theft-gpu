@@ -1,0 +1,4433 @@
+{
+  "assets": [
+    {
+      "bytes": 233612,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/ambulance",
+      "joints": [],
+      "kind": "vehicle",
+      "license": "CC0-1.0",
+      "name": "ambulance",
+      "parts": [
+        "body",
+        "door-left",
+        "door-right",
+        "wheel-back-left",
+        "wheel-back-right",
+        "wheel-front-left",
+        "wheel-front-right"
+      ],
+      "repo_path": "assets/cars/ambulance.glb",
+      "size_m": {
+        "x": 1.5,
+        "y": 1.8,
+        "z": 3.25
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "ambulance",
+        "emergency",
+        "vehicle"
+      ],
+      "triangles": 2804,
+      "url": "/assets/gt-gpu/cars/ambulance.glb"
+    },
+    {
+      "bytes": 14108,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/box",
+      "joints": [],
+      "kind": "vehicle-part",
+      "license": "CC0-1.0",
+      "name": "box",
+      "parts": [
+        "box"
+      ],
+      "repo_path": "assets/cars/box.glb",
+      "size_m": {
+        "x": 0.715,
+        "y": 0.715,
+        "z": 0.715
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "box",
+        "vehicle"
+      ],
+      "triangles": 124,
+      "url": "/assets/gt-gpu/cars/box.glb"
+    },
+    {
+      "bytes": 16696,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/cone",
+      "joints": [],
+      "kind": "vehicle-part",
+      "license": "CC0-1.0",
+      "name": "cone",
+      "parts": [
+        "cone"
+      ],
+      "repo_path": "assets/cars/cone.glb",
+      "size_m": {
+        "x": 0.476,
+        "y": 0.595,
+        "z": 0.476
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "cone",
+        "vehicle"
+      ],
+      "triangles": 172,
+      "url": "/assets/gt-gpu/cars/cone.glb"
+    },
+    {
+      "bytes": 16712,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/cone-flat",
+      "joints": [],
+      "kind": "vehicle-part",
+      "license": "CC0-1.0",
+      "name": "cone flat",
+      "parts": [
+        "cone-flat"
+      ],
+      "repo_path": "assets/cars/cone-flat.glb",
+      "size_m": {
+        "x": 0.476,
+        "y": 0.281,
+        "z": 0.476
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "cone",
+        "flat",
+        "vehicle"
+      ],
+      "triangles": 172,
+      "url": "/assets/gt-gpu/cars/cone-flat.glb"
+    },
+    {
+      "bytes": 4768,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/debris-bolt",
+      "joints": [],
+      "kind": "vehicle-part",
+      "license": "CC0-1.0",
+      "name": "debris bolt",
+      "parts": [
+        "debris-bolt"
+      ],
+      "repo_path": "assets/cars/debris-bolt.glb",
+      "size_m": {
+        "x": 0.173,
+        "y": 0.26,
+        "z": 0.2
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "bolt",
+        "debris",
+        "vehicle"
+      ],
+      "triangles": 36,
+      "url": "/assets/gt-gpu/cars/debris-bolt.glb"
+    },
+    {
+      "bytes": 11312,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/debris-bumper",
+      "joints": [],
+      "kind": "vehicle-part",
+      "license": "CC0-1.0",
+      "name": "debris bumper",
+      "parts": [
+        "debris-bumper"
+      ],
+      "repo_path": "assets/cars/debris-bumper.glb",
+      "size_m": {
+        "x": 1.3,
+        "y": 0.4,
+        "z": 0.45
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "bumper",
+        "debris",
+        "vehicle"
+      ],
+      "triangles": 116,
+      "url": "/assets/gt-gpu/cars/debris-bumper.glb"
+    },
+    {
+      "bytes": 7052,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/debris-door",
+      "joints": [],
+      "kind": "vehicle-part",
+      "license": "CC0-1.0",
+      "name": "debris door",
+      "parts": [
+        "debris-door"
+      ],
+      "repo_path": "assets/cars/debris-door.glb",
+      "size_m": {
+        "x": 0.188,
+        "y": 0.9,
+        "z": 0.8
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "debris",
+        "door",
+        "vehicle"
+      ],
+      "triangles": 68,
+      "url": "/assets/gt-gpu/cars/debris-door.glb"
+    },
+    {
+      "bytes": 7576,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/debris-door-window",
+      "joints": [],
+      "kind": "vehicle-part",
+      "license": "CC0-1.0",
+      "name": "debris door window",
+      "parts": [
+        "debris-door-window"
+      ],
+      "repo_path": "assets/cars/debris-door-window.glb",
+      "size_m": {
+        "x": 0.188,
+        "y": 0.9,
+        "z": 0.8
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "debris",
+        "door",
+        "vehicle",
+        "window"
+      ],
+      "triangles": 74,
+      "url": "/assets/gt-gpu/cars/debris-door-window.glb"
+    },
+    {
+      "bytes": 36896,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/debris-drivetrain",
+      "joints": [],
+      "kind": "vehicle-part",
+      "license": "CC0-1.0",
+      "name": "debris drivetrain",
+      "parts": [
+        "debris-drivetrain"
+      ],
+      "repo_path": "assets/cars/debris-drivetrain.glb",
+      "size_m": {
+        "x": 1.204,
+        "y": 0.296,
+        "z": 1.92
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "debris",
+        "drivetrain",
+        "vehicle"
+      ],
+      "triangles": 412,
+      "url": "/assets/gt-gpu/cars/debris-drivetrain.glb"
+    },
+    {
+      "bytes": 18740,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/debris-drivetrain-axle",
+      "joints": [],
+      "kind": "vehicle-part",
+      "license": "CC0-1.0",
+      "name": "debris drivetrain axle",
+      "parts": [
+        "debris-drivetrain-axle"
+      ],
+      "repo_path": "assets/cars/debris-drivetrain-axle.glb",
+      "size_m": {
+        "x": 1.204,
+        "y": 0.296,
+        "z": 0.348
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "axle",
+        "debris",
+        "drivetrain",
+        "vehicle"
+      ],
+      "triangles": 200,
+      "url": "/assets/gt-gpu/cars/debris-drivetrain-axle.glb"
+    },
+    {
+      "bytes": 4744,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/debris-nut",
+      "joints": [],
+      "kind": "vehicle-part",
+      "license": "CC0-1.0",
+      "name": "debris nut",
+      "parts": [
+        "debris-nut"
+      ],
+      "repo_path": "assets/cars/debris-nut.glb",
+      "size_m": {
+        "x": 0.173,
+        "y": 0.1,
+        "z": 0.2
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "debris",
+        "nut",
+        "vehicle"
+      ],
+      "triangles": 40,
+      "url": "/assets/gt-gpu/cars/debris-nut.glb"
+    },
+    {
+      "bytes": 5048,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/debris-plate-a",
+      "joints": [],
+      "kind": "vehicle-part",
+      "license": "CC0-1.0",
+      "name": "debris plate a",
+      "parts": [
+        "debris-plate-a"
+      ],
+      "repo_path": "assets/cars/debris-plate-a.glb",
+      "size_m": {
+        "x": 0.9,
+        "y": 0.1,
+        "z": 0.9
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "a",
+        "debris",
+        "plate",
+        "vehicle"
+      ],
+      "triangles": 40,
+      "url": "/assets/gt-gpu/cars/debris-plate-a.glb"
+    },
+    {
+      "bytes": 5380,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/debris-plate-b",
+      "joints": [],
+      "kind": "vehicle-part",
+      "license": "CC0-1.0",
+      "name": "debris plate b",
+      "parts": [
+        "debris-plate-b"
+      ],
+      "repo_path": "assets/cars/debris-plate-b.glb",
+      "size_m": {
+        "x": 0.9,
+        "y": 0.2,
+        "z": 0.9
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "b",
+        "debris",
+        "plate",
+        "vehicle"
+      ],
+      "triangles": 44,
+      "url": "/assets/gt-gpu/cars/debris-plate-b.glb"
+    },
+    {
+      "bytes": 4224,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/debris-plate-small-a",
+      "joints": [],
+      "kind": "vehicle-part",
+      "license": "CC0-1.0",
+      "name": "debris plate small a",
+      "parts": [
+        "debris-plate-small-a"
+      ],
+      "repo_path": "assets/cars/debris-plate-small-a.glb",
+      "size_m": {
+        "x": 0.45,
+        "y": 0.1,
+        "z": 0.45
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "a",
+        "debris",
+        "plate",
+        "small",
+        "vehicle"
+      ],
+      "triangles": 28,
+      "url": "/assets/gt-gpu/cars/debris-plate-small-a.glb"
+    },
+    {
+      "bytes": 5392,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/debris-plate-small-b",
+      "joints": [],
+      "kind": "vehicle-part",
+      "license": "CC0-1.0",
+      "name": "debris plate small b",
+      "parts": [
+        "debris-plate-small-b"
+      ],
+      "repo_path": "assets/cars/debris-plate-small-b.glb",
+      "size_m": {
+        "x": 0.45,
+        "y": 0.2,
+        "z": 0.45
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "b",
+        "debris",
+        "plate",
+        "small",
+        "vehicle"
+      ],
+      "triangles": 44,
+      "url": "/assets/gt-gpu/cars/debris-plate-small-b.glb"
+    },
+    {
+      "bytes": 5616,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/debris-spoiler-a",
+      "joints": [],
+      "kind": "vehicle-part",
+      "license": "CC0-1.0",
+      "name": "debris spoiler a",
+      "parts": [
+        "debris-spoiler-a"
+      ],
+      "repo_path": "assets/cars/debris-spoiler-a.glb",
+      "size_m": {
+        "x": 1.1,
+        "y": 0.3,
+        "z": 0.237
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "a",
+        "debris",
+        "spoiler",
+        "vehicle"
+      ],
+      "triangles": 48,
+      "url": "/assets/gt-gpu/cars/debris-spoiler-a.glb"
+    },
+    {
+      "bytes": 8596,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/debris-spoiler-b",
+      "joints": [],
+      "kind": "vehicle-part",
+      "license": "CC0-1.0",
+      "name": "debris spoiler b",
+      "parts": [
+        "debris-spoiler-b"
+      ],
+      "repo_path": "assets/cars/debris-spoiler-b.glb",
+      "size_m": {
+        "x": 1.0,
+        "y": 0.35,
+        "z": 0.337
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "b",
+        "debris",
+        "spoiler",
+        "vehicle"
+      ],
+      "triangles": 88,
+      "url": "/assets/gt-gpu/cars/debris-spoiler-b.glb"
+    },
+    {
+      "bytes": 26548,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/debris-tire",
+      "joints": [],
+      "kind": "vehicle-part",
+      "license": "CC0-1.0",
+      "name": "debris tire",
+      "parts": [
+        "debris-tire"
+      ],
+      "repo_path": "assets/cars/debris-tire.glb",
+      "size_m": {
+        "x": 0.35,
+        "y": 0.6,
+        "z": 0.6
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "debris",
+        "tire",
+        "vehicle"
+      ],
+      "triangles": 288,
+      "url": "/assets/gt-gpu/cars/debris-tire.glb"
+    },
+    {
+      "bytes": 240264,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/delivery",
+      "joints": [],
+      "kind": "vehicle",
+      "license": "CC0-1.0",
+      "name": "delivery",
+      "parts": [
+        "body",
+        "door",
+        "wheel-back-left",
+        "wheel-back-right",
+        "wheel-front-left",
+        "wheel-front-right"
+      ],
+      "repo_path": "assets/cars/delivery.glb",
+      "size_m": {
+        "x": 1.5,
+        "y": 1.65,
+        "z": 3.25
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "delivery",
+        "vehicle"
+      ],
+      "triangles": 2476,
+      "url": "/assets/gt-gpu/cars/delivery.glb"
+    },
+    {
+      "bytes": 214456,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/delivery-flat",
+      "joints": [],
+      "kind": "vehicle",
+      "license": "CC0-1.0",
+      "name": "delivery flat",
+      "parts": [
+        "body",
+        "wheel-back-left",
+        "wheel-back-right",
+        "wheel-front-left",
+        "wheel-front-right"
+      ],
+      "repo_path": "assets/cars/delivery-flat.glb",
+      "size_m": {
+        "x": 1.5,
+        "y": 1.35,
+        "z": 3.25
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "delivery",
+        "flat",
+        "vehicle"
+      ],
+      "triangles": 2574,
+      "url": "/assets/gt-gpu/cars/delivery-flat.glb"
+    },
+    {
+      "bytes": 232448,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/firetruck",
+      "joints": [],
+      "kind": "vehicle",
+      "license": "CC0-1.0",
+      "name": "firetruck",
+      "parts": [
+        "body",
+        "grill",
+        "wheel-back-left",
+        "wheel-back-right",
+        "wheel-front-left",
+        "wheel-front-right"
+      ],
+      "repo_path": "assets/cars/firetruck.glb",
+      "size_m": {
+        "x": 1.5,
+        "y": 1.7,
+        "z": 3.4
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "emergency",
+        "fire",
+        "firetruck",
+        "vehicle"
+      ],
+      "triangles": 2767,
+      "url": "/assets/gt-gpu/cars/firetruck.glb"
+    },
+    {
+      "bytes": 268224,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/garbage-truck",
+      "joints": [],
+      "kind": "vehicle",
+      "license": "CC0-1.0",
+      "name": "garbage truck",
+      "parts": [
+        "arm",
+        "body",
+        "trash",
+        "wheel-back-left",
+        "wheel-back-right",
+        "wheel-front-left",
+        "wheel-front-right"
+      ],
+      "repo_path": "assets/cars/garbage-truck.glb",
+      "size_m": {
+        "x": 1.6,
+        "y": 1.6,
+        "z": 3.45
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "garbage",
+        "truck",
+        "vehicle"
+      ],
+      "triangles": 3124,
+      "url": "/assets/gt-gpu/cars/garbage-truck.glb"
+    },
+    {
+      "bytes": 197804,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/hatchback-sports",
+      "joints": [],
+      "kind": "vehicle",
+      "license": "CC0-1.0",
+      "name": "hatchback sports",
+      "parts": [
+        "body",
+        "wheel-back-left",
+        "wheel-back-right",
+        "wheel-front-left",
+        "wheel-front-right"
+      ],
+      "repo_path": "assets/cars/hatchback-sports.glb",
+      "size_m": {
+        "x": 1.3,
+        "y": 1.1,
+        "z": 2.85
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "hatchback",
+        "sports",
+        "vehicle"
+      ],
+      "triangles": 2088,
+      "url": "/assets/gt-gpu/cars/hatchback-sports.glb"
+    },
+    {
+      "bytes": 251516,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/kart-oobi",
+      "joints": [],
+      "kind": "vehicle",
+      "license": "CC0-1.0",
+      "name": "kart oobi",
+      "parts": [
+        "character",
+        "kart-oobi",
+        "wheel-back-left",
+        "wheel-back-right",
+        "wheel-front-left",
+        "wheel-front-right"
+      ],
+      "repo_path": "assets/cars/kart-oobi.glb",
+      "size_m": {
+        "x": 0.974,
+        "y": 1.329,
+        "z": 1.428
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "kart",
+        "oobi",
+        "vehicle"
+      ],
+      "triangles": 2884,
+      "url": "/assets/gt-gpu/cars/kart-oobi.glb"
+    },
+    {
+      "bytes": 230984,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/kart-oodi",
+      "joints": [],
+      "kind": "vehicle",
+      "license": "CC0-1.0",
+      "name": "kart oodi",
+      "parts": [
+        "character",
+        "kart-oodi",
+        "wheel-back-left",
+        "wheel-back-right",
+        "wheel-front-left",
+        "wheel-front-right"
+      ],
+      "repo_path": "assets/cars/kart-oodi.glb",
+      "size_m": {
+        "x": 0.974,
+        "y": 1.329,
+        "z": 1.428
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "kart",
+        "oodi",
+        "vehicle"
+      ],
+      "triangles": 2726,
+      "url": "/assets/gt-gpu/cars/kart-oodi.glb"
+    },
+    {
+      "bytes": 233380,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/kart-ooli",
+      "joints": [],
+      "kind": "vehicle",
+      "license": "CC0-1.0",
+      "name": "kart ooli",
+      "parts": [
+        "character",
+        "kart-ooli",
+        "wheel-back-left",
+        "wheel-back-right",
+        "wheel-front-left",
+        "wheel-front-right"
+      ],
+      "repo_path": "assets/cars/kart-ooli.glb",
+      "size_m": {
+        "x": 0.974,
+        "y": 1.329,
+        "z": 1.428
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "kart",
+        "ooli",
+        "vehicle"
+      ],
+      "triangles": 2706,
+      "url": "/assets/gt-gpu/cars/kart-ooli.glb"
+    },
+    {
+      "bytes": 236196,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/kart-oopi",
+      "joints": [],
+      "kind": "vehicle",
+      "license": "CC0-1.0",
+      "name": "kart oopi",
+      "parts": [
+        "character",
+        "kart-oopi",
+        "wheel-back-left",
+        "wheel-back-right",
+        "wheel-front-left",
+        "wheel-front-right"
+      ],
+      "repo_path": "assets/cars/kart-oopi.glb",
+      "size_m": {
+        "x": 0.974,
+        "y": 1.329,
+        "z": 1.428
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "kart",
+        "oopi",
+        "vehicle"
+      ],
+      "triangles": 2726,
+      "url": "/assets/gt-gpu/cars/kart-oopi.glb"
+    },
+    {
+      "bytes": 240776,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/kart-oozi",
+      "joints": [],
+      "kind": "vehicle",
+      "license": "CC0-1.0",
+      "name": "kart oozi",
+      "parts": [
+        "character",
+        "kart-oozi",
+        "wheel-back-left",
+        "wheel-back-right",
+        "wheel-front-left",
+        "wheel-front-right"
+      ],
+      "repo_path": "assets/cars/kart-oozi.glb",
+      "size_m": {
+        "x": 0.974,
+        "y": 1.329,
+        "z": 1.428
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "kart",
+        "oozi",
+        "vehicle"
+      ],
+      "triangles": 2726,
+      "url": "/assets/gt-gpu/cars/kart-oozi.glb"
+    },
+    {
+      "bytes": 195336,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/police",
+      "joints": [],
+      "kind": "vehicle",
+      "license": "CC0-1.0",
+      "name": "police",
+      "parts": [
+        "body",
+        "grill",
+        "wheel-back-left",
+        "wheel-back-right",
+        "wheel-front-left",
+        "wheel-front-right"
+      ],
+      "repo_path": "assets/cars/police.glb",
+      "size_m": {
+        "x": 1.5,
+        "y": 1.3,
+        "z": 3.1
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "chase",
+        "cop",
+        "cops",
+        "police",
+        "pursuit",
+        "vehicle"
+      ],
+      "triangles": 2304,
+      "url": "/assets/gt-gpu/cars/police.glb"
+    },
+    {
+      "bytes": 167272,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/race",
+      "joints": [],
+      "kind": "vehicle",
+      "license": "CC0-1.0",
+      "name": "race",
+      "parts": [
+        "body",
+        "wheel-back-left",
+        "wheel-back-right",
+        "wheel-front-left",
+        "wheel-front-right"
+      ],
+      "repo_path": "assets/cars/race.glb",
+      "size_m": {
+        "x": 1.3,
+        "y": 0.733,
+        "z": 2.56
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "race",
+        "vehicle"
+      ],
+      "triangles": 1952,
+      "url": "/assets/gt-gpu/cars/race.glb"
+    },
+    {
+      "bytes": 173164,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/race-future",
+      "joints": [],
+      "kind": "vehicle",
+      "license": "CC0-1.0",
+      "name": "race future",
+      "parts": [
+        "body",
+        "wheel-back-left",
+        "wheel-back-right",
+        "wheel-front-left",
+        "wheel-front-right"
+      ],
+      "repo_path": "assets/cars/race-future.glb",
+      "size_m": {
+        "x": 1.2,
+        "y": 0.833,
+        "z": 2.66
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "future",
+        "race",
+        "vehicle"
+      ],
+      "triangles": 2068,
+      "url": "/assets/gt-gpu/cars/race-future.glb"
+    },
+    {
+      "bytes": 172216,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/sedan",
+      "joints": [],
+      "kind": "vehicle",
+      "license": "CC0-1.0",
+      "name": "sedan",
+      "parts": [
+        "body",
+        "wheel-back-left",
+        "wheel-back-right",
+        "wheel-front-left",
+        "wheel-front-right"
+      ],
+      "repo_path": "assets/cars/sedan.glb",
+      "size_m": {
+        "x": 1.5,
+        "y": 1.3,
+        "z": 2.55
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "car",
+        "robotaxi",
+        "sedan",
+        "vehicle"
+      ],
+      "triangles": 2032,
+      "url": "/assets/gt-gpu/cars/sedan.glb"
+    },
+    {
+      "bytes": 177676,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/sedan-sports",
+      "joints": [],
+      "kind": "vehicle",
+      "license": "CC0-1.0",
+      "name": "sedan sports",
+      "parts": [
+        "body",
+        "spoiler",
+        "wheel-back-left",
+        "wheel-back-right",
+        "wheel-front-left",
+        "wheel-front-right"
+      ],
+      "repo_path": "assets/cars/sedan-sports.glb",
+      "size_m": {
+        "x": 1.3,
+        "y": 1.1,
+        "z": 2.55
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "car",
+        "robotaxi",
+        "sedan",
+        "sports",
+        "vehicle"
+      ],
+      "triangles": 2088,
+      "url": "/assets/gt-gpu/cars/sedan-sports.glb"
+    },
+    {
+      "bytes": 207572,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/suv",
+      "joints": [],
+      "kind": "vehicle",
+      "license": "CC0-1.0",
+      "name": "suv",
+      "parts": [
+        "body",
+        "wheel-back",
+        "wheel-back-left",
+        "wheel-back-right",
+        "wheel-front-left",
+        "wheel-front-right"
+      ],
+      "repo_path": "assets/cars/suv.glb",
+      "size_m": {
+        "x": 1.5,
+        "y": 1.3,
+        "z": 2.7
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "car",
+        "robotaxi",
+        "suv",
+        "vehicle"
+      ],
+      "triangles": 2474,
+      "url": "/assets/gt-gpu/cars/suv.glb"
+    },
+    {
+      "bytes": 175908,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/suv-luxury",
+      "joints": [],
+      "kind": "vehicle",
+      "license": "CC0-1.0",
+      "name": "suv luxury",
+      "parts": [
+        "body",
+        "wheel-back-left",
+        "wheel-back-right",
+        "wheel-front-left",
+        "wheel-front-right"
+      ],
+      "repo_path": "assets/cars/suv-luxury.glb",
+      "size_m": {
+        "x": 1.5,
+        "y": 1.3,
+        "z": 2.85
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "car",
+        "luxury",
+        "robotaxi",
+        "suv",
+        "vehicle"
+      ],
+      "triangles": 2086,
+      "url": "/assets/gt-gpu/cars/suv-luxury.glb"
+    },
+    {
+      "bytes": 175608,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/taxi",
+      "joints": [],
+      "kind": "vehicle",
+      "license": "CC0-1.0",
+      "name": "taxi",
+      "parts": [
+        "body",
+        "wheel-back-left",
+        "wheel-back-right",
+        "wheel-front-left",
+        "wheel-front-right"
+      ],
+      "repo_path": "assets/cars/taxi.glb",
+      "size_m": {
+        "x": 1.5,
+        "y": 1.5,
+        "z": 2.75
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "cab",
+        "robotaxi",
+        "taxi",
+        "vehicle"
+      ],
+      "triangles": 2072,
+      "url": "/assets/gt-gpu/cars/taxi.glb"
+    },
+    {
+      "bytes": 175960,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/tractor",
+      "joints": [],
+      "kind": "vehicle",
+      "license": "CC0-1.0",
+      "name": "tractor",
+      "parts": [
+        "body",
+        "wheel-back-left",
+        "wheel-back-right",
+        "wheel-front-left",
+        "wheel-front-right"
+      ],
+      "repo_path": "assets/cars/tractor.glb",
+      "size_m": {
+        "x": 1.342,
+        "y": 1.602,
+        "z": 2.202
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "tractor",
+        "vehicle"
+      ],
+      "triangles": 2044,
+      "url": "/assets/gt-gpu/cars/tractor.glb"
+    },
+    {
+      "bytes": 196308,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/tractor-police",
+      "joints": [],
+      "kind": "vehicle",
+      "license": "CC0-1.0",
+      "name": "tractor police",
+      "parts": [
+        "body",
+        "grill",
+        "wheel-back-left",
+        "wheel-back-right",
+        "wheel-front-left",
+        "wheel-front-right"
+      ],
+      "repo_path": "assets/cars/tractor-police.glb",
+      "size_m": {
+        "x": 1.342,
+        "y": 1.702,
+        "z": 2.302
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "chase",
+        "cop",
+        "cops",
+        "police",
+        "pursuit",
+        "tractor",
+        "vehicle"
+      ],
+      "triangles": 2278,
+      "url": "/assets/gt-gpu/cars/tractor-police.glb"
+    },
+    {
+      "bytes": 222584,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/tractor-shovel",
+      "joints": [],
+      "kind": "vehicle",
+      "license": "CC0-1.0",
+      "name": "tractor shovel",
+      "parts": [
+        "body",
+        "shovel",
+        "wheel-back-left",
+        "wheel-back-right",
+        "wheel-front-left",
+        "wheel-front-right"
+      ],
+      "repo_path": "assets/cars/tractor-shovel.glb",
+      "size_m": {
+        "x": 1.661,
+        "y": 1.512,
+        "z": 2.47
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "shovel",
+        "tractor",
+        "vehicle"
+      ],
+      "triangles": 2646,
+      "url": "/assets/gt-gpu/cars/tractor-shovel.glb"
+    },
+    {
+      "bytes": 176360,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/truck",
+      "joints": [],
+      "kind": "vehicle",
+      "license": "CC0-1.0",
+      "name": "truck",
+      "parts": [
+        "body",
+        "wheel-back-left",
+        "wheel-back-right",
+        "wheel-front-left",
+        "wheel-front-right"
+      ],
+      "repo_path": "assets/cars/truck.glb",
+      "size_m": {
+        "x": 1.5,
+        "y": 1.3,
+        "z": 2.95
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "truck",
+        "vehicle"
+      ],
+      "triangles": 2082,
+      "url": "/assets/gt-gpu/cars/truck.glb"
+    },
+    {
+      "bytes": 207424,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/truck-flat",
+      "joints": [],
+      "kind": "vehicle",
+      "license": "CC0-1.0",
+      "name": "truck flat",
+      "parts": [
+        "body",
+        "wheel-back-left",
+        "wheel-back-right",
+        "wheel-front-left",
+        "wheel-front-right"
+      ],
+      "repo_path": "assets/cars/truck-flat.glb",
+      "size_m": {
+        "x": 1.5,
+        "y": 1.3,
+        "z": 2.745
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "flat",
+        "truck",
+        "vehicle"
+      ],
+      "triangles": 2488,
+      "url": "/assets/gt-gpu/cars/truck-flat.glb"
+    },
+    {
+      "bytes": 175664,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/van",
+      "joints": [],
+      "kind": "vehicle",
+      "license": "CC0-1.0",
+      "name": "van",
+      "parts": [
+        "body",
+        "wheel-back-left",
+        "wheel-back-right",
+        "wheel-front-left",
+        "wheel-front-right"
+      ],
+      "repo_path": "assets/cars/van.glb",
+      "size_m": {
+        "x": 1.5,
+        "y": 1.35,
+        "z": 2.75
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "van",
+        "vehicle"
+      ],
+      "triangles": 2082,
+      "url": "/assets/gt-gpu/cars/van.glb"
+    },
+    {
+      "bytes": 29116,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/wheel-dark",
+      "joints": [],
+      "kind": "vehicle-part",
+      "license": "CC0-1.0",
+      "name": "wheel dark",
+      "parts": [
+        "wheel-dark"
+      ],
+      "repo_path": "assets/cars/wheel-dark.glb",
+      "size_m": {
+        "x": 0.4,
+        "y": 0.6,
+        "z": 0.6
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "dark",
+        "vehicle",
+        "wheel"
+      ],
+      "triangles": 332,
+      "url": "/assets/gt-gpu/cars/wheel-dark.glb"
+    },
+    {
+      "bytes": 26820,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/wheel-default",
+      "joints": [],
+      "kind": "vehicle-part",
+      "license": "CC0-1.0",
+      "name": "wheel default",
+      "parts": [
+        "wheel-default"
+      ],
+      "repo_path": "assets/cars/wheel-default.glb",
+      "size_m": {
+        "x": 0.4,
+        "y": 0.6,
+        "z": 0.6
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "default",
+        "vehicle",
+        "wheel"
+      ],
+      "triangles": 332,
+      "url": "/assets/gt-gpu/cars/wheel-default.glb"
+    },
+    {
+      "bytes": 29120,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/wheel-racing",
+      "joints": [],
+      "kind": "vehicle-part",
+      "license": "CC0-1.0",
+      "name": "wheel racing",
+      "parts": [
+        "wheel-racing"
+      ],
+      "repo_path": "assets/cars/wheel-racing.glb",
+      "size_m": {
+        "x": 0.4,
+        "y": 0.6,
+        "z": 0.6
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "racing",
+        "vehicle",
+        "wheel"
+      ],
+      "triangles": 332,
+      "url": "/assets/gt-gpu/cars/wheel-racing.glb"
+    },
+    {
+      "bytes": 36628,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/wheel-tractor-back",
+      "joints": [],
+      "kind": "vehicle-part",
+      "license": "CC0-1.0",
+      "name": "wheel tractor back",
+      "parts": [
+        "wheel-tractor-back"
+      ],
+      "repo_path": "assets/cars/wheel-tractor-back.glb",
+      "size_m": {
+        "x": 0.538,
+        "y": 0.875,
+        "z": 0.875
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "back",
+        "tractor",
+        "vehicle",
+        "wheel"
+      ],
+      "triangles": 428,
+      "url": "/assets/gt-gpu/cars/wheel-tractor-back.glb"
+    },
+    {
+      "bytes": 36644,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/wheel-tractor-dark-back",
+      "joints": [],
+      "kind": "vehicle-part",
+      "license": "CC0-1.0",
+      "name": "wheel tractor dark back",
+      "parts": [
+        "wheel-tractor-dark-back"
+      ],
+      "repo_path": "assets/cars/wheel-tractor-dark-back.glb",
+      "size_m": {
+        "x": 0.538,
+        "y": 0.875,
+        "z": 0.875
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "back",
+        "dark",
+        "tractor",
+        "vehicle",
+        "wheel"
+      ],
+      "triangles": 428,
+      "url": "/assets/gt-gpu/cars/wheel-tractor-dark-back.glb"
+    },
+    {
+      "bytes": 29156,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/wheel-tractor-dark-front",
+      "joints": [],
+      "kind": "vehicle-part",
+      "license": "CC0-1.0",
+      "name": "wheel tractor dark front",
+      "parts": [
+        "wheel-tractor-dark-front"
+      ],
+      "repo_path": "assets/cars/wheel-tractor-dark-front.glb",
+      "size_m": {
+        "x": 0.369,
+        "y": 0.539,
+        "z": 0.539
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "dark",
+        "front",
+        "tractor",
+        "vehicle",
+        "wheel"
+      ],
+      "triangles": 332,
+      "url": "/assets/gt-gpu/cars/wheel-tractor-dark-front.glb"
+    },
+    {
+      "bytes": 29140,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/wheel-tractor-front",
+      "joints": [],
+      "kind": "vehicle-part",
+      "license": "CC0-1.0",
+      "name": "wheel tractor front",
+      "parts": [
+        "wheel-tractor-front"
+      ],
+      "repo_path": "assets/cars/wheel-tractor-front.glb",
+      "size_m": {
+        "x": 0.369,
+        "y": 0.539,
+        "z": 0.539
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "front",
+        "tractor",
+        "vehicle",
+        "wheel"
+      ],
+      "triangles": 332,
+      "url": "/assets/gt-gpu/cars/wheel-tractor-front.glb"
+    },
+    {
+      "bytes": 34304,
+      "category": "vehicle",
+      "format": "glb",
+      "id": "cars/wheel-truck",
+      "joints": [],
+      "kind": "vehicle-part",
+      "license": "CC0-1.0",
+      "name": "wheel truck",
+      "parts": [
+        "wheel-truck"
+      ],
+      "repo_path": "assets/cars/wheel-truck.glb",
+      "size_m": {
+        "x": 0.35,
+        "y": 0.6,
+        "z": 0.6
+      },
+      "source": "Kenney Car Kit 3.1",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "tags": [
+        "truck",
+        "vehicle",
+        "wheel"
+      ],
+      "triangles": 428,
+      "url": "/assets/gt-gpu/cars/wheel-truck.glb"
+    },
+    {
+      "bytes": 891448,
+      "category": "loot",
+      "format": "glb",
+      "id": "gpu/graphics-card-light",
+      "joints": [],
+      "kind": "loot",
+      "license": "CC0-1.0",
+      "name": "graphics card light",
+      "parts": [
+        "graphics-card_body",
+        "graphics-card_fan_1_rotor",
+        "graphics-card_fan_2_rotor",
+        "graphics-card_fan_3_rotor",
+        "graphics-card_fins",
+        "graphics-card_light_strip_rgb"
+      ],
+      "repo_path": "assets/gpu/graphics-card-light.glb",
+      "size_m": {
+        "x": 0.309,
+        "y": 0.051,
+        "z": 0.135
+      },
+      "source": "Grab3D graphics card",
+      "source_url": "https://grab3d.com/models/electronics/graphics-card/",
+      "tags": [
+        "card",
+        "gpu",
+        "graphics",
+        "h100",
+        "heist-target",
+        "light",
+        "loot"
+      ],
+      "triangles": 12644,
+      "url": "/assets/gt-gpu/gpu/graphics-card-light.glb"
+    },
+    {
+      "bytes": 132364,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/anti-theft-security-gate",
+      "joints": [],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Anti-Theft Security Gate",
+      "parts": [
+        "pedestal"
+      ],
+      "repo_path": "assets/props/anti-theft-security-gate.glb",
+      "size_m": {
+        "x": 0.5,
+        "y": 1.5,
+        "z": 0.25
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "anti",
+        "commercial",
+        "entrance",
+        "gate",
+        "hospitality",
+        "office",
+        "prop",
+        "security",
+        "theft"
+      ],
+      "triangles": 6364,
+      "url": "/assets/gt-gpu/props/anti-theft-security-gate.glb"
+    },
+    {
+      "bytes": 122956,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/atm-machine",
+      "joints": [
+        {
+          "axis": "X",
+          "child_link": "service_door",
+          "lower": 0.0,
+          "name": "service_door_hinge",
+          "parent_link": "cabinet",
+          "type": "revolute",
+          "upper": 100.0
+        },
+        {
+          "axis": "X",
+          "child_link": "key_1",
+          "lower": 0.0,
+          "name": "key_press_1",
+          "parent_link": "cabinet",
+          "type": "prismatic",
+          "upper": 0.003000000026077032
+        },
+        {
+          "axis": "X",
+          "child_link": "key_2",
+          "lower": 0.0,
+          "name": "key_press_2",
+          "parent_link": "cabinet",
+          "type": "prismatic",
+          "upper": 0.003000000026077032
+        },
+        {
+          "axis": "X",
+          "child_link": "key_3",
+          "lower": 0.0,
+          "name": "key_press_3",
+          "parent_link": "cabinet",
+          "type": "prismatic",
+          "upper": 0.003000000026077032
+        },
+        {
+          "axis": "X",
+          "child_link": "key_4",
+          "lower": 0.0,
+          "name": "key_press_4",
+          "parent_link": "cabinet",
+          "type": "prismatic",
+          "upper": 0.003000000026077032
+        },
+        {
+          "axis": "X",
+          "child_link": "key_5",
+          "lower": 0.0,
+          "name": "key_press_5",
+          "parent_link": "cabinet",
+          "type": "prismatic",
+          "upper": 0.003000000026077032
+        },
+        {
+          "axis": "X",
+          "child_link": "key_6",
+          "lower": 0.0,
+          "name": "key_press_6",
+          "parent_link": "cabinet",
+          "type": "prismatic",
+          "upper": 0.003000000026077032
+        },
+        {
+          "axis": "X",
+          "child_link": "key_7",
+          "lower": 0.0,
+          "name": "key_press_7",
+          "parent_link": "cabinet",
+          "type": "prismatic",
+          "upper": 0.003000000026077032
+        },
+        {
+          "axis": "X",
+          "child_link": "key_8",
+          "lower": 0.0,
+          "name": "key_press_8",
+          "parent_link": "cabinet",
+          "type": "prismatic",
+          "upper": 0.003000000026077032
+        }
+      ],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "ATM Machine",
+      "parts": [
+        "cabinet",
+        "key_1",
+        "key_2",
+        "key_3",
+        "key_4",
+        "key_5",
+        "key_6",
+        "key_7",
+        "key_8",
+        "service_door"
+      ],
+      "repo_path": "assets/props/atm-machine.glb",
+      "size_m": {
+        "x": 0.55,
+        "y": 1.4,
+        "z": 0.636
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "articulated",
+        "atm",
+        "cash",
+        "commercial",
+        "heist-target",
+        "hospitality",
+        "machine",
+        "money",
+        "office",
+        "prop"
+      ],
+      "triangles": 1752,
+      "url": "/assets/gt-gpu/props/atm-machine.glb"
+    },
+    {
+      "bytes": 222008,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/autonomous-mobile-robot",
+      "joints": [
+        {
+          "axis": "X",
+          "child_link": "lift_plate",
+          "lower": 0.0,
+          "name": "lift_slide",
+          "parent_link": "chassis",
+          "type": "prismatic",
+          "upper": 0.05999999865889549
+        },
+        {
+          "axis": "X",
+          "child_link": "drive_wheel_left",
+          "lower": -Infinity,
+          "name": "drive_axle_left",
+          "parent_link": "chassis",
+          "type": "revolute",
+          "upper": Infinity
+        },
+        {
+          "axis": "X",
+          "child_link": "drive_wheel_right",
+          "lower": -Infinity,
+          "name": "drive_axle_right",
+          "parent_link": "chassis",
+          "type": "revolute",
+          "upper": Infinity
+        },
+        {
+          "axis": "X",
+          "child_link": "caster_fork_front_left",
+          "lower": -Infinity,
+          "name": "caster_swivel_front_left",
+          "parent_link": "chassis",
+          "type": "revolute",
+          "upper": Infinity
+        },
+        {
+          "axis": "X",
+          "child_link": "caster_wheel_front_left",
+          "lower": -Infinity,
+          "name": "caster_axle_front_left",
+          "parent_link": "caster_fork_front_left",
+          "type": "revolute",
+          "upper": Infinity
+        },
+        {
+          "axis": "X",
+          "child_link": "caster_fork_front_right",
+          "lower": -Infinity,
+          "name": "caster_swivel_front_right",
+          "parent_link": "chassis",
+          "type": "revolute",
+          "upper": Infinity
+        },
+        {
+          "axis": "X",
+          "child_link": "caster_wheel_front_right",
+          "lower": -Infinity,
+          "name": "caster_axle_front_right",
+          "parent_link": "caster_fork_front_right",
+          "type": "revolute",
+          "upper": Infinity
+        },
+        {
+          "axis": "X",
+          "child_link": "caster_fork_rear_left",
+          "lower": -Infinity,
+          "name": "caster_swivel_rear_left",
+          "parent_link": "chassis",
+          "type": "revolute",
+          "upper": Infinity
+        },
+        {
+          "axis": "X",
+          "child_link": "caster_wheel_rear_left",
+          "lower": -Infinity,
+          "name": "caster_axle_rear_left",
+          "parent_link": "caster_fork_rear_left",
+          "type": "revolute",
+          "upper": Infinity
+        },
+        {
+          "axis": "X",
+          "child_link": "caster_fork_rear_right",
+          "lower": -Infinity,
+          "name": "caster_swivel_rear_right",
+          "parent_link": "chassis",
+          "type": "revolute",
+          "upper": Infinity
+        },
+        {
+          "axis": "X",
+          "child_link": "caster_wheel_rear_right",
+          "lower": -Infinity,
+          "name": "caster_axle_rear_right",
+          "parent_link": "caster_fork_rear_right",
+          "type": "revolute",
+          "upper": Infinity
+        }
+      ],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Autonomous Mobile Robot",
+      "parts": [
+        "caster_fork_front_left",
+        "caster_fork_front_right",
+        "caster_fork_rear_left",
+        "caster_fork_rear_right",
+        "caster_wheel_front_left",
+        "caster_wheel_front_right",
+        "caster_wheel_rear_left",
+        "caster_wheel_rear_right",
+        "chassis",
+        "drive_wheel_left",
+        "drive_wheel_right",
+        "lift_plate"
+      ],
+      "repo_path": "assets/props/autonomous-mobile-robot.glb",
+      "size_m": {
+        "x": 0.9,
+        "y": 0.305,
+        "z": 0.6
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "articulated",
+        "autonomous",
+        "construction",
+        "delivery",
+        "energy",
+        "industrial",
+        "mobile",
+        "prop",
+        "robot",
+        "warehouse"
+      ],
+      "triangles": 7128,
+      "url": "/assets/gt-gpu/props/autonomous-mobile-robot.glb"
+    },
+    {
+      "bytes": 242284,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/battery-rack",
+      "joints": [],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Battery Rack",
+      "parts": [
+        "busbar_l1",
+        "busbar_l2",
+        "busbar_u1",
+        "busbar_u2",
+        "cell_l1",
+        "cell_l2",
+        "cell_l3",
+        "cell_u1",
+        "cell_u2",
+        "cell_u3",
+        "frame"
+      ],
+      "repo_path": "assets/props/battery-rack.glb",
+      "size_m": {
+        "x": 1.504,
+        "y": 0.8,
+        "z": 0.404
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "battery",
+        "construction",
+        "datacenter",
+        "energy",
+        "industrial",
+        "prop",
+        "rack",
+        "storage",
+        "warehouse"
+      ],
+      "triangles": 6300,
+      "url": "/assets/gt-gpu/props/battery-rack.glb"
+    },
+    {
+      "bytes": 721020,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/bicycle",
+      "joints": [
+        {
+          "axis": "X",
+          "child_link": "steering",
+          "lower": -45.0,
+          "name": "head_tube_steer",
+          "parent_link": "frame",
+          "type": "revolute",
+          "upper": 45.0
+        },
+        {
+          "axis": "X",
+          "child_link": "front_wheel",
+          "lower": -Infinity,
+          "name": "front_wheel_spin",
+          "parent_link": "steering",
+          "type": "revolute",
+          "upper": Infinity
+        },
+        {
+          "axis": "X",
+          "child_link": "rear_wheel",
+          "lower": -Infinity,
+          "name": "rear_wheel_spin",
+          "parent_link": "frame",
+          "type": "revolute",
+          "upper": Infinity
+        },
+        {
+          "axis": "X",
+          "child_link": "crank",
+          "lower": -Infinity,
+          "name": "crank_spin",
+          "parent_link": "frame",
+          "type": "revolute",
+          "upper": Infinity
+        },
+        {
+          "axis": "X",
+          "child_link": "pedal_left",
+          "lower": -Infinity,
+          "name": "pedal_spin_left",
+          "parent_link": "crank",
+          "type": "revolute",
+          "upper": Infinity
+        },
+        {
+          "axis": "X",
+          "child_link": "pedal_right",
+          "lower": -Infinity,
+          "name": "pedal_spin_right",
+          "parent_link": "crank",
+          "type": "revolute",
+          "upper": Infinity
+        },
+        {
+          "axis": "X",
+          "child_link": "brake_lever",
+          "lower": 0.0,
+          "name": "brake_lever_hinge",
+          "parent_link": "steering",
+          "type": "revolute",
+          "upper": 20.0
+        }
+      ],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Bicycle",
+      "parts": [
+        "brake_lever",
+        "crank",
+        "frame",
+        "front_wheel",
+        "pedal_left",
+        "pedal_right",
+        "rear_wheel",
+        "steering"
+      ],
+      "repo_path": "assets/props/bicycle.glb",
+      "size_m": {
+        "x": 1.75,
+        "y": 1.103,
+        "z": 0.599
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "articulated",
+        "bicycle",
+        "bike",
+        "garden",
+        "medical",
+        "outdoor",
+        "prop",
+        "rideable",
+        "sports",
+        "transport"
+      ],
+      "triangles": 30884,
+      "url": "/assets/gt-gpu/props/bicycle.glb"
+    },
+    {
+      "bytes": 62884,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/bike-share-dock",
+      "joints": [
+        {
+          "axis": "X",
+          "child_link": "locking_jaw",
+          "lower": 0.0,
+          "name": "jaw_hinge",
+          "parent_link": "dock_post",
+          "type": "revolute",
+          "upper": 70.0
+        }
+      ],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Bike Share Dock",
+      "parts": [
+        "dock_post",
+        "locking_jaw"
+      ],
+      "repo_path": "assets/props/bike-share-dock.glb",
+      "size_m": {
+        "x": 0.6,
+        "y": 1.1,
+        "z": 0.447
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "articulated",
+        "bike",
+        "dock",
+        "garden",
+        "medical",
+        "outdoor",
+        "prop",
+        "share",
+        "sports",
+        "transport"
+      ],
+      "triangles": 1732,
+      "url": "/assets/gt-gpu/props/bike-share-dock.glb"
+    },
+    {
+      "bytes": 105876,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/boom-barrier-gate",
+      "joints": [
+        {
+          "axis": "X",
+          "child_link": "boom",
+          "lower": 0.0,
+          "name": "boom_lift",
+          "parent_link": "cabinet",
+          "type": "revolute",
+          "upper": 90.0
+        }
+      ],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Boom Barrier Gate",
+      "parts": [
+        "boom",
+        "cabinet"
+      ],
+      "repo_path": "assets/props/boom-barrier-gate.glb",
+      "size_m": {
+        "x": 4.21,
+        "y": 1.003,
+        "z": 0.349
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "articulated",
+        "barrier",
+        "boom",
+        "entrance",
+        "garden",
+        "gate",
+        "medical",
+        "outdoor",
+        "prop",
+        "roadblock",
+        "security",
+        "sports",
+        "street",
+        "transport"
+      ],
+      "triangles": 3392,
+      "url": "/assets/gt-gpu/props/boom-barrier-gate.glb"
+    },
+    {
+      "bytes": 114696,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/bus-stop-sign",
+      "joints": [],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Bus Stop Sign",
+      "parts": [
+        "post",
+        "route_panel",
+        "sign_plate"
+      ],
+      "repo_path": "assets/props/bus-stop-sign.glb",
+      "size_m": {
+        "x": 0.4,
+        "y": 2.6,
+        "z": 0.18
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "bus",
+        "garden",
+        "medical",
+        "outdoor",
+        "prop",
+        "sign",
+        "sports",
+        "stop",
+        "transport"
+      ],
+      "triangles": 3236,
+      "url": "/assets/gt-gpu/props/bus-stop-sign.glb"
+    },
+    {
+      "bytes": 167348,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/computer-desk",
+      "joints": [],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Computer Desk",
+      "parts": [
+        "desktop",
+        "frame",
+        "monitor_riser"
+      ],
+      "repo_path": "assets/props/computer-desk.glb",
+      "size_m": {
+        "x": 1.5,
+        "y": 0.87,
+        "z": 1.2
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "bedroom",
+        "computer",
+        "desk",
+        "electronics",
+        "living",
+        "prop",
+        "toys"
+      ],
+      "triangles": 5336,
+      "url": "/assets/gt-gpu/props/computer-desk.glb"
+    },
+    {
+      "bytes": 93308,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/computer-monitor",
+      "joints": [
+        {
+          "axis": "X",
+          "child_link": "panel",
+          "lower": -5.0,
+          "name": "panel_tilt",
+          "parent_link": "stand",
+          "type": "revolute",
+          "upper": 20.0
+        },
+        {
+          "axis": "X",
+          "child_link": "power_button",
+          "lower": 0.0,
+          "name": "power_button_travel",
+          "parent_link": "panel",
+          "type": "prismatic",
+          "upper": 0.0020000000949949026
+        }
+      ],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Computer Monitor",
+      "parts": [
+        "panel",
+        "power_button",
+        "stand"
+      ],
+      "repo_path": "assets/props/computer-monitor.glb",
+      "size_m": {
+        "x": 0.61,
+        "y": 0.513,
+        "z": 0.2
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "articulated",
+        "bedroom",
+        "computer",
+        "electronics",
+        "living",
+        "monitor",
+        "prop",
+        "toys"
+      ],
+      "triangles": 3976,
+      "url": "/assets/gt-gpu/props/computer-monitor.glb"
+    },
+    {
+      "bytes": 14688,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/corrugated-parcel-box",
+      "joints": [
+        {
+          "axis": "X",
+          "child_link": "flap_front",
+          "lower": 0.0,
+          "name": "carton_to_flap_front",
+          "parent_link": "carton_body",
+          "type": "revolute",
+          "upper": 180.0
+        },
+        {
+          "axis": "X",
+          "child_link": "flap_back",
+          "lower": 0.0,
+          "name": "carton_to_flap_back",
+          "parent_link": "carton_body",
+          "type": "revolute",
+          "upper": 180.0
+        },
+        {
+          "axis": "X",
+          "child_link": "flap_left",
+          "lower": 0.0,
+          "name": "carton_to_flap_left",
+          "parent_link": "carton_body",
+          "type": "revolute",
+          "upper": 180.0
+        },
+        {
+          "axis": "X",
+          "child_link": "flap_right",
+          "lower": 0.0,
+          "name": "carton_to_flap_right",
+          "parent_link": "carton_body",
+          "type": "revolute",
+          "upper": 180.0
+        }
+      ],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Corrugated Parcel Box",
+      "parts": [
+        "carton_body",
+        "flap_back",
+        "flap_front",
+        "flap_left",
+        "flap_right"
+      ],
+      "repo_path": "assets/props/corrugated-parcel-box.glb",
+      "size_m": {
+        "x": 0.3,
+        "y": 0.12,
+        "z": 0.22
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "articulated",
+        "box",
+        "construction",
+        "corrugated",
+        "energy",
+        "entrance",
+        "industrial",
+        "parcel",
+        "prop",
+        "security",
+        "warehouse"
+      ],
+      "triangles": 132,
+      "url": "/assets/gt-gpu/props/corrugated-parcel-box.glb"
+    },
+    {
+      "bytes": 273528,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/desktop-computer-tower",
+      "joints": [
+        {
+          "axis": "X",
+          "child_link": "power_button",
+          "lower": 0.0,
+          "name": "chassis_to_button",
+          "parent_link": "case_body",
+          "type": "prismatic",
+          "upper": 0.003000000026077032
+        }
+      ],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Desktop Computer Tower",
+      "parts": [
+        "case_body",
+        "feet",
+        "glass_window",
+        "power_button"
+      ],
+      "repo_path": "assets/props/desktop-computer-tower.glb",
+      "size_m": {
+        "x": 0.2,
+        "y": 0.455,
+        "z": 0.42
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "articulated",
+        "bedroom",
+        "computer",
+        "desktop",
+        "electronics",
+        "living",
+        "loot",
+        "prop",
+        "tower",
+        "toys"
+      ],
+      "triangles": 12288,
+      "url": "/assets/gt-gpu/props/desktop-computer-tower.glb"
+    },
+    {
+      "bytes": 557404,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/electric-scooter",
+      "joints": [
+        {
+          "axis": "X",
+          "child_link": "stem",
+          "lower": 0.0,
+          "name": "stem_fold",
+          "parent_link": "deck",
+          "type": "revolute",
+          "upper": 90.0
+        },
+        {
+          "axis": "X",
+          "child_link": "latch_lever",
+          "lower": 0.0,
+          "name": "latch_hinge",
+          "parent_link": "stem",
+          "type": "revolute",
+          "upper": 77.34930419921875
+        },
+        {
+          "axis": "X",
+          "child_link": "kickstand",
+          "lower": 0.0,
+          "name": "kickstand_pivot",
+          "parent_link": "deck",
+          "type": "revolute",
+          "upper": 69.99825286865234
+        },
+        {
+          "axis": "X",
+          "child_link": "front_wheel",
+          "lower": -Infinity,
+          "name": "front_wheel_spin",
+          "parent_link": "deck",
+          "type": "revolute",
+          "upper": Infinity
+        },
+        {
+          "axis": "X",
+          "child_link": "rear_wheel",
+          "lower": -Infinity,
+          "name": "rear_wheel_spin",
+          "parent_link": "deck",
+          "type": "revolute",
+          "upper": Infinity
+        }
+      ],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Electric Scooter",
+      "parts": [
+        "deck",
+        "front_wheel",
+        "kickstand",
+        "latch_lever",
+        "rear_wheel",
+        "stem"
+      ],
+      "repo_path": "assets/props/electric-scooter.glb",
+      "size_m": {
+        "x": 0.452,
+        "y": 1.2,
+        "z": 1.1
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "articulated",
+        "electric",
+        "garden",
+        "medical",
+        "micromobility",
+        "outdoor",
+        "prop",
+        "rideable",
+        "scooter",
+        "sports",
+        "transport"
+      ],
+      "triangles": 21348,
+      "url": "/assets/gt-gpu/props/electric-scooter.glb"
+    },
+    {
+      "bytes": 309616,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/ev-charging-station",
+      "joints": [
+        {
+          "axis": "X",
+          "child_link": "access_door",
+          "lower": 0.0,
+          "name": "access_door_hinge",
+          "parent_link": "housing",
+          "type": "revolute",
+          "upper": 100.0
+        },
+        {
+          "axis": "X",
+          "child_link": "holster_cover",
+          "lower": 0.0,
+          "name": "holster_cover_hinge",
+          "parent_link": "housing",
+          "type": "revolute",
+          "upper": 90.0
+        }
+      ],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "EV Charging Station",
+      "parts": [
+        "access_door",
+        "base_plate",
+        "holster_cover",
+        "housing",
+        "plug",
+        "post"
+      ],
+      "repo_path": "assets/props/ev-charging-station.glb",
+      "size_m": {
+        "x": 0.46,
+        "y": 1.5,
+        "z": 0.46
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "articulated",
+        "charging",
+        "construction",
+        "energy",
+        "ev",
+        "industrial",
+        "prop",
+        "station",
+        "warehouse"
+      ],
+      "triangles": 10823,
+      "url": "/assets/gt-gpu/props/ev-charging-station.glb"
+    },
+    {
+      "bytes": 228004,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/fire-hydrant",
+      "joints": [
+        {
+          "axis": "X",
+          "child_link": "operating_nut",
+          "lower": -Infinity,
+          "name": "operating_nut_screw",
+          "parent_link": "hydrant_body",
+          "type": "revolute",
+          "upper": Infinity
+        },
+        {
+          "axis": "X",
+          "child_link": "nozzle_cap_pivot",
+          "lower": 0.0,
+          "name": "cap_pivot_hinge",
+          "parent_link": "hydrant_body",
+          "type": "revolute",
+          "upper": 90.0
+        },
+        {
+          "axis": "X",
+          "child_link": "left_nozzle_cap",
+          "lower": -Infinity,
+          "name": "left_cap_screw",
+          "parent_link": "hydrant_body",
+          "type": "revolute",
+          "upper": Infinity
+        },
+        {
+          "axis": "X",
+          "child_link": "front_pumper_cap",
+          "lower": -Infinity,
+          "name": "front_cap_screw",
+          "parent_link": "hydrant_body",
+          "type": "revolute",
+          "upper": Infinity
+        }
+      ],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Fire Hydrant",
+      "parts": [
+        "front_pumper_cap",
+        "hydrant_body",
+        "left_nozzle_cap",
+        "nozzle_cap_pivot",
+        "operating_nut"
+      ],
+      "repo_path": "assets/props/fire-hydrant.glb",
+      "size_m": {
+        "x": 0.37,
+        "y": 0.75,
+        "z": 0.277
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "articulated",
+        "construction",
+        "energy",
+        "fire",
+        "hydrant",
+        "industrial",
+        "prop",
+        "warehouse"
+      ],
+      "triangles": 9648,
+      "url": "/assets/gt-gpu/props/fire-hydrant.glb"
+    },
+    {
+      "bytes": 98192,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/flap-barrier-gate",
+      "joints": [
+        {
+          "axis": "X",
+          "child_link": "flap_wing",
+          "lower": 0.0,
+          "name": "wing_hinge",
+          "parent_link": "cabinet",
+          "type": "revolute",
+          "upper": 90.0
+        }
+      ],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Flap Barrier Gate",
+      "parts": [
+        "cabinet",
+        "card_reader",
+        "flap_wing"
+      ],
+      "repo_path": "assets/props/flap-barrier-gate.glb",
+      "size_m": {
+        "x": 1.51,
+        "y": 1.021,
+        "z": 0.615
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "articulated",
+        "barrier",
+        "entrance",
+        "flap",
+        "garden",
+        "gate",
+        "medical",
+        "outdoor",
+        "prop",
+        "roadblock",
+        "security",
+        "sports",
+        "street",
+        "transport"
+      ],
+      "triangles": 2748,
+      "url": "/assets/gt-gpu/props/flap-barrier-gate.glb"
+    },
+    {
+      "bytes": 563456,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/forklift",
+      "joints": [
+        {
+          "axis": "X",
+          "child_link": "fork_carriage",
+          "lower": 0.0,
+          "name": "carriage_lift",
+          "parent_link": "mast",
+          "type": "prismatic",
+          "upper": 1.5
+        },
+        {
+          "axis": "X",
+          "child_link": "steering_wheel",
+          "lower": -Infinity,
+          "name": "steering",
+          "parent_link": "chassis",
+          "type": "revolute",
+          "upper": Infinity
+        },
+        {
+          "axis": "X",
+          "child_link": "lift_lever",
+          "lower": -20.05352210998535,
+          "name": "lift_lever_pivot",
+          "parent_link": "chassis",
+          "type": "revolute",
+          "upper": 20.05352210998535
+        },
+        {
+          "axis": "X",
+          "child_link": "wheel_front_left",
+          "lower": -Infinity,
+          "name": "axle_front_left",
+          "parent_link": "chassis",
+          "type": "revolute",
+          "upper": Infinity
+        },
+        {
+          "axis": "X",
+          "child_link": "wheel_front_right",
+          "lower": -Infinity,
+          "name": "axle_front_right",
+          "parent_link": "chassis",
+          "type": "revolute",
+          "upper": Infinity
+        },
+        {
+          "axis": "X",
+          "child_link": "wheel_rear_left",
+          "lower": -Infinity,
+          "name": "axle_rear_left",
+          "parent_link": "chassis",
+          "type": "revolute",
+          "upper": Infinity
+        },
+        {
+          "axis": "X",
+          "child_link": "wheel_rear_right",
+          "lower": -Infinity,
+          "name": "axle_rear_right",
+          "parent_link": "chassis",
+          "type": "revolute",
+          "upper": Infinity
+        }
+      ],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Forklift",
+      "parts": [
+        "chassis",
+        "fork_carriage",
+        "lift_lever",
+        "mast",
+        "overhead_guard",
+        "seat",
+        "steering_wheel",
+        "wheel_front_left",
+        "wheel_front_right",
+        "wheel_rear_left",
+        "wheel_rear_right"
+      ],
+      "repo_path": "assets/props/forklift.glb",
+      "size_m": {
+        "x": 1.1,
+        "y": 2.1,
+        "z": 2.55
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "articulated",
+        "construction",
+        "energy",
+        "forklift",
+        "industrial",
+        "prop",
+        "warehouse"
+      ],
+      "triangles": 22996,
+      "url": "/assets/gt-gpu/props/forklift.glb"
+    },
+    {
+      "bytes": 254356,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/hand-truck",
+      "joints": [
+        {
+          "axis": "X",
+          "child_link": "wheel_left",
+          "lower": -Infinity,
+          "name": "wheel_axle_left",
+          "parent_link": "frame",
+          "type": "revolute",
+          "upper": Infinity
+        },
+        {
+          "axis": "X",
+          "child_link": "wheel_right",
+          "lower": -Infinity,
+          "name": "wheel_axle_right",
+          "parent_link": "frame",
+          "type": "revolute",
+          "upper": Infinity
+        },
+        {
+          "axis": "X",
+          "child_link": "toe_plate",
+          "lower": 0.0,
+          "name": "toe_plate_hinge",
+          "parent_link": "frame",
+          "type": "revolute",
+          "upper": 90.0
+        },
+        {
+          "axis": "X",
+          "child_link": "handle",
+          "lower": 0.0,
+          "name": "handle_slide",
+          "parent_link": "frame",
+          "type": "prismatic",
+          "upper": 0.2800000011920929
+        }
+      ],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Hand Truck",
+      "parts": [
+        "frame",
+        "handle",
+        "toe_plate",
+        "wheel_left",
+        "wheel_right"
+      ],
+      "repo_path": "assets/props/hand-truck.glb",
+      "size_m": {
+        "x": 0.446,
+        "y": 1.005,
+        "z": 0.457
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "articulated",
+        "construction",
+        "energy",
+        "hand",
+        "industrial",
+        "prop",
+        "truck",
+        "warehouse"
+      ],
+      "triangles": 9972,
+      "url": "/assets/gt-gpu/props/hand-truck.glb"
+    },
+    {
+      "bytes": 92612,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/home-safe",
+      "joints": [
+        {
+          "axis": "X",
+          "child_link": "door",
+          "lower": 0.0,
+          "name": "door_hinge",
+          "parent_link": "body",
+          "type": "revolute",
+          "upper": 100.0
+        },
+        {
+          "axis": "X",
+          "child_link": "dial",
+          "lower": -Infinity,
+          "name": "dial_spin",
+          "parent_link": "door",
+          "type": "revolute",
+          "upper": Infinity
+        }
+      ],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Home Safe",
+      "parts": [
+        "body",
+        "dial",
+        "door"
+      ],
+      "repo_path": "assets/props/home-safe.glb",
+      "size_m": {
+        "x": 0.4,
+        "y": 0.35,
+        "z": 0.35
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "articulated",
+        "bedroom",
+        "electronics",
+        "heist-target",
+        "home",
+        "living",
+        "prop",
+        "safe",
+        "toys",
+        "vault"
+      ],
+      "triangles": 2618,
+      "url": "/assets/gt-gpu/props/home-safe.glb"
+    },
+    {
+      "bytes": 86536,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/industrial-workbench",
+      "joints": [
+        {
+          "axis": "X",
+          "child_link": "drawer_1",
+          "lower": 0.0,
+          "name": "drawer_1_slide",
+          "parent_link": "frame",
+          "type": "prismatic",
+          "upper": 0.4000000059604645
+        },
+        {
+          "axis": "X",
+          "child_link": "drawer_2",
+          "lower": 0.0,
+          "name": "drawer_2_slide",
+          "parent_link": "frame",
+          "type": "prismatic",
+          "upper": 0.4000000059604645
+        },
+        {
+          "axis": "X",
+          "child_link": "drawer_3",
+          "lower": 0.0,
+          "name": "drawer_3_slide",
+          "parent_link": "frame",
+          "type": "prismatic",
+          "upper": 0.4000000059604645
+        }
+      ],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Industrial Workbench",
+      "parts": [
+        "drawer_1",
+        "drawer_2",
+        "drawer_3",
+        "frame",
+        "top"
+      ],
+      "repo_path": "assets/props/industrial-workbench.glb",
+      "size_m": {
+        "x": 1.8,
+        "y": 0.9,
+        "z": 0.75
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "articulated",
+        "construction",
+        "energy",
+        "industrial",
+        "prop",
+        "warehouse",
+        "workbench"
+      ],
+      "triangles": 1540,
+      "url": "/assets/gt-gpu/props/industrial-workbench.glb"
+    },
+    {
+      "bytes": 3804,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/jersey-barrier",
+      "joints": [],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Jersey Barrier",
+      "parts": [
+        "barrier"
+      ],
+      "repo_path": "assets/props/jersey-barrier.glb",
+      "size_m": {
+        "x": 3.0,
+        "y": 0.8,
+        "z": 0.6
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "barrier",
+        "construction",
+        "energy",
+        "industrial",
+        "jersey",
+        "prop",
+        "roadblock",
+        "street",
+        "warehouse"
+      ],
+      "triangles": 56,
+      "url": "/assets/gt-gpu/props/jersey-barrier.glb"
+    },
+    {
+      "bytes": 209320,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/kick-scooter",
+      "joints": [
+        {
+          "axis": "X",
+          "child_link": "steering",
+          "lower": -30.0,
+          "name": "steering_axis",
+          "parent_link": "deck",
+          "type": "revolute",
+          "upper": 30.0
+        },
+        {
+          "axis": "X",
+          "child_link": "front_wheel",
+          "lower": -Infinity,
+          "name": "front_wheel_spin",
+          "parent_link": "steering",
+          "type": "revolute",
+          "upper": Infinity
+        },
+        {
+          "axis": "X",
+          "child_link": "rear_wheel",
+          "lower": -Infinity,
+          "name": "rear_wheel_spin",
+          "parent_link": "deck",
+          "type": "revolute",
+          "upper": Infinity
+        }
+      ],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Kick Scooter",
+      "parts": [
+        "deck",
+        "front_wheel",
+        "rear_wheel",
+        "steering"
+      ],
+      "repo_path": "assets/props/kick-scooter.glb",
+      "size_m": {
+        "x": 0.4,
+        "y": 1.004,
+        "z": 0.9
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "articulated",
+        "garden",
+        "kick",
+        "medical",
+        "micromobility",
+        "outdoor",
+        "prop",
+        "rideable",
+        "scooter",
+        "sports",
+        "transport"
+      ],
+      "triangles": 7274,
+      "url": "/assets/gt-gpu/props/kick-scooter.glb"
+    },
+    {
+      "bytes": 237028,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/laptop",
+      "joints": [
+        {
+          "axis": "X",
+          "child_link": "lid",
+          "lower": 0.0,
+          "name": "lid_hinge",
+          "parent_link": "base",
+          "type": "revolute",
+          "upper": 135.0
+        },
+        {
+          "axis": "X",
+          "child_link": "key_power",
+          "lower": 0.0,
+          "name": "power_travel",
+          "parent_link": "base",
+          "type": "prismatic",
+          "upper": 0.001500000013038516
+        },
+        {
+          "axis": "X",
+          "child_link": "key_backspace",
+          "lower": 0.0,
+          "name": "backspace_travel",
+          "parent_link": "base",
+          "type": "prismatic",
+          "upper": 0.001500000013038516
+        },
+        {
+          "axis": "X",
+          "child_link": "key_enter",
+          "lower": 0.0,
+          "name": "enter_travel",
+          "parent_link": "base",
+          "type": "prismatic",
+          "upper": 0.001500000013038516
+        },
+        {
+          "axis": "X",
+          "child_link": "key_space",
+          "lower": 0.0,
+          "name": "space_travel",
+          "parent_link": "base",
+          "type": "prismatic",
+          "upper": 0.001500000013038516
+        }
+      ],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Laptop",
+      "parts": [
+        "base",
+        "key_backspace",
+        "key_enter",
+        "key_power",
+        "key_space",
+        "lid"
+      ],
+      "repo_path": "assets/props/laptop.glb",
+      "size_m": {
+        "x": 0.32,
+        "y": 0.015,
+        "z": 0.22
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "articulated",
+        "bedroom",
+        "computer",
+        "electronics",
+        "laptop",
+        "living",
+        "loot",
+        "prop",
+        "toys"
+      ],
+      "triangles": 6544,
+      "url": "/assets/gt-gpu/props/laptop.glb"
+    },
+    {
+      "bytes": 20696,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/pallet",
+      "joints": [],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Pallet",
+      "parts": [
+        "pallet"
+      ],
+      "repo_path": "assets/props/pallet.glb",
+      "size_m": {
+        "x": 1.2,
+        "y": 0.144,
+        "z": 1.0
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "construction",
+        "energy",
+        "industrial",
+        "pallet",
+        "prop",
+        "warehouse"
+      ],
+      "triangles": 276,
+      "url": "/assets/gt-gpu/props/pallet.glb"
+    },
+    {
+      "bytes": 119896,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/pallet-jack",
+      "joints": [
+        {
+          "axis": "X",
+          "child_link": "steer_wheel_right",
+          "lower": -Infinity,
+          "name": "steer_spin_right",
+          "parent_link": "fork_frame",
+          "type": "revolute",
+          "upper": Infinity
+        },
+        {
+          "axis": "X",
+          "child_link": "load_roller_right",
+          "lower": -Infinity,
+          "name": "load_roll_right",
+          "parent_link": "fork_frame",
+          "type": "revolute",
+          "upper": Infinity
+        },
+        {
+          "axis": "X",
+          "child_link": "steer_wheel_left",
+          "lower": -Infinity,
+          "name": "steer_spin_left",
+          "parent_link": "fork_frame",
+          "type": "revolute",
+          "upper": Infinity
+        },
+        {
+          "axis": "X",
+          "child_link": "load_roller_left",
+          "lower": -Infinity,
+          "name": "load_roll_left",
+          "parent_link": "fork_frame",
+          "type": "revolute",
+          "upper": Infinity
+        },
+        {
+          "axis": "X",
+          "child_link": "tiller",
+          "lower": 0.0,
+          "name": "tiller_pivot",
+          "parent_link": "fork_frame",
+          "type": "revolute",
+          "upper": 60.0
+        }
+      ],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Pallet Jack",
+      "parts": [
+        "fork_frame",
+        "load_roller_left",
+        "load_roller_right",
+        "steer_wheel_left",
+        "steer_wheel_right",
+        "tiller"
+      ],
+      "repo_path": "assets/props/pallet-jack.glb",
+      "size_m": {
+        "x": 0.55,
+        "y": 1.199,
+        "z": 1.59
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "articulated",
+        "construction",
+        "energy",
+        "industrial",
+        "jack",
+        "pallet",
+        "prop",
+        "warehouse"
+      ],
+      "triangles": 3980,
+      "url": "/assets/gt-gpu/props/pallet-jack.glb"
+    },
+    {
+      "bytes": 50548,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/pallet-rack",
+      "joints": [],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Pallet Rack",
+      "parts": [
+        "pallet_rack"
+      ],
+      "repo_path": "assets/props/pallet-rack.glb",
+      "size_m": {
+        "x": 2.7,
+        "y": 3.0,
+        "z": 1.1
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "construction",
+        "datacenter",
+        "energy",
+        "industrial",
+        "pallet",
+        "prop",
+        "rack",
+        "storage",
+        "warehouse"
+      ],
+      "triangles": 504,
+      "url": "/assets/gt-gpu/props/pallet-rack.glb"
+    },
+    {
+      "bytes": 110464,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/park-bench",
+      "joints": [],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Park Bench",
+      "parts": [
+        "frame_left",
+        "frame_right",
+        "slats"
+      ],
+      "repo_path": "assets/props/park-bench.glb",
+      "size_m": {
+        "x": 1.8,
+        "y": 0.849,
+        "z": 0.6
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "bench",
+        "garden",
+        "medical",
+        "outdoor",
+        "park",
+        "prop",
+        "sports",
+        "transport"
+      ],
+      "triangles": 3768,
+      "url": "/assets/gt-gpu/props/park-bench.glb"
+    },
+    {
+      "bytes": 150876,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/parking-meter",
+      "joints": [
+        {
+          "axis": "X",
+          "child_link": "key_1",
+          "lower": 0.0,
+          "name": "key_1_slide",
+          "parent_link": "head",
+          "type": "prismatic",
+          "upper": 0.0020000000949949026
+        },
+        {
+          "axis": "X",
+          "child_link": "key_2",
+          "lower": 0.0,
+          "name": "key_2_slide",
+          "parent_link": "head",
+          "type": "prismatic",
+          "upper": 0.0020000000949949026
+        },
+        {
+          "axis": "X",
+          "child_link": "key_3",
+          "lower": 0.0,
+          "name": "key_3_slide",
+          "parent_link": "head",
+          "type": "prismatic",
+          "upper": 0.0020000000949949026
+        },
+        {
+          "axis": "X",
+          "child_link": "key_4",
+          "lower": 0.0,
+          "name": "key_4_slide",
+          "parent_link": "head",
+          "type": "prismatic",
+          "upper": 0.0020000000949949026
+        },
+        {
+          "axis": "X",
+          "child_link": "key_5",
+          "lower": 0.0,
+          "name": "key_5_slide",
+          "parent_link": "head",
+          "type": "prismatic",
+          "upper": 0.0020000000949949026
+        },
+        {
+          "axis": "X",
+          "child_link": "key_6",
+          "lower": 0.0,
+          "name": "key_6_slide",
+          "parent_link": "head",
+          "type": "prismatic",
+          "upper": 0.0020000000949949026
+        },
+        {
+          "axis": "X",
+          "child_link": "key_7",
+          "lower": 0.0,
+          "name": "key_7_slide",
+          "parent_link": "head",
+          "type": "prismatic",
+          "upper": 0.0020000000949949026
+        },
+        {
+          "axis": "X",
+          "child_link": "key_8",
+          "lower": 0.0,
+          "name": "key_8_slide",
+          "parent_link": "head",
+          "type": "prismatic",
+          "upper": 0.0020000000949949026
+        }
+      ],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Parking Meter",
+      "parts": [
+        "base_and_pole",
+        "head",
+        "key_1",
+        "key_2",
+        "key_3",
+        "key_4",
+        "key_5",
+        "key_6",
+        "key_7",
+        "key_8"
+      ],
+      "repo_path": "assets/props/parking-meter.glb",
+      "size_m": {
+        "x": 0.15,
+        "y": 1.4,
+        "z": 0.15
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "articulated",
+        "garden",
+        "medical",
+        "meter",
+        "outdoor",
+        "parking",
+        "prop",
+        "sports",
+        "transport"
+      ],
+      "triangles": 4831,
+      "url": "/assets/gt-gpu/props/parking-meter.glb"
+    },
+    {
+      "bytes": 307192,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/platform-truck",
+      "joints": [
+        {
+          "axis": "X",
+          "child_link": "caster_front_left",
+          "lower": -Infinity,
+          "name": "swivel_front_left",
+          "parent_link": "frame",
+          "type": "revolute",
+          "upper": Infinity
+        },
+        {
+          "axis": "X",
+          "child_link": "wheel_front_left",
+          "lower": -Infinity,
+          "name": "wheel_front_left_spin",
+          "parent_link": "caster_front_left",
+          "type": "revolute",
+          "upper": Infinity
+        },
+        {
+          "axis": "X",
+          "child_link": "caster_front_right",
+          "lower": -Infinity,
+          "name": "swivel_front_right",
+          "parent_link": "frame",
+          "type": "revolute",
+          "upper": Infinity
+        },
+        {
+          "axis": "X",
+          "child_link": "wheel_front_right",
+          "lower": -Infinity,
+          "name": "wheel_front_right_spin",
+          "parent_link": "caster_front_right",
+          "type": "revolute",
+          "upper": Infinity
+        },
+        {
+          "axis": "X",
+          "child_link": "wheel_rear_left",
+          "lower": -Infinity,
+          "name": "wheel_rear_left_spin",
+          "parent_link": "caster_rear_left",
+          "type": "revolute",
+          "upper": Infinity
+        },
+        {
+          "axis": "X",
+          "child_link": "wheel_rear_right",
+          "lower": -Infinity,
+          "name": "wheel_rear_right_spin",
+          "parent_link": "caster_rear_right",
+          "type": "revolute",
+          "upper": Infinity
+        }
+      ],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Platform Truck",
+      "parts": [
+        "caster_front_left",
+        "caster_front_right",
+        "caster_rear_left",
+        "caster_rear_right",
+        "deck_mat",
+        "frame",
+        "wheel_front_left",
+        "wheel_front_right",
+        "wheel_rear_left",
+        "wheel_rear_right"
+      ],
+      "repo_path": "assets/props/platform-truck.glb",
+      "size_m": {
+        "x": 0.6,
+        "y": 0.902,
+        "z": 1.2
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "articulated",
+        "construction",
+        "energy",
+        "industrial",
+        "platform",
+        "prop",
+        "truck",
+        "warehouse"
+      ],
+      "triangles": 12608,
+      "url": "/assets/gt-gpu/props/platform-truck.glb"
+    },
+    {
+      "bytes": 184892,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/public-trash-can",
+      "joints": [],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Public Trash Can",
+      "parts": [
+        "base_ring",
+        "drum",
+        "inner_rim"
+      ],
+      "repo_path": "assets/props/public-trash-can.glb",
+      "size_m": {
+        "x": 0.408,
+        "y": 0.9,
+        "z": 0.408
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "can",
+        "garden",
+        "medical",
+        "outdoor",
+        "prop",
+        "public",
+        "sports",
+        "transport",
+        "trash"
+      ],
+      "triangles": 7456,
+      "url": "/assets/gt-gpu/props/public-trash-can.glb"
+    },
+    {
+      "bytes": 244772,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/quadcopter-drone",
+      "joints": [
+        {
+          "axis": "X",
+          "child_link": "arm_front_right",
+          "lower": 0.0,
+          "name": "fold_front_right",
+          "parent_link": "body",
+          "type": "revolute",
+          "upper": 90.0
+        },
+        {
+          "axis": "X",
+          "child_link": "prop_front_right",
+          "lower": -Infinity,
+          "name": "spin_front_right",
+          "parent_link": "arm_front_right",
+          "type": "revolute",
+          "upper": Infinity
+        },
+        {
+          "axis": "X",
+          "child_link": "arm_front_left",
+          "lower": 0.0,
+          "name": "fold_front_left",
+          "parent_link": "body",
+          "type": "revolute",
+          "upper": 90.0
+        },
+        {
+          "axis": "X",
+          "child_link": "prop_front_left",
+          "lower": -Infinity,
+          "name": "spin_front_left",
+          "parent_link": "arm_front_left",
+          "type": "revolute",
+          "upper": Infinity
+        },
+        {
+          "axis": "X",
+          "child_link": "arm_rear_right",
+          "lower": 0.0,
+          "name": "fold_rear_right",
+          "parent_link": "body",
+          "type": "revolute",
+          "upper": 90.0
+        },
+        {
+          "axis": "X",
+          "child_link": "prop_rear_right",
+          "lower": -Infinity,
+          "name": "spin_rear_right",
+          "parent_link": "arm_rear_right",
+          "type": "revolute",
+          "upper": Infinity
+        },
+        {
+          "axis": "X",
+          "child_link": "arm_rear_left",
+          "lower": 0.0,
+          "name": "fold_rear_left",
+          "parent_link": "body",
+          "type": "revolute",
+          "upper": 90.0
+        },
+        {
+          "axis": "X",
+          "child_link": "prop_rear_left",
+          "lower": -Infinity,
+          "name": "spin_rear_left",
+          "parent_link": "arm_rear_left",
+          "type": "revolute",
+          "upper": Infinity
+        },
+        {
+          "axis": "X",
+          "child_link": "camera",
+          "lower": -90.0,
+          "name": "camera_tilt",
+          "parent_link": "body",
+          "type": "revolute",
+          "upper": 0.0
+        }
+      ],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Quadcopter Drone",
+      "parts": [
+        "arm_front_left",
+        "arm_front_right",
+        "arm_rear_left",
+        "arm_rear_right",
+        "body",
+        "camera",
+        "landing_gear",
+        "prop_front_left",
+        "prop_front_right",
+        "prop_rear_left",
+        "prop_rear_right"
+      ],
+      "repo_path": "assets/props/quadcopter-drone.glb",
+      "size_m": {
+        "x": 0.32,
+        "y": 0.091,
+        "z": 0.191
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "articulated",
+        "bedroom",
+        "drone",
+        "electronics",
+        "flying",
+        "living",
+        "prop",
+        "quadcopter",
+        "toys"
+      ],
+      "triangles": 8448,
+      "url": "/assets/gt-gpu/props/quadcopter-drone.glb"
+    },
+    {
+      "bytes": 291028,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/rack-mount-server",
+      "joints": [
+        {
+          "axis": "X",
+          "child_link": "top_cover",
+          "lower": 0.0,
+          "name": "cover_slide",
+          "parent_link": "chassis",
+          "type": "prismatic",
+          "upper": 0.07999999821186066
+        }
+      ],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Rack-Mount Server",
+      "parts": [
+        "chassis",
+        "top_cover"
+      ],
+      "repo_path": "assets/props/rack-mount-server.glb",
+      "size_m": {
+        "x": 0.482,
+        "y": 0.044,
+        "z": 0.7
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "articulated",
+        "commercial",
+        "compute",
+        "data-center",
+        "datacenter",
+        "heist-target",
+        "hospitality",
+        "mount",
+        "office",
+        "prop",
+        "rack",
+        "server",
+        "storage"
+      ],
+      "triangles": 10104,
+      "url": "/assets/gt-gpu/props/rack-mount-server.glb"
+    },
+    {
+      "bytes": 87552,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/room-safe",
+      "joints": [
+        {
+          "axis": "X",
+          "child_link": "digit_button_1",
+          "lower": 0.0,
+          "name": "digit_button_1_slide",
+          "parent_link": "keypad_module",
+          "type": "prismatic",
+          "upper": 0.0020000000949949026
+        },
+        {
+          "axis": "X",
+          "child_link": "digit_button_2",
+          "lower": 0.0,
+          "name": "digit_button_2_slide",
+          "parent_link": "keypad_module",
+          "type": "prismatic",
+          "upper": 0.0020000000949949026
+        },
+        {
+          "axis": "X",
+          "child_link": "digit_button_3",
+          "lower": 0.0,
+          "name": "digit_button_3_slide",
+          "parent_link": "keypad_module",
+          "type": "prismatic",
+          "upper": 0.0020000000949949026
+        },
+        {
+          "axis": "X",
+          "child_link": "digit_button_4",
+          "lower": 0.0,
+          "name": "digit_button_4_slide",
+          "parent_link": "keypad_module",
+          "type": "prismatic",
+          "upper": 0.0020000000949949026
+        },
+        {
+          "axis": "X",
+          "child_link": "door",
+          "lower": 0.0,
+          "name": "door_hinge",
+          "parent_link": "body",
+          "type": "revolute",
+          "upper": 100.0
+        }
+      ],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Room Safe",
+      "parts": [
+        "body",
+        "digit_button_1",
+        "digit_button_2",
+        "digit_button_3",
+        "digit_button_4",
+        "door",
+        "keypad_module"
+      ],
+      "repo_path": "assets/props/room-safe.glb",
+      "size_m": {
+        "x": 0.4,
+        "y": 0.2,
+        "z": 0.393
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "articulated",
+        "commercial",
+        "heist-target",
+        "hospitality",
+        "office",
+        "prop",
+        "room",
+        "safe",
+        "vault"
+      ],
+      "triangles": 2336,
+      "url": "/assets/gt-gpu/props/room-safe.glb"
+    },
+    {
+      "bytes": 310336,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/safe-deposit-box-cabinet",
+      "joints": [
+        {
+          "axis": "X",
+          "child_link": "door_1",
+          "lower": 0.0,
+          "name": "hinge_1",
+          "parent_link": "cabinet",
+          "type": "revolute",
+          "upper": 120.0
+        },
+        {
+          "axis": "X",
+          "child_link": "door_2",
+          "lower": 0.0,
+          "name": "hinge_2",
+          "parent_link": "cabinet",
+          "type": "revolute",
+          "upper": 120.0
+        },
+        {
+          "axis": "X",
+          "child_link": "door_3",
+          "lower": 0.0,
+          "name": "hinge_3",
+          "parent_link": "cabinet",
+          "type": "revolute",
+          "upper": 120.0
+        },
+        {
+          "axis": "X",
+          "child_link": "door_4",
+          "lower": 0.0,
+          "name": "hinge_4",
+          "parent_link": "cabinet",
+          "type": "revolute",
+          "upper": 120.0
+        },
+        {
+          "axis": "X",
+          "child_link": "door_5",
+          "lower": 0.0,
+          "name": "hinge_5",
+          "parent_link": "cabinet",
+          "type": "revolute",
+          "upper": 120.0
+        },
+        {
+          "axis": "X",
+          "child_link": "door_6",
+          "lower": 0.0,
+          "name": "hinge_6",
+          "parent_link": "cabinet",
+          "type": "revolute",
+          "upper": 120.0
+        }
+      ],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Safe Deposit Box Cabinet",
+      "parts": [
+        "cabinet",
+        "door_1",
+        "door_2",
+        "door_3",
+        "door_4",
+        "door_5",
+        "door_6"
+      ],
+      "repo_path": "assets/props/safe-deposit-box-cabinet.glb",
+      "size_m": {
+        "x": 0.6,
+        "y": 0.9,
+        "z": 0.5
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "articulated",
+        "box",
+        "cabinet",
+        "commercial",
+        "deposit",
+        "heist-target",
+        "hospitality",
+        "office",
+        "prop",
+        "safe",
+        "vault"
+      ],
+      "triangles": 9602,
+      "url": "/assets/gt-gpu/props/safe-deposit-box-cabinet.glb"
+    },
+    {
+      "bytes": 317780,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/server-rack-cabinet",
+      "joints": [
+        {
+          "axis": "X",
+          "child_link": "front_door",
+          "lower": 0.0,
+          "name": "front_door_hinge",
+          "parent_link": "cabinet_frame",
+          "type": "revolute",
+          "upper": 120.0
+        },
+        {
+          "axis": "X",
+          "child_link": "rear_door",
+          "lower": 0.0,
+          "name": "rear_door_hinge",
+          "parent_link": "cabinet_frame",
+          "type": "revolute",
+          "upper": 120.0
+        }
+      ],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Server Rack Cabinet",
+      "parts": [
+        "cabinet_frame",
+        "front_door",
+        "leveling_foot_front_left",
+        "leveling_foot_front_right",
+        "leveling_foot_rear_left",
+        "leveling_foot_rear_right",
+        "rear_door"
+      ],
+      "repo_path": "assets/props/server-rack-cabinet.glb",
+      "size_m": {
+        "x": 0.643,
+        "y": 2.0,
+        "z": 1.14
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "articulated",
+        "cabinet",
+        "commercial",
+        "compute",
+        "data-center",
+        "datacenter",
+        "heist-target",
+        "hospitality",
+        "office",
+        "prop",
+        "rack",
+        "server",
+        "storage"
+      ],
+      "triangles": 13306,
+      "url": "/assets/gt-gpu/props/server-rack-cabinet.glb"
+    },
+    {
+      "bytes": 216680,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/signal-tower-light",
+      "joints": [],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Signal Tower Light",
+      "parts": [
+        "base",
+        "cap",
+        "lamp_module",
+        "lens_amber",
+        "lens_green",
+        "lens_red"
+      ],
+      "repo_path": "assets/props/signal-tower-light.glb",
+      "size_m": {
+        "x": 0.12,
+        "y": 0.4,
+        "z": 0.12
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "construction",
+        "energy",
+        "industrial",
+        "light",
+        "prop",
+        "signal",
+        "tower",
+        "warehouse"
+      ],
+      "triangles": 8784,
+      "url": "/assets/gt-gpu/props/signal-tower-light.glb"
+    },
+    {
+      "bytes": 201684,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/street-lamp",
+      "joints": [],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Street Lamp",
+      "parts": [
+        "street_lamp"
+      ],
+      "repo_path": "assets/props/street-lamp.glb",
+      "size_m": {
+        "x": 1.7,
+        "y": 5.0,
+        "z": 0.4
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "garden",
+        "lamp",
+        "medical",
+        "outdoor",
+        "prop",
+        "sports",
+        "street",
+        "transport"
+      ],
+      "triangles": 10390,
+      "url": "/assets/gt-gpu/props/street-lamp.glb"
+    },
+    {
+      "bytes": 136040,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/street-mailbox",
+      "joints": [
+        {
+          "axis": "X",
+          "child_link": "slot_flap",
+          "lower": 0.0,
+          "name": "slot_flap_hinge",
+          "parent_link": "body",
+          "type": "revolute",
+          "upper": 40.0
+        }
+      ],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Street Mailbox",
+      "parts": [
+        "body",
+        "plinth",
+        "slot_flap"
+      ],
+      "repo_path": "assets/props/street-mailbox.glb",
+      "size_m": {
+        "x": 0.45,
+        "y": 1.1,
+        "z": 0.4
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "articulated",
+        "garden",
+        "mailbox",
+        "medical",
+        "outdoor",
+        "prop",
+        "sports",
+        "street",
+        "transport"
+      ],
+      "triangles": 5744,
+      "url": "/assets/gt-gpu/props/street-mailbox.glb"
+    },
+    {
+      "bytes": 183760,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/street-sign-post",
+      "joints": [],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Street Sign Post",
+      "parts": [
+        "base",
+        "post",
+        "sign"
+      ],
+      "repo_path": "assets/props/street-sign-post.glb",
+      "size_m": {
+        "x": 0.6,
+        "y": 2.4,
+        "z": 0.24
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "garden",
+        "medical",
+        "outdoor",
+        "post",
+        "prop",
+        "sign",
+        "sports",
+        "street",
+        "transport"
+      ],
+      "triangles": 4970,
+      "url": "/assets/gt-gpu/props/street-sign-post.glb"
+    },
+    {
+      "bytes": 33956,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/traffic-barrier",
+      "joints": [],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Traffic Barrier",
+      "parts": [
+        "barrier"
+      ],
+      "repo_path": "assets/props/traffic-barrier.glb",
+      "size_m": {
+        "x": 1.2,
+        "y": 0.8,
+        "z": 0.4
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "barrier",
+        "construction",
+        "energy",
+        "industrial",
+        "intersection",
+        "prop",
+        "roadblock",
+        "street",
+        "traffic",
+        "warehouse"
+      ],
+      "triangles": 632,
+      "url": "/assets/gt-gpu/props/traffic-barrier.glb"
+    },
+    {
+      "bytes": 137152,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/traffic-cone",
+      "joints": [],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Traffic Cone",
+      "parts": [
+        "base",
+        "cone_body"
+      ],
+      "repo_path": "assets/props/traffic-cone.glb",
+      "size_m": {
+        "x": 0.36,
+        "y": 0.7,
+        "z": 0.36
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "cone",
+        "construction",
+        "energy",
+        "industrial",
+        "intersection",
+        "prop",
+        "street",
+        "traffic",
+        "warehouse"
+      ],
+      "triangles": 6292,
+      "url": "/assets/gt-gpu/props/traffic-cone.glb"
+    },
+    {
+      "bytes": 341588,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/traffic-light",
+      "joints": [],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Traffic Light",
+      "parts": [
+        "signal"
+      ],
+      "repo_path": "assets/props/traffic-light.glb",
+      "size_m": {
+        "x": 0.6,
+        "y": 2.8,
+        "z": 0.6
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "garden",
+        "intersection",
+        "light",
+        "medical",
+        "outdoor",
+        "prop",
+        "sports",
+        "street",
+        "traffic",
+        "transport"
+      ],
+      "triangles": 11612,
+      "url": "/assets/gt-gpu/props/traffic-light.glb"
+    },
+    {
+      "bytes": 283944,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/turnstile",
+      "joints": [
+        {
+          "axis": "X",
+          "child_link": "hub",
+          "lower": -Infinity,
+          "name": "hub_spin",
+          "parent_link": "housing",
+          "type": "revolute",
+          "upper": Infinity
+        }
+      ],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Turnstile",
+      "parts": [
+        "cap",
+        "housing",
+        "hub"
+      ],
+      "repo_path": "assets/props/turnstile.glb",
+      "size_m": {
+        "x": 0.9,
+        "y": 1.0,
+        "z": 0.95
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "articulated",
+        "garden",
+        "medical",
+        "outdoor",
+        "prop",
+        "sports",
+        "transport",
+        "turnstile"
+      ],
+      "triangles": 13666,
+      "url": "/assets/gt-gpu/props/turnstile.glb"
+    },
+    {
+      "bytes": 741240,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/vending-machine",
+      "joints": [
+        {
+          "axis": "X",
+          "child_link": "selection_button_1",
+          "lower": 0.0,
+          "name": "button_1_press",
+          "parent_link": "cabinet",
+          "type": "prismatic",
+          "upper": 0.003000000026077032
+        },
+        {
+          "axis": "X",
+          "child_link": "selection_button_2",
+          "lower": 0.0,
+          "name": "button_2_press",
+          "parent_link": "cabinet",
+          "type": "prismatic",
+          "upper": 0.003000000026077032
+        },
+        {
+          "axis": "X",
+          "child_link": "selection_button_3",
+          "lower": 0.0,
+          "name": "button_3_press",
+          "parent_link": "cabinet",
+          "type": "prismatic",
+          "upper": 0.003000000026077032
+        },
+        {
+          "axis": "X",
+          "child_link": "dispensing_flap",
+          "lower": 0.0,
+          "name": "dispensing_flap_hinge",
+          "parent_link": "cabinet",
+          "type": "revolute",
+          "upper": 45.0
+        }
+      ],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Vending Machine",
+      "parts": [
+        "bottle_bin",
+        "bottle_lower_1",
+        "bottle_lower_2",
+        "bottle_lower_3",
+        "bottle_lower_4",
+        "bottle_middle_1",
+        "bottle_middle_2",
+        "bottle_middle_3",
+        "bottle_middle_4",
+        "bottle_upper_1",
+        "bottle_upper_2",
+        "bottle_upper_3",
+        "bottle_upper_4",
+        "cabinet",
+        "dispensing_flap",
+        "selection_button_1",
+        "selection_button_2",
+        "selection_button_3"
+      ],
+      "repo_path": "assets/props/vending-machine.glb",
+      "size_m": {
+        "x": 0.8,
+        "y": 1.8,
+        "z": 0.801
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "articulated",
+        "commercial",
+        "hospitality",
+        "machine",
+        "office",
+        "prop",
+        "vending"
+      ],
+      "triangles": 48614,
+      "url": "/assets/gt-gpu/props/vending-machine.glb"
+    },
+    {
+      "bytes": 304144,
+      "category": "prop",
+      "format": "glb",
+      "id": "props/wi-fi-router",
+      "joints": [
+        {
+          "axis": "X",
+          "child_link": "power_button",
+          "lower": 0.0,
+          "name": "power_button_travel",
+          "parent_link": "body",
+          "type": "prismatic",
+          "upper": 0.0020000000949949026
+        }
+      ],
+      "kind": "prop",
+      "license": "Apache-2.0",
+      "name": "Wi-Fi Router",
+      "parts": [
+        "antenna_0",
+        "antenna_1",
+        "antenna_2",
+        "antenna_3",
+        "body",
+        "power_button"
+      ],
+      "repo_path": "assets/props/wi-fi-router.glb",
+      "size_m": {
+        "x": 0.25,
+        "y": 0.246,
+        "z": 0.154
+      },
+      "source": "NVIDIA USDCraft-10K (converted)",
+      "source_url": "https://huggingface.co/datasets/nvidia/USDCraft-10K",
+      "tags": [
+        "articulated",
+        "bedroom",
+        "electronics",
+        "fi",
+        "living",
+        "prop",
+        "router",
+        "toys",
+        "wi"
+      ],
+      "triangles": 11868,
+      "url": "/assets/gt-gpu/props/wi-fi-router.glb"
+    }
+  ],
+  "count": 96,
+  "url_prefix": "/assets/gt-gpu",
+  "version": 1
+}

@@ -33,6 +33,11 @@ Decided 2026-11-20. Both models get the same framing and the same starting asset
 - **The GPU (the loot):** USDCraft has no graphics card, so we supply one, the same for both models: `assets/gpu/graphics-card-light.glb` from [Grab3D](https://grab3d.com/models/electronics/graphics-card/). It's **CC0**, made procedurally, 12.6K tris, 891 KB. A render confirmed **no brand logos**. It has 11 named meshes: `_body`, `_fins`, `_fan_N_rotor_M` (spinnable) and `_light_strip_rgb_N` (pulsable). The style is pastel; models can recolor it. Grab3D's CC0 [Cozy PC Parts kit](https://grab3d.com/kits/cozy-pc-parts/) has matching extra loot (PSU, motherboard, network switch, gaming PC) if we want more.
 - **No URDFs needed.** URDF is for robot sims; the game needs `.glb` meshes plus simple collision boxes. USDCraft joints survive conversion as separate mesh pieces (rack doors, safe doors) that the game can animate. Part 2 RL doesn't need URDF either, because the game itself is the environment.
 
+**Asset expansion (decided 2026-11-20, after the $5 test run).** The test showed the models *do* use the assets we give them (both loaded cars and props dynamically), but we gave them no people, so every NPC was built from boxes. The city (base `city.glb`) also doesn't look like SF. Adding:
+- **People:** Quaternius Universal Base Characters + Universal Animation Library (CC0, glTF, one shared rig); **all ~115 Microsoft Rocketbox avatars** (MIT, FBX → glb); Meta **MHR** base body (Apache 2.0). Meta's Sapiens/Sapiens2 are human *vision* models, not avatars, so they're not usable as assets.
+- **City:** a **real SF slice, SoMa → FiDi → Embarcadero (~2 km²)**, from OpenStreetMap streets and buildings (ODbL, attribution required) plus USGS elevation for hills (public domain), converted to .glb plus a JSON street graph. Also **Kenney City Kits** (Commercial, Suburban, Roads, Industrial; CC0). The base `city.glb` stays as an option.
+- **This means `prompt-v2`:** the asset section of the prompt changes. The `test-5usd-001` run becomes a dry run on prompt-v1.
+
 **Must-haves (the prompt requires all four):** steal a GPU · drive a car (enter, drive, exit) · talk to an archetype NPC in their voice · get chased (a pursuer with a heat/wanted mechanic).
 
 **Inspiration list (in the prompt as "the world this lives in, use what you like"; not required):** raising money from VCs · poaching top engineers and researchers · honeypot spies after your secrets (framing left to the models; the off-limits rules still apply) · AI doomer vs. "boomer" debates · funny billboards and ads for AI insurance and other absurd AI companies · general Silicon Valley tropes. Whatever a model picks up shows as depth within the tiers.
@@ -72,7 +77,10 @@ The user is the architect and decision-maker. The agent writes the code and runs
 | Game prompt (`prompts/game_spec.md`, `run_rules.md`, `nudge.md`) | 🔒 **LOCKED 2026-11-20**, git tag `prompt-v1`. Do not edit without the user's explicit OK; any change is a new tag (`prompt-v2`) and invalidates comparisons with earlier runs. |
 | Harness seeding + per-turn Vite build + gameplay screenshots | ✅ `harness/seed.py`, `snapshot.build`. The smoke test on the seeded base (`smoke-seed-002`) passed for both models: turn 0 builds, both added the GPU from our assets, and the screenshots show gameplay. |
 | Scoring checklist (pass/fail checks per tier, for judges) | ⬜ The tiers are in the prompt; the detailed checks are still to write |
-| $5 test run of each model on the locked prompt | 🔄 Running (`test-5usd-001`, started 2026-11-20). Turn 0 clean for both. |
+| $5 dry run on prompt-v1 (`test-5usd-001`) | ✅ Kimi **declared done at $3.75**; Opus **hit the $5 budget** ($5.02). Both took 1 turn, both playable on turn 1, no leaks. Kimi wrote 3 story missions, cars, police, heat, a minimap and parody landmarks. It surfaced 3 harness bugs (below, all fixed) and the missing-people gap (see asset expansion). |
+| Stall timeout + stray-server cleanup | ✅ `STALL_TIMEOUT_S` = 600 s with no output and no spend means `stalled` and a nudge. After every turn, processes whose cwd is in the workspace are killed. |
+| Asset inventory CLI | ✅ `buildoff inventory` plus `assets/catalog.json` (96 assets, deterministic). |
+| Hugging Face dataset for all assets (+ on-demand `fetch`) | ⬜ The user's idea, 2026-11-20. Plan: one HF dataset with per-source cards and attribution, pinned by revision; the GitHub repo goes code-only. The base game is **not** uploaded (no license). |
 | Full $100 race | ⬜ |
 | Scoring commits against the checklist | ⬜ |
 | Rendering the race video from logs | ⬜ |
@@ -117,6 +125,11 @@ The user is the architect and decision-maker. The agent writes the code and runs
 - **`/code-cleanup` can only be run by the user.** The agent can't invoke it; ask the user to type it.
 - **The base repo commits `node_modules/`** without execute bits and with another OS's native binaries, so `vite` fails with "Permission denied". Seeding skips it (along with `assets/` and `dist/`) and runs a clean `npm install`. In the first smoke test, one model silently spent budget fixing it, which made that race unfair.
 - **Screenshots of the game need three things:** (1) wait for `networkidle`; (2) settle about 12 s, because the base game parses its FBX/GLB files between downloads and takes about 9 s headless; (3) click the center with a **pointer-lock shim** installed (`POINTER_LOCK_SHIM` in `snapshot.py`), since headless Chromium never grants pointer lock and "Click to Play" would never go away. Without these, every frame is a T-posed first frame or the menu.
+- **A model can block itself on a never-ending server.** In the dry run, Kimi ran `npm run preview` in the foreground; its session sat blocked for 35 min with no spend. Opus's `vite preview` outlived its turn (orphaned, ppid 1). Both are now handled by the stall timeout and `_kill_strays`.
+- **trimesh appends random suffixes** to node names with several primitives (`_3ec909`). The catalog reads names from the glTF JSON chunk instead, to stay deterministic.
+- **`rsync --exclude dist`** also skips `node_modules/vite/dist`. Use `--exclude /dist` for top-level only. **`rsync --delete`** is blocked by a safety check; copy into a fresh folder instead.
+- **`xargs -I{} sh -c '...'` over long command strings** fails with "command line cannot be assembled". Use a bash script with `xargs -0 -n 1 bash -c 'fn "$0"'`.
+- **Rocketbox** is a 4.1 GB repo (about 10 GB of avatar files, mostly 4K TGA textures). We only fetch `Export/<Name>.fbx` and `Textures/*_color.tga` per avatar (448 files, about 3.5 GB) via `media.githubusercontent.com` (LFS) with raw fallback.
 - **To check a .glb visually,** load it in a headless three.js page with Playwright (SwiftShader flags) and screenshot it. That's how the GPU, the props and the contact sheet were verified.
 
 ## 6. Where things are
@@ -141,7 +154,7 @@ uv run buildoff smoke   # ~$0.30, ~2 min, real setup
 |---|---|
 | Harness development and tests (smoke, stress, leak test, verify) | ~$2 |
 | Smoke tests on the seeded base game (3 runs) | ~$1 |
-| $5 test race (`test-5usd-001`) | up to $10 |
+| $5 dry run (`test-5usd-001`) | $8.77 (Kimi $3.75 + Opus $5.02) |
 
 ## 8. Next up
 

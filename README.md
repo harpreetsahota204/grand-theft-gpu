@@ -61,8 +61,8 @@ Each contender loops through turns. A turn is one `claude -p` process.
 
 0. **Seeding** (before the clock starts): the workspace gets the base game at a pinned commit, our assets at `public/assets/gt-gpu/`, and a clean `npm install`. Turn 0 records the untouched base game.
 1. **Turn 1** gets the spec plus the run rules. Every later turn gets the same fixed nudge (`prompts/nudge.md`) and resumes the same session.
-2. **During a turn,** a watchdog polls Nexus every 15 seconds. It kills the turn if spend reaches the budget, or if any model other than the contender's shows up (a leak).
-3. **After every turn,** the harness makes a git commit, runs `npm install && npm run build`, screenshots the built game, and writes a row to `turns.jsonl`. The screenshot waits for the game to finish loading, then clicks past any "click to play" screen, so it shows gameplay. A failed build counts as not playable for that turn.
+2. **During a turn,** a watchdog polls Nexus every 15 seconds. It kills the turn if spend reaches the budget, if any model other than the contender's shows up (a leak), or if the turn **stalls**: no output and no new spend for 10 minutes. A stalled turn isn't a penalty; the model gets nudged and carries on. This exists because a model in a dry run started `npm run preview`, a server that never exits, in the foreground and sat blocked for 35 minutes.
+3. **After every turn,** the harness stops any server the model left running in its workspace, then makes a git commit, runs `npm install && npm run build`, screenshots the built game, and writes a row to `turns.jsonl`. The screenshot waits for the game to finish loading, then clicks past any "click to play" screen, so it shows gameplay. A failed build counts as not playable for that turn.
 4. **Stop rules,** in order: budget, leak or crash → the model created `DONE.md` → 3 nudges used.
 
 ## Rules of the race
@@ -105,10 +105,24 @@ Both models get the same assets. Each folder keeps its license file.
 
 The base game is [kartik786-git/gta-clone-threejs](https://github.com/kartik786-git/gta-clone-threejs), used with attribution.
 
+### Searching the assets
+
+Every asset is listed in `assets/catalog.json`: id, category, URL, size in metres, triangles, movable parts, joints, tags and license. `buildoff inventory` searches it. It doesn't prompt, it's deterministic, and it prints JSON, so agents can use it directly:
+
+```bash
+uv run buildoff inventory schema                     # what every field and command means
+uv run buildoff inventory categories                 # counts per category
+uv run buildoff inventory search police car --limit 3
+uv run buildoff inventory list --tag heist-target --format jsonl
+uv run buildoff inventory show props/home-safe       # full record: parts, joints, size
+```
+
+Errors go to stderr as `{"error": ..., "hint": ...}`, with exit code 1 (not found) or 2 (bad input). Rebuild the catalog after changing assets with `uv run buildoff assets catalog`.
+
 ### Rebuilding the assets
 
 ```bash
-uv run buildoff assets                     # all sets; or: gpu | cars | props
+uv run buildoff assets                     # all sets + catalog; or: gpu | cars | props | catalog
 uv run buildoff assets props --out /tmp/x  # rebuild somewhere else, then diff
 ```
 
@@ -132,6 +146,8 @@ USDCraft ships OpenUSD for Isaac Sim, which three.js can't load. For each prop, 
 | `harness/seed.py` | Seeds each workspace with the base game (pinned commit) and assets |
 | `harness/doctor.py` | Checks every prerequisite and prints how to fix what's missing |
 | `harness/assets.py` | Rebuilds `assets/` from the original sources |
+| `harness/catalog.py` | Builds `assets/catalog.json` by inspecting every `.glb` |
+| `harness/inventory.py` | The `buildoff inventory` search and query layer |
 | `scripts/convert_usdcraft.py` | USDCraft OpenUSD → `.glb` converter (runs in Blender) |
 | `scripts/usdcraft_props.csv` | The curated list of 45 USDCraft props |
 | `assets/` | GPU, cars and props the models build with |
@@ -141,6 +157,7 @@ USDCraft ships OpenUSD for Isaac Sim, which three.js can't load. For each prop, 
 - The detailed pass/fail checks per tier (T1 steal a GPU → T4 living San Silicon) for scoring commits. The game prompt itself is locked (git tag `prompt-v1`).
 - The Claude side bills through your Claude login. For a true "list price" claim, give Nexus an Anthropic API key.
 - Rendering the race video from the logs.
+- More assets for prompt-v2: people (Quaternius, Microsoft Rocketbox, Meta MHR) and a real SF slice from OpenStreetMap. A dry run showed the models build every pedestrian from boxes when they're given no people.
 
 ## License
 

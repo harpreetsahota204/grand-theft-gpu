@@ -35,7 +35,8 @@ If `doctor` reports missing items, each line says how to fix it. The required it
 | `uv run buildoff doctor` | Checks prerequisites | free |
 | `uv run buildoff smoke` | End-to-end check: both models add a floating GPU to the base game | about $0.30 total |
 | `uv run buildoff race --budget N --yes` | Runs the locked prompt (`prompts/game_spec.md`) | up to $N per model |
-| `uv run buildoff assets [gpu\|cars\|props\|all] [--out DIR]` | Rebuilds `assets/` from the original sources | free (props needs Blender) |
+| `uv run buildoff assets [gpu\|cars\|props\|catalog\|all] [--out DIR]` | Rebuilds `assets/` (and the catalog) from the original sources | free (props needs Blender) |
+| `uv run buildoff inventory <categories\|list\|search\|show\|schema>` | Searches the asset catalog. JSON on stdout, JSON errors on stderr, deterministic. Start with `inventory schema`. | free |
 
 Races run for a long time: 30 minutes to hours. Launch them detached so a tool timeout can't kill them partway, then follow `logs/turns.jsonl`:
 
@@ -65,6 +66,7 @@ A healthy smoke run shows `declared_done`, `build_ok: true` and `loaded: true` o
 | `harness/meter.py` | Reads cost and models from `nexus claude usage --json` |
 | `harness/viewer.py` | Live terminal view of a contender |
 | `harness/doctor.py`, `harness/assets.py` | Prerequisite checks; asset rebuild |
+| `harness/catalog.py`, `harness/inventory.py` | Builds `assets/catalog.json`; the `inventory` query layer |
 | `harness/config.py` | Every constant: contenders, limits, paths, pinned base commit |
 | `scripts/convert_usdcraft.py` | OpenUSD → glb converter (runs inside Blender) |
 | `prompts/` | The locked game prompt, run rules, nudge, smoke spec |
@@ -80,5 +82,7 @@ A healthy smoke run shows `declared_done`, `build_ok: true` and `loaded: true` o
 
 - **zsh:** `$FLAGS` doesn't word-split, and a variable named `path` overwrites `$PATH`. Use bash for shell loops.
 - **Claude Code misprices Kimi** (about 2x list). Always use Nexus numbers for cost, never Claude Code's `total_cost_usd`.
+- **Models can start servers that never exit** (`npm run preview`, `npm run dev`). The runner kills a turn after 10 minutes with no output and no new spend (`stalled`, then a nudge), and after every turn it kills any process whose working directory is inside the workspace.
+- **Asset catalog determinism:** part names are read from the glTF JSON, not from trimesh, which appends random suffixes. Rebuilding unchanged assets gives a byte-identical `assets/catalog.json`.
 - **Screenshots** need a network-idle wait, a long settle, and a click with the pointer-lock shim (`snapshot.POINTER_LOCK_SHIM`). Otherwise they show a half-loaded frame or the "Click to Play" menu.
 - **The base game commits a broken `node_modules`** (no execute bits, and native binaries for another OS). `seed.py` skips it and reinstalls cleanly.

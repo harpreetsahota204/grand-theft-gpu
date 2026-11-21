@@ -4,14 +4,16 @@
 threads. Each turn is one headless `claude -p` process. The first turn gets the
 spec plus run rules; later turns get the fixed nudge, resuming the same session.
 A watchdog polls Nexus (`harness.meter`) during the turn and kills the process
-if spend hits the budget or a foreign model shows up in the usage rows.
+if spend hits the budget, a foreign model shows up in the usage rows, or the
+turn stalls (no output and no new spend for STALL_TIMEOUT_S). After each turn,
+any server the model left running in its workspace is stopped.
 
 Output layout under `<race_dir>/<contender>/`:
     workspace/            the seeded Vite project the model builds in (a git repo)
     logs/turn-NNN.jsonl   timestamped Claude Code stream-json transcript per turn
     logs/cost.csv         timestamped Nexus spend readings
     logs/turns.jsonl      one row per turn (turn 0 = seeded base): build, load, errors
-    logs/events.jsonl     harness events: cross-model leak, unpriced rows (absent if none)
+    logs/events.jsonl     harness events: leak, stalled turn, unpriced rows (absent if none)
     shots/turn-NNN.png    screenshot of the built game after each turn (000 = base)
     result.json           final outcome
 """
@@ -35,13 +37,14 @@ from harness.config import (
     MAX_NUDGES,
     METER_POLL_SECONDS,
     PROMPTS_DIR,
+    STALL_TIMEOUT_S,
     TOOLS,
     Contender,
     RaceConfig,
 )
 
 StopReason = Literal["declared_done", "nudge_cap", "budget", "leak", "error"]
-TurnEnd = Literal["completed", "budget", "leak", "error"]
+TurnEnd = Literal["completed", "stalled", "budget", "leak", "error"]
 
 # An empty MCP config plus --strict-mcp-config removes the user's connectors
 # (Notion, Gmail, ...) from the race sessions.
@@ -102,6 +105,9 @@ class ContenderRun:
         self.session_id: str = str(uuid.uuid4())
         self._last: meter.Reading | None = None
         self._start: float = 0.0
+        # Last time the turn showed life (new output line or new spend); the
+        # watchdog kills a turn that stays silent for STALL_TIMEOUT_S.
+        self._last_activity: float = 0.0
         # Highest unpriced-row count already logged as a warning event.
         self._unpriced_seen: int = 0
 
@@ -129,6 +135,9 @@ class ContenderRun:
         while True:
             turn += 1
             end = self._run_turn(prompt, turn)
+            # Servers the model started in the background (vite preview, dev
+            # servers) outlive the claude process; stop them before building.
+            _kill_strays(self.workspace)
 
             # Evidence after every turn, including the one the watchdog killed,
             # so the final state of the build is always captured.
@@ -199,7 +208,8 @@ class ContenderRun:
         """Applies the stop rules after a turn, in priority order.
 
         Hard limits first (budget, leak, error), then the model's own call
-        (DONE.md exists), then the nudge cap.
+        (DONE.md exists), then the nudge cap. A "stalled" turn is not a hard
+        limit: the model is nudged and can carry on.
 
         Args:
             end: how the turn that just finished ended
@@ -208,7 +218,7 @@ class ContenderRun:
         Returns:
             why the run should stop, or None to send another nudge
         """
-        if end != "completed":
+        if end in ("budget", "leak", "error"):
             return end
         if (self.workspace / DONE_FILE).exists():
             return "declared_done"
@@ -217,7 +227,7 @@ class ContenderRun:
         return None
 
     def _run_turn(self, prompt: str, turn: int) -> TurnEnd:
-        """Runs one `claude -p` process under the budget/leak watchdog.
+        """Runs one `claude -p` process under the budget/leak/stall watchdog.
 
         Args:
             prompt: spec (turn 1) or the fixed nudge (later turns)
@@ -244,6 +254,7 @@ class ContenderRun:
             # A reader thread drains the pipe while this thread runs the watchdog;
             # without it a full pipe buffer would stall claude.
             pump = threading.Thread(target=self._pump, args=(proc.stdout, log), daemon=True)
+            self._last_activity = time.monotonic()
             pump.start()
             while True:
                 try:
@@ -252,6 +263,9 @@ class ContenderRun:
                 except subprocess.TimeoutExpired:
                     pass
                 verdict = self._check_meter()
+                if verdict is None and time.monotonic() - self._last_activity > STALL_TIMEOUT_S:
+                    verdict = "stalled"
+                    self._append_jsonl("events.jsonl", {"event": "stalled", "turn": turn})
                 if verdict is not None:
                     _kill_tree(proc)
                     break
@@ -259,9 +273,10 @@ class ContenderRun:
             pump.join(timeout=10)
 
         # If claude exited on its own, take one more reading: the last requests of
-        # the turn land after the final mid-turn poll.
-        if verdict is None:
-            verdict = self._check_meter()
+        # the turn land after the final mid-turn poll. A stalled turn still gets
+        # a final reading, but budget/leak found there take priority.
+        if verdict in (None, "stalled"):
+            verdict = self._check_meter() or verdict
         if verdict is not None:
             return verdict
         return "completed" if proc.returncode == 0 else "error"
@@ -278,6 +293,7 @@ class ContenderRun:
             log: open turn log file
         """
         for raw in stream:
+            self._last_activity = time.monotonic()
             t = round(time.monotonic() - self._start, 2)
             text = raw.decode("utf-8", errors="replace").rstrip("\n")
             try:
@@ -340,6 +356,9 @@ class ContenderRun:
         reading = meter.read_session(self.session_id)
         if reading is None:
             return None
+        # New spend means the model is working even if it printed nothing.
+        if self._last is None or reading.cost_usd > self._last.cost_usd:
+            self._last_activity = time.monotonic()
         self._last = reading
         with (self.logs / "cost.csv").open("a") as f:
             f.write(f"{time.monotonic() - self._start:.1f},{reading.cost_usd:.6f}\n")
@@ -409,3 +428,32 @@ def _kill_tree(proc: subprocess.Popen[bytes]) -> None:
         with contextlib.suppress(ProcessLookupError):
             os.killpg(pgid, signal.SIGKILL)
         proc.wait()
+
+
+def _kill_strays(workspace: Path) -> None:
+    """Stops every process whose working directory is inside the workspace.
+
+    Models start servers in the background (`vite preview`, `npm run dev`)
+    that escape the turn's process group and keep running after the turn, and
+    after the race. Finding them by working directory catches them no matter
+    how they were launched.
+
+    Args:
+        workspace: the contender's workspace
+    """
+    # `lsof -d cwd -Fpn` prints, per process, "p<pid>" then "n<cwd path>".
+    out = subprocess.run(
+        ["lsof", "-d", "cwd", "-Fpn"], capture_output=True, text=True, timeout=30
+    ).stdout
+    root = str(workspace.resolve())
+    pid = None
+    strays: list[int] = []
+    for line in out.splitlines():
+        if line.startswith("p"):
+            pid = int(line[1:])
+        elif line.startswith("n") and pid is not None and pid != os.getpid():
+            if line[1:] == root or line[1:].startswith(root + os.sep):
+                strays.append(pid)
+    for stray in strays:
+        with contextlib.suppress(ProcessLookupError):
+            os.kill(stray, signal.SIGKILL)

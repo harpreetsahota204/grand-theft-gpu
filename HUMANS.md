@@ -57,6 +57,7 @@ Starting from an empty folder would turn the race into "who sets up three.js fas
 * **The base game:** [kartik786-git/gta-clone-threejs](https://github.com/kartik786-git/gta-clone-threejs), a third-person three.js game with walking, sprinting, jumping, melee and enemies, plus a city model. It's fetched at commit `babb623` for every race and is not redistributed here. It has no cars.
 * **The loot:** a CC0 graphics card from [Grab3D](https://grab3d.com/models/electronics/graphics-card/), with spinnable fans and RGB strips as separate meshes.
 * **The cars:** [Kenney Car Kit 3.1](https://kenney.nl/assets/car-kit) (CC0), 49 low-poly GLBs including a sedan, taxi, police car and SUV, with the wheels as separate nodes.
+* **Finding things (for people and agents working on this repo):** every asset is listed in `assets/catalog.json`, with size in metres, movable parts, joints, tags and license. `uv run buildoff inventory search police car` returns ranked JSON, so you can find the right asset without opening a single file. The racing models don't get this tool in prompt-v1.
 * **The props:** 45 objects from [NVIDIA USDCraft-10K](https://huggingface.co/datasets/nvidia/USDCraft-10K) (Apache 2.0): server racks, safes, an ATM, a forklift, a quadcopter drone, traffic lights, parking meters, scooters and more. They ship as OpenUSD for Isaac Sim, which a browser can't load, so `scripts/convert_usdcraft.py` converts them in Blender. It drops collision meshes, caps each mesh at 4,000 triangles, flips Z-up to Y-up, and writes every joint (safe doors, rack doors, drone rotors) to `assets/props/manifest.json`.
 
 **Keep it honest.** The base game had a problem we only found by running it. It commits its own `node_modules`, without execute permissions and built for another OS. In the first smoke test, Kimi quietly spent part of its budget repairing the install, and Opus didn't. The harness now skips that folder and runs a clean `npm install` before the clock starts.
@@ -72,6 +73,8 @@ Every rule below exists because something could tilt the result.
 **Subagents stay on their own side.** The Nexus subagent pin is global, which would send Opus's subagents to Kimi. Instead, each process sets `CLAUDE_CODE_SUBAGENT_MODEL` to its own model. A leak test confirmed that each side's subagents stayed put, and the watchdog checks it again on every poll.
 
 **One referee for money.** Every 15 seconds, the watchdog reads `nexus claude usage --json`. That gives cost at list price, subagents included, plus every model that answered. If cost reaches the budget, the turn is killed. If a foreign model appears, the run stops with `leak`.
+
+**No hanging forever.** In a dry run, Kimi started `npm run preview`, a web server that never exits, as a foreground command, and sat blocked for 35 minutes. Now a turn with no output and no new spend for 10 minutes is killed as `stalled`, and the model is nudged to continue. After every turn, any server either model left running in its workspace is stopped.
 
 **A clear finish line.** A run ends on whichever comes first:
 

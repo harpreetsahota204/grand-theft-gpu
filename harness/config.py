@@ -28,6 +28,12 @@ MAX_NUDGES: int = 3
 # few dollars between polls, so expect final spend slightly over budget.
 METER_POLL_SECONDS: float = 15.0
 
+# A turn that produces no transcript output and no new spend for this long is
+# killed and recorded as "stalled", then the model is nudged to continue. In a
+# dry run, a model ran `npm run preview` (a server that never exits) in the
+# foreground and sat blocked for 35 minutes. Generous enough for long installs.
+STALL_TIMEOUT_S: float = 600.0
+
 # Contract files the run rules tell each model about. The game is a Vite
 # project: the harness builds it each turn and loads BUILD_DIR/GAME_ENTRY.
 DONE_FILE: str = "DONE.md"
