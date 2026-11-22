@@ -11,6 +11,7 @@ remembering module paths:
     buildoff fetch <id ...> [--tiers] | --core | --pattern G   download from the HF dataset
     buildoff status [race-id]        race progress as JSON (latest race by default)
     buildoff play kimi|opus          open a contender's latest build in the browser
+    buildoff stop [race-id]          abort a running race and kill its turns
     buildoff smoke                   ~$0.30 end-to-end check on the real setup
     buildoff race --budget 100 --yes the real race (spends real money)
 
@@ -139,8 +140,7 @@ def cmd_smoke(args: argparse.Namespace) -> int:
     ]
     if not args.viewers:
         argv.append("--no-viewers")
-    race.main(argv)
-    return 0
+    return 1 if race.failed(race.main(argv)) else 0
 
 
 def cmd_race(args: argparse.Namespace) -> int:
@@ -159,8 +159,7 @@ def cmd_race(args: argparse.Namespace) -> int:
         argv += ["--race-id", args.race_id]
     if args.no_viewers:
         argv.append("--no-viewers")
-    race.main(argv)
-    return 0
+    return 1 if race.failed(race.main(argv)) else 0
 
 
 def cmd_status(args: argparse.Namespace) -> int:
@@ -169,6 +168,17 @@ def cmd_status(args: argparse.Namespace) -> int:
 
     try:
         inventory.emit(status.status(args.race_id), "json")
+    except inventory.InventoryError as err:
+        return inventory.fail(err)
+    return 0
+
+
+def cmd_stop(args: argparse.Namespace) -> int:
+    """Aborts a running race (the latest by default) and kills any turn left running."""
+    from harness import status
+
+    try:
+        inventory.emit(race.stop_race(status.race_dir(args.race_id)), "json")
     except inventory.InventoryError as err:
         return inventory.fail(err)
     return 0
@@ -277,6 +287,18 @@ def build_parser() -> argparse.ArgumentParser:
     )
     st.add_argument("race_id", nargs="?", default=None, help="default: the latest race")
     st.set_defaults(func=cmd_status)
+
+    sp = sub.add_parser(
+        "stop",
+        help="abort a running race and kill its turns",
+        description=(
+            "Send the race harness SIGTERM (each contender stops as 'aborted' and writes "
+            "result.json), then kill any claude turn still running, e.g. after the harness "
+            "itself was killed."
+        ),
+    )
+    sp.add_argument("race_id", nargs="?", default=None, help="default: the latest race")
+    sp.set_defaults(func=cmd_stop)
 
     pl = sub.add_parser(
         "play",

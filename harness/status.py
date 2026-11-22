@@ -8,6 +8,7 @@ while a race is running and after it ends, and never touches the race itself.
 (`workspace/dist/`) on localhost and opens it in the default browser.
 """
 
+import contextlib
 import functools
 import json
 import webbrowser
@@ -37,10 +38,17 @@ def race_dir(race_id: str | None) -> Path:
 
 
 def read_jsonl(path: Path) -> list[dict[str, Any]]:
-    """Reads a JSON Lines file, or [] if it doesn't exist yet."""
+    """Reads a JSON Lines file, or [] if it doesn't exist yet.
+
+    Skips a last line the runner is still writing, so status works mid-race.
+    """
     if not path.exists():
         return []
-    return [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
+    rows = []
+    for line in path.read_text().splitlines():
+        with contextlib.suppress(json.JSONDecodeError):
+            rows.append(json.loads(line))
+    return rows
 
 
 def latest_cost(path: Path) -> float | None:
@@ -59,7 +67,11 @@ def session_id(logs: Path) -> str | None:
     for transcript in sorted(logs.glob("turn-*.jsonl")):
         with transcript.open() as f:
             for line in f:
-                sid = json.loads(line).get("event", {}).get("session_id")
+                try:
+                    event = json.loads(line).get("event") or {}
+                except json.JSONDecodeError:
+                    continue  # a line still being written
+                sid = event.get("session_id") if isinstance(event, dict) else None
                 if sid:
                     return str(sid)
     return None
@@ -81,12 +93,20 @@ def contender_status(folder: Path) -> dict[str, Any]:
         "stop_reason": (result or {}).get("stop_reason"),
         "turns_recorded": max(len(turns) - 1, 0),  # turn 0 is the untouched base game
         "cost_usd": (result or {}).get("cost_usd", latest_cost(folder / "logs" / "cost.csv")),
-        "last_turn": {k: last.get(k) for k in ("turn", "build_ok", "loaded", "elapsed_s")}
-        | {"console_errors": len(last.get("console_errors") or [])},
-        "declared_done": (folder / "workspace" / "DONE.md").exists(),
+        "last_turn": {
+            k: last.get(k) for k in ("turn", "build_ok", "loaded", "playable", "elapsed_s")
+        }
+        | {
+            "page_errors": len(last.get("page_errors") or []),
+            "console_errors": len(last.get("console_errors") or []),
+        },
+        # The runner moves DONE.md into logs/ when it nudges on, so check both.
+        "declared_done": (folder / "workspace" / "DONE.md").exists()
+        or any((folder / "logs").glob("done-turn-*.md")),
         "session_id": sid,
         "nexus_meter": f"nexus claude usage --session {sid}" if sid else None,
         "latest_shot": str(max(folder.glob("shots/turn-*.png"), default="")) or None,
+        "history": f"git --git-dir={folder / 'history.git'} log --oneline",
     }
 
 

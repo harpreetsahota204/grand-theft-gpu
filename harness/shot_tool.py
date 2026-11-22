@@ -19,8 +19,8 @@ Usage (from inside a workspace, via the wrapper):
 
 Usage errors are JSON on stderr with exit code 2 (see `harness.cliutil`).
 Output: one JSON object on stdout:
-    {"ok", "png", "build_ok", "loaded", "console_errors", "build_log_tail"}
-`ok` is true only if the build succeeded, the page loaded and a PNG was written.
+    {"ok", "png", "build_ok", "loaded", "page_errors", "console_errors", "build_log_tail"}
+`ok` is true only if the build succeeded, the page loaded and a new PNG was written.
 Exit code 0 when ok, 1 otherwise. Non-interactive and safe to run repeatedly.
 """
 
@@ -36,7 +36,7 @@ from harness.snapshot import build, screenshot
 # Shorter than the harness's per-turn settle: a model iterating on visuals wants
 # fast feedback, and can pass --settle-ms for a slow-loading scene.
 DEFAULT_SETTLE_MS: int = 8000
-MAX_CONSOLE_ERRORS: int = 10
+MAX_ERRORS: int = 10
 
 
 def parse_hold(spec: str) -> tuple[str, int]:
@@ -87,6 +87,8 @@ def run(args: argparse.Namespace) -> dict[str, object]:
     """
     workspace = args.workspace.resolve()
     out = (args.out or workspace / "tools" / "shots" / "latest.png").resolve()
+    # Remove the previous shot first, so a failed render can't report a stale PNG.
+    out.unlink(missing_ok=True)
     built_ok, log_tail = True, ""
     if not args.no_build:
         result = build(workspace)
@@ -97,17 +99,18 @@ def run(args: argparse.Namespace) -> dict[str, object]:
             "png": None,
             "build_ok": False,
             "loaded": False,
+            "page_errors": [],
             "console_errors": [],
             "build_log_tail": log_tail,
         }
     shot = screenshot(workspace / BUILD_DIR, out, settle_ms=args.settle_ms, hold=args.hold)
-    wrote = shot.loaded and out.exists()
     return {
-        "ok": wrote,
-        "png": str(out) if wrote else None,
+        "ok": shot.shot_written,
+        "png": str(out) if shot.shot_written else None,
         "build_ok": True,
         "loaded": shot.loaded,
-        "console_errors": shot.console_errors[:MAX_CONSOLE_ERRORS],
+        "page_errors": shot.page_errors[:MAX_ERRORS],
+        "console_errors": shot.console_errors[:MAX_ERRORS],
         "build_log_tail": "",
     }
 

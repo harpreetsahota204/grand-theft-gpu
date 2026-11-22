@@ -9,6 +9,7 @@ Fireworks/Anthropic list rates and includes subagents. `harness.runner` polls
 import json
 import subprocess
 from dataclasses import dataclass
+from typing import Any
 
 
 @dataclass(frozen=True)
@@ -29,28 +30,42 @@ class Reading:
 def read_session(session_id: str) -> Reading | None:
     """Reads current usage for one Claude Code session from Nexus.
 
+    Never raises: any failure (Nexus missing, hung, logged out, unexpected JSON)
+    returns None. The runner treats a long run of Nones as a dead meter and
+    stops the turn (`config.METER_BLIND_LIMIT_S`), so this fails closed.
+
     Args:
         session_id: the UUID passed to Claude Code via `--session-id`
 
     Returns:
         the reading, or None if Nexus has nothing yet (the session transcript is
-        written a few seconds after the process starts)
+        written a few seconds after the process starts) or couldn't be read
     """
-    proc = subprocess.run(
-        ["nexus", "claude", "usage", "--session", session_id, "--json"],
-        capture_output=True,
-        text=True,
-        timeout=60,
-    )
+    try:
+        proc = subprocess.run(
+            ["nexus", "claude", "usage", "--session", session_id, "--json"],
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return None
     # A missing transcript shows up as a nonzero exit or non-JSON output, not a
     # zero-cost reading, so callers can tell "nothing yet" from "$0".
     if proc.returncode != 0:
         return None
     try:
-        data = json.loads(proc.stdout)
-    except json.JSONDecodeError:
+        return parse_usage(json.loads(proc.stdout))
+    except (ValueError, KeyError, TypeError):
         return None
 
+
+def parse_usage(data: dict[str, Any]) -> Reading:
+    """Turns `nexus claude usage --json` output into a Reading.
+
+    Raises:
+        KeyError, TypeError, ValueError: if the JSON isn't the expected shape
+    """
     # Subagent rows are listed separately; fold them in so the leak check
     # covers every model call the session made.
     models = {row["displayModel"] for row in data.get("rows", [])}

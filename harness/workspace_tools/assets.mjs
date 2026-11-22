@@ -17,7 +17,7 @@
 // same output. Seeded assets are already under public/assets/gt-gpu/; `fetch`
 // downloads anything else there from the pinned Hugging Face revision.
 
-import { mkdirSync, readFileSync, existsSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, existsSync, writeFileSync, renameSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -72,12 +72,14 @@ function parse(argv) {
   return opts;
 }
 
+// Exact, case-insensitive filters, matching harness/inventory.py's filter_assets.
 function filter(assets, o) {
+  const [category, kind, tag] = [o.category, o.kind, o.tag].map((v) => v?.toLowerCase());
   return assets.filter(
     (a) =>
-      (!o.category || a.category === o.category) &&
-      (!o.kind || a.kind === o.kind) &&
-      (!o.tag || a.tags.includes(o.tag)) &&
+      (!category || a.category === category) &&
+      (!kind || a.kind === kind) &&
+      (!tag || a.tags.includes(tag)) &&
       (!o.seeded || a.seeded) &&
       (!o["not-seeded"] || !a.seeded),
   );
@@ -108,7 +110,10 @@ async function fetchIds(ids, tiers) {
     const res = await fetch(src);
     if (!res.ok) fail(`download failed (${res.status}) for ${p}`, "check network access and retry");
     mkdirSync(dirname(dest), { recursive: true });
-    writeFileSync(dest, Buffer.from(await res.arrayBuffer()));
+    // Write then rename, so an interrupted download never leaves a truncated
+    // file that later runs would report as already-present.
+    writeFileSync(`${dest}.part`, Buffer.from(await res.arrayBuffer()));
+    renameSync(`${dest}.part`, dest);
     results.push({ hf_path: p, status: "downloaded", url: `${CATALOG.url_prefix}/${p}` });
   }
   return results;

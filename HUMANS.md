@@ -121,9 +121,11 @@ Every rule below exists because something could tilt the result.
 
 **Nothing from anyone's laptop leaks in.** `--strict-mcp-config` with an empty config removes MCP servers. `--disable-slash-commands` removes skills. Workspaces live in `~/gta-race-runs/`, outside the repo. Claude Code's own init event confirms it for each session: `mcp_servers: []`, `slash_commands: []`.
 
+**No peeking at the other side.** Both workspaces sit in the same race folder, and both models have Bash, so a model could simply `cat` its rival's code. Each turn now runs under a macOS sandbox profile. A model can read and write only its own workspace. The other model's game, the race logs, earlier races, this repo and other sessions' transcripts all return "Operation not permitted". API keys are stripped from its environment too.
+
 **Subagents stay on their own side.** The Nexus subagent pin is global, which would send Opus's subagents to Kimi. Instead, each process sets `CLAUDE_CODE_SUBAGENT_MODEL` to its own model. A leak test confirmed that each side's subagents stayed put, and the watchdog checks it again on every poll.
 
-**One referee for money.** Every 15 seconds, the watchdog reads `nexus claude usage --json`. That gives cost at list price, subagents included, plus every model that answered. If cost reaches the budget, the turn is killed. If a foreign model appears, the run stops with `leak`.
+**One referee for money.** Every 15 seconds, the watchdog reads `nexus claude usage --json`. That gives cost at list price, subagents included, plus every model that answered. If cost reaches the budget, the turn is killed. If a foreign model appears, the run stops with `leak`. If Nexus stops answering for three minutes, the run stops with `meter_down`: a budget nobody can see isn't a budget.
 
 **No hanging forever.** In a dry run, Kimi started `npm run preview`, a web server that never exits, as a foreground command, and sat blocked for 35 minutes. Now a turn with no output and no new spend for 10 minutes is killed as `stalled`, and the model is nudged to continue. After every turn, any server either model left running in its workspace is stopped.
 
@@ -131,7 +133,7 @@ Every rule below exists because something could tilt the result.
 
 **A clear finish line.** A run ends on whichever comes first:
 
-1. The budget is spent, a leak is caught, or the process crashes.
+1. The budget is spent, a leak is caught, the meter goes dark, the race is stopped (Ctrl-C or `buildoff stop`), or the process crashes.
 2. The model creates `DONE.md` after its last nudge. An earlier `DONE.md` is set aside (kept in `logs/done-turn-NNN.md`, with the spend at that moment in `result.json`) and the model is nudged on. We added this after a $25 dry run, where Opus called its game done at $7 and Kimi at $13.
 3. Three nudges have been sent. The nudge is one fixed sentence: keep building toward the spec.
 
@@ -146,10 +148,11 @@ Nothing records the screen. A screen recording would capture whatever else is op
 ```
 ~/gta-race-runs/<race-id>/
 └── kimi/ and opus/
-    ├── workspace/            the game, one git commit per turn
+    ├── workspace/            the game
+    ├── history.git/          one commit per turn, out of the model's reach
     ├── logs/turn-NNN.jsonl   transcript, each line {"t": seconds, "event": ...}
     ├── logs/cost.csv         spend at every Nexus poll
-    ├── logs/turns.jsonl      per turn: build_ok, loaded, console errors, cost
+    ├── logs/turns.jsonl      per turn: build_ok, loaded, playable, errors, cost
     ├── shots/turn-NNN.png    gameplay screenshot (000 = untouched base game)
     └── result.json           stop reason, cost, first playable turn, models seen
 ```
@@ -218,10 +221,12 @@ To follow along in more detail:
 tail -f ~/gta-race-runs/my-race/kimi/logs/cost.csv      # spend at every 15-second poll
 tail -f ~/gta-race-runs/my-race/kimi/logs/turns.jsonl   # one line per finished turn
 open ~/gta-race-runs/my-race/kimi/shots/                # gameplay screenshots
-git -C ~/gta-race-runs/my-race/kimi/workspace log --oneline   # one commit per turn
+git --git-dir ~/gta-race-runs/my-race/kimi/history.git log --oneline   # one commit per turn
 ```
 
 On macOS, the race also opens a viewer window per model that streams what it's doing. Pass `--no-viewers` to skip them.
+
+To end a race early, run `uv run buildoff stop` (or press Ctrl-C in the race's terminal). Both models stop within a second, and each writes its `result.json` with `aborted`.
 
 **Good to know. Why does a turn take so long?** A turn lasts until the model stops on its own. In our $25 dry run, Opus's first turn was one 38-minute session that built the whole game. The harness only records a turn (commit, build, screenshot) when it ends, so `turns_recorded` stays at 0 while spend climbs.
 

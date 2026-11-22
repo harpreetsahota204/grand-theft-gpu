@@ -25,6 +25,7 @@ import zipfile
 from pathlib import Path
 from typing import Any
 
+from harness.assets import safe_join
 from harness.config import MIRROR_DIR, REPO_ROOT
 
 PLAN_PATH: Path = REPO_ROOT / "scripts" / "texture_sources.json"
@@ -148,7 +149,7 @@ def fetch_ambientcg(spec: dict[str, Any], out: Path) -> int:
                 data = archive.read(name)
                 record["maps"][role] = {
                     "file": name,
-                    "sha256": write_checked(out / asset_id / name, data),
+                    "sha256": write_checked(safe_join(out / asset_id, name), data),
                 }
         dims = meta.get("dimensionX"), meta.get("dimensionY")
         record.update(

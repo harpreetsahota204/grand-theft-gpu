@@ -1,7 +1,8 @@
 """Per-turn evidence: a git commit, a Vite build, and a screenshot of the game.
 
 `harness.runner` calls `commit`, `build` and `screenshot` after every turn. The
-commits give a timeline to score against the tier checklist; the build tells us
+commits (in a history repo outside the workspace, see `init_history`) give a
+timeline to score against the tier checklist; the build tells us
 whether the game still compiles; the screenshots give footage for the video and
 tell us when the first playable build appeared.
 """
@@ -11,7 +12,7 @@ import functools
 import subprocess
 import threading
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
@@ -65,13 +66,28 @@ class ShotResult:
 
     Attributes:
         has_entry: whether the built site has the game entry file
-        loaded: whether the page loaded without throwing
-        console_errors: console errors and uncaught exceptions seen while settling
+        loaded: whether the page's load event fired
+        shot_written: whether the PNG was saved
+        page_errors: uncaught exceptions thrown by the game, plus harness-side
+            failures (navigation or screenshot timeouts), prefixed "harness:"
+        console_errors: `console.error` messages, including failed resource
+            loads; recorded as evidence but they don't make a turn unplayable
     """
 
     has_entry: bool
     loaded: bool
-    console_errors: list[str]
+    shot_written: bool = False
+    page_errors: list[str] = field(default_factory=list)
+    console_errors: list[str] = field(default_factory=list)
+
+    @property
+    def playable(self) -> bool:
+        """Loaded and rendered with no uncaught exception.
+
+        Console errors alone don't count: a missing favicon or a logged warning
+        shouldn't mark a working game broken.
+        """
+        return self.loaded and self.shot_written and not self.page_errors
 
 
 @dataclass(frozen=True)
@@ -116,39 +132,69 @@ def build(workspace: Path) -> BuildResult:
     return BuildResult(ok=True, log_tail="")
 
 
-def init_workspace(workspace: Path) -> None:
-    """Turns the seeded workspace into a git repo with a fixed identity.
+# Paths left out of the per-turn history whatever the workspace's .gitignore says:
+# installed packages, build output and the model's scratch screenshots.
+EVIDENCE_EXCLUDES: tuple[str, ...] = (
+    ":(exclude,glob)**/node_modules/**",
+    ":(exclude,glob)dist/**",
+    ":(exclude,glob)tools/shots/**",
+)
+
+
+def _git(history: Path, workspace: Path, *args: str) -> str:
+    """Runs git on the evidence history for a workspace and returns stdout."""
+    proc = subprocess.run(
+        ["git", f"--git-dir={history}", f"--work-tree={workspace}", *args],
+        cwd=workspace,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    return proc.stdout
+
+
+def init_history(history: Path, workspace: Path) -> None:
+    """Creates the evidence history: a git repo kept outside the workspace.
+
+    The model can't see or rewrite it (its sandbox can't read outside the
+    workspace), so commit N is always what the workspace held after turn N. A
+    model that wants git for itself can `git init` in its workspace; the
+    history ignores that nested `.git`.
 
     Args:
+        history: the bare-style git dir to create, e.g. `<contender>/history.git`
         workspace: the seeded folder the model builds in
     """
-    subprocess.run(["git", "init", "-q"], cwd=workspace, check=True)
+    # Bare, so git never creates a working tree next to it; core.bare=false then
+    # lets every command pair it with the workspace via --work-tree.
+    subprocess.run(["git", "init", "-q", "--bare", str(history)], check=True)
     # A local identity so commits never depend on (or leak) the user's git config.
-    for key, value in (("user.name", "race-harness"), ("user.email", "harness@localhost")):
-        subprocess.run(["git", "config", key, value], cwd=workspace, check=True)
+    for key, value in (
+        ("user.name", "race-harness"),
+        ("user.email", "harness@localhost"),
+        ("core.bare", "false"),
+    ):
+        subprocess.run(["git", f"--git-dir={history}", "config", key, value], check=True)
 
 
-def commit(workspace: Path, message: str) -> str:
-    """Commits everything in the workspace, even if nothing changed.
+def commit(history: Path, workspace: Path, message: str) -> str:
+    """Commits everything in the workspace to the evidence history, even if nothing changed.
+
+    `-f` adds files the model's own .gitignore would hide, so the history
+    records the whole game; `EVIDENCE_EXCLUDES` keeps out what shouldn't be in it.
 
     Args:
-        workspace: the contender's git repo
+        history: the evidence git dir (see `init_history`)
+        workspace: the contender's game folder
         message: commit message, e.g. "turn 3"
 
     Returns:
         the new commit's SHA
     """
-    subprocess.run(["git", "add", "-A"], cwd=workspace, check=True)
+    _git(history, workspace, "add", "-A", "-f", "--", ".", *EVIDENCE_EXCLUDES)
     # --allow-empty keeps one commit per turn so turn N always maps to commit N.
-    subprocess.run(
-        ["git", "commit", "-q", "--allow-empty", "--no-verify", "-m", message],
-        cwd=workspace,
-        check=True,
-    )
-    sha = subprocess.run(
-        ["git", "rev-parse", "HEAD"], cwd=workspace, capture_output=True, text=True, check=True
-    )
-    return sha.stdout.strip()
+    _git(history, workspace, "commit", "-q", "--allow-empty", "--no-verify", "-m", message)
+    return _git(history, workspace, "rev-parse", "HEAD").strip()
 
 
 def screenshot(
@@ -172,10 +218,10 @@ def screenshot(
             follow Playwright (`w`, `Shift`, `Space`, `ArrowUp`, ...).
 
     Returns:
-        whether the entry exists, whether it loaded, and any console errors
+        whether the entry exists, loaded and was captured, plus any errors
     """
     if not (site_dir / GAME_ENTRY).exists():
-        return ShotResult(has_entry=False, loaded=False, console_errors=[])
+        return ShotResult(has_entry=False, loaded=False)
 
     # Port 0 lets the OS pick a free port, so both contenders can snapshot at once.
     handler = functools.partial(QuietHandler, directory=str(site_dir))
@@ -183,13 +229,14 @@ def screenshot(
     threading.Thread(target=server.serve_forever, daemon=True).start()
     url = f"http://127.0.0.1:{server.server_address[1]}/{GAME_ENTRY}"
 
-    errors: list[str] = []
-    loaded = False
+    console_errors: list[str] = []
+    page_errors: list[str] = []
+    loaded = written = False
 
     def on_console(msg: ConsoleMessage) -> None:
         """Keeps console errors; drops log/info/warning noise."""
         if msg.type == "error":
-            errors.append(msg.text)
+            console_errors.append(msg.text)
 
     try:
         with sync_playwright() as pw:
@@ -197,7 +244,7 @@ def screenshot(
             page = browser.new_page(viewport={"width": 1280, "height": 720})
             page.add_init_script(POINTER_LOCK_SHIM)
             page.on("console", on_console)
-            page.on("pageerror", lambda e: errors.append(str(e)))
+            page.on("pageerror", lambda e: page_errors.append(str(e)))
             try:
                 page.goto(url, wait_until="load", timeout=15_000)
                 loaded = True
@@ -219,13 +266,24 @@ def screenshot(
                     page.keyboard.up(key)
                 out_png.parent.mkdir(parents=True, exist_ok=True)
                 page.screenshot(path=str(out_png))
+                written = True
             except Exception as exc:  # noqa: BLE001 - a broken build is data, not a harness crash
-                errors.append(f"harness: {exc}")
-            browser.close()
+                page_errors.append(f"harness: {exc}")
+            finally:
+                browser.close()
     finally:
         server.shutdown()
+        # shutdown() only stops the loop; close the listening socket too, or
+        # every turn leaks one.
+        server.server_close()
 
-    return ShotResult(has_entry=True, loaded=loaded, console_errors=errors)
+    return ShotResult(
+        has_entry=True,
+        loaded=loaded,
+        shot_written=written,
+        page_errors=page_errors,
+        console_errors=console_errors,
+    )
 
 
 class AssetServer(ThreadingHTTPServer):

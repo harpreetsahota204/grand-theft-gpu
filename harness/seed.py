@@ -8,8 +8,12 @@ Both contenders must start from byte-identical folders. `harness.runner` calls
       public/assets/gt-gpu/<dataset layout>   the seeded asset set (harness.fetch.PACK_PATTERNS)
       tools/assets.mjs, tools/catalog.json    the models' own search + fetch tool (full pack only)
       tools/screenshot                  build + render the game to a PNG (harness.shot_tool)
-      .gitignore                        keeps node_modules/ and dist/ out of turn commits
-      node_modules/                     from `npm install`
+      .gitignore                        keeps node_modules/ and dist/ out of the model's own commits
+      node_modules/                     from `npm ci`
+
+and, next to the workspace, `toolkit/`: a copy of the few harness modules
+`tools/screenshot` runs. The model's sandbox (`harness.sandbox`) lets it read
+that copy but not this repo.
 
 The base repo is fetched once into a cache under `RUNS_ROOT/.cache`, and the
 core assets once into the huggingface_hub cache; both are copied from there,
@@ -33,8 +37,9 @@ from harness.config import (
     RUNS_ROOT,
 )
 
-# node_modules is reinstalled per workspace; dist is rebuilt every turn. Neither
-# belongs in the per-turn commits that the scoring timeline is built from.
+# node_modules is reinstalled per workspace; dist is rebuilt every turn. The
+# harness's own per-turn history ignores them regardless (snapshot.EVIDENCE_EXCLUDES);
+# this file only helps a model that runs git in its workspace itself.
 WORKSPACE_GITIGNORE: str = "node_modules/\ndist/\ntools/shots/\n"
 
 NPM_TIMEOUT_S: int = 600
@@ -42,13 +47,38 @@ NPM_TIMEOUT_S: int = 600
 # The models' zero-dependency asset tool, copied into every workspace's tools/.
 TOOL_PATH: Path = REPO_ROOT / "harness" / "workspace_tools" / "assets.mjs"
 
+# The harness modules `tools/screenshot` imports (shot_tool -> snapshot -> config).
+TOOLKIT_MODULES: tuple[str, ...] = (
+    "__init__.py",
+    "cliutil.py",
+    "config.py",
+    "shot_tool.py",
+    "snapshot.py",
+)
 
-def write_screenshot_wrapper(workspace: Path) -> Path:
+
+def write_toolkit(toolkit: Path) -> Path:
+    """Copies the modules `tools/screenshot` needs into `toolkit/harness/`.
+
+    The screenshot tool runs inside the model's sandbox, which can't read this
+    repo, so it gets its own copy outside the workspace (read-only to the model).
+
+    Returns:
+        the toolkit folder, for PYTHONPATH
+    """
+    package = toolkit / "harness"
+    package.mkdir(parents=True)
+    for name in TOOLKIT_MODULES:
+        shutil.copy2(REPO_ROOT / "harness" / name, package / name)
+    return toolkit
+
+
+def write_screenshot_wrapper(workspace: Path, toolkit: Path) -> Path:
     """Writes `tools/screenshot`, which runs `harness.shot_tool` on this workspace.
 
-    The wrapper pins this harness's Python interpreter and repo path, so the
-    model can call it from Bash without any setup. Both contenders get an
-    identical script apart from their own workspace path.
+    The wrapper pins this harness's Python interpreter and the contender's
+    toolkit copy, so the model can call it from Bash without any setup. Both
+    contenders get an identical script apart from their own paths.
 
     Returns:
         path of the executable wrapper
@@ -58,7 +88,7 @@ def write_screenshot_wrapper(workspace: Path) -> Path:
         "#!/usr/bin/env bash\n"
         "# Build the game and save a gameplay screenshot (JSON result on stdout).\n"
         "# Usage: tools/screenshot [--hold KEY:MS ...] [--out PATH] [--no-build] [--help]\n"
-        f"PYTHONPATH={shlex.quote(str(REPO_ROOT))} exec {shlex.quote(sys.executable)} "
+        f"PYTHONPATH={shlex.quote(str(toolkit.resolve()))} exec {shlex.quote(sys.executable)} "
         f'-m harness.shot_tool {shlex.quote(str(workspace.resolve()))} "$@"\n'
     )
     script.chmod(0o755)
@@ -125,11 +155,12 @@ def base_cache() -> Path:
     return cache
 
 
-def seed_workspace(workspace: Path, pack: str = "full") -> None:
+def seed_workspace(workspace: Path, toolkit: Path, pack: str = "full") -> None:
     """Fills an empty workspace with the base game, our assets and installed deps.
 
     Args:
         workspace: the contender's folder; must not exist yet
+        toolkit: where to put the screenshot tool's modules; must not exist yet
         pack: "full" (the whole seeded asset set plus the asset search tool) or
             "primitives" (only the GPU loot; no asset tool). Both get tools/screenshot.
     """
@@ -156,13 +187,14 @@ def seed_workspace(workspace: Path, pack: str = "full") -> None:
     if pack == "full":
         shutil.copy2(TOOL_PATH, tools / "assets.mjs")
         shutil.copy2(CATALOG_PATH, tools / "catalog.json")
-    write_screenshot_wrapper(workspace)
+    write_screenshot_wrapper(workspace, write_toolkit(toolkit))
     (workspace / ".gitignore").write_text(WORKSPACE_GITIGNORE)
 
     # Install before turn 1 so the model starts with a buildable project and the
-    # first turn isn't charged for waiting on npm.
+    # first turn isn't charged for waiting on npm. `npm ci` installs exactly the
+    # base game's lockfile, so both contenders get identical dependencies.
     subprocess.run(
-        ["npm", "install", "--no-audit", "--no-fund", "--loglevel=error"],
+        ["npm", "ci", "--no-audit", "--no-fund", "--loglevel=error"],
         cwd=workspace,
         check=True,
         timeout=NPM_TIMEOUT_S,

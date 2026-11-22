@@ -29,6 +29,7 @@ assets = [
     "trimesh>=5.2.1",
 ]
 dev = [
+    "pytest>=9.2.0",
     "ruff>=0.7",
 ]
 
@@ -48,3 +49,6 @@ ignore = ["D401"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -71,9 +71,9 @@ Each contender loops through turns. A turn is one `claude -p` process.
 
 0. **Seeding** (before the clock starts): the workspace gets the base game at a pinned commit, our assets at `public/assets/gt-gpu/`, and a clean `npm install`. Turn 0 records the untouched base game.
 1. **Turn 1** gets the spec plus the run rules. Every later turn gets the same fixed nudge (`prompts/nudge.md`) and resumes the same session.
-2. **During a turn,** a watchdog polls Nexus every 15 seconds. It kills the turn if spend reaches the budget, if any model other than the contender's shows up (a leak), or if the turn **stalls**: no output and no new spend for 10 minutes. A stalled turn isn't a penalty; the model gets nudged and carries on. This exists because a model in a dry run started `npm run preview`, a server that never exits, in the foreground and sat blocked for 35 minutes.
-3. **After every turn,** the harness stops any server the model left running in its workspace, then makes a git commit, runs `npm install && npm run build`, screenshots the built game, and writes a row to `turns.jsonl`. The screenshot waits for the game to finish loading, then clicks past any "click to play" screen, so it shows gameplay. A failed build counts as not playable for that turn.
-4. **Stop rules,** in order: budget, leak or crash → 3 nudges used. Creating `DONE.md` early doesn't end a race: the file is set aside in `logs/done-turn-NNN.md` and the model gets the fixed nudge, so both models are pushed toward the full budget the same way. A `DONE.md` after the last nudge ends the run (`declared_done`). The smoke test stops at the first `DONE.md`. A provider API error (such as a dropped stream) isn't the model's fault: the session is resumed with the nudge, up to 3 times per run, without using up a nudge, and logged as `api_retry` in `logs/events.jsonl`.
+2. **During a turn,** a watchdog polls Nexus every 15 seconds. It kills the turn if spend reaches the budget, if any model other than the contender's shows up (a leak), if Nexus gives no reading for 3 minutes (`meter_down`: the budget can't be enforced blind), or if the turn **stalls**: no output and no new spend for 10 minutes. A stalled turn isn't a penalty; the model gets nudged and carries on. This exists because a model in a dry run started `npm run preview`, a server that never exits, in the foreground and sat blocked for 35 minutes.
+3. **After every turn,** the harness kills the turn's process group and any server the model left running in its workspace, then commits the workspace to `history.git` (outside the model's reach), runs `npm install && npm run build`, screenshots the built game, and writes a row to `turns.jsonl`. The screenshot waits for the game to finish loading, then clicks past any "click to play" screen, so it shows gameplay. A turn is **playable** if it built, loaded and rendered with no uncaught exception. Console errors (a missing favicon, a logged warning) are recorded but don't fail a turn. The race clock (`model_seconds`, `elapsed_s`) counts only time the model's turns ran, not the harness's own build and screenshot work.
+4. **Stop rules,** in order: budget, leak, dead meter, abort or crash → 3 nudges used. Creating `DONE.md` early doesn't end a race: the file is set aside in `logs/done-turn-NNN.md` and the model gets the fixed nudge, so both models are pushed toward the full budget the same way. A `DONE.md` after the last nudge ends the run (`declared_done`). The smoke test stops at the first `DONE.md`. A provider API error (such as a dropped stream) isn't the model's fault: the session is resumed with the nudge, up to 3 times per run, without using up a nudge, and logged as `api_retry` in `logs/events.jsonl`.
 
 ## Rules of the race
 
@@ -84,6 +84,8 @@ These are the decisions behind the design.
 - **Same tools on both sides:** Bash, Read, Edit, Write, WebFetch, WebSearch, Agent.
 - **Subagents are pinned per process** (`CLAUDE_CODE_SUBAGENT_MODEL`), so a Kimi subagent can't fall back to Claude. A leak test confirmed it, and the watchdog checks it on every poll.
 - **Isolated from your setup:** no MCP servers, no skills or slash commands, and workspaces live in `~/gta-race-runs/`, outside this repo.
+- **Isolated from each other:** each turn runs under a macOS `sandbox-exec` profile (`harness/sandbox.py`). A model can read and write only its own workspace. It can't read the other model's game, the race logs and evidence, earlier races, this repo, or other sessions' transcripts. Its environment is scrubbed of API keys and tokens.
+- **Fails closed:** Ctrl-C, `kill` or `buildoff stop` aborts both sides within a second (`aborted`). A harness crash still kills the running turn and writes `result.json`.
 - **No screen recording.** Every transcript line carries a race-clock timestamp, and the video is rendered later from the logs. Nothing private ends up on camera.
 - **Budget overshoot is expected:** up to about 15 seconds of spend past the cap.
 - **Unpriced rows only produce a warning.** If Nexus can't price a call, a warning goes to `events.jsonl` and the race continues.
@@ -94,13 +96,14 @@ These are the decisions behind the design.
 ~/gta-race-runs/<race-id>/
 ├── config.json, summary.json
 └── kimi/ | opus/
-    ├── workspace/            git repo the model built, one commit per turn
+    ├── workspace/            the game the model built
+    ├── history.git/          one commit per turn of workspace/ (git --git-dir=history.git log)
     ├── logs/turn-NNN.jsonl   transcript, each line {"t": seconds, "event": ...}
     ├── logs/cost.csv         seconds,cost_usd from each Nexus poll
-    ├── logs/turns.jsonl      per turn: end, commit, cost, build_ok, loaded, console errors
-    ├── logs/events.jsonl     leaks and unpriced warnings (only if any)
+    ├── logs/turns.jsonl      per turn: end, commit, cost, build_ok, loaded, playable, errors
+    ├── logs/events.jsonl     leaks, stalls, meter, aborts, retries, harness errors (only if any)
     ├── shots/turn-NNN.png    gameplay screenshot after each turn (000 = base game)
-    └── result.json           stop reason, cost, turns, first playable turn
+    └── result.json           stop reason, cost, turns, model time, first playable turn
 ```
 
 ## Assets
@@ -182,6 +185,7 @@ USDCraft ships OpenUSD for Isaac Sim, which three.js can't load. For each prop, 
 |---|---|
 | `harness/race.py` | CLI entry: runs the contenders in parallel and writes the summary |
 | `harness/runner.py` | One contender: turn loop, watchdog, stop rules |
+| `harness/sandbox.py` | Per-contender `sandbox-exec` profile and scrubbed environment |
 | `harness/meter.py` | Reads cost and models from Nexus |
 | `harness/status.py` | `buildoff status` and `buildoff play`: race progress as JSON, serve a build |
 | `harness/snapshot.py` | Per-turn git commit, Vite build, and gameplay screenshot |

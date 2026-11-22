@@ -38,6 +38,30 @@ METER_POLL_SECONDS: float = 15.0
 # foreground and sat blocked for 35 minutes. Generous enough for long installs.
 STALL_TIMEOUT_S: float = 600.0
 
+# The meter is the only thing enforcing the budget, so it fails closed: if Nexus
+# gives no reading for this long during a turn (down, logged out, bad JSON), the
+# turn is killed and the run stops as "meter_down" rather than spending blind.
+# Long enough to cover the few seconds before a new session's first reading.
+METER_BLIND_LIMIT_S: float = 180.0
+
+# Environment variables passed through to each `claude` process. Everything else
+# (API keys, tokens, the parent Claude Code session's variables) is dropped, so a
+# model's Bash can't read the user's secrets from its environment. Nexus routing
+# and auth live in ~/.claude/settings.json, which Claude Code reads itself.
+ENV_ALLOWLIST: tuple[str, ...] = (
+    "HOME",
+    "USER",
+    "LOGNAME",
+    "SHELL",
+    "PATH",
+    "LANG",
+    "LC_ALL",
+    "LC_CTYPE",
+    "TERM",
+    "TMPDIR",
+    "__CF_USER_TEXT_ENCODING",
+)
+
 # Contract files the run rules tell each model about. The game is a Vite
 # project: the harness builds it each turn and loads BUILD_DIR/GAME_ENTRY.
 DONE_FILE: str = "DONE.md"
@@ -91,7 +115,10 @@ class Contender:
 
 CONTENDERS: tuple[Contender, ...] = (
     Contender(name="kimi", model="kimi-latest", nexus_model="kimi-k3p1-pro"),
-    Contender(name="opus", model="opus", nexus_model="claude-opus-5-5"),
+    # Opus is pinned by full ID so an alias update can't swap models mid-race.
+    # Kimi's only Nexus name is the `kimi-latest` alias; if it ever resolves to
+    # anything but kimi-k3p1-pro, the leak check stops the run at the first poll.
+    Contender(name="opus", model="claude-opus-5-5", nexus_model="claude-opus-5-5"),
 )
 
 

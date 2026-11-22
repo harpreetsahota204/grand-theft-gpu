@@ -237,8 +237,12 @@ def convert(row: dict[str, str], raw_dir: Path, out_dir: Path) -> PropEntry:
 def main(picked_csv: Path, raw_dir: Path, out_dir: Path) -> None:
     """Converts every prop in picked.csv and writes manifest.json next to them.
 
-    One failing prop is reported and skipped so a single bad stage doesn't
-    block the rest of the set.
+    A failing prop doesn't stop the others from converting, but the run still
+    fails at the end: a prop silently missing from the manifest would drop out
+    of the catalog and the dataset unnoticed.
+
+    Raises:
+        RuntimeError: if any prop failed (after the manifest is written)
     """
     out_dir.mkdir(parents=True, exist_ok=True)
     entries: list[PropEntry] = []
@@ -266,6 +270,8 @@ def main(picked_csv: Path, raw_dir: Path, out_dir: Path) -> None:
     print(f"converted {len(entries)}, failed {len(failures)}")
     for line in failures:
         print("FAILED", line)
+    if failures:
+        raise RuntimeError(f"{len(failures)} prop(s) failed to convert")
 
 
 if __name__ == "__main__":

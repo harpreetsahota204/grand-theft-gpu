@@ -20,7 +20,7 @@ import zipfile
 from pathlib import Path
 from typing import Any
 
-from harness.assets import kenney_zip
+from harness.assets import kenney_zip, safe_join
 from harness.config import MIRROR_DIR, REPO_ROOT
 from harness.textures import get, write_checked
 
@@ -56,7 +56,7 @@ def unzip_kept(archive: zipfile.ZipFile, prefixes: list[str], dest: Path) -> dic
         # Keep the surface/category folder for multi-prefix zips (footsteps/boots/...).
         if len(prefixes) > 1:
             rel = f"{Path(prefix).name}/{rel}"
-        hashes[rel] = write_checked(dest / rel, archive.read(name))
+        hashes[rel] = write_checked(safe_join(dest, rel), archive.read(name))
     if not hashes:
         raise ValueError(f"no files matched {prefixes} in the archive")
     return hashes

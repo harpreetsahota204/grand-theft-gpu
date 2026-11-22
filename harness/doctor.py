@@ -17,6 +17,7 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import NamedTuple
 
+from harness import sandbox
 from harness.config import DEFAULT_BLENDER
 
 
@@ -98,6 +99,12 @@ CHECKS: list[Check] = [
     ),
     Check("Nexus connected", check_nexus_connected, "nexus login && nexus claude", True),
     Check("git", lambda: run(["git", "--version"]), "xcode-select --install", True),
+    Check(
+        "sandbox-exec (contender isolation)",
+        lambda: None if sandbox.check() else "ok",
+        "races need macOS's /usr/bin/sandbox-exec",
+        True,
+    ),
     Check("Chromium (Playwright)", check_chromium, "uv run playwright install chromium", True),
     Check("Node.js (base game)", lambda: run(["node", "--version"]), "brew install node", True),
     Check("Blender (asset rebuild)", check_blender, "brew install --cask blender", False),

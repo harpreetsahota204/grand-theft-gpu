@@ -95,13 +95,25 @@ BUILDING_TYPES: dict[str, str] = {
 # ---------- fetching ----------------------------------------------------------
 
 
+# The OpenStreetMap snapshot the published city was built from. Overpass's
+# [date:] setting replays the map as of this moment, so a rebuild without the
+# cache gets the same buildings and streets, not today's edits.
+OSM_DATE: str = "2026-11-21T04:03:32Z"
+
+
 def fetch_osm(cache: Path) -> dict[str, Any]:
-    """Downloads buildings and streets in BBOX from Overpass, cached as JSON."""
+    """Downloads buildings and streets in BBOX from Overpass, cached as JSON.
+
+    Raises:
+        RuntimeError: if Overpass reports an error (it answers HTTP 200 with a
+            "remark" and partial data on timeouts); nothing is cached then
+    """
     if cache.exists():
         return json.loads(cache.read_text())
     s, w, n, e = BBOX
     query = (
-        f'[out:json][timeout:120];(way["building"]({s},{w},{n},{e});'
+        f'[out:json][timeout:120][date:"{OSM_DATE}"];'
+        f'(way["building"]({s},{w},{n},{e});'
         f'way["highway"]({s},{w},{n},{e}););out body;>;out skel qt;'
     )
     req = urllib.request.Request(
@@ -111,6 +123,8 @@ def fetch_osm(cache: Path) -> dict[str, Any]:
     )
     with urllib.request.urlopen(req, timeout=240) as resp:
         data = json.loads(resp.read())
+    if "remark" in data or not data.get("elements"):
+        raise RuntimeError(f"Overpass returned no usable data: {data.get('remark', 'empty')}")
     cache.write_text(json.dumps(data))
     return data
 
@@ -146,7 +160,11 @@ class Elevation:
                     url = TERRAIN_URL.format(z=TERRAIN_ZOOM, x=tx, y=ty)
                     req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
                     with urllib.request.urlopen(req, timeout=60) as resp:
-                        png.write_bytes(resp.read())
+                        data = resp.read()
+                    # Decode before caching, so a truncated download fails now
+                    # instead of being reused by every later build.
+                    Image.open(io.BytesIO(data)).verify()
+                    png.write_bytes(data)
                 rgb = np.asarray(Image.open(io.BytesIO(png.read_bytes())).convert("RGB"), float)
                 # Terrarium encoding: height = R*256 + G + B/256 - 32768 (metres).
                 row.append(rgb[..., 0] * 256 + rgb[..., 1] + rgb[..., 2] / 256 - 32768)
