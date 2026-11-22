@@ -197,6 +197,7 @@ uv run buildoff smoke   # ~$0.30, ~2 min, real setup
 | Harness development and tests (smoke, stress, leak test, verify) | ~$2 |
 | Smoke tests on the seeded base game (3 runs) | ~$1 |
 | $5 dry run (`test-5usd-001`) | $8.77 (Kimi $3.75 + Opus $5.02) |
+| Smoke test of the hardened, sandboxed harness (`race-20261121-225555`) | $0.90 (Kimi $0.56, hit the $0.50 cap; Opus $0.34, declared done). Both playable on turn 1, correct models only, zero sandbox denials |
 
 ## 8. Next up
 
