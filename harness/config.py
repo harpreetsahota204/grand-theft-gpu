@@ -23,6 +23,10 @@ TOOLS: tuple[str, ...] = ("Bash", "Read", "Edit", "Write", "WebFetch", "WebSearc
 # nudge. After this many nudges the run ends, so "the model called it done" stays
 # meaningful.
 MAX_NUDGES: int = 3
+# Provider API errors (e.g. a dropped stream) are retried by resuming the session
+# with the nudge, up to this many times per run, without using up the model's
+# nudges: an infrastructure hiccup shouldn't end or shorten a model's race.
+MAX_API_RETRIES: int = 3
 
 # How often the watchdog asks Nexus for spend during a turn. Subagents can burn a
 # few dollars between polls, so expect final spend slightly over budget.

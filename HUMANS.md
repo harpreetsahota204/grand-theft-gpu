@@ -127,6 +127,8 @@ Every rule below exists because something could tilt the result.
 
 **No hanging forever.** In a dry run, Kimi started `npm run preview`, a web server that never exits, as a foreground command, and sat blocked for 35 minutes. Now a turn with no output and no new spend for 10 minutes is killed as `stalled`, and the model is nudged to continue. After every turn, any server either model left running in its workspace is stopped.
 
+**Network hiccups don't end a race.** In the first primitives dry run, the stream from the API stopped arriving 12 minutes into Kimi's build. Claude Code gave up after about six minutes of silence, and the harness, which then treated any error as fatal, ended Kimi's run at $0.41. Now a provider API error resumes the same session with the fixed nudge, up to three times per run, without using up one of the model's nudges. Every retry is logged, so reliability is reported rather than hidden.
+
 **A clear finish line.** A run ends on whichever comes first:
 
 1. The budget is spent, a leak is caught, or the process crashes.

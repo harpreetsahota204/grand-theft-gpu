@@ -39,6 +39,7 @@ from harness import meter, seed, snapshot
 from harness.config import (
     BUILD_DIR,
     DONE_FILE,
+    MAX_API_RETRIES,
     MAX_NUDGES,
     METER_POLL_SECONDS,
     PROMPTS_DIR,
@@ -49,7 +50,10 @@ from harness.config import (
 )
 
 StopReason = Literal["declared_done", "nudge_cap", "budget", "leak", "error"]
-TurnEnd = Literal["completed", "stalled", "budget", "leak", "error"]
+TurnEnd = Literal["completed", "stalled", "budget", "leak", "error", "api_error"]
+# Claude Code's final message when the provider API fails mid-turn, e.g.
+# "API Error: The response stopped arriving."
+API_ERROR_PREFIX: str = "API Error"
 
 # An empty MCP config plus --strict-mcp-config removes the user's connectors
 # (Notion, Gmail, ...) from the race sessions.
@@ -72,6 +76,7 @@ class RunResult:
         first_playable_seconds: elapsed seconds at the end of that turn
         models_seen: every model Nexus logged for this session
         done_declared: each time the model wrote DONE.md: turn and spend so far
+        api_retries: turns resumed after a provider API error (not counted as nudges)
         pack: which asset pack the workspace was seeded with
     """
 
@@ -86,6 +91,7 @@ class RunResult:
     first_playable_seconds: float | None
     models_seen: list[str]
     done_declared: list[dict[str, float]]
+    api_retries: int
     pack: str
 
 
@@ -140,7 +146,7 @@ class ContenderRun:
 
         prompt = build_first_prompt(self.cfg.spec_path)
         nudge = (PROMPTS_DIR / "nudge.md").read_text()
-        turn = nudges = 0
+        turn = nudges = api_retries = 0
         first_playable: tuple[int, float] | None = None
 
         while True:
@@ -155,6 +161,13 @@ class ContenderRun:
             playable = self._record_turn(turn, end)
             if first_playable is None and playable:
                 first_playable = (turn, time.monotonic() - self._start)
+
+            if end == "api_error" and api_retries < MAX_API_RETRIES:
+                # Infrastructure, not the model: resume without using a nudge.
+                api_retries += 1
+                self._append_jsonl("events.jsonl", {"event": "api_retry", "turn": turn})
+                prompt = nudge
+                continue
 
             reason = self._stop_reason(end, nudges, turn)
             if reason is not None:
@@ -175,6 +188,7 @@ class ContenderRun:
             first_playable_seconds=round(first_playable[1], 1) if first_playable else None,
             models_seen=sorted(self._last.models) if self._last else [],
             done_declared=self._done_declared,
+            api_retries=api_retries,
             pack=self.cfg.pack,
         )
         (self.root / "result.json").write_text(json.dumps(asdict(result), indent=2))
@@ -236,6 +250,8 @@ class ContenderRun:
         """
         if end in ("budget", "leak", "error"):
             return end
+        if end == "api_error":  # retries used up (the turn loop retries before this)
+            return "error"
         done = self.workspace / DONE_FILE
         if done.exists():
             self._done_declared.append({"turn": turn, "cost_usd": round(self._cost(), 4)})
@@ -300,7 +316,25 @@ class ContenderRun:
             verdict = self._check_meter() or verdict
         if verdict is not None:
             return verdict
-        return "completed" if proc.returncode == 0 else "error"
+        if proc.returncode == 0:
+            return "completed"
+        return "api_error" if self._ended_on_api_error(log_path) else "error"
+
+    @staticmethod
+    def _ended_on_api_error(log_path: Path) -> bool:
+        """True if the turn's final result event is a provider API error.
+
+        Claude Code exits non-zero with a result like "API Error: The response
+        stopped arriving" when the provider fails mid-turn; anything else that
+        exits non-zero (a crash, a bad flag) stays a hard error.
+        """
+        for line in reversed(log_path.read_text().splitlines()):
+            event = json.loads(line).get("event", {})
+            if event.get("type") == "result":
+                return bool(event.get("is_error")) and str(event.get("result", "")).startswith(
+                    API_ERROR_PREFIX
+                )
+        return False
 
     def _pump(self, stream: IO[bytes], log: TextIO) -> None:
         """Copies claude's output into the turn log, stamping each line with race time.
