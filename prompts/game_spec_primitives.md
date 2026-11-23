@@ -44,7 +44,7 @@ You have about **$100 of compute** for this whole build. When it runs out, the b
 
 ## Look and feel
 
-Low-poly, PS2-era 3D. Chunky shapes, simple textures, real skies and lighting, readable at a glance. It should feel like a game, with a HUD, sound, feedback and some juice, not a tech demo.
+The visual style is up to you. It should feel like a game, with a HUD, sound, feedback and some juice, not a tech demo.
 
 ## What you have to work with
 

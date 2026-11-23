@@ -12,7 +12,7 @@ A harness that races two models, **Kimi K3.1 Pro** (on Fireworks, routed through
 ## Ground rules
 
 1. **Races spend real money.** `buildoff race` spends up to `--budget` *per model*, on the user's Fireworks and Anthropic accounts. **Never start a race above the smoke budget without the user's explicit OK** in this conversation. The CLI refuses budgets over $2 without `--yes`. Don't add `--yes` on your own.
-2. **The prompts are locked.** `prompts/game_spec.md` (full asset pack), `prompts/game_spec_primitives.md` (primitives race), `prompts/run_rules.md` and `prompts/nudge.md` are frozen at git tag `prompt-v5` (the current version). Don't edit them. A change makes new races incomparable with earlier ones, and needs the user's OK and a new tag.
+2. **The prompts are locked.** `prompts/game_spec.md` (full asset pack), `prompts/game_spec_primitives.md` (primitives race), `prompts/run_rules.md` and `prompts/nudge.md` are frozen at git tag `prompt-v6` (the current version). Don't edit them. A change makes new races incomparable with earlier ones, and needs the user's OK and a new tag.
 3. **Fairness is the product.** Both sides must get identical flags, tools, files, settings and rules; only the model ID differs (in `--model` and in the per-side `--settings` file, which `tests/test_session.py` checks). Don't change one side's setup alone.
 4. **Don't read credentials.** Never open `~/.claude/settings.json` or other key files. Use `nexus claude status` to check routing.
 5. **Don't use `--dangerously-skip-permissions` or `claude --bare`.** The harness pre-approves tools with `--allowed-tools`. `--bare` breaks Nexus auth.
