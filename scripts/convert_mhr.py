@@ -38,7 +38,12 @@ def convert(fbx: Path, out: Path) -> None:
 
 
 def main(src_dir: Path, out_dir: Path) -> None:
-    """Converts every lod*.fbx in src_dir to out_dir/mhr-lodN.glb."""
+    """Converts every lod*.fbx in src_dir to out_dir/mhr-lodN.glb.
+
+    Args:
+        src_dir: MHR's `assets/` folder holding `lod0.fbx` … `lod6.fbx`
+        out_dir: destination folder (created if missing)
+    """
     out_dir.mkdir(parents=True, exist_ok=True)
     for fbx in sorted(src_dir.glob("lod*.fbx")):
         out = out_dir / f"mhr-{fbx.stem}.glb"

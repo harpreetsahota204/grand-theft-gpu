@@ -69,6 +69,7 @@ def test_meter_budget_and_leak(run: ContenderRun, monkeypatch: pytest.MonkeyPatc
     """Spend at the cap stops as budget; a foreign model stops as leak."""
     own = run.contender.nexus_model
     reading = meter.Reading(cost_usd=1.0, models=frozenset({own}), unpriced=0)
+    # The lambda reads `reading` when called, so reassigning it below changes the result.
     monkeypatch.setattr(meter, "read_session", lambda _sid: reading)
     assert run._check_meter() == "budget"
     reading = meter.Reading(cost_usd=0.1, models=frozenset({own, "other"}), unpriced=0)

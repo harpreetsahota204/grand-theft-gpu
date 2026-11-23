@@ -173,7 +173,7 @@ def score(asset: dict[str, Any], words: list[str]) -> float:
     tags = {stem(w) for t in asset["tags"] for w in [t, *tokens(t)]}
     # Partial matches count only when the query word starts a word ("walk" matches
     # "walking", not "sidewalk"), and only for words of 3+ letters.
-    starts = {t for t in tokens(" ".join([asset["id"], asset["name"], *asset["tags"]]))}
+    starts = set(tokens(" ".join([asset["id"], asset["name"], *asset["tags"]])))
     total = 0.0
     words = [stem(w) for w in words]
     for w in words:

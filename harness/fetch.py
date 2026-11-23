@@ -6,8 +6,8 @@ Two uses:
   trees, 1k skies, textures, sounds, sprites, fonts, plus each folder's license
   and attribution files). `harness.seed` copies it into
   each workspace under `public/assets/gt-gpu/`.
-- `fetch()`: anything else on demand, by catalog id or dataset path pattern
-  (`buildoff assets fetch`).
+- `download()`: anything else on demand, by dataset path pattern (or catalog
+  id, via `patterns_for_ids()`), for `buildoff fetch`.
 
 Downloads go through huggingface_hub's cache, so repeated races and fetches
 don't re-download; pinning `HF_ASSETS_REVISION` makes every race identical.

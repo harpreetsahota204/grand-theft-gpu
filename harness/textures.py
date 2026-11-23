@@ -48,11 +48,6 @@ def get_json(url: str) -> Any:
     return json.loads(get(url))
 
 
-def sha256(data: bytes) -> str:
-    """Hex sha256 of a byte string (recorded in info.json)."""
-    return hashlib.sha256(data).hexdigest()
-
-
 def write_checked(path: Path, data: bytes, md5: str | None = None) -> str:
     """Writes a downloaded file, verifying its md5 when the source publishes one.
 
@@ -60,13 +55,13 @@ def write_checked(path: Path, data: bytes, md5: str | None = None) -> str:
         ValueError: if the md5 doesn't match (a corrupted or changed upstream file)
 
     Returns:
-        the file's sha256
+        the file's hex sha256 (recorded in info.json)
     """
     if md5 and hashlib.md5(data).hexdigest() != md5:
         raise ValueError(f"md5 mismatch for {path.name}")
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_bytes(data)
-    return sha256(data)
+    return hashlib.sha256(data).hexdigest()
 
 
 def polyhaven_size_m(asset_id: str) -> list[float] | None:

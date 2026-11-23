@@ -44,10 +44,10 @@ If `doctor` reports missing items, each line says how to fix it. The required it
 | `uv run buildoff assets publish` | Upload the dataset. **Public and outward-facing: only with the user's explicit OK** | free |
 | `uv run buildoff inventory <categories\|list\|search\|show\|schema>` | Searches the asset catalog. JSON on stdout, JSON errors on stderr, deterministic. Start with `inventory schema`. | free |
 
-Races run for a long time: 30 minutes to hours. Launch them detached so a tool timeout can't kill them partway, then check progress with `uv run buildoff status` (or follow `logs/turns.jsonl`):
+Races run for a long time: 30 minutes to hours. Launch them detached so a tool timeout can't kill them partway, then check progress with `uv run buildoff status` (or follow `logs/turns.jsonl`). `caffeinate -i` stops the Mac from idle-sleeping, and the lid must stay open: a sleeping Mac pauses the race (the 2026-11-21 dry runs crept through the night in maintenance wakes):
 
 ```bash
-nohup uv run buildoff race --budget N --yes --race-id my-race > ~/gta-race-runs/my-race.log 2>&1 &
+nohup caffeinate -i uv run buildoff race --budget N --yes --race-id my-race > ~/gta-race-runs/my-race.log 2>&1 &
 ```
 
 ## Checking a run

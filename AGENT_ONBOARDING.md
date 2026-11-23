@@ -125,6 +125,17 @@ Moved here from the status table, where it had grown into one 5,000-character ce
 - **Gap pass (2026-11-21, after E):** (1) **Objaverse vehicles and Google Poly trees were normalised to ~1 m by the upstream converter, and vehicles faced mixed directions.** `dataset.real_size` now sets real size by wrapping each glb scene in one transform node (JSON-only edit, BIN chunk untouched, idempotent via the `gt-gpu-real-size` node). Plan in `mirror_sources.json` `real_size` (`measure`, `items`, `reverse`). Vehicles: length along z, front at +z (verified on profile renders; bus, fire truck and vintage sedan needed `reverse`), wheels on y = 0, centred. Trees: real heights. `catalog.json_bounds` measures bounds from accessor min/max, so it works on meshopt files; catalog `size_m` and vehicle `parts` (wheel meshes) come from it. (2) **`audio-freesound/`**: 8 CC0 sounds (police and ambulance sirens, two crashes, 8.6 min of downtown traffic, horn, handbrake skid, passing car) as Freesound HQ preview MP3s, because originals need OAuth. (3) The user said **not to worry about real brand names on asset textures** (the city bus livery names a real company). Catalog: 1,302 assets. Republished with the user's OK as revision `717f91bbc3755ac942fd0afbbbc657826be126cc` (pinned); a fresh seed (654 MB) had every seeded URL, real-size fire truck (9.5 m) and royal palm (15 m), and the base game built and loaded.
 - **E done (2026-11-21):** published with the user's OK as revision `00367a7c63d4a21fc0c6ae7595ffa18eed44caae` (pinned in `HF_ASSETS_REVISION`; also ships the UV-mapped sf-city with the road fix). A fresh `buildoff fetch --core` pulled 1,849 files (651 MB) and every seeded catalog URL resolved. prompt-v4 locked. **Next:** $5 dry run on prompt-v4 (needs the user's OK).  The user chose all of: (1) a **screenshot tool** so models can see their own game; (2+4) **HDRI skies + PBR textures** (Poly Haven / ambientCG, CC0); (3) **UV-mapped SF buildings and roads** so textures apply; (5–7) **sound, trees, VFX sprites and a HUD font** (CC0/OFL). Vision check passed: **both Kimi K3.1 Pro (via Nexus) and Opus read an image** through Claude Code's Read tool and described it correctly, so the screenshot tool is fair. All of this means a `prompt-v4`.
 
+### Parallel $25 dry runs (2026-11-21/22, prompt-v5, hardened harness)
+
+Both races ran at once, sandboxed. All four sides were playable on turn 1, with no leaks, stalls, meter or harness events, and no API retries. Every run ended on the nudge cap after 4 turns, far under budget:
+
+| Race | Kimi | Opus |
+|---|---|---|
+| Full assets (`v5-full-25usd-001`) | `nudge_cap`, $5.23, 45 model-min. It **never wrote DONE.md**: every turn ended on "I'm adding browser checks now…" without doing it | `declared_done`, $9.41, 47 model-min, "Laid Off & Logged In", 5 missions |
+| Primitives (`v5-prim-25usd-002`) | `declared_done`, $11.17, 79 model-min | `declared_done`, $9.73, 61 model-min |
+
+Findings: (1) **the budget never binds**, because the 3-nudge cap ends runs at $5–11 of $25. (2) The Mac slept overnight and the race crept along in maintenance wakes, so races now launch under `caffeinate -i`.
+
 ## 4. Decisions and why
 
 | Decision | Why |
@@ -145,6 +156,7 @@ Moved here from the status table, where it had grown into one 5,000-character ce
 | **Evidence history outside the workspace** (`history.git`) | The model could rewrite `.git` or `.gitignore` in its workspace. Commits now use `--git-dir` outside the sandbox, `add -f` with fixed excludes (`node_modules`, `dist`, `tools/shots`). |
 | **Opus pinned by full ID** (`claude-opus-5-5`) | An alias update mid-race would have tripped the leak check. Kimi's only Nexus name is `kimi-latest`; the leak check stops it at the first poll if it ever resolves elsewhere. |
 | **Playable = built + loaded + rendered + no uncaught exception**; race clock = model time only | Console errors (404s, logged warnings) wrongly failed turns. `elapsed_s`/`first_playable_seconds` included the harness's own build+screenshot time, which penalised models that take more turns; `wall_s`/`wall_seconds` keep the old number. |
+| **Keep 3 nudges** even though the budget doesn't bind (user, 2026-11-22) | The $25 dry runs all ended on the nudge cap at $5–11. The user chose to keep it: the race measures what each model builds before it decides it's done, and $100 is a ceiling, not a target. |
 
 ## 5. Gotchas we hit (save yourself the time)
 
@@ -198,6 +210,7 @@ uv run buildoff smoke   # ~$0.30, ~2 min, real setup
 | Smoke tests on the seeded base game (3 runs) | ~$1 |
 | $5 dry run (`test-5usd-001`) | $8.77 (Kimi $3.75 + Opus $5.02) |
 | Smoke test of the hardened, sandboxed harness (`race-20261121-225555`) | $0.90 (Kimi $0.56, hit the $0.50 cap; Opus $0.34, declared done). Both playable on turn 1, correct models only, zero sandbox denials |
+| Parallel $25 dry runs on prompt-v5 (`v5-full-25usd-001`, `v5-prim-25usd-002`) | $35.54 (full: Kimi $5.23, Opus $9.41; primitives: Kimi $11.17, Opus $9.73) |
 
 ## 8. Next up
 

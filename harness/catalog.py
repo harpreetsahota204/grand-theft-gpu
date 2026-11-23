@@ -2,7 +2,7 @@
 
 The asset dataset (harpreetsahota/grand-theft-gpu-assets) is the source of
 truth; this catalog indexes it so `buildoff inventory` (and the racing models'
-`tools/assets.mjs`) can search ~1,200 assets without opening any files. It is
+`tools/assets.mjs`) can search ~1,300 assets without opening any files. It is
 generated from the local staging copy (`config.MIRROR_DIR`) by
 `buildoff assets catalog`, and is never hand edited.
 
@@ -38,9 +38,6 @@ CATALOG_VERSION: int = 2
 
 # The dataset is mirrored under this URL path inside each race workspace.
 URL_PREFIX: str = "/assets/gt-gpu"
-
-# Tiers that are fetched on demand rather than seeded into every workspace.
-OPTIONAL_TIERS: tuple[str, ...] = ("lods", "mobile", "collision")
 
 # Plain-language synonyms appended as tags, keyed by a substring of the asset id,
 # so "cop", "vc" or "phone call" find the right thing.
@@ -231,7 +228,7 @@ def record(
         "kind": kind,
         "name": name,
         "hf_path": hf_path,
-        "url": f"{URL_PREFIX}/{hf_path}",
+        "url": media_url(hf_path),
         "seeded": True,
         "bytes": (root / hf_path).stat().st_size,
         "triangles": None,
@@ -364,16 +361,17 @@ VEHICLE_NAMES: dict[str, tuple[str, str]] = {
     "cars__Taxi": ("taxi", "taxi"),
 }
 
-VEHICLE_SOURCES: dict[str, tuple[str, str, str]] = {
-    "vehicles-objaverse": ("CC-BY-4.0", "Objaverse (credit the artist; see ATTRIBUTION.md)", ""),
-    "vehicles-quaternius": ("CC0-1.0", "Quaternius Cars Pack (web conversion: codepawl)", ""),
+# Dataset folder → (licence, source credit).
+VEHICLE_SOURCES: dict[str, tuple[str, str]] = {
+    "vehicles-objaverse": ("CC-BY-4.0", "Objaverse (credit the artist; see ATTRIBUTION.md)"),
+    "vehicles-quaternius": ("CC0-1.0", "Quaternius Cars Pack (web conversion: codepawl)"),
 }
 
 
 def vehicles(root: Path) -> list[dict[str, Any]]:
     """Hand-picked realistic vehicles (Objaverse + Quaternius), with generic names."""
     out = []
-    for folder, (license_id, source, _) in VEHICLE_SOURCES.items():
+    for folder, (license_id, source) in VEHICLE_SOURCES.items():
         for row in read_jsonl(root / folder / "metadata.jsonl"):
             item = row["file_name"].split("/")[1]
             name, kind = VEHICLE_NAMES.get(item, (row.get("title", item), "car"))
@@ -489,21 +487,22 @@ def bodies(root: Path) -> list[dict[str, Any]]:
             (len(p.get("targets", [])) for m in gj.get("meshes", []) for p in m["primitives"]),
             default=0,
         )
-        rec = record(
-            hf_path=f"meta-mhr/{glb.name}",
-            category="body",
-            kind="parametric-body",
-            name=f"MHR body {glb.stem.split('-')[-1]}",
-            root=root,
-            license_id="Apache-2.0",
-            source="Meta MHR (Momentum Human Rig)",
-            source_url="https://github.com/facebookresearch/MHR",
-            tags={"rigged", "blendshapes", "base-body"},
-            triangles=triangles_from_json(gj),
-            morph_targets=targets,
+        out.append(
+            record(
+                hf_path=f"meta-mhr/{glb.name}",
+                category="body",
+                kind="parametric-body",
+                name=f"MHR body {glb.stem.split('-')[-1]}",
+                root=root,
+                license_id="Apache-2.0",
+                source="Meta MHR (Momentum Human Rig)",
+                source_url="https://github.com/facebookresearch/MHR",
+                tags={"rigged", "blendshapes", "base-body"},
+                triangles=triangles_from_json(gj),
+                morph_targets=targets,
+                seeded=False,
+            )
         )
-        rec["seeded"] = False
-        out.append(rec)
     return out
 
 
@@ -525,9 +524,9 @@ def city(root: Path) -> list[dict[str, Any]]:
             parts=meta.get("layers", []),
             uv=meta.get("uv", ""),
             data_files={
-                "buildings": f"{URL_PREFIX}/sf-city/buildings.json",
-                "streets": f"{URL_PREFIX}/sf-city/streets.json",
-                "meta": f"{URL_PREFIX}/sf-city/meta.json",
+                "buildings": media_url("sf-city/buildings.json"),
+                "streets": media_url("sf-city/streets.json"),
+                "meta": media_url("sf-city/meta.json"),
             },
             axes=meta["axes"],
         )
@@ -546,7 +545,7 @@ def info_records(folder: Path) -> list[dict[str, Any]]:
 
 
 def media_url(hf_path: str) -> str:
-    """Workspace URL for a dataset path (what TextureLoader/Audio/FontFace load)."""
+    """Workspace URL for a dataset path: where the game loads it from in a race."""
     return f"{URL_PREFIX}/{hf_path}"
 
 
@@ -691,7 +690,7 @@ def media_sets(root: Path) -> list[dict[str, Any]]:
     ):
         info = json.loads((kenney_media / pack / "info.json").read_text())
         # Only top-level files: the particle pack's Rotated/ copies stay out of the index.
-        files = sorted(f for f in (kenney_media / pack).glob(f"*{suffix}"))
+        files = sorted((kenney_media / pack).glob(f"*{suffix}"))
         families: dict[str, list[Path]] = {}
         for f in files:
             families.setdefault(family_of(f), []).append(f)

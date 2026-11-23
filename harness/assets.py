@@ -224,9 +224,6 @@ def build_props(out: Path) -> None:
 BUILDERS = {"gpu": build_gpu, "cars": build_cars, "props": build_props}
 
 
-ASSET_SETS: tuple[str, ...] = (*BUILDERS, "all")
-
-
 def build(what: str, out: Path) -> None:
     """Rebuilds one asset set, or all of them, into `out`.
 

@@ -283,12 +283,13 @@ class ContenderRun:
                 "build_log_tail": built.log_tail,
                 "has_entry": shot.has_entry,
                 "loaded": shot.loaded,
-                "playable": built.ok and shot.playable,
+                # A failed build gets a blank ShotResult, which is never playable.
+                "playable": shot.playable,
                 "page_errors": shot.page_errors[:20],
                 "console_errors": shot.console_errors[:20],
             },
         )
-        return built.ok and shot.playable
+        return shot.playable
 
     def _stop_reason(self, end: TurnEnd, nudges: int, turn: int) -> StopReason | None:
         """Applies the stop rules after a turn, in priority order.

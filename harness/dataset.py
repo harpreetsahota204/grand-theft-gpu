@@ -28,11 +28,9 @@ from typing import Any
 
 from huggingface_hub import HfApi
 
-from harness.catalog import gltf_json, json_bounds
-from harness.config import ASSETS_DIR, MIRROR_DIR, REPO_ROOT
+from harness.catalog import gltf_json, info_records, json_bounds, read_jsonl
+from harness.config import ASSETS_DIR, HF_ASSETS_REPO, MIRROR_DIR, REPO_ROOT
 from harness.mirror import MirrorSource, load_plan
-
-HF_REPO: str = "harpreetsahota/grand-theft-gpu-assets"
 
 # Our own assets that live in this repo and go into the dataset as-is.
 OWN_SETS: dict[str, dict[str, str]] = {
@@ -87,7 +85,7 @@ def media_docs(folder: Path, title: str) -> int:
     Returns:
         items credited
     """
-    records = [json.loads(f.read_text()) for f in sorted(folder.glob("*/info.json"))]
+    records = info_records(folder)
     licenses = sorted({r["license"] for r in records})
     lines = [f"# {title}: licences", ""]
     lines += [f"- {lic}: {LICENSE_URLS[lic]}" for lic in licenses]
@@ -121,7 +119,7 @@ def filter_metadata(folder: Path) -> int:
     if not meta.exists():
         return 0
     kept_items = {p.name for p in (folder / "objects").iterdir()}
-    rows = [json.loads(line) for line in meta.read_text().splitlines() if line.strip()]
+    rows = read_jsonl(meta)
     # Match on the item folder in file_name ("<tier>/<item>/<file>"): ids differ
     # in format between sources (Kenney uses "kit/name", folders use "kit__name").
     kept = [r for r in rows if item_of(r) in kept_items]
@@ -140,10 +138,7 @@ def credit_table(folder: Path) -> str:
     meta = folder / "metadata.jsonl"
     if not meta.exists():
         return ""
-    rows = sorted(
-        (json.loads(line) for line in meta.read_text().splitlines() if line.strip()),
-        key=lambda r: str(r.get("id", "")),
-    )
+    rows = sorted(read_jsonl(meta), key=lambda r: str(r.get("id", "")))
     lines = [
         "",
         "## Credits",
@@ -371,9 +366,8 @@ def build(out: Path = MIRROR_DIR) -> dict[str, int]:
             (folder / "README.md").replace(folder / "SOURCE_README.md")
         apply_renames(folder, src.get("rename_items", {}))
         if "real_size" in src:
-            print(
-                f"{src['id']}: {apply_real_sizes(folder, src['real_size'])} files set to real size"
-            )
+            resized = apply_real_sizes(folder, src["real_size"])
+            print(f"{src['id']}: {resized} files set to real size")
         kept = filter_metadata(folder)
         items = sum(1 for _ in (folder / "objects").iterdir())
         text = attribution(src, items)
@@ -402,7 +396,7 @@ IGNORE_ON_UPLOAD: list[str] = [".cache/**", "**/.cache/**", "**/.DS_Store"]
 DELETE_ON_PUBLISH: list[str] = ["kenney/objects/car-kit__*"]
 
 
-def publish(folder: Path = MIRROR_DIR, repo_id: str = HF_REPO) -> str:
+def publish(folder: Path = MIRROR_DIR, repo_id: str = HF_ASSETS_REPO) -> str:
     """Creates the public dataset repo if needed and uploads the staging folder.
 
     One commit for the whole folder. The Hub deduplicates file content, so
