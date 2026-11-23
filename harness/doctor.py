@@ -88,7 +88,7 @@ CHECKS: list[Check] = [
     Check(
         "Claude Code",
         lambda: run(["claude", "--version"]),
-        "install from https://claude.com/claude-code (2.1.242+)",
+        "install from https://claude.com/claude-code (2.1.281+)",
         True,
     ),
     Check(

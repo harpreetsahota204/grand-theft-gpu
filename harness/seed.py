@@ -47,13 +47,15 @@ NPM_TIMEOUT_S: int = 600
 # The models' zero-dependency asset tool, copied into every workspace's tools/.
 TOOL_PATH: Path = REPO_ROOT / "harness" / "workspace_tools" / "assets.mjs"
 
-# The harness modules `tools/screenshot` imports (shot_tool -> snapshot -> config).
+# The harness modules that run inside the model's sandbox: `tools/screenshot`
+# (shot_tool -> snapshot -> config) and the Stop hook (harness.session).
 TOOLKIT_MODULES: tuple[str, ...] = (
     "__init__.py",
     "cliutil.py",
     "config.py",
     "shot_tool.py",
     "snapshot.py",
+    "stop_hook.py",
 )
 
 

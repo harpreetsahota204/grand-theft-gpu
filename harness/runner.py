@@ -46,7 +46,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import IO, Literal, TextIO
 
-from harness import meter, sandbox, seed, snapshot
+from harness import meter, sandbox, seed, session, snapshot
 from harness.config import (
     BUILD_DIR,
     DONE_FILE,
@@ -73,6 +73,11 @@ HARD_STOPS: frozenset[str] = frozenset({"budget", "leak", "meter_down", "aborted
 # Claude Code's final message when the provider API fails mid-turn, e.g.
 # "API Error: The response stopped arriving."
 API_ERROR_PREFIX: str = "API Error"
+# What Claude Code sends the model after a stream breaks off mid-response. A
+# turn that ends after this with no tool call has lost its work to the
+# connection, not to the model, so it's retried like an API error. In the
+# 2026-11-21 dry runs, three of Kimi's turns ended this way with zero tool calls.
+CUT_OFF_MARKER: str = "was cut off mid-stream"
 
 # An empty MCP config plus --strict-mcp-config removes the user's connectors
 # (Notion, Gmail, ...) from the race sessions.
@@ -168,6 +173,9 @@ class ContenderRun:
         self._unpriced_seen: int = 0
         # Every DONE.md the model wrote: {"turn", "cost_usd"} (see `_stop_reason`).
         self._done_declared: list[dict[str, float]] = []
+        # Written by `session.write` after seeding; passed on every turn.
+        self._settings: Path = self.toolkit / session.SETTINGS_FILE
+        self._agents: Path = self.toolkit / session.AGENTS_FILE
 
     def run(self) -> RunResult:
         """Runs turns until a stop rule fires, then writes result.json.
@@ -189,6 +197,7 @@ class ContenderRun:
             seed.seed_workspace(self.workspace, self.toolkit, self.cfg.pack)
             snapshot.init_history(self.history, self.workspace)
             sandbox.write_profile(self.profile, self.workspace, self.toolkit)
+            session.write(self.toolkit, self.contender.model)
             # Turn 0 is the untouched base game: the "before" frame for the video
             # and the diff base for scoring.
             self._record_turn(0, "seed")
@@ -381,7 +390,7 @@ class ContenderRun:
         if verdict is not None:
             return verdict
         if proc.returncode == 0:
-            return "completed"
+            return "api_error" if _ended_after_cut_off(log_path) else "completed"
         return "api_error" if _ended_on_api_error(log_path) else "error"
 
     def _watch(self, proc: subprocess.Popen[bytes], turn: int) -> TurnEnd | None:
@@ -470,6 +479,12 @@ class ContenderRun:
             ",".join(TOOLS),
             "--allowed-tools",
             ",".join(TOOLS),
+            # Model pins, effort, compaction, the Stop hook and the playtester
+            # subagent (harness.session); identical on both sides but the model ID.
+            "--settings",
+            str(self._settings),
+            "--agents",
+            str(self._agents),
             # Isolation from the user's own Claude Code setup.
             "--disable-slash-commands",
             "--strict-mcp-config",
@@ -571,6 +586,29 @@ def _ended_on_api_error(log_path: Path) -> bool:
                 API_ERROR_PREFIX
             )
     return False
+
+
+def _ended_after_cut_off(log_path: Path) -> bool:
+    """True if the model's stream was cut off and it made no tool call afterwards.
+
+    See CUT_OFF_MARKER. A turn that recovered (made tool calls after the
+    cut-off) counts as a normal turn.
+    """
+    cut_off = False
+    for line in log_path.read_text().splitlines():
+        try:
+            event = json.loads(line).get("event") or {}
+        except json.JSONDecodeError:
+            continue
+        if not isinstance(event, dict):
+            continue
+        content = (event.get("message") or {}).get("content")
+        if event.get("type") == "user" and CUT_OFF_MARKER in json.dumps(content):
+            cut_off = True
+        elif event.get("type") == "assistant" and isinstance(content, list):
+            if any(isinstance(b, dict) and b.get("type") == "tool_use" for b in content):
+                cut_off = False
+    return cut_off
 
 
 def kill_group(pgid: int, grace_s: float = 10.0) -> None:

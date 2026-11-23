@@ -44,6 +44,13 @@ STALL_TIMEOUT_S: float = 600.0
 # Long enough to cover the few seconds before a new session's first reading.
 METER_BLIND_LIMIT_S: float = 180.0
 
+# Same reasoning effort and compaction point on both sides (harness.session),
+# instead of each model's own default. "max" is what Moonshot evaluates Kimi
+# K3.1 at; compaction at 1M tokens is the context window Claude Code reports
+# for both models.
+EFFORT_LEVEL: str = "max"
+AUTO_COMPACT_WINDOW: str = "1000000"
+
 # Environment variables passed through to each `claude` process. Everything else
 # (API keys, tokens, the parent Claude Code session's variables) is dropped, so a
 # model's Bash can't read the user's secrets from its environment. Nexus routing
@@ -114,10 +121,10 @@ class Contender:
 
 
 CONTENDERS: tuple[Contender, ...] = (
-    Contender(name="kimi", model="kimi-latest", nexus_model="kimi-k3p1-pro"),
-    # Opus is pinned by full ID so an alias update can't swap models mid-race.
-    # Kimi's only Nexus name is the `kimi-latest` alias; if it ever resolves to
-    # anything but kimi-k3p1-pro, the leak check stops the run at the first poll.
+    # Both pinned by full ID, so an alias update can't swap models mid-race.
+    # (`kimi-latest` also made Claude Code log "unrecognized model" every turn;
+    # the pinned ID is recognised, with its 1M context window.)
+    Contender(name="kimi", model="kimi-k3p1-pro", nexus_model="kimi-k3p1-pro"),
     Contender(name="opus", model="claude-opus-5-5", nexus_model="claude-opus-5-5"),
 )
 

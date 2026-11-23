@@ -13,3 +13,7 @@ CLAUDE.local.md
 # only the catalog that indexes it is tracked here.
 assets/*
 !assets/catalog.json
+
+# Local research write-ups behind harness decisions: not published
+reports/
+research_notes/

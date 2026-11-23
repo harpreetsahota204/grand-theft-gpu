@@ -12,6 +12,9 @@ toolkit and the harness's Python environment. It can't read:
 - other sessions' transcripts in `~/.claude/projects` (the other contender's,
   earlier races', and the harness repo's own project memory)
 
+It also can't write `.claude/` or `.mcp.json` in its workspace: Claude Code
+would load hooks, agents or MCP servers from there on the next turn.
+
 Everything else stays as it was (`allow default`), so Claude Code, npm, git,
 Node and Playwright work normally. The profile can't hide
 `~/.claude/settings.json`, because Claude Code itself must read it for Nexus
@@ -79,6 +82,10 @@ def profile(workspace: Path, toolkit: Path) -> str:
             f"{deny} (regex {_regex_prefix(str(CLAUDE_PROJECTS / project_slug(runs)))}))",
             f"{deny} (subpath {_lit(CLAUDE_PROJECTS / project_slug(repo))}))",
             f"(allow file-read-data file-write* (subpath {_lit(workspace)}))",
+            # Project-level Claude Code config would load on the model's next
+            # turn (hooks, agents, MCP servers); the harness sets those itself.
+            f"(deny file-write* (subpath {_lit(workspace / '.claude')}))",
+            f"(deny file-write* (literal {_lit(workspace / '.mcp.json')}))",
             f"(allow file-read-data file-write* (subpath {_lit(own_project)}))",
             f"(allow file-read-data (subpath {_lit(toolkit)}))",
             # The interpreter and packages tools/screenshot runs on.

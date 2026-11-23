@@ -4,7 +4,7 @@ Read this first. It tells an agent where the project stands, what has been decid
 
 **Keep it current.** When a decision is made, a phase finishes, or something surprising turns up, update the matching section in the same change. Delete anything that stops being true.
 
-_Last updated: 2026-11-20_
+_Last updated: 2026-11-23_
 
 ---
 
@@ -78,18 +78,20 @@ The user is the architect and decision-maker. The agent writes the code and runs
 | Race infrastructure (`harness/`) | ✅ Built, tested end to end, committed |
 | Game direction (Grand Theft GPU, see 1b) | ✅ Framing, must-haves, limits and tier shape decided |
 | GPU asset | ✅ `assets/gpu/` (CC0, verified to have no logos) |
-| Car pack (CC0) | ✅ `assets/cars/` (Kenney Car Kit 3.1) |
+| Car pack | ✅ Superseded 2026-11-21: Kenney's kit was dropped as toy-like; 13 Objaverse vehicles (CC-BY 4.0) + 2 Quaternius (CC0) in the dataset instead (see 1b) |
 | USDCraft props → .glb | ✅ `assets/props/` (45 props + manifest), `scripts/convert_usdcraft.py` |
 | Replication setup (anyone can rebuild assets and run a race) | ✅ `.python-version`, `uv sync` (all groups by default), `buildoff doctor`, `buildoff assets` (`harness/doctor.py`, `harness/assets.py`). Rebuilt from source and **byte-identical** to `assets/` |
 | Public repo | ✅ https://github.com/harpreetsahota204/grand-theft-gpu (public since 2026-11-20). BSL 1.1: non-commercial use granted; converts to Apache 2.0 on 2040-01-22 (4,811 days, the GTA V → GTA 6 wait) or on each version's 4th anniversary if sooner. Before pushing: a secrets/personal-info scan of files and history, and a fresh-clone smoke test. |
-| Decide what goes in git | ✅ `assets/` committed (16 MB; licenses allow it). Base game fetched, not vendored. `PROGRAM_BRIEF.md` and `CLAUDE.local.md` gitignored. |
+| Decide what goes in git | ✅ Code only: assets live in the Hugging Face dataset and only `assets/catalog.json` is tracked (since 2026-11-20). Base game fetched, not vendored. `PROGRAM_BRIEF.md` and `CLAUDE.local.md` gitignored. |
 | Game prompt (`prompts/game_spec.md`, `run_rules.md`, `nudge.md`) | 🔒 **Current: `prompt-v5`** (2026-11-21): v4's `game_spec.md` unchanged plus the new `game_spec_primitives.md` for the primitives race (see 3b). `prompt-v4`, locked 2026-11-21 (user approved the draft as written), was v3 plus: run_rules gains a `tools/screenshot` bullet; the asset list adds trees, skies, textures, sound, effects and fonts; the SF bullet notes UVs in metres; Look and feel says "simple textures, real skies and lighting" and adds sound to the HUD/juice line; meshopt note includes trees. sha256: game_spec `848f2088…fb88`, run_rules `47f85a99…bf80`, nudge `e9cd6279…1902` (unchanged). No race ever ran on v3. Previously `prompt-v3`, locked 2026-11-21. v3 = v2 plus a **Vehicles** bullet (15 realistic vehicles), with the city kits no longer listing cars and the meshopt note covering vehicles. v2 (2026-11-20) introduced the asset tool, people, motions and the real SF map. sha256: game_spec `f8128cb1…19ff`, run_rules `e32a44a0…`, nudge `e9cd6279…`. v1/v2 are superseded; `test-5usd-001` was a dry run on v1. |
 | Harness seeding + per-turn Vite build + gameplay screenshots | ✅ `harness/seed.py`, `snapshot.build`. The smoke test on the seeded base (`smoke-seed-002`) passed for both models: turn 0 builds, both added the GPU from our assets, and the screenshots show gameplay. |
-| Aesthetics pass, primitives race, gap pass (2026-11-21) | ✅ Done, detail in **3b** below. Still to do: rerun the primitives dry run at $25 (`v5-prim-25usd-001` was voided), then both $100 races (up to $400). |
+| Aesthetics pass, primitives race, gap pass (2026-11-21) | ✅ Done, detail in **3b** below |
+| Harness hardening (2026-11-21) and research-driven fixes (2026-11-23) | ✅ Sandbox, fail-closed, evidence history, pinned models and per-side settings, Stop hook, playtester subagent, cut-off retries, keep-awake, 60+ tests. See section 4 |
+| Parallel $25 dry runs on prompt-v5 | ✅ Done 2026-11-22, but disrupted by the Mac sleeping (see 3b). Not a fair comparison |
 | Scoring checklist (pass/fail checks per tier, for judges) | ⬜ The tiers are in the prompt; the detailed checks are still to write |
 | $5 dry run on prompt-v1 (`test-5usd-001`) | ✅ Kimi **declared done at $3.75**; Opus **hit the $5 budget** ($5.02). Both took 1 turn, both playable on turn 1, no leaks. Kimi wrote 3 story missions, cars, police, heat, a minimap and parody landmarks. It surfaced 3 harness bugs (below, all fixed) and the missing-people gap (see asset expansion). |
 | Stall timeout + stray-server cleanup | ✅ `STALL_TIMEOUT_S` = 600 s with no output and no spend means `stalled` and a nudge. After every turn, processes whose cwd is in the workspace are killed. |
-| Asset inventory CLI | ✅ `buildoff inventory` plus `assets/catalog.json` (96 assets, deterministic). |
+| Asset inventory CLI | ✅ `buildoff inventory` plus `assets/catalog.json` (1,302 assets, deterministic). |
 | Asset mirror staged locally (step 1) | ✅ `~/grand-theft-gpu-assets/`: rocketbox-avatars (105 people, 4 tiers), rocketbox-motions (326 clips), kenney (714 pieces), quaternius-animations (89 clips + mannequin), meta-mhr (7 LOD glbs via `scripts/convert_mhr.py`). Built by `buildoff assets mirror` from the pinned plan in `scripts/mirror_sources.json`. |
 | SF city slice (step 2) | ✅ `buildoff assets city` (`harness/sfcity.py`) writes `~/grand-theft-gpu-assets/sf-city/`: `sf-city.glb` (9 MB: terrain with hills, 2,168 buildings at real heights, draped streets, bay water), `buildings.json` (footprints, heights, types; **no names**), `streets.json` (1,809 intersections, 2,179 segments with name, class, lanes, one-way, length), and `meta.json` (ODbL + USGS/Terrain Tiles attribution). Area: SoMa → FiDi → Embarcadero, bbox 37.776–37.797 N, 122.408–122.390 W. The raw OSM snapshot is cached in `_cache/osm.json` (pin it in the dataset; OSM changes over time). Verified on aerial renders. Gotchas: glTF needs NORMALs or three.js renders black; drop zero-area faces (NaN normals stop loading); clip ways to the bbox. |
 | Hugging Face dataset (step 3) | ✅ **Live and public:** https://huggingface.co/datasets/harpreetsahota/grand-theft-gpu-assets, revision `4fa7f2681169f2bcf670a4f577e6faabcf63d4cf` (vehicles swap; earlier: `a71295a` Infinity fix, `ec21b08` first upload). 1,769 files (8 folders), about 1 GB, each folder with `LICENSE` + `ATTRIBUTION.md`. Built by `buildoff assets dataset` (cards from the repo's `dataset_card/`) and uploaded by `buildoff assets publish` (`HfApi.upload_folder`; `upload_large_folder` doesn't exist in huggingface_hub 2.x). The round-trip download was byte-identical. Note: `hf download --include` takes one pattern per flag. |
@@ -101,7 +103,8 @@ The user is the architect and decision-maker. The agent writes the code and runs
 
 **Open items:**
 - **Anthropic API key (deferred by the user).** The Opus side currently bills through the user's Claude login. A true "$100 at list price" claim needs an API key configured for Nexus.
-- Who scores the tiers, and how (the user, a script, or blind testers). Parked.
+- Who scores the tiers, and how. The research report recommends: a pass/fail checklist per tier, locked and tagged before the race, each item counted only on runtime evidence; blind pairwise human playtests; at least two outside-family AI judges in both orders; a transcript review for gaming (report items 6–9). Not built yet.
+- The research behind the 2026-11-23 fixes lives in `reports/` and `research_notes/`, kept local and gitignored (the user's call). Its recommendations are summarised in section 4.
 - The headline depends on the results; the exec sponsor signs off once they're in.
 
 
@@ -127,14 +130,14 @@ Moved here from the status table, where it had grown into one 5,000-character ce
 
 ### Parallel $25 dry runs (2026-11-21/22, prompt-v5, hardened harness)
 
-Both races ran at once, sandboxed. All four sides were playable on turn 1, with no leaks, stalls, meter or harness events, and no API retries. Every run ended on the nudge cap after 4 turns, far under budget:
+Both races ran at once, sandboxed. All four sides were playable on turn 1, with no leaks, stalls, meter or harness events. The harness logged no `api_retry` events, but Claude Code retried internally many times (see findings). Every run ended on the nudge cap after 4 turns, far under budget:
 
 | Race | Kimi | Opus |
 |---|---|---|
-| Full assets (`v5-full-25usd-001`) | `nudge_cap`, $5.23, 45 model-min. It **never wrote DONE.md**: every turn ended on "I'm adding browser checks now…" without doing it | `declared_done`, $9.41, 47 model-min, "Laid Off & Logged In", 5 missions |
+| Full assets (`v5-full-25usd-001`) | `nudge_cap`, $5.23, 45 model-min. It **never wrote DONE.md**: turns 2–4 ended on "I'm adding browser checks now…" with zero tool calls, after cut-off streams | `declared_done`, $9.41, 47 model-min, "Laid Off & Logged In", 5 missions |
 | Primitives (`v5-prim-25usd-002`) | `declared_done`, $11.17, 79 model-min | `declared_done`, $9.73, 61 model-min |
 
-Findings: (1) **the budget never binds**, because the 3-nudge cap ends runs at $5–11 of $25. (2) The Mac slept overnight and the race crept along in maintenance wakes, so races now launch under `caffeinate -i`.
+Findings: (1) **the budget never binds**, because the 3-nudge cap ends runs at $5–11 of $25. (2) The Mac slept overnight. Both sides logged up to 32 API retries and 5 cut-off streams per turn, against none in the awake v4 run. Opus recovered; Kimi's full-pack turns 2–4 made zero tool calls after a cut-off, so its 3 nudges went to broken streams. **These dry runs aren't a fair comparison.** The harness now keeps the Mac awake itself (`race.keep_awake`: `caffeinate -ims` for the life of the harness).
 
 ## 4. Decisions and why
 
@@ -142,11 +145,11 @@ Findings: (1) **the budget never binds**, because the 3-nudge cap ends runs at $
 |---|---|
 | Runs on the user's Mac, both contenders **in parallel** | Same time window and API conditions for both. One race, one dataset. |
 | **Nexus is the source of truth for spend** (`nexus claude usage --json`) | Claude Code doesn't recognize `kimi-latest` and priced a call at **2x list** ($0.060 vs. $0.030). Nexus prices at list rates with the source cited and includes subagents. `--max-budget-usd` is therefore useless for Kimi. |
-| Nexus **model auto-picking is off**; Kimi is pinned to `kimi-latest` (resolves to `kimi-k3p1-pro`) | The model has to be the only variable. |
+| Nexus **model auto-picking is off**; both models pinned by full ID: `kimi-k3p1-pro` and `claude-opus-5-5` (2026-11-23; before that Kimi ran as the `kimi-latest` alias) | The model has to be the only variable, and an alias can move. Claude Code also didn't recognise `kimi-latest` ("unrecognized model" every turn); it does recognise `kimi-k3p1-pro` (1M context). |
 | Hard kill at $100, polled every 15 s | Expect a small overshoot. Tests overshot by $0.01–0.05; at $100 it's bounded by about 15 s of spend. |
 | **Max 3 nudges**, then the run ends | Keeps "the model called it done" meaningful. "Done" = the model creates `DONE.md`. |
 | Tools: Bash, Read, Edit, Write, WebFetch, WebSearch, **Agent** | Subagents were allowed only after a leak test passed (below). |
-| Subagents pinned **per process** via `CLAUDE_CODE_SUBAGENT_MODEL` | The Nexus `--subagent` pin is global, so it would send Opus's subagents to Kimi. The per-process env var was tested: each side's subagents stayed on its own model. The watchdog also fails a run if any foreign model appears. |
+| Subagents and every model tier pinned **per side** (`harness/session.py`: `CLAUDE_CODE_SUBAGENT_MODEL` + `_FORCE`, `ANTHROPIC_DEFAULT_{OPUS,SONNET,HAIKU,FABLE}_MODEL`) | The Nexus `--subagent` pin is global, so it would send Opus's subagents to Kimi. The env var alone ranks below a spawn call's model and an agent definition's model, and built-ins like `claude-code-guide` default to Haiku; FORCE and the tier pins close that. The watchdog still fails a run if any foreign model appears. |
 | Isolation: `--strict-mcp-config` + empty MCP config, `--disable-slash-commands`, workspaces in `~/gta-race-runs/` | Keeps the user's connectors (Notion, Gmail…), skills and project files out of the race. Verified in the session's init event: `mcp_servers: []`, `slash_commands: []`. |
 | **No screen recording**; transcripts are timestamped instead | ffmpeg recorded whatever was on top of the screen (the user's Notion and an OS dialog). The video will be rendered from the logs later. Each log line is `{"t": seconds, "event": ...}`. |
 | Unpriced Nexus rows → **warning only** (`events.jsonl`) | The user's call. Never seen in testing. |
@@ -154,8 +157,9 @@ Findings: (1) **the budget never binds**, because the 3-nudge cap ends runs at $
 | **Contenders are sandboxed** with macOS `sandbox-exec` (`harness/sandbox.py`), env scrubbed to `ENV_ALLOWLIST` (2026-11-21 review) | Both workspaces sit side by side and both models have Bash, so either could read the other's code; `tools/screenshot` also pointed at this repo. Now a model reads/writes only its workspace, reads its `toolkit/` copy of the screenshot modules and the harness `.venv`; the race folder, earlier races, this repo and other sessions' `~/.claude/projects` transcripts are denied. `~/.claude/settings.json` stays readable (Claude Code needs it for Nexus). |
 | **Fail closed** (2026-11-21 review) | `claude` runs in its own session, so killing the harness used to leave it spending with no watchdog. Now SIGINT/SIGTERM abort both sides within 1 s (`aborted`), a crash still kills the turn (`try/finally`) and writes `result.json` (`error`, traceback in events), `buildoff stop` kills orphans via `logs/claude.pgid`, and a meter blind for 3 min stops the run (`meter_down`). |
 | **Evidence history outside the workspace** (`history.git`) | The model could rewrite `.git` or `.gitignore` in its workspace. Commits now use `--git-dir` outside the sandbox, `add -f` with fixed excludes (`node_modules`, `dist`, `tools/shots`). |
-| **Opus pinned by full ID** (`claude-opus-5-5`) | An alias update mid-race would have tripped the leak check. Kimi's only Nexus name is `kimi-latest`; the leak check stops it at the first poll if it ever resolves elsewhere. |
+| **Opus pinned by full ID** (`claude-opus-5-5`, 2026-11-21); Kimi followed on 2026-11-23 (`kimi-k3p1-pro`) | An alias update mid-race would have tripped the leak check. |
 | **Playable = built + loaded + rendered + no uncaught exception**; race clock = model time only | Console errors (404s, logged warnings) wrongly failed turns. `elapsed_s`/`first_playable_seconds` included the harness's own build+screenshot time, which penalised models that take more turns; `wall_s`/`wall_seconds` keep the old number. |
+| **Research-driven harness fixes** (user chose "1–5 plus playtester", 2026-11-23; report `reports/Agent race harness best practices.md`) | Stop hook with the locked nudge as reason; all tiers + subagents pinned, `SUBAGENT_MODEL_FORCE`; effort `max` and compaction 1M on both; workspace `.claude/` and `.mcp.json` unwritable; Kimi pinned as `kimi-k3p1-pro` (the alias logged "unrecognized model"); cut-off-then-idle turns retried as `api_error`; one read-only `playtester` subagent via `--agents`. No prompt file changed. Not adopted: a planner/coder/art team (MAST, Cognition: hurts single-codebase builds). |
 | **Keep 3 nudges** even though the budget doesn't bind (user, 2026-11-22) | The $25 dry runs all ended on the nudge cap at $5–11. The user chose to keep it: the race measures what each model builds before it decides it's done, and $100 is a ceiling, not a target. |
 
 ## 5. Gotchas we hit (save yourself the time)
@@ -174,7 +178,7 @@ Findings: (1) **the budget never binds**, because the 3-nudge cap ends runs at $
 - **`hf download --include` patterns:** `"<folder>/*"` matches nested files (the `*` crosses `/`). One call with many `--include` flags downloads only the curated folders, about 120 MB for 45 props.
 - **USDCraft stage layout:** `/Asset/Links/<link>/Visuals/...` holds the render meshes, `/Asset/Links/<link>/Collisions/...` holds collision meshes (purpose `guide`), `/Asset/Joints/*` holds `PhysicsRevoluteJoint`/`PhysicsPrismaticJoint` with body0/body1, and `/Asset/Looks/*` holds UsdPreviewSurface materials.
 - **`/code-cleanup` can only be run by the user.** The agent can't invoke it; ask the user to type it.
-- **The base repo commits `node_modules/`** without execute bits and with another OS's native binaries, so `vite` fails with "Permission denied". Seeding skips it (along with `assets/` and `dist/`) and runs a clean `npm install`. In the first smoke test, one model silently spent budget fixing it, which made that race unfair.
+- **The base repo commits `node_modules/`** without execute bits and with another OS's native binaries, so `vite` fails with "Permission denied". Seeding skips it (along with `assets/` and `dist/`) and runs `npm ci` from the lockfile. In the first smoke test, one model silently spent budget fixing it, which made that race unfair.
 - **Screenshots of the game need three things:** (1) wait for `networkidle`; (2) settle about 12 s, because the base game parses its FBX/GLB files between downloads and takes about 9 s headless; (3) click the center with a **pointer-lock shim** installed (`POINTER_LOCK_SHIM` in `snapshot.py`), since headless Chromium never grants pointer lock and "Click to Play" would never go away. Without these, every frame is a T-posed first frame or the menu.
 - **A model can block itself on a never-ending server.** In the dry run, Kimi ran `npm run preview` in the foreground; its session sat blocked for 35 min with no spend. Opus's `vite preview` outlived its turn (orphaned, ppid 1). Both are now handled by the stall timeout and `_kill_strays`.
 - **trimesh appends random suffixes** to node names with several primitives (`_3ec909`). The catalog reads names from the glTF JSON chunk instead, to stay deterministic.
@@ -184,6 +188,10 @@ Findings: (1) **the budget never binds**, because the 3-nudge cap ends runs at $
 - **JSON has no `Infinity`.** USD stores unlimited joints as ±inf; Python's `json.dumps` writes `Infinity`, which browsers' `JSON.parse` rejects (jq silently tolerates it). Unlimited limits are now `null`, and the catalog and converter write with `allow_nan=False`. Every JSON/JSONL in the dataset was checked with Node's `JSON.parse`.
 - **The HF cache lives under `~/.cache`.** Any "skip `.cache`" filter (for download leftovers) must test the path *relative to* the snapshot folder, or it skips every file (this bit both `copy_core` and the fetch summary).
 - **The catalog's facts for Rocketbox/Kenney come from upstream `metadata.jsonl`.** Their glbs are meshopt-compressed, and trimesh can't decode them.
+- **A sleeping Mac breaks races.** The 2026-11-21/22 dry runs slept overnight: up to 32 API retries and 5 cut-off streams per turn on both sides. Opus recovered; Kimi's turns ended with zero tool calls and used up its nudges. The harness now runs `caffeinate -ims` itself, and a cut-off turn with no tool call afterwards is retried, not charged a nudge. Closing the lid still sleeps the Mac.
+- **The Stop hook doesn't fire on API errors** (`StopFailure` instead), and Claude Code ends a turn anyway after 8 blocks in a row with no tool call.
+- **Background subagents in `-p` mode** are killed 10 idle minutes after the turn ends, and their partial results are dropped.
+- **`--setting-sources` doesn't document** whether it also skips project agents, `.mcp.json` or CLAUDE.md, so the sandbox makes workspace `.claude/` and `.mcp.json` unwritable instead.
 - **To check a .glb visually,** load it in a headless three.js page with Playwright (SwiftShader flags) and screenshot it. That's how the GPU, the props and the contact sheet were verified.
 
 ## 6. Where things are
@@ -191,15 +199,18 @@ Findings: (1) **the budget never binds**, because the 3-nudge cap ends runs at $
 - `README.md`: how to run, the output layout, a code map
 - A diagram of the system is in `README.md` (Mermaid)
 - `harness/`: the code. Start at `race.py`, then `runner.py`.
-- `prompts/`: `game_spec.md` (placeholder), `run_rules.md` (the DONE.md and index.html contract), `nudge.md`, `smoke_spec.md`
-- `assets/`: `gpu/` (CC0 GPU), `cars/` (Kenney CC0), `props/` (USDCraft, Apache 2.0, plus `manifest.json`). Each folder keeps its license file.
+- `prompts/`: `game_spec.md` (full pack) and `game_spec_primitives.md`, `run_rules.md` (the DONE.md and index.html contract), `nudge.md` (all locked at `prompt-v5`), `smoke_spec.md`
+- `assets/catalog.json`: the only tracked asset file; the assets themselves are in the Hugging Face dataset at `HF_ASSETS_REVISION`
+- `tests/`: the free local test suite
+- `reports/` and `research_notes/`: local-only research write-ups (gitignored)
 - `scripts/convert_usdcraft.py`: the USDCraft → .glb converter, run in Blender
 - `~/gta-race-runs/`: race outputs. The test races there (`smoke-*`, `stress-001`, `cleanup-verify`) are disposable.
 
 Cheap checks:
 ```bash
-uv run ruff check harness scripts
-uv run buildoff smoke   # ~$0.30, ~2 min, real setup
+uv run ruff check harness scripts tests
+uv run pytest           # free, ~2 s
+uv run buildoff smoke   # ~$1, a few minutes, real setup
 ```
 
 ## 7. Spend log
@@ -211,24 +222,13 @@ uv run buildoff smoke   # ~$0.30, ~2 min, real setup
 | $5 dry run (`test-5usd-001`) | $8.77 (Kimi $3.75 + Opus $5.02) |
 | Smoke test of the hardened, sandboxed harness (`race-20261121-225555`) | $0.90 (Kimi $0.56, hit the $0.50 cap; Opus $0.34, declared done). Both playable on turn 1, correct models only, zero sandbox denials |
 | Parallel $25 dry runs on prompt-v5 (`v5-full-25usd-001`, `v5-prim-25usd-002`) | $35.54 (full: Kimi $5.23, Opus $9.41; primitives: Kimi $11.17, Opus $9.73) |
+| Smoke test of the research-driven config (`race-20261123-182230`) + a Stop hook check | $1.47 (Kimi $0.24 declared done; Opus $1.04, hit the $0.50 cap because one max-effort request cost ~$0.57 between polls; hook check $0.18). Both playable on turn 1, own models only, playtester registered, no sandbox denials; the hook blocked an announce-only reply with the locked nudge and the model resumed |
 
 ## 8. Next up
 
-The user's order, set 2026-11-20:
-1. ~~Code cleanup~~ ✅
-2. ~~README + onboarding update~~ ✅
-3. ~~Replication setup~~ ✅ (doctor, build_assets, byte-identical rebuild)
-4. ~~Decide what goes in git~~ ✅
-5. ~~Back to the prompts~~ ✅ **Locked 2026-11-20, tag `prompt-v1`.** sha256: game_spec `729ffffa…a0b2`, run_rules `e32a44a0…6a6e`, nudge `e9cd6279…1902`.
-   - Decided: **the harness runs `npm install && npm run build` after each turn** and screenshots `dist/index.html`. A failed build means the turn isn't playable. (The base's `index.html` imports `three` by bare name, so it can't be served statically.) **The harness doesn't do this yet.** `snapshot.screenshot` still serves the workspace root.
-   - In the prompt, the tiers are **Tier 1 Small-time / Tier 2 Getaway / Tier 3 Crew / Tier 4 Kingpin**. The "GTA 1–4" labels are for the video only, so the models don't reach for a real product.
-   - Decided: **models see the tier ladder** (as goals) and **know they have about $100 of compute**. They are *not* told they're racing another model.
-   - The prompt promises assets at **`public/assets/gt-gpu/{gpu,cars,props}`**. Seeding must put them there (Vite serves `public/` at the site root).
-
-After that (the user's order, 2026-11-20):
-1. ~~Harness seeding + per-turn Vite build~~ ✅
-2. ~~Smoke test on the real setup~~ ✅ (`smoke-seed-002`: Kimi $0.12 / 82 s, Opus $0.13 / 39 s, both playable)
-3. ~~Update the team in Notion~~ ✅ (Nov 20: added an "Update: Nov 20, 2026" section, milestone, check-in and appendix note): the internal program brief (link in CLAUDE.local.md) (status, decisions, what's built so far)
-4. ~~Thin CLI + `AGENTS.md`~~ ✅ `uv run buildoff doctor|assets|smoke|race` (race over $2 requires `--yes`). `AGENTS.md` is for people who clone the repo and point an agent at it; `CLAUDE.md` imports it.
-5. $5–10 test runs of each model on the locked prompt, then the full race
-6. ~~HUMANS.md~~ ✅ A blog-style explainer of the premise, setup and rules (via the blog-writer skill), linked from the README. Its **Results** section is empty: fill it after the race, and it becomes the blog post.
+As of 2026-11-23 (earlier to-do lists are done or superseded; history is in git):
+1. ~~Smoke test with the research-driven config~~ ✅ 2026-11-23 (spend log).
+2. Lock the scoring checklist per tier and tag it before any $100 race (research report item 6).
+3. Both $100 races (full and primitives) in parallel, unattended. **Needs the user's explicit OK** (up to $400; the dry runs suggest ~$40).
+4. Blind judging and a transcript review for gaming (report items 7 and 9), then the report write-up framed as "model + Claude Code + provider" (item 8).
+5. Fill HUMANS.md's Results section and render the race video from the logs.

@@ -125,6 +125,12 @@ Every rule below exists because something could tilt the result.
 
 **Subagents stay on their own side.** The Nexus subagent pin is global, which would send Opus's subagents to Kimi. Instead, each process sets `CLAUDE_CODE_SUBAGENT_MODEL` to its own model. A leak test confirmed that each side's subagents stayed put, and the watchdog checks it again on every poll.
 
+**Same settings, not just same flags.** Each side gets one Claude Code settings file, identical except the model ID. Every model slot Claude Code might use, including background tasks and subagents, points at that side's own model. Reasoning effort and the context size where it compacts are pinned to the same values. Kimi runs under its fixed ID, `kimi-k3p1-pro`, rather than an alias that can move.
+
+**Stopping mid-sentence doesn't end a turn.** In the dry runs, a broken connection left Kimi's turns ending on "I'm adding browser checks now…" with nothing done, and each one cost a nudge. Now a Stop hook catches a turn that ends on a promise, or on a game that doesn't build, and hands the model the same fixed nudge. A turn lost to a cut-off stream is retried instead of counted.
+
+**One playtester, same for both.** Each model can call one read-only `playtester` subagent that builds and plays the game and reports what's broken. Research on multi-agent coding found splitting a build across planner, coder and art agents hurts; a checker with fresh eyes is the one role that helps.
+
 **One referee for money.** Every 15 seconds, the watchdog reads `nexus claude usage --json`. That gives cost at list price, subagents included, plus every model that answered. If cost reaches the budget, the turn is killed. If a foreign model appears, the run stops with `leak`. If Nexus stops answering for three minutes, the run stops with `meter_down`: a budget nobody can see isn't a budget.
 
 **No hanging forever.** In a dry run, Kimi started `npm run preview`, a web server that never exits, as a foreground command, and sat blocked for 35 minutes. Now a turn with no output and no new spend for 10 minutes is killed as `stalled`, and the model is nudged to continue. After every turn, any server either model left running in its workspace is stopped.

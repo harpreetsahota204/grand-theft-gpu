@@ -96,6 +96,24 @@ def open_viewer(contender_dir: Path) -> None:
     )
 
 
+def keep_awake() -> None:
+    """Keeps the Mac awake until this process exits, so a race can run unattended overnight.
+
+    A sleeping Mac pauses every turn and drops API streams: the parallel $25 dry
+    runs slept overnight and logged up to 32 API retries and 5 cut-off streams per
+    turn, against none in a run on an awake machine. `caffeinate -w` exits on its
+    own when the harness does. `-i` blocks idle sleep, `-s` system sleep on AC
+    power, `-m` disk sleep; the display may still turn off. Closing the lid
+    still sleeps the Mac unless an external display is attached.
+    """
+    with contextlib.suppress(OSError):
+        subprocess.Popen(
+            ["caffeinate", "-ims", "-w", str(os.getpid())],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+
+
 def _abort(signum: int, _frame: object) -> None:
     """Signal handler: asks every contender to stop (see `runner.ABORT`)."""
     print(f"signal {signum}: aborting race, stopping running turns", flush=True)
@@ -118,6 +136,7 @@ def main(argv: list[str]) -> list[RunResult]:
     )
     pid_file = cfg.race_dir / "harness.pid"
     pid_file.write_text(str(os.getpid()))
+    keep_awake()
     print(f"race dir: {cfg.race_dir}", flush=True)
 
     # Abort cleanly instead of dying with claude processes still running: they

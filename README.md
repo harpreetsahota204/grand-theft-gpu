@@ -85,6 +85,7 @@ These are the decisions behind the design.
 - **Subagents are pinned per process** (`CLAUDE_CODE_SUBAGENT_MODEL`), so a Kimi subagent can't fall back to Claude. A leak test confirmed it, and the watchdog checks it on every poll.
 - **Isolated from your setup:** no MCP servers, no skills or slash commands, and workspaces live in `~/gta-race-runs/`, outside this repo.
 - **Isolated from each other:** each turn runs under a macOS `sandbox-exec` profile (`harness/sandbox.py`). A model can read and write only its own workspace. It can't read the other model's game, the race logs and evidence, earlier races, this repo, or other sessions' transcripts. Its environment is scrubbed of API keys and tokens.
+- **Same Claude Code config on both sides** (`harness/session.py`): every model tier and subagent pinned to the side's own model, the same reasoning effort and compaction point, a Stop hook that keeps a model working when it stops mid-promise or on a broken build (its reason is the locked nudge), and one read-only `playtester` subagent each model may call.
 - **Fails closed:** Ctrl-C, `kill` or `buildoff stop` aborts both sides within a second (`aborted`). A harness crash still kills the running turn and writes `result.json`.
 - **No screen recording.** Every transcript line carries a race-clock timestamp, and the video is rendered later from the logs. Nothing private ends up on camera.
 - **Budget overshoot is expected:** up to about 15 seconds of spend past the cap.

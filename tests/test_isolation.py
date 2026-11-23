@@ -78,6 +78,17 @@ def test_writes_are_confined_to_the_workspace(layout: dict[str, Path]) -> None:
     assert _sh(profile, layout["own"], f"echo x > {layout['logs'] / 'x'}").returncode != 0
 
 
+def test_workspace_claude_config_is_read_only(layout: dict[str, Path]) -> None:
+    """A model can't plant hooks, agents or MCP servers for its next turn."""
+    profile = sandbox.write_profile(
+        layout["logs"].parent / "sandbox.sb", layout["own"], layout["toolkit"]
+    )
+    blocked = "mkdir -p .claude && echo {} > .claude/settings.json"
+    assert _sh(profile, layout["own"], blocked).returncode != 0
+    assert _sh(profile, layout["own"], "echo {} > .mcp.json").returncode != 0
+    assert _sh(profile, layout["own"], "echo notes > CLAUDE.md").returncode == 0
+
+
 def test_clean_env_drops_secrets(monkeypatch: pytest.MonkeyPatch) -> None:
     """Only allowlisted variables and the harness's own extras reach claude."""
     monkeypatch.setenv("FIREWORKS_API_KEY", "secret")
