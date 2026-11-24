@@ -89,6 +89,20 @@ def test_workspace_claude_config_is_read_only(layout: dict[str, Path]) -> None:
     assert _sh(profile, layout["own"], "echo notes > CLAUDE.md").returncode == 0
 
 
+def test_critic_can_read_but_not_edit_the_game(layout: dict[str, Path]) -> None:
+    """The read-only critic profile allows reading src and writing only build/shots."""
+    profile = sandbox.write_profile(
+        layout["logs"].parent / "critic.sb", layout["own"], layout["toolkit"], read_only=True
+    )
+    ws = layout["own"]
+    (ws / "tools").mkdir()  # seeding creates tools/ (and tools/shots)
+    assert _sh(profile, ws, "cat file").returncode == 0
+    assert _sh(profile, ws, "echo hacked > file").returncode != 0
+    assert _sh(profile, ws, "mkdir -p src && echo x > src/main.js").returncode != 0
+    assert _sh(profile, ws, "mkdir -p tools/shots && echo x > tools/shots/a.png").returncode == 0
+    assert _sh(profile, ws, "mkdir -p dist && echo x > dist/index.html").returncode == 0
+
+
 def test_clean_env_drops_secrets(monkeypatch: pytest.MonkeyPatch) -> None:
     """Only allowlisted variables and the harness's own extras reach claude."""
     monkeypatch.setenv("FIREWORKS_API_KEY", "secret")

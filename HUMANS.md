@@ -6,18 +6,18 @@ _Kimi K3.1 Pro and Claude Opus 5.5 each get $100 and the same locked prompt to b
 
 GTA 6 took 4,811 days to arrive after GTA V. Here, each model gets $100.
 
-That's the whole setup. Give two frontier-class models the same budget, the same starting code, the same assets and the same instructions, then step away. Neither model knows it's in a race. Each one just builds until the money runs out or it decides the game is done.
+That's the whole setup. Give two frontier-class models the same budget, the same starting code, the same assets and the same instructions, then step away. Neither model knows it's in a race. Each one builds, with a critic made from a fresh copy of itself reviewing every turn, until its game reaches the top tier or the money runs out.
 
 The hard part isn't writing the prompt. It's making sure the only thing that differs between the two runs is the model.
 
 ## **Key Takeaways**
 
-* Both models run headless in Claude Code with identical flags, tools and files. The only difference is `--model`: `kimi-latest` (Kimi K3.1 Pro, routed to Fireworks by Nexus) or `opus` (Claude Opus 5.5).
+* Both models run headless in Claude Code with identical flags, tools, files and settings. The only difference is the model: `kimi-k3p1-pro` (Kimi K3.1 Pro, routed to Fireworks by Nexus) or `claude-opus-5-5` (Claude Opus 5.5).
 * Spend is metered by `nexus claude usage`, not by Claude Code. In testing, Claude Code priced a Kimi call at $0.060, while list price for the same tokens was $0.030.
-* Each model starts from a working three.js game pinned to one commit, plus 45 converted NVIDIA USDCraft props, a CC0 car kit and a CC0 graphics card (the loot).
-* A run stops at $100 or after three "keep going" nudges. Declaring the game done early earns a nudge instead of a stop, so neither model leaves budget on the table by quitting early. A watchdog kills it early if any other model shows up in its usage.
+* Each model starts from a working three.js game pinned to one commit, plus about 1,300 ready-made assets (or, in the primitives race, only the GPU it has to steal).
+* A run keeps going until the game reaches Tier 4 or the $100 runs out. After every turn, a critic (a fresh copy of the same model that didn't build the game) plays it and tells the builder what to fix next. Tier 4 counts only when the critic says so *and* the harness's own checks agree. A watchdog kills it early if any other model shows up in its usage.
 * Every turn leaves a git commit, a build result and a gameplay screenshot, and every transcript line is timestamped, so the race video can be cut from the logs.
-* The whole setup is reproducible: `uv sync`, `uv run buildoff doctor`, then `uv run buildoff smoke` for about $0.30.
+* The whole setup is reproducible: `uv sync`, `uv run buildoff doctor`, then `uv run buildoff smoke` for a few dollars.
 
 ## **What are the models racing to build?**
 
@@ -59,7 +59,7 @@ Starting from an empty folder would turn the race into "who sets up three.js fas
   * **105 rigged people** from [Microsoft Rocketbox](https://github.com/microsoft/Microsoft-Rocketbox) (MIT): business suits, police, security, medical, construction, everyday adults. There are no animals or children, and avatars in religious dress or swimwear were left out so no model could cast them as the villains of a satire.
   * **326 motion-capture clips** on the same skeleton (idle, talking, phone calls, sitting, dancing), plus 89 walk/run/drive clips from [Quaternius](https://quaternius.com) (CC0) on a different rig.
   * **The real San Francisco:** SoMa to the Embarcadero, built from OpenStreetMap and USGS elevation. It has the hills, 2,168 buildings at their real heights, streets, the bay, and a routable street graph. Real building names are stripped.
-  * **15 realistic low-poly vehicles,** all at real size and facing the same way: a police sedan, taxis, compact cars, an SUV, muscle cars, vans, an ambulance, a fire truck and a city bus, from Objaverse artists (CC-BY 4.0, every artist credited) and Quaternius (CC0). They replaced an earlier toy-like car kit that clashed with the realistic people.
+  * **15 realistic low-poly vehicles,** all at real size and facing the same way: a police sedan, taxis, compact cars, an SUV, muscle cars, vans, an ambulance, a fire truck and a city bus, from Objaverse artists (CC-BY 4.0, every artist credited) and Quaternius (CC0).
   * **664 Kenney city pieces** (CC0): buildings, roads and furniture.
   * **45 props** from [NVIDIA USDCraft-10K](https://huggingface.co/datasets/nvidia/USDCraft-10K) (Apache 2.0): server racks, safes, an ATM, a forklift, a drone. We converted them from OpenUSD to glTF, keeping their moving parts and joints.
   * **The loot:** a CC0 graphics card from [Grab3D](https://grab3d.com/models/electronics/graphics-card/) with animatable fans and RGB strips.
@@ -69,7 +69,7 @@ Starting from an empty folder would turn the race into "who sets up three.js fas
 
 **Keep it honest.** The asset pack had a quiet bug, too. The web converter we mirror from had shrunk every Objaverse vehicle and every tree to about 1 m, and the vehicles faced different ways. A model would have parked a 1-metre fire truck next to 1.8-metre people, or spent its budget rescaling everything. We found it by rendering the pack, then set each model to its real size and the same heading by adding one transform node to each file. The geometry is untouched, and the change is recorded in each folder's `ATTRIBUTION.md`.
 
-**Keep it honest.** The base game had a problem we only found by running it. It commits its own `node_modules`, without execute permissions and built for another OS. In the first smoke test, Kimi quietly spent part of its budget repairing the install, and Opus didn't. The harness now skips that folder and runs a clean `npm install` before the clock starts.
+**Keep it honest.** The base game had a problem we only found by running it. It commits its own `node_modules`, without execute permissions and built for another OS. In the first smoke test, Kimi quietly spent part of its budget repairing the install, and Opus didn't. The harness now skips that folder and installs from the lockfile (`npm ci`) before the clock starts.
 
 ## **Why run the race twice?**
 
@@ -98,7 +98,7 @@ nexus claude            # route Claude Code through Fireworks
 nexus claude status     # check the provider, where the key comes from, and the model
 ```
 
-After `nexus claude`, any Claude Code session can pick a model by name. The harness asks for `--model kimi-latest` on one side and `--model opus` on the other. Kimi turns run on Fireworks and bill to your Fireworks account. Claude turns keep using your Claude login. `nexus claude off` puts your original settings back.
+After `nexus claude`, any Claude Code session can pick a model by name. The harness asks for `--model kimi-k3p1-pro` on one side and `--model claude-opus-5-5` on the other, both fixed IDs rather than aliases that could move mid-race. Kimi turns run on Fireworks and bill to your Fireworks account. Claude turns keep using your Claude login. `nexus claude off` puts your original settings back.
 
 Nexus also keeps a meter for every Claude Code session: requests, tokens, model and cost per request. That meter is what makes it the referee here.
 
@@ -123,25 +123,24 @@ Every rule below exists because something could tilt the result.
 
 **No peeking at the other side.** Both workspaces sit in the same race folder, and both models have Bash, so a model could simply `cat` its rival's code. Each turn now runs under a macOS sandbox profile. A model can read and write only its own workspace. The other model's game, the race logs, earlier races, this repo and other sessions' transcripts all return "Operation not permitted". API keys are stripped from its environment too.
 
-**Subagents stay on their own side.** The Nexus subagent pin is global, which would send Opus's subagents to Kimi. Instead, each process sets `CLAUDE_CODE_SUBAGENT_MODEL` to its own model. A leak test confirmed that each side's subagents stayed put, and the watchdog checks it again on every poll.
+**Same settings, not just same flags.** Each side gets one Claude Code settings file, identical except the model ID. Every model slot Claude Code might use, including background tasks and subagents, points at that side's own model, and no subagent can ask for another. Reasoning effort and the context size where it compacts are pinned to the same values. The watchdog still checks every request's model on every poll.
 
-**Same settings, not just same flags.** Each side gets one Claude Code settings file, identical except the model ID. Every model slot Claude Code might use, including background tasks and subagents, points at that side's own model. Reasoning effort and the context size where it compacts are pinned to the same values. Kimi runs under its fixed ID, `kimi-k3p1-pro`, rather than an alias that can move.
-
-**Stopping mid-sentence doesn't end a turn.** In the dry runs, a broken connection left Kimi's turns ending on "I'm adding browser checks now…" with nothing done, and each one cost a nudge. Now a Stop hook catches a turn that ends on a promise, or on a game that doesn't build, and hands the model the same fixed nudge. A turn lost to a cut-off stream is retried instead of counted.
+**Stopping mid-sentence doesn't end a turn.** In the dry runs, a broken connection left Kimi's turns ending on "I'm adding browser checks now…" with nothing done. Now a Stop hook catches a turn that ends on a promise, or on a game that doesn't build, and sends the model back to work with one fixed line. A turn lost to a cut-off stream is retried instead of counted.
 
 **One playtester, same for both.** Each model can call one read-only `playtester` subagent that builds and plays the game and reports what's broken. Research on multi-agent coding found splitting a build across planner, coder and art agents hurts; a checker with fresh eyes is the one role that helps.
 
 **One referee for money.** Every 15 seconds, the watchdog reads `nexus claude usage --json`. That gives cost at list price, subagents included, plus every model that answered. If cost reaches the budget, the turn is killed. If a foreign model appears, the run stops with `leak`. If Nexus stops answering for three minutes, the run stops with `meter_down`: a budget nobody can see isn't a budget.
 
-**No hanging forever.** In a dry run, Kimi started `npm run preview`, a web server that never exits, as a foreground command, and sat blocked for 35 minutes. Now a turn with no output and no new spend for 10 minutes is killed as `stalled`, and the model is nudged to continue. After every turn, any server either model left running in its workspace is stopped.
+**No hanging forever.** In a dry run, Kimi started `npm run preview`, a web server that never exits, as a foreground command, and sat blocked for 35 minutes. Now a turn with no output and no new spend for 10 minutes is cut short as `stalled`, and the critic reviews wherever it got to. After every turn, any server either model left running in its workspace is stopped.
 
-**Network hiccups don't end a race.** In the first primitives dry run, the stream from the API stopped arriving 12 minutes into Kimi's build. Claude Code gave up after about six minutes of silence, and the harness, which then treated any error as fatal, ended Kimi's run at $0.41. Now a provider API error resumes the same session with the fixed nudge, up to three times per run, without using up one of the model's nudges. Every retry is logged, so reliability is reported rather than hidden.
+**Network hiccups don't end a race.** In the first primitives dry run, the stream from the API stopped arriving 12 minutes into Kimi's build. Claude Code gave up after about six minutes of silence, and the harness, which then treated any error as fatal, ended Kimi's run at $0.41. Now a provider API error resumes the same session, up to three times per run. Every retry is logged, so reliability is reported rather than hidden.
 
 **A clear finish line.** A run ends on whichever comes first:
 
 1. The budget is spent, a leak is caught, the meter goes dark, the race is stopped (Ctrl-C or `buildoff stop`), or the process crashes.
-2. The model creates `DONE.md` after its last nudge. An earlier `DONE.md` is set aside (kept in `logs/done-turn-NNN.md`, with the spend at that moment in `result.json`) and the model is nudged on. We added this after a $25 dry run, where Opus called its game done at $7 and Kimi at $13.
-3. Three nudges have been sent. The nudge is one fixed sentence: keep building toward the spec.
+2. The game reaches Tier 4, confirmed twice: the model's own critic says so, and the harness checks that the city moves with no input and that day and night look different.
+
+There's no nudge limit. In the $25 dry runs, both models called their games done at $5–11, far short of the top tier. Now each model gets its own critic: after every turn, a fresh session of the same model, with no memory of building it, plays the game, compares it with the brief and writes the builder's next instructions. Both sides get the same setup, so the critic's quality is part of what's measured.
 
 **Keep it honest.** Nexus is a Fireworks tool, and Kimi runs on Fireworks. The referee's numbers come from list prices with a cited source (`docs.fireworks.ai/serverless/pricing` for Kimi), and every raw transcript is kept, so anyone can recompute the spend. The budget check runs every 15 seconds, so a run can end slightly over $100. In tests the overshoot was $0.01 to $0.05.
 
@@ -156,7 +155,9 @@ Nothing records the screen. A screen recording would capture whatever else is op
 └── kimi/ and opus/
     ├── workspace/            the game
     ├── history.git/          one commit per turn, out of the model's reach
-    ├── logs/turn-NNN.jsonl   transcript, each line {"t": seconds, "event": ...}
+    ├── logs/turn-NNN.jsonl   builder transcript, each line {"t": seconds, "event": ...}
+    ├── logs/critic-NNN.jsonl the critic's review session after each turn
+    ├── logs/reviews.jsonl    every verdict: tier reached, Tier 4 claim, notes
     ├── logs/cost.csv         spend at every Nexus poll
     ├── logs/turns.jsonl      per turn: build_ok, loaded, playable, errors, cost
     ├── shots/turn-NNN.png    gameplay screenshot (000 = untouched base game)
@@ -183,7 +184,7 @@ nexus claude       # routes Claude Code to Fireworks for the Kimi side
 uv run buildoff doctor
 ```
 
-`doctor` prints `ok` or the fix for each prerequisite: Claude Code 2.1.242+, Nexus connected, Node.js, git and Chromium.
+`doctor` prints `ok` or the fix for each prerequisite: macOS (for the sandbox), Claude Code 2.1.281+, Nexus connected, Node.js, git and Chromium.
 
 ## **Step 3: Run the smoke test**
 
@@ -191,7 +192,7 @@ uv run buildoff doctor
 uv run buildoff smoke
 ```
 
-Both models get a one-line task: float the GPU above the player's head. It costs about $0.30 in total. In our runs, each side finished in one turn for $0.12 to $0.18, and both builds loaded with no console errors.
+Both models get a one-line task: float the GPU above the player's head. Then each one's critic plays the result and writes a review. It costs a few dollars in total; at maximum reasoning effort, Opus alone can spend $2 on it.
 
 ## **Step 4: Run the race**
 
@@ -263,13 +264,13 @@ _The full $100 race hasn't run yet. This section will hold the tier each model r
 So the harness isn't a variable. Nexus points Claude Code at Fireworks, and both models get the same tool loop, prompts and permissions. Only `--model` differs.
 
 ### **Why not trust Claude Code's `total_cost_usd`?**
-It doesn't know `kimi-latest` and falls back to a default rate. In testing it reported $0.060 for a call that costs $0.030 at Kimi K3.1 Pro's list price ($2 per million input tokens, $10 per million output). `nexus claude usage --json` prices each row at the provider's list rate.
+It doesn't know Kimi's prices and falls back to a default rate. In testing it reported $0.060 for a call that costs $0.030 at Kimi K3.1 Pro's list price ($2 per million input tokens, $10 per million output). `nexus claude usage --json` prices each row at the provider's list rate.
 
 ### **Can I change the prompt?**
-Not for a comparable race. `prompts/game_spec.md`, `run_rules.md` and `nudge.md` are frozen at git tag `prompt-v6`. Edit them for your own experiments, but tag the new version, because results across prompt versions aren't comparable.
+Not for a comparable race. The game specs, `run_rules.md`, `critic.md` and `nudge.md` are frozen at git tag `prompt-v7`. Edit them for your own experiments, but tag the new version, because results across prompt versions aren't comparable.
 
 ### **Do I need Blender?**
-Only to rebuild the props from the source dataset with `uv run buildoff assets props`. The converted `.glb` files are already committed, and a rebuild from source comes out byte-identical.
+Only to rebuild the props from the source dataset with `uv run buildoff assets props`. The converted `.glb` files are already in the Hugging Face dataset.
 
 ### **What license is this under?**
 The harness is under the Business Source License 1.1. Non-commercial use is free, including running your own races and publishing the results. It converts to Apache 2.0 on 2040-01-22, which is 4,811 days after release, the same wait as GTA V to GTA 6. The assets keep their own CC0 and Apache 2.0 licenses.

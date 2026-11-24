@@ -29,9 +29,9 @@ from harness.cliutil import JsonErrorParser
 from harness.config import ASSETS_DIR, MIRROR_DIR, PROMPTS_DIR
 
 # Races above this budget need --yes, so an agent (or a typo) can't start a
-# $100-per-model run by accident. The smoke test stays under it.
+# $100-per-model run by accident. The smoke test runs at this cap, not above it.
 CONFIRM_ABOVE_USD: float = 2.0
-SMOKE_BUDGET_USD: float = 0.5
+SMOKE_BUDGET_USD: float = 2.0
 # The locked game spec each asset pack races on (see harness.fetch.PACK_PATTERNS).
 SPEC_FOR_PACK: dict[str, str] = {"full": "game_spec.md", "primitives": "game_spec_primitives.md"}
 

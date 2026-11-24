@@ -19,13 +19,12 @@ RUNS_ROOT: Path = Path.home() / "gta-race-runs"
 # subagents stay on their parent's model when pinned per process.
 TOOLS: tuple[str, ...] = ("Bash", "Read", "Edit", "Write", "WebFetch", "WebSearch", "Agent")
 
-# When a model ends its turn without declaring done, the harness sends the fixed
-# nudge. After this many nudges the run ends, so "the model called it done" stays
-# meaningful.
-MAX_NUDGES: int = 3
+# The critic (a fresh session of the same model, see harness.runner) only plays
+# and reads the game: no editing tools, and a read-only sandbox besides.
+CRITIC_TOOLS: tuple[str, ...] = ("Bash", "Read")
 # Provider API errors (e.g. a dropped stream) are retried by resuming the session
 # with the nudge, up to this many times per run, without using up the model's
-# nudges: an infrastructure hiccup shouldn't end or shorten a model's race.
+# reviews: an infrastructure hiccup shouldn't end or shorten a model's race.
 MAX_API_RETRIES: int = 3
 
 # How often the watchdog asks Nexus for spend during a turn. Subagents can burn a
@@ -139,8 +138,8 @@ class RaceConfig:
         race_id: folder name under `RUNS_ROOT` for this race's outputs
         open_viewers: whether to open a Terminal window per contender
         pack: seeded assets, "full" or "primitives" (see `harness.fetch.PACK_PATTERNS`)
-        nudge_on_done: True = a DONE.md before the last nudge is set aside and the
-            model nudged on (races); False = DONE.md ends the run (smoke test)
+        stop_on_done: True = the first DONE.md ends the run, after one review
+            (smoke test); False = only Tier 4 verified or the budget ends it (races)
         contenders: who races
     """
 
@@ -149,7 +148,7 @@ class RaceConfig:
     race_id: str
     open_viewers: bool = True
     pack: str = "full"
-    nudge_on_done: bool = True
+    stop_on_done: bool = False
     contenders: tuple[Contender, ...] = CONTENDERS
 
     @property

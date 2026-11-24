@@ -1,1 +1,5 @@
-Continue building the game toward the spec. When you consider it finished, create DONE.md.
+A critic played your game and reviewed it against the brief. Its notes:
+
+{notes}
+
+Keep building the game toward Tier 4.

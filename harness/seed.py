@@ -185,7 +185,9 @@ def seed_workspace(workspace: Path, toolkit: Path, pack: str = "full") -> None:
     shutil.copytree(cache, workspace, ignore=skip)
     copy_core(workspace / GAME_ASSETS_SUBDIR, fetch.PACK_PATTERNS[pack])
     tools = workspace / "tools"
-    tools.mkdir()
+    # tools/shots exists up front: the read-only critic may write there but
+    # can't create folders elsewhere in the workspace.
+    (tools / "shots").mkdir(parents=True)
     if pack == "full":
         shutil.copy2(TOOL_PATH, tools / "assets.mjs")
         shutil.copy2(CATALOG_PATH, tools / "catalog.json")

@@ -65,7 +65,7 @@ def parse_args(argv: list[str]) -> RaceConfig:
     p.add_argument(
         "--stop-on-done",
         action="store_true",
-        help="end a run at the first DONE.md instead of nudging on (smoke test)",
+        help="end a run at the first DONE.md, after one review (smoke test)",
     )
     a = p.parse_args(argv)
     return RaceConfig(
@@ -74,7 +74,7 @@ def parse_args(argv: list[str]) -> RaceConfig:
         race_id=a.race_id or datetime.now().strftime("race-%Y%m%d-%H%M%S"),
         open_viewers=not a.no_viewers,
         pack=a.pack,
-        nudge_on_done=not a.stop_on_done,
+        stop_on_done=a.stop_on_done,
     )
 
 

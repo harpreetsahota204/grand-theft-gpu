@@ -1,7 +1,8 @@
-"""Per-contender Claude Code configuration: one `--settings` file and one `--agents` file.
+"""Per-contender Claude Code configuration: `--settings` files (builder, critic) and `--agents`.
 
-`harness.runner` calls `write` once per contender after seeding, and passes
-both files on every turn (`--settings`, `--agents`). They live in the
+`harness.runner` calls `write` once per contender after seeding. Every builder
+turn gets `--settings SETTINGS_FILE --agents AGENTS_FILE`; every critic review
+gets `--settings CRITIC_SETTINGS_FILE`. They live in the
 contender's toolkit folder, which its sandbox can read but not write. The two
 contenders' files are identical except for the model ID, so the same rules hold
 on both sides:
@@ -13,7 +14,8 @@ on both sides:
   `harness.runner` still watches Nexus in case anything slips through.
 - **Same effort and compaction.** Both sides run at the same reasoning effort
   and compact at the same context size, instead of each model's own default.
-- **The Stop hook** (`harness.stop_hook`), with the locked nudge as its reason.
+- **The Stop hook** (`harness.stop_hook`, builder only), whose reason is the
+  last line of the locked nudge template ("Keep building the game toward Tier 4.").
 - **One playtester subagent**, read-only, that plays the game with
   `tools/screenshot` and reports what's broken or missing. It's optional for
   the model to use; it never edits files.
@@ -30,8 +32,12 @@ from pathlib import Path
 from harness.config import AUTO_COMPACT_WINDOW, EFFORT_LEVEL, PROMPTS_DIR
 
 SETTINGS_FILE: str = "claude-settings.json"
+# The critic's settings: the same pins, effort and compaction, but no Stop hook
+# (the hook would push the critic to keep working on a broken build).
+CRITIC_SETTINGS_FILE: str = "critic-settings.json"
 AGENTS_FILE: str = "claude-agents.json"
-NUDGE_FILE: str = "nudge.txt"
+# The Stop hook reads its fixed reason from here (see hook_reason).
+REASON_FILE: str = "hook-reason.txt"
 # Long enough for the hook's `npm run build` check (stop_hook.BUILD_TIMEOUT_S).
 STOP_HOOK_TIMEOUT_S: int = 180
 TIER_ALIASES: tuple[str, ...] = ("OPUS", "SONNET", "HAIKU", "FABLE")
@@ -79,7 +85,7 @@ def settings(model: str, toolkit: Path) -> dict[str, object]:
     toolkit = toolkit.resolve()
     hook = (
         f"PYTHONPATH={shlex.quote(str(toolkit))} {shlex.quote(sys.executable)} "
-        f"-m harness.stop_hook {shlex.quote(str(toolkit / NUDGE_FILE))}"
+        f"-m harness.stop_hook {shlex.quote(str(toolkit / REASON_FILE))}"
     )
     return {
         "env": env(model),
@@ -89,6 +95,16 @@ def settings(model: str, toolkit: Path) -> dict[str, object]:
             ]
         },
     }
+
+
+def hook_reason() -> str:
+    """The Stop hook's fixed reason: the closing line of the locked nudge template.
+
+    The full template wraps the critic's notes, which don't exist mid-turn, so
+    the hook uses only its fixed instruction.
+    """
+    lines = [ln.strip() for ln in (PROMPTS_DIR / "nudge.md").read_text().splitlines()]
+    return next(ln for ln in reversed(lines) if ln and "{notes}" not in ln)
 
 
 def agents() -> dict[str, object]:
@@ -110,7 +126,7 @@ def agents() -> dict[str, object]:
 
 
 def write(toolkit: Path, model: str) -> None:
-    """Writes the settings, agents and nudge files into a contender's toolkit.
+    """Writes the builder and critic settings, the agents file and the hook reason into a toolkit.
 
     The runner passes `toolkit/SETTINGS_FILE` and `toolkit/AGENTS_FILE` to
     every turn (`--settings`, `--agents`).
@@ -119,6 +135,7 @@ def write(toolkit: Path, model: str) -> None:
         toolkit: the contender's toolkit folder (already created by seeding)
         model: the contender's model ID
     """
-    (toolkit / NUDGE_FILE).write_text((PROMPTS_DIR / "nudge.md").read_text())
+    (toolkit / REASON_FILE).write_text(hook_reason() + "\n")
     (toolkit / SETTINGS_FILE).write_text(json.dumps(settings(model, toolkit), indent=2) + "\n")
+    (toolkit / CRITIC_SETTINGS_FILE).write_text(json.dumps({"env": env(model)}, indent=2) + "\n")
     (toolkit / AGENTS_FILE).write_text(json.dumps(agents(), indent=2) + "\n")

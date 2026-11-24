@@ -1,6 +1,5 @@
 """Stop rules, watchdog helpers and process cleanup in harness.runner."""
 
-import dataclasses
 import json
 import os
 import subprocess
@@ -10,57 +9,70 @@ from pathlib import Path
 import pytest
 
 from harness import meter, runner
-from harness.config import MAX_NUDGES
 from harness.runner import ContenderRun
 
 
-@pytest.mark.parametrize("end", ["budget", "leak", "meter_down", "aborted", "error"])
-def test_hard_stops_end_the_run(run: ContenderRun, end: runner.TurnEnd) -> None:
-    """Hard limits stop the run whatever the nudge count or DONE.md."""
-    (run.workspace / "DONE.md").write_text("done")
-    assert run._stop_reason(end, nudges=0, turn=1) == end
+def _critic_log(tmp_path: Path, final: str) -> Path:
+    """Writes a critic transcript whose final result message is `final`."""
+    path = tmp_path / "critic.jsonl"
+    event = {"type": "result", "subtype": "success", "result": final}
+    path.write_text(json.dumps({"t": 1, "event": event}) + "\n")
+    return path
 
 
-def test_api_error_after_retries_is_error(run: ContenderRun) -> None:
-    """The loop retries api_error first; reaching the stop rules means retries ran out."""
-    assert run._stop_reason("api_error", nudges=0, turn=1) == "error"
+def test_review_verdict_is_parsed_from_the_last_line(tmp_path: Path) -> None:
+    """The JSON line that ends the critic's reply becomes the Review."""
+    verdict = {
+        "tier": 3,
+        "tier4_complete": False,
+        "day_shot": "",
+        "night_shot": "",
+        "notes": "Traffic never moves; add {cars} on the main road.",
+    }
+    review = runner.parse_review(_critic_log(tmp_path, "Played it.\n" + json.dumps(verdict)))
+    assert review == runner.Review(
+        parsed=True, tier=3, tier4_complete=False, notes=verdict["notes"]
+    )
 
 
-def test_early_done_is_set_aside_and_nudged(run: ContenderRun) -> None:
-    """A DONE.md before the last nudge moves to logs/ and the model is nudged on."""
-    (run.workspace / "DONE.md").write_text("done")
-    assert run._stop_reason("completed", nudges=0, turn=2) is None
-    assert not (run.workspace / "DONE.md").exists()
-    assert (run.logs / "done-turn-002.md").read_text() == "done"
-    assert run._done_declared == [{"turn": 2, "cost_usd": 0.0}]
+def test_review_verdict_inside_a_code_fence(tmp_path: Path) -> None:
+    """A verdict wrapped in a code fence still parses."""
+    final = (
+        '```json\n{"tier": 4, "tier4_complete": true, "day_shot": "a.png", '
+        '"night_shot": "b.png", "notes": "Polish."}\n```'
+    )
+    review = runner.parse_review(_critic_log(tmp_path, final))
+    assert review.parsed and review.tier4_complete and review.night_shot == "b.png"
 
 
-def test_done_after_last_nudge_stops(run: ContenderRun) -> None:
-    """With the nudges used up, DONE.md ends the run as declared_done."""
-    (run.workspace / "DONE.md").write_text("done")
-    assert run._stop_reason("completed", nudges=MAX_NUDGES, turn=5) == "declared_done"
+def test_missing_verdict_is_unparsed(tmp_path: Path) -> None:
+    """No verdict line means an unparsed review; the builder gets NO_REVIEW_NOTES."""
+    assert not runner.parse_review(_critic_log(tmp_path, "I ran out of time.")).parsed
+    assert runner.NO_REVIEW_NOTES in runner.nudge_text("")
 
 
-def test_smoke_mode_stops_on_first_done(run: ContenderRun) -> None:
-    """With nudge_on_done off (smoke test), the first DONE.md ends the run."""
-    run.cfg = dataclasses.replace(run.cfg, nudge_on_done=False)
-    (run.workspace / "DONE.md").write_text("done")
-    assert run._stop_reason("completed", nudges=0, turn=1) == "declared_done"
+def test_nudge_wraps_the_critics_notes() -> None:
+    """The locked template carries the notes verbatim and ends on its fixed line."""
+    text = runner.nudge_text("Fix the siren.")
+    assert "Fix the siren." in text and "{notes}" not in text
+    assert text.strip().endswith("Keep building the game toward Tier 4.")
 
 
-def test_nudge_cap(run: ContenderRun) -> None:
-    """No DONE.md and no nudges left ends the run as nudge_cap; otherwise nudge."""
-    assert run._stop_reason("stalled", nudges=MAX_NUDGES - 1, turn=3) is None
-    assert run._stop_reason("completed", nudges=MAX_NUDGES, turn=4) == "nudge_cap"
+def test_critic_prompt_contains_the_brief(tmp_path: Path) -> None:
+    """The critic sees the same game brief the builder got."""
+    spec = tmp_path / "spec.md"
+    spec.write_text("# Grand Theft GPU\nSteal a GPU.")
+    text = runner.critic_text(spec)
+    assert "Steal a GPU." in text and "{brief}" not in text
 
 
 def test_meter_fails_closed(run: ContenderRun, monkeypatch: pytest.MonkeyPatch) -> None:
     """No reading is tolerated briefly, then stops the turn as meter_down."""
     monkeypatch.setattr(meter, "read_session", lambda _sid: None)
     run._last_reading_at = time.monotonic()
-    assert run._check_meter() is None
+    assert run._check_meter("s1") is None
     run._last_reading_at = time.monotonic() - runner.METER_BLIND_LIMIT_S - 1
-    assert run._check_meter() == "meter_down"
+    assert run._check_meter("s1") == "meter_down"
     events = (run.logs / "events.jsonl").read_text()
     assert '"meter_down"' in events
 
@@ -71,9 +83,20 @@ def test_meter_budget_and_leak(run: ContenderRun, monkeypatch: pytest.MonkeyPatc
     reading = meter.Reading(cost_usd=1.0, models=frozenset({own}), unpriced=0)
     # The lambda reads `reading` when called, so reassigning it below changes the result.
     monkeypatch.setattr(meter, "read_session", lambda _sid: reading)
-    assert run._check_meter() == "budget"
+    assert run._check_meter("s1") == "budget"
     reading = meter.Reading(cost_usd=0.1, models=frozenset({own, "other"}), unpriced=0)
-    assert run._check_meter() == "leak"
+    assert run._check_meter("s1") == "leak"
+
+
+def test_budget_counts_every_session(run: ContenderRun, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Builder and critic sessions add up against one budget (here $1.00)."""
+    own = frozenset({run.contender.nexus_model})
+    costs = {"builder": 0.6, "critic-1": 0.3, "critic-2": 0.2}
+    monkeypatch.setattr(meter, "read_session", lambda sid: meter.Reading(costs[sid], own, 0))
+    assert run._check_meter("builder") is None
+    assert run._check_meter("critic-1") is None
+    assert run._check_meter("critic-2") == "budget"
+    assert run._cost() == pytest.approx(1.1)
 
 
 def test_api_error_detection(tmp_path: Path) -> None:

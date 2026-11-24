@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 
 from harness import runner, session, stop_hook
-from harness.config import CONTENDERS, PROMPTS_DIR
+from harness.config import CONTENDERS
 
 
 @pytest.mark.parametrize(
@@ -38,17 +38,17 @@ def test_reports_are_not_announcements(message: str) -> None:
     assert not stop_hook.announces_work(message)
 
 
-def test_hook_lets_a_finished_model_stop(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    """With DONE.md present the hook never blocks, even on an announcement."""
+def test_hook_ignores_done_md(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """DONE.md no longer ends a race, so it doesn't let an announcement through."""
     (tmp_path / "DONE.md").write_text("done")
-    monkeypatch.setattr(stop_hook, "builds", lambda _ws: False)
-    assert not stop_hook.decide({"last_assistant_message": "I'll add more."}, tmp_path)
+    monkeypatch.setattr(stop_hook, "builds", lambda _ws: True)
+    assert stop_hook.decide({"last_assistant_message": "I'll add more."}, tmp_path)
 
 
 def test_hook_blocks_announcements_and_broken_builds(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """Without DONE.md: block on an announcement, or on a failing build; else allow."""
+    """Block on an announcement or a failing build; otherwise allow the stop."""
     monkeypatch.setattr(stop_hook, "builds", lambda _ws: True)
     assert stop_hook.decide({"last_assistant_message": "I'll add the HUD next."}, tmp_path)
     assert not stop_hook.decide({"last_assistant_message": "Added the HUD."}, tmp_path)
@@ -56,20 +56,20 @@ def test_hook_blocks_announcements_and_broken_builds(
     assert stop_hook.decide({"last_assistant_message": "Added the HUD."}, tmp_path)
 
 
-def test_hook_cli_prints_block_with_the_locked_nudge(tmp_path: Path) -> None:
-    """End to end: the hook's JSON reason is exactly the locked nudge text."""
-    nudge = tmp_path / "nudge.txt"
-    nudge.write_text((PROMPTS_DIR / "nudge.md").read_text())
+def test_hook_cli_prints_block_with_the_locked_reason(tmp_path: Path) -> None:
+    """End to end: the hook's JSON reason is the nudge template's fixed closing line."""
+    reason = tmp_path / "reason.txt"
+    reason.write_text(session.hook_reason() + "\n")
     payload = {"cwd": str(tmp_path), "last_assistant_message": "I'm now adding sirens."}
     proc = subprocess.run(
-        [sys.executable, "-m", "harness.stop_hook", str(nudge)],
+        [sys.executable, "-m", "harness.stop_hook", str(reason)],
         input=json.dumps(payload),
         capture_output=True,
         text=True,
         check=True,
     )
     out = json.loads(proc.stdout)
-    assert out == {"decision": "block", "reason": nudge.read_text().strip()}
+    assert out == {"decision": "block", "reason": "Keep building the game toward Tier 4."}
 
 
 def test_settings_differ_only_by_model(tmp_path: Path) -> None:
@@ -82,6 +82,14 @@ def test_settings_differ_only_by_model(tmp_path: Path) -> None:
     tiers = [k for k in env if k.startswith("ANTHROPIC_DEFAULT_")]
     assert len(tiers) == 4 and all(env[k] == CONTENDERS[1].model for k in tiers)
     assert env["CLAUDE_CODE_SUBAGENT_MODEL_FORCE"] == "1"
+
+
+def test_critic_settings_match_but_have_no_hook(tmp_path: Path) -> None:
+    """The critic gets the builder's pins, effort and compaction, but no Stop hook."""
+    model = CONTENDERS[0].model
+    session.write(tmp_path, model)
+    critic = json.loads((tmp_path / session.CRITIC_SETTINGS_FILE).read_text())
+    assert critic == {"env": session.env(model)}
 
 
 def test_playtester_cannot_edit() -> None:

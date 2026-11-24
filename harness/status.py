@@ -100,7 +100,7 @@ def contender_status(folder: Path) -> dict[str, Any]:
             "page_errors": len(last.get("page_errors") or []),
             "console_errors": len(last.get("console_errors") or []),
         },
-        # The runner moves DONE.md into logs/ when it nudges on, so check both.
+        # Races before prompt-v7 moved DONE.md into logs/ when nudging on, so check both.
         "declared_done": (folder / "workspace" / "DONE.md").exists()
         or any((folder / "logs").glob("done-turn-*.md")),
         "session_id": sid,

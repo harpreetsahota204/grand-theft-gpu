@@ -124,6 +124,7 @@ version = "0.1.0"
 source = { editable = "." }
 default-groups = "all"
 dependencies = [
+    { name = "pillow" },
     { name = "playwright" },
 ]
 
@@ -142,7 +143,10 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "playwright", specifier = ">=1.48" }]
+requires-dist = [
+    { name = "pillow", specifier = ">=13.0.0" },
+    { name = "playwright", specifier = ">=1.48" },
+]
 
 [package.metadata.requires-dev]
 assets = [

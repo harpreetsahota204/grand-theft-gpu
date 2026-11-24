@@ -202,6 +202,7 @@ def screenshot(
     out_png: Path,
     settle_ms: int = SCREENSHOT_SETTLE_MS,
     hold: Sequence[tuple[str, int]] = (),
+    later: Sequence[tuple[int, Path]] = (),
 ) -> ShotResult:
     """Serves a built site over HTTP and screenshots its game entry page.
 
@@ -216,6 +217,9 @@ def screenshot(
         hold: keys to hold down in order after play starts, as (key, milliseconds),
             e.g. [("w", 2000)] to move forward for 2 s before the shot. Key names
             follow Playwright (`w`, `Shift`, `Space`, `ArrowUp`, ...).
+        later: extra shots of the same page after the main one, as (wait ms,
+            path), with no input in between; `harness.checks` compares them to
+            see whether the world moves on its own.
 
     Returns:
         whether the entry exists, loaded and was captured, plus any errors
@@ -266,6 +270,9 @@ def screenshot(
                     page.keyboard.up(key)
                 out_png.parent.mkdir(parents=True, exist_ok=True)
                 page.screenshot(path=str(out_png))
+                for wait_ms, path in later:
+                    page.wait_for_timeout(wait_ms)
+                    page.screenshot(path=str(path))
                 written = True
             except Exception as exc:  # noqa: BLE001 - a broken build is data, not a harness crash
                 page_errors.append(f"harness: {exc}")

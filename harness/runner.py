@@ -1,57 +1,72 @@
-"""One contender's race: the turn loop, budget watchdog and per-turn evidence.
+"""One contender's race: build turns, critic reviews, the Tier 4 check, and the watchdog.
 
 `harness.race` creates a `ContenderRun` per model and runs them in parallel
-threads. Each turn is one headless `claude -p` process, run inside the
-contender's sandbox (`harness.sandbox`) with a scrubbed environment. The first
-turn gets the spec plus run rules; later turns get the fixed nudge, resuming
-the same session. A watchdog polls Nexus (`harness.meter`) during the turn and
-kills the process group if spend hits the budget, a foreign model shows up in
-the usage rows, the meter goes blind for METER_BLIND_LIMIT_S, the race is
-aborted, or the turn stalls (no output and no new spend for STALL_TIMEOUT_S).
-After each turn, anything the model left running is stopped.
+threads. A run is a loop of rounds:
 
-The harness fails closed: a crash inside a turn still kills that turn's
-process tree, and `run()` always writes result.json, with `stop_reason`
-"error" if the harness itself failed.
+1. **Build turn.** One headless `claude -p` process resuming the contender's
+   builder session, inside its sandbox (`harness.sandbox`). Turn 1 gets the
+   spec plus run rules; later turns get the critic's notes.
+2. **Evidence.** The harness commits the workspace to `history.git`, builds the
+   game and screenshots it.
+3. **Critic review.** A fresh `claude -p` session of the *same* model, with no
+   memory of building, plays the game read-only (`prompts/critic.md`) and
+   ends with a JSON verdict: the tier reached, whether Tier 4 is complete, and
+   notes for the builder.
+4. **Tier 4 check.** If the critic says Tier 4, the harness's own checks
+   (`harness.checks`) must agree before the run ends as `tier4`. If they
+   don't, their failures are added to the critic's notes.
+5. The notes go back to the builder in the `prompts/nudge.md` template, and
+   the next round starts.
 
-Declaring done doesn't end the run while nudges remain: DONE.md is moved to
-`logs/done-turn-NNN.md` (the turn's commit still has it) and the model gets
-the fixed nudge, so both models are pushed toward the full budget the same way.
+A run ends on Tier 4 verified, on the budget, or on a safety stop (leak, dead
+meter, abort, harness error). The smoke test (`RaceConfig.stop_on_done`) also
+stops at the first DONE.md, after one review.
+
+A watchdog polls Nexus (`harness.meter`) during every session, builder and
+critic alike, and kills it if total spend (all of the contender's sessions)
+hits the budget, a foreign model shows up, the meter goes blind for
+METER_BLIND_LIMIT_S, the race is aborted, or the session stalls (no output and
+no new spend for STALL_TIMEOUT_S). After each session, anything it left
+running is stopped. A crash still kills the running session, and `run()`
+always writes result.json.
 
 Output layout under `<race_dir>/<contender>/`:
-    workspace/            the seeded Vite project the model builds in
-    history.git/          per-turn evidence commits of workspace/ (outside the model's reach)
-    toolkit/              the modules tools/screenshot runs (read-only to the model)
-    sandbox.sb            the contender's sandbox profile
-    logs/turn-NNN.jsonl   timestamped Claude Code stream-json transcript per turn
-    logs/cost.csv         timestamped Nexus spend readings
-    logs/turns.jsonl      one row per turn (turn 0 = seeded base): build, load, errors
-    logs/events.jsonl     harness events: leak, stall, meter, abort, errors (absent if none)
-    logs/claude.pgid      process group of the running turn (for `buildoff stop`)
-    logs/done-turn-NNN.md each DONE.md the model wrote before its last nudge
-    shots/turn-NNN.png    screenshot of the built game after each turn (000 = base)
-    result.json           final outcome
+    workspace/             the seeded Vite project the model builds in
+    history.git/           per-turn evidence commits of workspace/ (outside the model's reach)
+    toolkit/               what runs inside the sandbox: screenshot modules, Stop hook, settings
+    sandbox.sb, critic.sb  sandbox profiles for the builder and the read-only critic
+    logs/turn-NNN.jsonl    builder transcript per turn ({"t": seconds, "event": ...})
+    logs/critic-NNN.jsonl  critic transcript after turn NNN
+    logs/reviews.jsonl     one row per review: tier, Tier 4 claim, check results, notes
+    logs/cost.csv          timestamped total spend (all sessions) per Nexus
+    logs/turns.jsonl       one row per turn (turn 0 = seeded base): build, load, errors
+    logs/events.jsonl      harness events: leak, stall, meter, abort, retries, errors
+    logs/claude.pgid       process group of the running session (for `buildoff stop`)
+    logs/checks/turn-NNN/  frames from the Tier 4 motion check
+    shots/turn-NNN.png     screenshot of the built game after each turn (000 = base)
+    result.json            final outcome
 """
 
 import contextlib
 import json
 import os
+import re
 import signal
 import subprocess
 import threading
 import time
 import traceback
 import uuid
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import IO, Literal, TextIO
 
-from harness import meter, sandbox, seed, session, snapshot
+from harness import checks, meter, sandbox, seed, session, snapshot
 from harness.config import (
     BUILD_DIR,
+    CRITIC_TOOLS,
     DONE_FILE,
     MAX_API_RETRIES,
-    MAX_NUDGES,
     METER_BLIND_LIMIT_S,
     METER_POLL_SECONDS,
     PROMPTS_DIR,
@@ -61,13 +76,11 @@ from harness.config import (
     RaceConfig,
 )
 
-StopReason = Literal[
-    "declared_done", "nudge_cap", "budget", "leak", "meter_down", "aborted", "error"
-]
+StopReason = Literal["tier4", "declared_done", "budget", "leak", "meter_down", "aborted", "error"]
 TurnEnd = Literal[
     "completed", "stalled", "budget", "leak", "meter_down", "aborted", "error", "api_error"
 ]
-# Turn endings that stop the run outright, whatever the nudge count.
+# Session endings that stop the run outright.
 HARD_STOPS: frozenset[str] = frozenset({"budget", "leak", "meter_down", "aborted", "error"})
 
 # Claude Code's final message when the provider API fails mid-turn, e.g.
@@ -79,6 +92,10 @@ API_ERROR_PREFIX: str = "API Error"
 # 2026-11-21 dry runs, three of Kimi's turns ended this way with zero tool calls.
 CUT_OFF_MARKER: str = "was cut off mid-stream"
 
+# What the builder is told when the critic produced no usable verdict (its
+# session failed, or it didn't end with the JSON line).
+NO_REVIEW_NOTES: str = "The critic could not finish a review this round."
+
 # An empty MCP config plus --strict-mcp-config removes the user's connectors
 # (Notion, Gmail, ...) from the race sessions.
 EMPTY_MCP: str = '{"mcpServers":{}}'
@@ -87,9 +104,30 @@ EMPTY_MCP: str = '{"mcpServers":{}}'
 # often (METER_POLL_SECONDS); this only bounds how fast Ctrl-C takes effect.
 WATCH_TICK_S: float = 1.0
 
-# Set by `harness.race` on SIGINT/SIGTERM. Every running turn is killed within
+# Set by `harness.race` on SIGINT/SIGTERM. Every running session is killed within
 # WATCH_TICK_S and every contender stops with stop_reason "aborted".
 ABORT: threading.Event = threading.Event()
+
+
+@dataclass(frozen=True)
+class Review:
+    """A critic's verdict, parsed from the JSON line that ends its reply.
+
+    Attributes:
+        parsed: whether a valid verdict line was found
+        tier: highest tier the critic saw fully working, if given
+        tier4_complete: the critic's claim that Tier 4 is done
+        day_shot: path of its daylight screenshot (Tier 4 evidence)
+        night_shot: path of its night screenshot (Tier 4 evidence)
+        notes: what the builder should do next
+    """
+
+    parsed: bool
+    tier: int | None = None
+    tier4_complete: bool = False
+    day_shot: str = ""
+    night_shot: str = ""
+    notes: str = ""
 
 
 @dataclass
@@ -98,41 +136,68 @@ class RunResult:
 
     Attributes:
         contender: contender name
-        session_id: Claude Code session UUID, usable with `nexus claude usage`
+        session_id: the builder's Claude Code session UUID (`nexus claude usage --session`)
+        critic_sessions: every critic session UUID, in order
         stop_reason: why the run ended
-        turns: number of `claude -p` invocations
-        nudges: how many of those were nudges
-        cost_usd: final spend per Nexus
-        wall_seconds: total elapsed time, including the harness's per-turn
-            build and screenshot
-        model_seconds: time the model's turns actually ran (the race clock)
+        turns: builder turns run
+        reviews: critic reviews run
+        last_tier: the tier the last critic review reported, if any
+        cost_usd: final total spend per Nexus, builder and critics together
+        wall_seconds: total elapsed time, including the harness's own work
+        model_seconds: time the model's sessions ran, builder and critic (the race clock)
         first_playable_turn: first turn whose build loaded and rendered with no
             uncaught exception, if any
         first_playable_seconds: model_seconds at the end of that turn
-        models_seen: every model Nexus logged for this session
-        done_declared: each time the model wrote DONE.md: turn and spend so far
-        api_retries: turns resumed after a provider API error (not counted as nudges)
+        models_seen: every model Nexus logged across the contender's sessions
+        api_retries: turns resumed after a provider API error or cut-off stream
         pack: which asset pack the workspace was seeded with
     """
 
     contender: str
     session_id: str
+    critic_sessions: list[str]
     stop_reason: StopReason
     turns: int
-    nudges: int
+    reviews: int
+    last_tier: int | None
     cost_usd: float
     wall_seconds: float
     model_seconds: float
     first_playable_turn: int | None
     first_playable_seconds: float | None
     models_seen: list[str]
-    done_declared: list[dict[str, float]]
     api_retries: int
     pack: str
 
 
+@dataclass
+class _Spend:
+    """Latest Nexus reading per session, for one contender.
+
+    The budget and the leak check cover all of a contender's sessions: one
+    builder session (resumed every turn) plus one fresh critic session per review.
+
+    Attributes:
+        cost: latest cost per session ID, USD
+        models: models seen per session ID
+        unpriced: unpriced row count per session ID
+    """
+
+    cost: dict[str, float] = field(default_factory=dict)
+    models: dict[str, frozenset[str]] = field(default_factory=dict)
+    unpriced: dict[str, int] = field(default_factory=dict)
+
+    def total(self) -> float:
+        """Total spend across sessions, USD."""
+        return sum(self.cost.values())
+
+    def all_models(self) -> frozenset[str]:
+        """Every model seen in any session."""
+        return frozenset().union(*self.models.values())
+
+
 class ContenderRun:
-    """Drives one model through the race.
+    """Drives one model through the race: build, review, check, repeat.
 
     Created by `harness.race` with the shared `RaceConfig`; `run()` blocks until
     the contender stops and returns its `RunResult`. Safe to run two instances in
@@ -143,11 +208,11 @@ class ContenderRun:
         contender: which model this run drives
         cfg: race-wide settings
         root: this contender's output folder
-        session_id: fixed UUID so Nexus can be queried mid-turn
+        session_id: the builder's fixed UUID, so Nexus can be queried mid-turn
     """
 
     def __init__(self, contender: Contender, cfg: RaceConfig) -> None:
-        """Sets up paths and a fresh session ID; touches nothing on disk yet."""
+        """Sets up paths and a fresh builder session ID; touches nothing on disk yet."""
         self.contender = contender
         self.cfg = cfg
         self.root: Path = cfg.race_dir / contender.name
@@ -155,30 +220,29 @@ class ContenderRun:
         self.history: Path = self.root / "history.git"
         self.toolkit: Path = self.root / "toolkit"
         self.profile: Path = self.root / "sandbox.sb"
+        self.critic_profile: Path = self.root / "critic.sb"
         self.logs: Path = self.root / "logs"
         self.shots: Path = self.root / "shots"
         self.session_id: str = str(uuid.uuid4())
-        self._last: meter.Reading | None = None
+        self.critic_sessions: list[str] = []
+        self._spend = _Spend()
         self._start: float = 0.0
-        # Sum of turn durations: the race clock, without the harness's own
-        # build and screenshot time between turns.
+        # Sum of session durations: the race clock, without the harness's own
+        # build, screenshot and check work between sessions.
         self._model_s: float = 0.0
-        # Last time the turn showed life (new output line or new spend); the
-        # watchdog kills a turn that stays silent for STALL_TIMEOUT_S.
+        # Last time the running session showed life (new output or new spend);
+        # the watchdog kills a session that stays silent for STALL_TIMEOUT_S.
         self._last_activity: float = 0.0
-        # Last time Nexus returned a reading; the watchdog stops a turn whose
+        # Last time Nexus returned a reading; the watchdog stops a session whose
         # meter stays blind for METER_BLIND_LIMIT_S.
         self._last_reading_at: float = 0.0
-        # Highest unpriced-row count already logged as a warning event.
+        # Highest unpriced-row total already logged as a warning event.
         self._unpriced_seen: int = 0
-        # Every DONE.md the model wrote: {"turn", "cost_usd"} (see `_stop_reason`).
-        self._done_declared: list[dict[str, float]] = []
-        # Written by `session.write` after seeding; passed on every turn.
-        self._settings: Path = self.toolkit / session.SETTINGS_FILE
-        self._agents: Path = self.toolkit / session.AGENTS_FILE
+        # Wall-clock start of the latest review; its day/night shots must be newer.
+        self._review_started: float = 0.0
 
     def run(self) -> RunResult:
-        """Runs turns until a stop rule fires, then writes result.json.
+        """Runs rounds until a stop rule fires, then writes result.json.
 
         result.json is written even if the harness itself fails partway, with
         stop_reason "error" and the traceback in events.jsonl.
@@ -188,7 +252,8 @@ class ContenderRun:
         """
         self.root.mkdir(parents=True, exist_ok=True)
         self.logs.mkdir(parents=True, exist_ok=True)
-        turn = nudges = api_retries = 0
+        turn = reviews = api_retries = 0
+        last_tier: int | None = None
         first_playable: tuple[int, float] | None = None
         reason: StopReason = "error"
         try:
@@ -197,6 +262,7 @@ class ContenderRun:
             seed.seed_workspace(self.workspace, self.toolkit, self.cfg.pack)
             snapshot.init_history(self.history, self.workspace)
             sandbox.write_profile(self.profile, self.workspace, self.toolkit)
+            sandbox.write_profile(self.critic_profile, self.workspace, self.toolkit, read_only=True)
             session.write(self.toolkit, self.contender.model)
             # Turn 0 is the untouched base game: the "before" frame for the video
             # and the diff base for scoring.
@@ -204,8 +270,7 @@ class ContenderRun:
             self._start = time.monotonic()
 
             prompt = build_first_prompt(self.cfg.spec_path)
-            nudge = (PROMPTS_DIR / "nudge.md").read_text()
-
+            notes = ""
             while True:
                 if ABORT.is_set():
                     reason = "aborted"
@@ -213,25 +278,57 @@ class ContenderRun:
                 turn += 1
                 end = self._run_turn(prompt, turn)
 
-                # Evidence after every turn, including the one the watchdog killed,
+                # Evidence after every turn, including one the watchdog killed,
                 # so the final state of the build is always captured.
                 if self._record_turn(turn, end) and first_playable is None:
                     first_playable = (turn, self._model_s)
 
                 if end == "api_error" and api_retries < MAX_API_RETRIES:
-                    # Infrastructure, not the model: resume without using a nudge.
+                    # Infrastructure, not the model: resume with the same notes.
                     api_retries += 1
                     self._event({"event": "api_retry", "turn": turn})
-                    prompt = nudge
+                    prompt = nudge_text(notes)
                     continue
-
-                stop = self._stop_reason(end, nudges, turn)
-                if stop is not None:
-                    reason = stop
+                if end in HARD_STOPS:
+                    reason = end  # type: ignore[assignment]  # every hard stop is a StopReason
+                    break
+                if end == "api_error":  # retries used up
+                    reason = "error"
                     break
 
-                nudges += 1
-                prompt = nudge
+                review = self._review(turn)
+                if isinstance(review, str):  # a hard stop during the critic's session
+                    reason = review  # type: ignore[assignment]
+                    break
+                reviews += 1
+                last_tier = review.tier if review.parsed else last_tier
+
+                if self.cfg.stop_on_done and (self.workspace / DONE_FILE).exists():
+                    reason = "declared_done"
+                    break
+                notes = review.notes if review.parsed else NO_REVIEW_NOTES
+                if review.tier4_complete:
+                    result = checks.tier4(
+                        self.workspace,
+                        self.logs / "checks" / f"turn-{turn:03d}",
+                        review.day_shot,
+                        review.night_shot,
+                        self._review_started,
+                    )
+                    self._append_jsonl(
+                        "reviews.jsonl",
+                        {"turn": turn, "tier4_checks": asdict(result)},
+                    )
+                    if result.passed:
+                        reason = "tier4"
+                        break
+                    # The critic said Tier 4 but the harness disagrees: the builder
+                    # hears both, so it knows what to fix.
+                    notes = "\n".join(
+                        [notes, "", "The harness's Tier 4 checks failed:"]
+                        + [f"- {f}" for f in result.failures]
+                    ).strip()
+                prompt = nudge_text(notes)
         except Exception:
             self._event({"event": "harness_error", "turn": turn, "trace": traceback.format_exc()})
             reason = "error"
@@ -242,16 +339,17 @@ class ContenderRun:
         result = RunResult(
             contender=self.contender.name,
             session_id=self.session_id,
+            critic_sessions=self.critic_sessions,
             stop_reason=reason,
             turns=turn,
-            nudges=nudges,
+            reviews=reviews,
+            last_tier=last_tier,
             cost_usd=self._cost(),
             wall_seconds=round(time.monotonic() - self._start, 1) if self._start else 0.0,
             model_seconds=round(self._model_s, 1),
             first_playable_turn=first_playable[0] if first_playable else None,
             first_playable_seconds=round(first_playable[1], 1) if first_playable else None,
-            models_seen=sorted(self._last.models) if self._last else [],
-            done_declared=self._done_declared,
+            models_seen=sorted(self._spend.all_models()),
             api_retries=api_retries,
             pack=self.cfg.pack,
         )
@@ -284,7 +382,7 @@ class ContenderRun:
                 "end": end,
                 "commit": sha,
                 # Model time: the race clock, without the harness's own build and
-                # screenshot work between turns. Turn 0 is before the clock starts.
+                # screenshot work between sessions. Turn 0 is before the clock starts.
                 "elapsed_s": round(self._model_s, 1),
                 "wall_s": round(time.monotonic() - self._start, 1) if turn else 0.0,
                 "cost_usd": self._cost(),
@@ -300,53 +398,73 @@ class ContenderRun:
         )
         return shot.playable
 
-    def _stop_reason(self, end: TurnEnd, nudges: int, turn: int) -> StopReason | None:
-        """Applies the stop rules after a turn, in priority order.
-
-        Hard limits first (budget, leak, dead meter, abort, error), then the
-        nudge cap. Writing DONE.md is not a stop while nudges remain: the file is
-        moved to `logs/done-turn-NNN.md` and the model is nudged to keep
-        building (the user's rule, so neither model leaves budget unspent by
-        stopping early). A "stalled" turn is nudged too: in practice a stall is
-        the model blocking itself on a server that never exits.
-
-        Args:
-            end: how the turn that just finished ended
-            nudges: nudges sent so far
-            turn: the turn that just finished
-
-        Returns:
-            why the run should stop, or None to send another nudge
-        """
-        if end in HARD_STOPS:
-            return end  # type: ignore[return-value]  # every hard stop is a StopReason
-        if end == "api_error":  # retries used up (the turn loop retries before this)
-            return "error"
-        done = self.workspace / DONE_FILE
-        if done.exists():
-            self._done_declared.append({"turn": turn, "cost_usd": round(self._cost(), 4)})
-            if nudges >= MAX_NUDGES or not self.cfg.nudge_on_done:
-                return "declared_done"
-            done.replace(self.logs / f"done-turn-{turn:03d}.md")
-            return None
-        if nudges >= MAX_NUDGES:
-            return "nudge_cap"
-        return None
-
     def _run_turn(self, prompt: str, turn: int) -> TurnEnd:
-        """Runs one sandboxed `claude -p` process under the watchdog.
+        """Runs one builder turn: the builder session, resumed after turn 1.
 
         Args:
-            prompt: spec (turn 1) or the fixed nudge (later turns)
+            prompt: spec (turn 1) or the critic's notes (later turns)
             turn: 1-based turn number, used for the log filename
 
         Returns:
             how the turn ended
         """
+        resume = ["--session-id", self.session_id] if turn == 1 else ["--resume", self.session_id]
+        cmd = self._claude_cmd(prompt, resume, TOOLS, session.SETTINGS_FILE, agents=True)
         log_path = self.logs / f"turn-{turn:03d}.jsonl"
+        end = self._run_session(cmd, self.profile, self.session_id, log_path, f"turn {turn}")
+        if end == "completed" and _ended_after_cut_off(log_path):
+            return "api_error"
+        return end
+
+    def _review(self, turn: int) -> Review | StopReason:
+        """Runs the critic after a turn and parses its verdict.
+
+        The critic is a fresh session of the same model (no memory of building),
+        in the read-only sandbox, with only Bash and Read.
+
+        Args:
+            turn: the turn just finished
+
+        Returns:
+            the review (unparsed if the critic failed or gave no verdict line),
+            or a stop reason if a hard stop fired during the critic's session
+        """
+        critic_id = str(uuid.uuid4())
+        self.critic_sessions.append(critic_id)
+        prompt = critic_text(self.cfg.spec_path)
+        cmd = self._claude_cmd(
+            prompt, ["--session-id", critic_id], CRITIC_TOOLS, session.CRITIC_SETTINGS_FILE
+        )
+        log_path = self.logs / f"critic-{turn:03d}.jsonl"
+        # Wall-clock start: the critic's day/night screenshots must be newer.
+        self._review_started = time.time()
+        end = self._run_session(cmd, self.critic_profile, critic_id, log_path, f"review {turn}")
+        if end in HARD_STOPS:
+            return end  # type: ignore[return-value]  # every hard stop is a StopReason
+        review = parse_review(log_path)
+        self._append_jsonl(
+            "reviews.jsonl",
+            {"turn": turn, "end": end, "cost_usd": self._cost()} | asdict(review),
+        )
+        return review
+
+    def _run_session(
+        self, cmd: list[str], profile: Path, session_id: str, log_path: Path, label: str
+    ) -> TurnEnd:
+        """Runs one sandboxed `claude -p` process (builder or critic) under the watchdog.
+
+        Args:
+            cmd: the Claude Code argv (before the sandbox wrapper)
+            profile: the sandbox profile to run it under
+            session_id: the session Nexus meters for this process
+            log_path: where to write its timestamped transcript
+            label: e.g. "turn 3" or "review 3", for event rows
+
+        Returns:
+            how the session ended
+        """
         pgid_file = self.logs / "claude.pgid"
         env = sandbox.clean_env({"CLAUDE_CODE_SUBAGENT_MODEL": self.contender.model})
-        cmd = sandbox.wrap(self._claude_cmd(prompt, first=turn == 1), self.profile)
 
         verdict: TurnEnd | None = None
         started = time.monotonic()
@@ -354,7 +472,7 @@ class ContenderRun:
             # start_new_session puts claude and every shell it spawns in one
             # process group, so a kill takes down the whole tree.
             proc = subprocess.Popen(
-                cmd,
+                sandbox.wrap(cmd, profile),
                 cwd=self.workspace,
                 env=env,
                 stdout=subprocess.PIPE,
@@ -365,11 +483,11 @@ class ContenderRun:
             # without it a full pipe buffer would stall claude.
             pump = threading.Thread(target=self._pump, args=(proc.stdout, log), daemon=True)
             try:
-                # Recorded so `buildoff stop` can kill the turn even if this process dies.
+                # Recorded so `buildoff stop` can kill it even if this process dies.
                 pgid_file.write_text(str(proc.pid))
                 self._last_activity = self._last_reading_at = time.monotonic()
                 pump.start()
-                verdict = self._watch(proc, turn)
+                verdict = self._watch(proc, session_id, label)
             finally:
                 # Runs on a normal exit, a watchdog verdict, and a harness crash
                 # alike. Background jobs share claude's process group, and
@@ -382,26 +500,27 @@ class ContenderRun:
             if pump.ident is not None:
                 pump.join(timeout=10)
 
-        # If claude exited on its own, take one more reading: the last requests of
-        # the turn land after the final mid-turn poll. A stalled turn still gets
-        # a final reading, but budget/leak found there take priority.
+        # If claude exited on its own, take one more reading: the last requests
+        # land after the final mid-session poll. A stalled session still gets a
+        # final reading, but budget/leak found there take priority.
         if verdict in (None, "stalled"):
-            verdict = self._check_meter() or verdict
+            verdict = self._check_meter(session_id) or verdict
         if verdict is not None:
             return verdict
         if proc.returncode == 0:
-            return "api_error" if _ended_after_cut_off(log_path) else "completed"
+            return "completed"
         return "api_error" if _ended_on_api_error(log_path) else "error"
 
-    def _watch(self, proc: subprocess.Popen[bytes], turn: int) -> TurnEnd | None:
+    def _watch(self, proc: subprocess.Popen[bytes], session_id: str, label: str) -> TurnEnd | None:
         """Waits for claude to exit, enforcing abort, meter and stall limits.
 
         Args:
             proc: the running claude process
-            turn: turn number, for event rows
+            session_id: the session to meter
+            label: e.g. "turn 3", for event rows
 
         Returns:
-            the verdict that ended the turn early, or None if claude exited itself
+            the verdict that ended the session early, or None if claude exited itself
         """
         next_poll = time.monotonic() + METER_POLL_SECONDS
         while True:
@@ -411,20 +530,20 @@ class ContenderRun:
             except subprocess.TimeoutExpired:
                 pass
             if ABORT.is_set():
-                self._event({"event": "aborted", "turn": turn})
+                self._event({"event": "aborted", "during": label})
                 return "aborted"
             if time.monotonic() < next_poll:
                 continue
             next_poll = time.monotonic() + METER_POLL_SECONDS
-            verdict = self._check_meter()
+            verdict = self._check_meter(session_id)
             if verdict is None and time.monotonic() - self._last_activity > STALL_TIMEOUT_S:
                 verdict = "stalled"
-                self._event({"event": "stalled", "turn": turn})
+                self._event({"event": "stalled", "during": label})
             if verdict is not None:
                 return verdict
 
     def _pump(self, stream: IO[bytes], log: TextIO) -> None:
-        """Copies claude's output into the turn log, stamping each line with race time.
+        """Copies claude's output into the session log, stamping each line with race time.
 
         Each log row is `{"t": seconds_since_race_start, "event": <stream-json obj>}`,
         or `{"t": ..., "raw": text}` for non-JSON lines (stderr). The timestamps
@@ -432,7 +551,7 @@ class ContenderRun:
 
         Args:
             stream: claude's combined stdout/stderr pipe
-            log: open turn log file
+            log: open session log file
         """
         try:
             for raw in stream:
@@ -447,44 +566,53 @@ class ContenderRun:
                 # Flush per line so the live viewer sees events as they happen.
                 log.flush()
         except ValueError:
-            # The log was closed under us: a process outside the turn's group kept
-            # the pipe open past the turn. Its later output isn't part of the turn.
+            # The log was closed under us: a process outside the session's group
+            # kept the pipe open past its end. Its later output isn't part of it.
             return
 
-    def _claude_cmd(self, prompt: str, first: bool) -> list[str]:
-        """Builds the Claude Code command line for one turn.
+    def _claude_cmd(
+        self,
+        prompt: str,
+        session_args: list[str],
+        tools: tuple[str, ...],
+        settings_file: str,
+        agents: bool = False,
+    ) -> list[str]:
+        """Builds the Claude Code command line for a builder turn or a critic review.
 
-        Both contenders get identical flags; only `--model` differs.
+        Both contenders get identical flags; only the model ID differs.
 
         Args:
-            prompt: text for this turn
-            first: True to start the session, False to resume it
+            prompt: text for this session
+            session_args: `--session-id <id>` to start one, `--resume <id>` to continue
+            tools: the tools the session may use
+            settings_file: settings file in the toolkit (builder or critic)
+            agents: True to offer the playtester subagent (builder only)
 
         Returns:
             argv for subprocess (before the sandbox wrapper)
         """
-        session = ["--session-id", self.session_id] if first else ["--resume", self.session_id]
+        toolkit = self.toolkit.resolve()
         return [
             "claude",
             "-p",
             prompt,
             "--model",
             self.contender.model,
-            *session,
+            *session_args,
             # Unattended run: tools are pre-approved instead of prompting. The
             # sandbox, not the permission mode, is what confines Bash.
             "--permission-mode",
             "acceptEdits",
             "--tools",
-            ",".join(TOOLS),
+            ",".join(tools),
             "--allowed-tools",
-            ",".join(TOOLS),
-            # Model pins, effort, compaction, the Stop hook and the playtester
-            # subagent (harness.session); identical on both sides but the model ID.
+            ",".join(tools),
+            # Model pins, effort, compaction (and for the builder the Stop hook);
+            # identical on both sides but the model ID (harness.session).
             "--settings",
-            str(self._settings),
-            "--agents",
-            str(self._agents),
+            str(toolkit / settings_file),
+            *(["--agents", str(toolkit / session.AGENTS_FILE)] if agents else []),
             # Isolation from the user's own Claude Code setup.
             "--disable-slash-commands",
             "--strict-mcp-config",
@@ -497,18 +625,22 @@ class ContenderRun:
             "--verbose",
         ]
 
-    def _check_meter(self) -> TurnEnd | None:
-        """Polls Nexus, logs the reading, and says whether the turn must stop.
+    def _check_meter(self, session_id: str) -> TurnEnd | None:
+        """Polls Nexus for one session, logs the total, and says whether to stop.
 
-        Also writes an `unpriced` warning to events.jsonl when Nexus reports
-        rows it couldn't price (spend undercounted); that never stops the turn.
+        The budget and the leak check apply to the contender's total across all
+        its sessions. Also writes an `unpriced` warning to events.jsonl when Nexus
+        reports rows it couldn't price (spend undercounted); that never stops it.
+
+        Args:
+            session_id: the session currently running
 
         Returns:
             "leak" if a model other than the contender's appears, "budget" if
-            spend reached the cap, "meter_down" if Nexus has given no reading
-            for METER_BLIND_LIMIT_S, otherwise None
+            total spend reached the cap, "meter_down" if Nexus has given no
+            reading for METER_BLIND_LIMIT_S, otherwise None
         """
-        reading = meter.read_session(self.session_id)
+        reading = meter.read_session(session_id)
         now = time.monotonic()
         if reading is None:
             if now - self._last_reading_at > METER_BLIND_LIMIT_S:
@@ -517,31 +649,33 @@ class ContenderRun:
             return None
         self._last_reading_at = now
         # New spend means the model is working even if it printed nothing.
-        if self._last is None or reading.cost_usd > self._last.cost_usd:
+        if reading.cost_usd > self._spend.cost.get(session_id, -1.0):
             self._last_activity = now
-        self._last = reading
+        self._spend.cost[session_id] = reading.cost_usd
+        self._spend.models[session_id] = reading.models
+        self._spend.unpriced[session_id] = reading.unpriced
+        total = self._spend.total()
         with (self.logs / "cost.csv").open("a") as f:
-            f.write(f"{now - self._start:.1f},{reading.cost_usd:.6f}\n")
+            f.write(f"{now - self._start:.1f},{total:.6f}\n")
 
         # Unpriced rows mean spend is undercounted. Warn but keep racing; only log
         # when the count grows so a stuck row doesn't add a line every poll.
-        if reading.unpriced > self._unpriced_seen:
-            self._unpriced_seen = reading.unpriced
-            self._event(
-                {"event": "unpriced", "rows": reading.unpriced, "cost_usd": reading.cost_usd}
-            )
+        unpriced = sum(self._spend.unpriced.values())
+        if unpriced > self._unpriced_seen:
+            self._unpriced_seen = unpriced
+            self._event({"event": "unpriced", "rows": unpriced, "cost_usd": total})
 
-        foreign = reading.models - {self.contender.nexus_model}
+        foreign = self._spend.all_models() - {self.contender.nexus_model}
         if foreign:
             self._event({"event": "leak", "models": sorted(foreign)})
             return "leak"
-        if reading.cost_usd >= self.cfg.budget_usd:
+        if total >= self.cfg.budget_usd:
             return "budget"
         return None
 
     def _cost(self) -> float:
-        """Returns the latest Nexus spend in USD, or 0.0 before the first reading."""
-        return round(self._last.cost_usd, 6) if self._last else 0.0
+        """Returns the contender's total Nexus spend in USD (0.0 before any reading)."""
+        return round(self._spend.total(), 6)
 
     def _event(self, row: dict[str, object]) -> None:
         """Appends one harness event to events.jsonl."""
@@ -556,8 +690,8 @@ class ContenderRun:
 def build_first_prompt(spec_path: Path) -> str:
     """Joins the game spec with the run rules both models must follow.
 
-    The rules (entry file, DONE.md) are kept out of the spec so the spec reads as
-    a pure game brief and the harness contract lives in one file.
+    The rules (entry file, the critic, DONE.md) are kept out of the spec so the
+    spec reads as a pure game brief and the harness contract lives in one file.
 
     Args:
         spec_path: markdown game spec
@@ -569,11 +703,77 @@ def build_first_prompt(spec_path: Path) -> str:
     return f"{spec_path.read_text().strip()}\n\n{rules.strip()}\n"
 
 
+def nudge_text(notes: str) -> str:
+    """The builder's next prompt: the locked nudge template around the critic's notes."""
+    template = (PROMPTS_DIR / "nudge.md").read_text()
+    return template.replace("{notes}", notes.strip() or NO_REVIEW_NOTES)
+
+
+def critic_text(spec_path: Path) -> str:
+    """The critic's prompt: the locked critic template around the game brief."""
+    template = (PROMPTS_DIR / "critic.md").read_text()
+    return template.replace("{brief}", spec_path.read_text().strip())
+
+
+# The verdict is the last JSON object in the critic's final message. Models
+# sometimes wrap it in a code fence or add a blank line, so search, don't split.
+_VERDICT: re.Pattern[str] = re.compile(r"\{[^{}]*\"tier4_complete\"[^{}]*\}", re.DOTALL)
+
+
+def parse_review(log_path: Path) -> Review:
+    """Reads the critic's verdict from its transcript.
+
+    Args:
+        log_path: the critic session's log (runner format)
+
+    Returns:
+        the parsed review, or `Review(parsed=False)` if there's no valid verdict
+    """
+    final = ""
+    for line in log_path.read_text().splitlines():
+        try:
+            event = json.loads(line).get("event") or {}
+        except json.JSONDecodeError:
+            continue
+        if isinstance(event, dict) and event.get("type") == "result":
+            final = str(event.get("result") or "")
+    verdict = _last_json_line(final)
+    if verdict is None:
+        # Fall back to the last brace-free object naming tier4_complete.
+        matches = _VERDICT.findall(final)
+        try:
+            verdict = json.loads(matches[-1]) if matches else None
+        except json.JSONDecodeError:
+            verdict = None
+    if not isinstance(verdict, dict):
+        return Review(parsed=False)
+    tier = verdict.get("tier")
+    return Review(
+        parsed=True,
+        tier=tier if isinstance(tier, int) else None,
+        tier4_complete=verdict.get("tier4_complete") is True,
+        day_shot=str(verdict.get("day_shot") or ""),
+        night_shot=str(verdict.get("night_shot") or ""),
+        notes=str(verdict.get("notes") or ""),
+    )
+
+
+def _last_json_line(text: str) -> object | None:
+    """Parses the last non-empty line of text as JSON (ignoring a closing code fence)."""
+    lines = [ln.strip() for ln in text.strip().splitlines() if ln.strip() and ln.strip() != "```"]
+    if not lines:
+        return None
+    try:
+        return json.loads(lines[-1])
+    except json.JSONDecodeError:
+        return None
+
+
 def _ended_on_api_error(log_path: Path) -> bool:
-    """True if the turn's final result event is a provider API error.
+    """True if the session's final result event is a provider API error.
 
     Claude Code exits non-zero with a result like "API Error: The response
-    stopped arriving" when the provider fails mid-turn; anything else that
+    stopped arriving" when the provider fails mid-session; anything else that
     exits non-zero (a crash, a bad flag) stays a hard error.
     """
     for line in reversed(log_path.read_text().splitlines()):

@@ -12,7 +12,10 @@ toolkit and the harness's Python environment. It can't read:
 - other sessions' transcripts in `~/.claude/projects` (the other contender's,
   earlier races', and the harness repo's own project memory)
 
-It also can't write `.claude/` or `.mcp.json` in its workspace: Claude Code
+The critic (`read_only=True`) can read the whole workspace but write only
+`CRITIC_WRITABLE` (build output and its own screenshots), so it can't change the game.
+
+A builder also can't write `.claude/` or `.mcp.json` in its workspace: Claude Code
 would load hooks, agents or MCP servers from there on the next turn.
 
 Everything else stays as it was (`allow default`), so Claude Code, npm, git,
@@ -53,15 +56,22 @@ def _regex_prefix(path: str) -> str:
     return '#"^' + re.escape(path).replace('"', '\\"') + '"'
 
 
-def profile(workspace: Path, toolkit: Path) -> str:
-    """Builds the SBPL profile for one contender.
+# What a read-only (critic) session may still write in the workspace: the build
+# output and Vite's cache (tools/screenshot rebuilds into dist/) and its own shots.
+CRITIC_WRITABLE: tuple[str, ...] = ("dist", "node_modules/.vite", "tools/shots")
+
+
+def profile(workspace: Path, toolkit: Path, read_only: bool = False) -> str:
+    """Builds the SBPL profile for one contender's builder or critic sessions.
 
     In SBPL the last matching rule wins, so each broad deny comes before the
     narrower allows that carve the contender's own paths back out of it.
 
     Args:
-        workspace: the contender's game folder (read/write)
+        workspace: the contender's game folder
         toolkit: the contender's screenshot toolkit (read-only)
+        read_only: True for the critic: it can read the whole workspace but
+            write only `CRITIC_WRITABLE`, so it can play the game but not edit it
 
     Returns:
         the profile text
@@ -81,7 +91,15 @@ def profile(workspace: Path, toolkit: Path) -> str:
             # Transcripts of every race session, and the harness repo's project memory.
             f"{deny} (regex {_regex_prefix(str(CLAUDE_PROJECTS / project_slug(runs)))}))",
             f"{deny} (subpath {_lit(CLAUDE_PROJECTS / project_slug(repo))}))",
-            f"(allow file-read-data file-write* (subpath {_lit(workspace)}))",
+            *(
+                [f"(allow file-read-data (subpath {_lit(workspace)}))"]
+                + [
+                    f"(allow file-write* (subpath {_lit(workspace / sub)}))"
+                    for sub in CRITIC_WRITABLE
+                ]
+                if read_only
+                else [f"(allow file-read-data file-write* (subpath {_lit(workspace)}))"]
+            ),
             # Project-level Claude Code config would load on the model's next
             # turn (hooks, agents, MCP servers); the harness sets those itself.
             f"(deny file-write* (subpath {_lit(workspace / '.claude')}))",
@@ -95,9 +113,9 @@ def profile(workspace: Path, toolkit: Path) -> str:
     )
 
 
-def write_profile(path: Path, workspace: Path, toolkit: Path) -> Path:
+def write_profile(path: Path, workspace: Path, toolkit: Path, read_only: bool = False) -> Path:
     """Writes a contender's profile to `path` (outside its workspace) and returns it."""
-    path.write_text(profile(workspace, toolkit))
+    path.write_text(profile(workspace, toolkit, read_only))
     return path
 
 
