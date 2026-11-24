@@ -46,6 +46,44 @@ DEFAULT_SETTLE_MS: int = 8000
 MAX_ERRORS: int = 10
 
 
+# Playwright's named keys are case-sensitive ("Space", not "space"), and a
+# smoke-test critic lost a call to that. Named keys are matched case-insensitively;
+# single characters pass through unchanged, since "W" and "w" differ.
+NAMED_KEYS: dict[str, str] = {
+    name.lower(): name
+    for name in (
+        "Space",
+        "Enter",
+        "Escape",
+        "Tab",
+        "Backspace",
+        "Delete",
+        "Shift",
+        "Control",
+        "Alt",
+        "Meta",
+        "CapsLock",
+        "ArrowUp",
+        "ArrowDown",
+        "ArrowLeft",
+        "ArrowRight",
+        "Home",
+        "End",
+        "PageUp",
+        "PageDown",
+        "Insert",
+        *(f"F{i}" for i in range(1, 13)),
+    )
+} | {
+    "esc": "Escape",
+    "ctrl": "Control",
+    "up": "ArrowUp",
+    "down": "ArrowDown",
+    "left": "ArrowLeft",
+    "right": "ArrowRight",
+    "return": "Enter",
+}
+
 # --shot names become files in tools/shots/, so keep them to safe file names.
 SHOT_NAME: re.Pattern[str] = re.compile(r"[A-Za-z0-9_-]{1,64}")
 
@@ -63,7 +101,7 @@ def parse_hold(spec: str) -> Step:
     # "+" on its own (or "a++") names the plus key, not a chord.
     if not all(keys):
         keys = [key]
-    return Step("keys", keys=tuple(keys), ms=int(ms))
+    return Step("keys", keys=tuple(NAMED_KEYS.get(k.lower(), k) for k in keys), ms=int(ms))
 
 
 def parse_wait(spec: str) -> Step:
@@ -127,7 +165,7 @@ def build_parser() -> argparse.ArgumentParser:
             "--hold",
             parse_hold,
             "KEYS:MS",
-            "hold keys, e.g. w:2000, or several at once: w+d:1500",
+            "hold keys, e.g. w:2000, space:100, or several at once: w+d:1500",
         ),
         ("--wait", parse_wait, "MS", "let the game run with no input, e.g. 1000"),
         ("--shot", parse_shot, "NAME", "save tools/shots/NAME.png at this point"),

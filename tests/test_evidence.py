@@ -106,6 +106,11 @@ def test_parse_hold_accepts_keys_with_colons() -> None:
     assert shot_tool.parse_hold("ArrowUp:500") == snapshot.Step("keys", keys=("ArrowUp",), ms=500)
 
 
+def test_named_keys_are_case_insensitive() -> None:
+    """space, SHIFT and up become Playwright's Space, Shift and ArrowUp; letters keep their case."""
+    assert shot_tool.parse_hold("space+SHIFT+up+W:100").keys == ("Space", "Shift", "ArrowUp", "W")
+
+
 def test_hold_chords_and_the_plus_key() -> None:
     """w+d:1500 holds both keys together; "+" alone is the plus key."""
     assert shot_tool.parse_hold("w+d:1500").keys == ("w", "d")
