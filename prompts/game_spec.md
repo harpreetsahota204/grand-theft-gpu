@@ -44,7 +44,7 @@ You have about **{budget} of compute** for this whole build. When it runs out, t
 
 ## Look and feel
 
-The visual style is up to you. It should feel like a game, with a HUD, sound, feedback and some juice, not a tech demo.
+The visual style is up to you. It should feel like a game, with a HUD, sound, feedback and some juice, not a tech demo. The assets are a starting point, not a look: recolor, retexture, swap materials, relight and add post-processing however your style needs.
 
 ## Assets you can use
 

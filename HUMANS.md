@@ -274,7 +274,7 @@ So the harness isn't a variable. Nexus points Claude Code at Fireworks, and both
 It doesn't know Kimi's prices and falls back to a default rate. In testing it reported $0.060 for a call that costs $0.030 at Kimi K3.1 Pro's list price ($2 per million input tokens, $10 per million output). `nexus claude usage --json` prices each row at the provider's list rate.
 
 ### **Can I change the prompt?**
-Not for a comparable race. The game specs, `run_rules.md`, `critic.md` and `nudge.md` are frozen at git tag `prompt-v8`. Edit them for your own experiments, but tag the new version, because results across prompt versions aren't comparable.
+Not for a comparable race. The game specs, `run_rules.md`, `critic.md` and `nudge.md` are frozen at git tag `prompt-v9`. Edit them for your own experiments, but tag the new version, because results across prompt versions aren't comparable.
 
 ### **Can I rebuild the assets myself?**
 Yes. The code that builds the dataset lives in the dataset, under `build/`, and its card's [Recreate the assets](https://huggingface.co/datasets/harpreetsahota/grand-theft-gpu-assets#recreate-the-assets) section lists every step. You only need Blender for the USDCraft props. Races don't need any of it: they download the finished files at a pinned revision.
