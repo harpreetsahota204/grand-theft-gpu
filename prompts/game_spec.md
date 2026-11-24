@@ -44,7 +44,9 @@ You have about **{budget} of compute** for this whole build. When it runs out, t
 
 ## Look and feel
 
-The visual style is up to you. It should feel like a game, with a HUD, sound, feedback and some juice, not a tech demo. The assets are a starting point, not a look: recolor, retexture, swap materials, relight and add post-processing however your style needs.
+The visual style is up to you. It should feel like a game, with a HUD, sound, feedback and some juice, not a tech demo.
+
+The assets are scaffolding, not the finished look. Don't drop them in as they come: make them yours. Retexture, recolor, relight, swap materials, add post-processing, combine and rebuild them until San Silicon looks like nothing else. Aim for amazing, not acceptable.
 
 ## Assets you can use
 
