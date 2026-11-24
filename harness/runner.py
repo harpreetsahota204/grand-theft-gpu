@@ -20,8 +20,8 @@ threads. A run is a loop of rounds:
    the next round starts.
 
 A run ends on the budget or on a safety stop (leak, dead meter, abort, harness
-error). The smoke test (`RaceConfig.stop_on_done`) also
-stops at the first DONE.md, after one review.
+error). The smoke test (`RaceConfig.stop_on_done`) also stops at the first
+DONE.md, after one review.
 
 A watchdog polls Nexus (`harness.meter`) during every session, builder and
 critic alike, and kills it if total spend (all of the contender's sessions)

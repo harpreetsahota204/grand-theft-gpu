@@ -51,7 +51,7 @@ nohup uv run buildoff race --budget N --yes --race-id my-race > ~/gta-race-runs/
 ## Checking a run
 
 Outputs go to `~/gta-race-runs/<race-id>/<model>/`:
-- `result.json`: the stop reason (`tier4`, `budget`, or a safety stop: `leak`, `meter_down`, `aborted`, `error`), total cost from Nexus (builder and critics), turns, reviews, last tier, model time, first playable turn, and every model seen (must be only that side's own)
+- `result.json`: the stop reason (`budget`, `declared_done` in smoke tests, or a safety stop: `leak`, `meter_down`, `aborted`, `error`), total cost from Nexus (builder and critics), turns, reviews, last tier, model time, first playable turn, and every model seen (must be only that side's own)
 - `logs/turns.jsonl`: per turn, whether it built, loaded and was `playable`, plus errors. Turn 0 is the untouched base game.
 - `logs/reviews.jsonl`: each critic verdict (tier, Tier 4 claim, notes, that review's cost and time) and any Tier 4 check result; `buildoff reviews` merges them per round
 - `logs/turn-NNN.jsonl`, `logs/critic-NNN.jsonl`: timestamped transcripts
