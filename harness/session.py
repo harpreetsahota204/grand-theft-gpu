@@ -15,7 +15,7 @@ on both sides:
 - **Same effort and compaction.** Both sides run at the same reasoning effort
   and compact at the same context size, instead of each model's own default.
 - **The Stop hook** (`harness.stop_hook`, builder only), whose reason is the
-  last line of the locked nudge template ("Keep building the game toward Tier 4.").
+  last line of the locked nudge template ("Keep making the game better.").
 - **One playtester subagent**, read-only, that plays the game with
   `tools/screenshot` and reports what's broken or missing. It's optional for
   the model to use; it never edits files.

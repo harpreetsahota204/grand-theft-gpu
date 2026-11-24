@@ -83,7 +83,7 @@ def test_nudge_wraps_the_critics_notes_and_spend() -> None:
     text = runner.nudge_text("Fix the siren.", 12.403, 100.0)
     assert "Fix the siren." in text and "{notes}" not in text
     assert "You have spent $12.40 of your $100." in text
-    assert text.strip().endswith("Keep building the game toward Tier 4.")
+    assert text.strip().endswith("Keep making the game better.")
 
 
 def test_critic_prompt_contains_the_brief(tmp_path: Path) -> None:

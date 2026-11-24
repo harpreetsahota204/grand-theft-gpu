@@ -1,6 +1,6 @@
 # The $100 GTA Build-Off: race harness
 
-Two models get the same game brief and up to $100 each. Each builds the game alone in headless Claude Code, with a critic (a fresh copy of itself) reviewing every turn, until the game reaches the top tier or the money runs out. The harness keeps the race fair and records everything, so the results can be scored and turned into a video.
+Two models get the same game brief and up to $100 each. Each builds the game alone in headless Claude Code, with a critic (a fresh copy of itself) reviewing every turn, until the money runs out. Builds are then scored against a checklist locked before the race. The harness keeps the race fair and records everything, so the results can be scored and turned into a video.
 
 New here? [`HUMANS.md`](HUMANS.md) is the story version: the premise, the setup and why each rule exists. Coding agents start with [`AGENTS.md`](AGENTS.md).
 
@@ -70,7 +70,7 @@ Each contender loops through rounds:
 2. **Builder turn:** one `claude -p` process that resumes the same session every turn. Turn 1 gets the spec (with the race's real budget filled in) plus the run rules; later turns get the critic's notes and the spend so far (`You have spent $X of your $Y.`). It runs until the model stops (a Stop hook won't let it stop on an announcement or a broken build).
 3. **Evidence:** the harness commits the workspace to `history.git` (outside the model's reach), builds it, screenshots gameplay, and logs a row in `turns.jsonl`. A turn is **playable** if it built, loaded and rendered with no uncaught exception.
 4. **Critic review:** a fresh session of the *same* model, with no memory of building, plays the game read-only, judges both how it plays and how it looks and feels against the brief and tier ladder (`prompts/critic.md`), and writes a verdict to `tools/shots/verdict.json`: tier reached, Tier 4 complete or not, and notes ranked blocker > core loop > next tier > look and feel > polish. The harness schema-checks the file and logs why it rejected a bad one. The builder decides how many notes to take on. The notes become the builder's next prompt (`prompts/nudge.md`). The harness copies the critic's screenshots to `shots/critic-NNN/` and logs the review's own cost and time. A review at max effort can take about an hour.
-5. **Tier 4 check:** if the critic says Tier 4, the harness's own checks (`harness/checks.py`) must agree: the game is playable, the city moves with no input, and the critic's daylight and night screenshots clearly differ. Then the run ends as `tier4`. If not, the failures are added to the critic's notes.
+5. **Tier 4 check:** if the critic says Tier 4, the harness's own checks (`harness/checks.py`) run: the game is playable, the city moves with no input, and the critic's daylight and night screenshots clearly differ. The result is logged; failures are added to the critic's notes. A Tier 4 claim never ends the run: a same-model critic is too lenient a judge for that, so every run goes to its budget and builds are scored afterwards against the locked `scoring/checklist.md`.
 
 **Throughout,** a watchdog polls Nexus every 15 seconds and stops the run if total spend (builder and critics) reaches the budget, any other model shows up (`leak`), or Nexus goes quiet for 3 minutes (`meter_down`). A session with no output and no new spend for 10 minutes is cut short (`stalled`) and goes to review. Provider API errors and cut-off streams are retried (up to 3 per run). The smoke test stops at the first `DONE.md`, after one review.
 
@@ -159,7 +159,7 @@ Errors go to stderr as `{"error": ..., "hint": ...}`, with exit code 1 (not foun
 | `harness/doctor.py` | Prerequisite checks |
 | `harness/fetch.py` | Downloads assets at the pinned dataset revision |
 | `assets/catalog.json` | Index of all 1,302 assets, seeded next to the models' `tools/assets.mjs` |
-| `prompts/` | The locked game specs, run rules, critic prompt and nudge template (tag `prompt-v10`) |
+| `prompts/` | The locked game specs, run rules, critic prompt and nudge template (tag `prompt-v11`) |
 | `tests/` | The local test suite |
 
 ## Not done yet

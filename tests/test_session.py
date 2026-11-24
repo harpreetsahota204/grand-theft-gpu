@@ -69,7 +69,7 @@ def test_hook_cli_prints_block_with_the_locked_reason(tmp_path: Path) -> None:
         check=True,
     )
     out = json.loads(proc.stdout)
-    assert out == {"decision": "block", "reason": "Keep building the game toward Tier 4."}
+    assert out == {"decision": "block", "reason": "Keep making the game better."}
 
 
 def test_settings_differ_only_by_model(tmp_path: Path) -> None:

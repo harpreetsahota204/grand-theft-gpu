@@ -1,8 +1,9 @@
 """The harness's own Tier 4 checks, run when a contender's critic says Tier 4.
 
-`harness.runner` ends a run as `tier4` only when the critic (`prompts/critic.md`)
-judges the game complete AND these checks pass, so a critic can't wave its
-own builder through on words alone:
+`harness.runner` runs them whenever the critic (`prompts/critic.md`) claims
+Tier 4, and logs the result. They no longer end a run (every run goes to its
+budget); a failure goes back to the builder, so a critic can't wave its own
+builder through on words alone:
 
 1. **The build is playable** (built, loaded, rendered, no uncaught exception).
 2. **The city moves on its own.** Two frames of the built game, a few seconds

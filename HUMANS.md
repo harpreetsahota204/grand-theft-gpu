@@ -6,7 +6,7 @@ _Kimi K3.1 Pro and Claude Opus 5.5 each get $100 and the same locked prompt to b
 
 GTA 6 took 4,811 days to arrive after GTA V. Here, each model gets $100.
 
-That's the whole setup. Give two frontier-class models the same budget, the same starting code, the same assets and the same instructions, then step away. Neither model knows it's in a race. Each one builds, with a critic made from a fresh copy of itself reviewing every turn, until its game reaches the top tier or the money runs out.
+That's the whole setup. Give two frontier-class models the same budget, the same starting code, the same assets and the same instructions, then step away. Neither model knows it's in a race. Each one builds, with a critic made from a fresh copy of itself reviewing every turn, until the money runs out.
 
 The prompt was the easy part. The hard part is making sure the model is the only thing that differs between the two runs.
 
@@ -15,7 +15,7 @@ The prompt was the easy part. The hard part is making sure the model is the only
 * Both models run headless in Claude Code with identical flags, tools, files and settings. The only difference is the model: `kimi-k3p1-pro` (Kimi K3.1 Pro, routed to Fireworks by Nexus) or `claude-opus-5-5` (Claude Opus 5.5).
 * Spend is metered by `nexus claude usage`, not by Claude Code. In testing, Claude Code priced a Kimi call at $0.060, while list price for the same tokens was $0.030.
 * Each model starts from a working three.js game pinned to one commit, plus about 1,300 ready-made assets (or, in the primitives race, only the GPU it has to steal).
-* A run keeps going until the game reaches Tier 4 or the $100 runs out. After every turn, a critic (a fresh copy of the same model that didn't build the game) plays it and tells the builder what to fix next. Tier 4 counts only when the critic says so *and* the harness's own checks agree. A watchdog kills it early if any other model shows up in its usage.
+* A run keeps going until the $100 runs out. After every turn, a critic (a fresh copy of the same model that didn't build the game) plays it and tells the builder what to fix next. The critic's verdict never ends the run and never counts as the score: the builds are scored afterwards against a checklist we locked before the race. A watchdog kills it early if any other model shows up in its usage.
 * Every turn leaves a git commit, a build result and a gameplay screenshot, every review keeps the critic's own screenshots and notes, and every transcript line is timestamped, so the race video can be cut from the logs.
 * The whole setup is reproducible: `uv sync`, `uv run buildoff doctor`, then `uv run buildoff smoke` for a few dollars.
 
@@ -135,10 +135,9 @@ Every rule below exists because something could tilt the result.
 
 **Network hiccups don't end a race.** In the first primitives dry run, the stream from the API stopped arriving 12 minutes into Kimi's build. Claude Code gave up after about six minutes of silence, and the harness, which then treated any error as fatal, ended Kimi's run at $0.41. Now a provider API error resumes the same session, up to three times per run. Every retry is logged, so reliability is reported rather than hidden.
 
-**A clear finish line.** A run ends on whichever comes first:
+**A clear finish line.** A run ends when the budget is spent, a leak is caught, the meter goes dark, the race is stopped (Ctrl-C or `buildoff stop`), or the process crashes. Nothing else.
 
-1. The budget is spent, a leak is caught, the meter goes dark, the race is stopped (Ctrl-C or `buildoff stop`), or the process crashes.
-2. The game reaches Tier 4, confirmed twice: the model's own critic says so, and the harness checks that the city moves with no input and that day and night look different.
+**Keep it honest.** An earlier version also ended a run when the model's own critic called it Tier 4 and two harness checks agreed (the city moves, night looks different). In a $25 test run, Kimi's critic gave Tier 4 after one turn while still listing bugs, and the checks only prove that pixels move. A critic made from the same model is a coach, not a referee. So now every run spends its whole budget, and the score comes from `scoring/checklist.md`: pass/fail items per tier, each counted only when seen working in the final build, plus blind pairwise judging. We locked it (git tag `scoring-v1`) before the first $100 race, so the rubric couldn't be picked after seeing who won.
 
 There's no nudge limit. In the $25 dry runs, both models called their games done at $5–11, far short of the top tier. Now each model gets its own critic: after every turn, a fresh session of the same model, with no memory of building it, plays the game, compares it with the brief and writes the builder's next instructions. Both sides get the same setup, so the critic's quality is part of what's measured.
 
@@ -274,7 +273,7 @@ So the harness isn't a variable. Nexus points Claude Code at Fireworks, and both
 It doesn't know Kimi's prices and falls back to a default rate. In testing it reported $0.060 for a call that costs $0.030 at Kimi K3.1 Pro's list price ($2 per million input tokens, $10 per million output). `nexus claude usage --json` prices each row at the provider's list rate.
 
 ### **Can I change the prompt?**
-Not for a comparable race. The game specs, `run_rules.md`, `critic.md` and `nudge.md` are frozen at git tag `prompt-v10`. Edit them for your own experiments, but tag the new version, because results across prompt versions aren't comparable.
+Not for a comparable race. The game specs, `run_rules.md`, `critic.md` and `nudge.md` are frozen at git tag `prompt-v11`. Edit them for your own experiments, but tag the new version, because results across prompt versions aren't comparable.
 
 ### **Can I rebuild the assets myself?**
 Yes. The code that builds the dataset lives in the dataset, under `build/`, and its card's [Recreate the assets](https://huggingface.co/datasets/harpreetsahota/grand-theft-gpu-assets#recreate-the-assets) section lists every step. You only need Blender for the USDCraft props. Races don't need any of it: they download the finished files at a pinned revision.

@@ -13,13 +13,14 @@ threads. A run is a loop of rounds:
    writes a JSON verdict to `tools/shots/verdict.json`: the tier reached,
    whether Tier 4 is complete, and ranked notes for the builder.
 4. **Tier 4 check.** If the critic says Tier 4, the harness's own checks
-   (`harness.checks`) must agree before the run ends as `tier4`. If they
-   don't, their failures are added to the critic's notes.
+   (`harness.checks`) run and are logged. If they fail, their failures are
+   added to the critic's notes. Either way the run goes on: a same-model
+   critic is too lenient a judge to end it (scoring is `scoring/checklist.md`).
 5. The notes go back to the builder in the `prompts/nudge.md` template, and
    the next round starts.
 
-A run ends on Tier 4 verified, on the budget, or on a safety stop (leak, dead
-meter, abort, harness error). The smoke test (`RaceConfig.stop_on_done`) also
+A run ends on the budget or on a safety stop (leak, dead meter, abort, harness
+error). The smoke test (`RaceConfig.stop_on_done`) also
 stops at the first DONE.md, after one review.
 
 A watchdog polls Nexus (`harness.meter`) during every session, builder and
@@ -77,7 +78,7 @@ from harness.config import (
     RaceConfig,
 )
 
-StopReason = Literal["tier4", "declared_done", "budget", "leak", "meter_down", "aborted", "error"]
+StopReason = Literal["declared_done", "budget", "leak", "meter_down", "aborted", "error"]
 TurnEnd = Literal[
     "completed", "stalled", "budget", "leak", "meter_down", "aborted", "error", "api_error"
 ]
@@ -322,15 +323,14 @@ class ContenderRun:
                         "reviews.jsonl",
                         {"turn": turn, "tier4_checks": asdict(result)},
                     )
-                    if result.passed:
-                        reason = "tier4"
-                        break
-                    # The critic said Tier 4 but the harness disagrees: the builder
-                    # hears both, so it knows what to fix.
-                    notes = "\n".join(
-                        [notes, "", "The harness's Tier 4 checks failed:"]
-                        + [f"- {f}" for f in result.failures]
-                    ).strip()
+                    # A pass is only logged; the run goes on to the budget. A
+                    # failure means the critic overclaimed: the builder hears
+                    # both, so it knows what to fix.
+                    if not result.passed:
+                        notes = "\n".join(
+                            [notes, "", "The harness's Tier 4 checks failed:"]
+                            + [f"- {f}" for f in result.failures]
+                        ).strip()
                 prompt = nudge_text(notes, self._cost(), self.cfg.budget_usd)
         except Exception:
             self._event({"event": "harness_error", "turn": turn, "trace": traceback.format_exc()})
