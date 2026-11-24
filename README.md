@@ -159,7 +159,7 @@ Errors go to stderr as `{"error": ..., "hint": ...}`, with exit code 1 (not foun
 | `harness/doctor.py` | Prerequisite checks |
 | `harness/fetch.py` | Downloads assets at the pinned dataset revision |
 | `assets/catalog.json` | Index of all 1,302 assets, seeded next to the models' `tools/assets.mjs` |
-| `prompts/` | The locked game specs, run rules, critic prompt and nudge template (tag `prompt-v11`) |
+| `prompts/` | The locked game specs, run rules, critic prompt and nudge template (tag `prompt-v12`) |
 | `tests/` | The local test suite |
 
 ## Not done yet
