@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Instructions for AI coding agents working in this repo. Read this first, then `AGENT_ONBOARDING.md` (current decisions and why) before changing harness behavior.
+Instructions for AI coding agents working in this repo. Read this first. Maintainers also keep `AGENT_ONBOARDING.md` (current decisions and why), a local file that isn't published: read it before changing harness behavior if you have it.
 
 ## What this repo is
 
@@ -85,7 +85,7 @@ A healthy smoke run shows `declared_done`, `playable: true` on every turn, a par
 - Google-style docstrings and full type hints on every function; comments explain *why*.
 - `uv run ruff check harness tests`, `uv run ruff format harness tests` and `uv run pytest` must pass.
 - Verify harness changes with the tests first, then `buildoff smoke`.
-- Keep the docs current in the same change. `AGENT_ONBOARDING.md` describes the present: rewrite its rows, don't append history.
+- Keep the docs current in the same change. If you have `AGENT_ONBOARDING.md`, it describes the present: rewrite its rows, don't append history.
 
 ## Known pitfalls
 
@@ -94,4 +94,3 @@ A healthy smoke run shows `declared_done`, `playable: true` on every turn, a par
 - **Anything that runs inside the sandbox** (the Stop hook, `tools/screenshot`) must be listed in `seed.TOOLKIT_MODULES`; the sandbox can't read this repo.
 - **Closing the lid sleeps the Mac** despite `caffeinate`, and a sleeping Mac breaks the models' API streams.
 - **Don't `kill -9` the harness:** `claude` runs in its own session and would keep spending. Use Ctrl-C, `kill`, or `buildoff stop` (which also kills orphans).
-- More gotchas, with reasons, are in `AGENT_ONBOARDING.md`.
