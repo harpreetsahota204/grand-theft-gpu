@@ -103,7 +103,44 @@ def test_parse_hold_rejects_bad_specs(spec: str) -> None:
 
 def test_parse_hold_accepts_keys_with_colons() -> None:
     """The last colon separates the duration, so key names stay intact."""
-    assert shot_tool.parse_hold("ArrowUp:500") == ("ArrowUp", 500)
+    assert shot_tool.parse_hold("ArrowUp:500") == snapshot.Step("keys", keys=("ArrowUp",), ms=500)
+
+
+def test_hold_chords_and_the_plus_key() -> None:
+    """w+d:1500 holds both keys together; "+" alone is the plus key."""
+    assert shot_tool.parse_hold("w+d:1500").keys == ("w", "d")
+    assert shot_tool.parse_hold("+:100").keys == ("+",)
+
+
+def test_input_flags_keep_their_order() -> None:
+    """All input flags land in one list, in command-line order."""
+    args = shot_tool.build_parser().parse_args(
+        [
+            "ws",
+            "--hold",
+            "e:200",
+            "--shot",
+            "talk",
+            "--look",
+            "300,-20",
+            "--click",
+            "1,2",
+            "--wait",
+            "500",
+        ]
+    )
+    assert [s.kind for s in args.steps] == ["keys", "shot", "look", "click", "wait"]
+    assert args.steps[2] == snapshot.Step("look", x=300, y=-20)
+
+
+@pytest.mark.parametrize(
+    "argv",
+    [["--shot", "../x"], ["--shot", ""], ["--look", "3"], ["--click", "a,b"], ["--wait", "0"]],
+)
+def test_bad_input_flags_are_rejected(argv: list[str]) -> None:
+    """Malformed steps are usage errors, never silently skipped."""
+    with pytest.raises(SystemExit):
+        shot_tool.build_parser().parse_args(["ws", *argv])
 
 
 def test_screenshot_tool_never_reports_a_stale_png(
@@ -115,7 +152,7 @@ def test_screenshot_tool_never_reports_a_stale_png(
     monkeypatch.setattr(
         shot_tool, "screenshot", lambda *a, **k: snapshot.ShotResult(True, True, False)
     )
-    args = argparse.Namespace(workspace=tmp_path, out=out, hold=[], settle_ms=0, no_build=True)
+    args = argparse.Namespace(workspace=tmp_path, out=out, steps=[], settle_ms=0, no_build=True)
     result = shot_tool.run(args)
     assert result["ok"] is False and result["png"] is None
     assert not out.exists()

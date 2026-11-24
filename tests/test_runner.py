@@ -47,7 +47,7 @@ def test_missing_verdict_is_unparsed(tmp_path: Path) -> None:
     """No verdict file means an unparsed review; the builder gets NO_REVIEW_NOTES."""
     review = runner.parse_review(tmp_path / "verdict.json")
     assert not review.parsed and review.problem == "no verdict.json"
-    assert runner.NO_REVIEW_NOTES in runner.nudge_text("")
+    assert runner.NO_REVIEW_NOTES in runner.nudge_text("", 0.0, 25.0)
 
 
 def test_verdict_that_is_not_json_is_unparsed(tmp_path: Path) -> None:
@@ -78,19 +78,28 @@ def test_verdict_off_schema_is_unparsed(tmp_path: Path, change: dict[str, object
     assert not review.parsed and review.problem
 
 
-def test_nudge_wraps_the_critics_notes() -> None:
-    """The locked template carries the notes verbatim and ends on its fixed line."""
-    text = runner.nudge_text("Fix the siren.")
+def test_nudge_wraps_the_critics_notes_and_spend() -> None:
+    """The locked template carries the notes and spend, and ends on its fixed line."""
+    text = runner.nudge_text("Fix the siren.", 12.403, 100.0)
     assert "Fix the siren." in text and "{notes}" not in text
+    assert "You have spent $12.40 of your $100." in text
     assert text.strip().endswith("Keep building the game toward Tier 4.")
 
 
 def test_critic_prompt_contains_the_brief(tmp_path: Path) -> None:
-    """The critic sees the same game brief the builder got."""
+    """The critic sees the same game brief the builder got, budget filled in."""
     spec = tmp_path / "spec.md"
-    spec.write_text("# Grand Theft GPU\nSteal a GPU.")
-    text = runner.critic_text(spec)
-    assert "Steal a GPU." in text and "{brief}" not in text
+    spec.write_text("# Grand Theft GPU\nSteal a GPU with {budget}.")
+    text = runner.critic_text(spec, 25.0)
+    assert "Steal a GPU with $25." in text and "{brief}" not in text
+
+
+@pytest.mark.parametrize("pack", ["game_spec.md", "game_spec_primitives.md"])
+def test_specs_state_the_real_budget(pack: str) -> None:
+    """Both specs take the race's budget instead of a fixed $100."""
+    text = runner.build_first_prompt(runner.PROMPTS_DIR / pack, 25.0)
+    assert "about **$25 of compute**" in text
+    assert "{budget}" not in text and "$100" not in text
 
 
 def test_meter_fails_closed(run: ContenderRun, monkeypatch: pytest.MonkeyPatch) -> None:

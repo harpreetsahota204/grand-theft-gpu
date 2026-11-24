@@ -40,7 +40,7 @@ Builds are judged on how far up this ladder they get. Each tier includes everyth
 
 ## Budget
 
-You have about **$100 of compute** for this whole build. When it runs out, the build stops wherever it is. Plan your scope so the game is playable at every step.
+You have about **{budget} of compute** for this whole build. When it runs out, the build stops wherever it is. Plan your scope so the game is playable at every step.
 
 ## Look and feel
 

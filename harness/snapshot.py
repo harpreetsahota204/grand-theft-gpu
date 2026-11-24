@@ -15,8 +15,9 @@ from collections.abc import Sequence
 from dataclasses import dataclass, field
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from typing import Literal
 
-from playwright.sync_api import ConsoleMessage, sync_playwright
+from playwright.sync_api import ConsoleMessage, Page, sync_playwright
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 from harness.config import GAME_ENTRY, SCREENSHOT_SETTLE_MS
@@ -58,6 +59,44 @@ POINTER_LOCK_SHIM: str = """
   };
 })();
 """
+
+# Mouse-look: games behind pointer lock read `movementX/Y`, which a real cursor
+# can't supply past the viewport edge. So a look is a burst of synthetic
+# mousemove events on the locked element (or the page), split into this many
+# frames so per-frame camera code sees a smooth turn.
+LOOK_STEPS: int = 10
+LOOK_STEP_MS: int = 16
+LOOK_JS: str = """
+([dx, dy]) => {
+  const target = document.pointerLockElement || document.elementFromPoint(640, 360) || document;
+  target.dispatchEvent(new MouseEvent("mousemove", {
+    bubbles: true, movementX: dx, movementY: dy, clientX: 640, clientY: 360,
+  }));
+}
+"""
+
+
+@dataclass(frozen=True)
+class Step:
+    """One scripted input step, run in order after play starts.
+
+    Attributes:
+        kind: "keys" (hold `keys` together for `ms`), "wait" (`ms`), "shot"
+            (save the page to `path` now), "click" (at `x`, `y`) or "look"
+            (turn the camera by `x`, `y` pixels of mouse movement)
+        keys: Playwright key names held together, e.g. ("w", "d") to drive and steer
+        ms: how long to hold the keys, or to wait
+        x: click x, or look dx
+        y: click y, or look dy
+        path: where a "shot" step writes its PNG
+    """
+
+    kind: Literal["keys", "wait", "shot", "click", "look"]
+    keys: tuple[str, ...] = ()
+    ms: int = 0
+    x: int = 0
+    y: int = 0
+    path: Path | None = None
 
 
 @dataclass(frozen=True)
@@ -169,7 +208,7 @@ def init_history(history: Path) -> None:
     subprocess.run(["git", "init", "-q", "--bare", str(history)], check=True)
     # A local identity so commits never depend on (or leak) the user's git config.
     for key, value in (
-        ("user.name", "race-harness"),
+        ("user.name", "evidence-harness"),
         ("user.email", "harness@localhost"),
         ("core.bare", "false"),
     ):
@@ -200,7 +239,7 @@ def screenshot(
     site_dir: Path,
     out_png: Path,
     settle_ms: int = SCREENSHOT_SETTLE_MS,
-    hold: Sequence[tuple[str, int]] = (),
+    steps: Sequence[Step] = (),
     later: Sequence[tuple[int, Path]] = (),
 ) -> ShotResult:
     """Serves a built site over HTTP and screenshots its game entry page.
@@ -213,9 +252,10 @@ def screenshot(
         site_dir: the build output folder (the workspace's `dist/`)
         out_png: where to write the 1280x720 screenshot
         settle_ms: wait after the network goes quiet, for the game to finish loading
-        hold: keys to hold down in order after play starts, as (key, milliseconds),
-            e.g. [("w", 2000)] to move forward for 2 s before the shot. Key names
-            follow Playwright (`w`, `Shift`, `Space`, `ArrowUp`, ...).
+        steps: scripted input after play starts, run in order before the main
+            shot (see `Step`), e.g. hold W and D together to drive and steer, or
+            save in-between shots. Key names follow Playwright (`w`, `Shift`,
+            `Space`, `ArrowUp`, ...).
         later: extra shots of the same page after the main one, as (wait ms,
             path), with no input in between; `harness.checks` compares them to
             see whether the world moves on its own.
@@ -263,10 +303,8 @@ def screenshot(
                 page.mouse.click(640, 360)
                 page.wait_for_timeout(AFTER_CLICK_MS)
                 # Optional scripted input, so a shot can show the game in motion.
-                for key, ms in hold:
-                    page.keyboard.down(key)
-                    page.wait_for_timeout(ms)
-                    page.keyboard.up(key)
+                for step in steps:
+                    _run_step(page, step)
                 out_png.parent.mkdir(parents=True, exist_ok=True)
                 page.screenshot(path=str(out_png))
                 for wait_ms, path in later:
@@ -290,6 +328,28 @@ def screenshot(
         page_errors=page_errors,
         console_errors=console_errors,
     )
+
+
+def _run_step(page: Page, step: Step) -> None:
+    """Plays one scripted input step on the page (see `Step`)."""
+    if step.kind == "keys":
+        for key in step.keys:
+            page.keyboard.down(key)
+        page.wait_for_timeout(step.ms)
+        # Release in reverse, like fingers coming off a chord.
+        for key in reversed(step.keys):
+            page.keyboard.up(key)
+    elif step.kind == "wait":
+        page.wait_for_timeout(step.ms)
+    elif step.kind == "shot" and step.path is not None:
+        step.path.parent.mkdir(parents=True, exist_ok=True)
+        page.screenshot(path=str(step.path))
+    elif step.kind == "click":
+        page.mouse.click(step.x, step.y)
+    elif step.kind == "look":
+        for _ in range(LOOK_STEPS):
+            page.evaluate(LOOK_JS, [step.x / LOOK_STEPS, step.y / LOOK_STEPS])
+            page.wait_for_timeout(LOOK_STEP_MS)
 
 
 class AssetServer(ThreadingHTTPServer):

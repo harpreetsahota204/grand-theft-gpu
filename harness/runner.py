@@ -272,7 +272,7 @@ class ContenderRun:
             self._record_turn(0, "seed")
             self._start = time.monotonic()
 
-            prompt = build_first_prompt(self.cfg.spec_path)
+            prompt = build_first_prompt(self.cfg.spec_path, self.cfg.budget_usd)
             notes = ""
             while True:
                 if ABORT.is_set():
@@ -290,7 +290,7 @@ class ContenderRun:
                     # Infrastructure, not the model: resume with the same notes.
                     api_retries += 1
                     self._event({"event": "api_retry", "turn": turn})
-                    prompt = nudge_text(notes)
+                    prompt = nudge_text(notes, self._cost(), self.cfg.budget_usd)
                     continue
                 if end in HARD_STOPS:
                     reason = end  # type: ignore[assignment]  # every hard stop is a StopReason
@@ -331,7 +331,7 @@ class ContenderRun:
                         [notes, "", "The harness's Tier 4 checks failed:"]
                         + [f"- {f}" for f in result.failures]
                     ).strip()
-                prompt = nudge_text(notes)
+                prompt = nudge_text(notes, self._cost(), self.cfg.budget_usd)
         except Exception:
             self._event({"event": "harness_error", "turn": turn, "trace": traceback.format_exc()})
             reason = "error"
@@ -437,7 +437,7 @@ class ContenderRun:
         verdict_path.unlink(missing_ok=True)
         critic_id = str(uuid.uuid4())
         self.critic_sessions.append(critic_id)
-        prompt = critic_text(self.cfg.spec_path)
+        prompt = critic_text(self.cfg.spec_path, self.cfg.budget_usd)
         cmd = self._claude_cmd(
             prompt, ["--session-id", critic_id], CRITIC_TOOLS, session.CRITIC_SETTINGS_FILE
         )
@@ -705,32 +705,56 @@ class ContenderRun:
             f.write(json.dumps(row) + "\n")
 
 
-def build_first_prompt(spec_path: Path) -> str:
-    """Joins the game spec with the run rules both models must follow.
+def usd(amount: float) -> str:
+    """Formats dollars the way the prompts show them: "$25", "$12.40"."""
+    return f"${amount:,.0f}" if amount == int(amount) else f"${amount:,.2f}"
+
+
+def brief_text(spec_path: Path, budget_usd: float) -> str:
+    """The game brief with the race's real budget filled in.
+
+    The spec says `{budget}` instead of a fixed figure: v7 told every model
+    "$100" even in $25 runs, so Opus scoped a $100 game and spent its whole
+    budget in turn 1.
+    """
+    return spec_path.read_text().strip().replace("{budget}", usd(budget_usd))
+
+
+def build_first_prompt(spec_path: Path, budget_usd: float) -> str:
+    """Joins the game brief with the run rules both models must follow.
 
     The rules (entry file, the critic, DONE.md) are kept out of the spec so the
     spec reads as a pure game brief and the harness contract lives in one file.
 
     Args:
         spec_path: markdown game spec
+        budget_usd: the per-contender budget
 
     Returns:
         the full first-turn prompt
     """
     rules = (PROMPTS_DIR / "run_rules.md").read_text()
-    return f"{spec_path.read_text().strip()}\n\n{rules.strip()}\n"
+    return f"{brief_text(spec_path, budget_usd)}\n\n{rules.strip()}\n"
 
 
-def nudge_text(notes: str) -> str:
-    """The builder's next prompt: the locked nudge template around the critic's notes."""
+def nudge_text(notes: str, spent_usd: float, budget_usd: float) -> str:
+    """The builder's next prompt: the locked nudge template around the critic's notes.
+
+    It also reports spend so far (builder and critics, per Nexus): without it a
+    model can't pace itself against the budget.
+    """
     template = (PROMPTS_DIR / "nudge.md").read_text()
-    return template.replace("{notes}", notes.strip() or NO_REVIEW_NOTES)
+    return (
+        template.replace("{notes}", notes.strip() or NO_REVIEW_NOTES)
+        .replace("{spent}", usd(spent_usd))
+        .replace("{budget}", usd(budget_usd))
+    )
 
 
-def critic_text(spec_path: Path) -> str:
+def critic_text(spec_path: Path, budget_usd: float) -> str:
     """The critic's prompt: the locked critic template around the game brief."""
     template = (PROMPTS_DIR / "critic.md").read_text()
-    return template.replace("{brief}", spec_path.read_text().strip())
+    return template.replace("{brief}", brief_text(spec_path, budget_usd))
 
 
 # Where the critic writes its verdict, relative to the workspace. It sits in

@@ -1,12 +1,13 @@
 """The contender sandbox and environment scrub (harness.sandbox), on the real sandbox-exec."""
 
+import os
 import subprocess
 import sys
 from pathlib import Path
 
 import pytest
 
-from harness import sandbox
+from harness import sandbox, seed
 
 pytestmark = pytest.mark.skipif(sys.platform != "darwin", reason="sandbox-exec is macOS-only")
 
@@ -112,3 +113,22 @@ def test_clean_env_drops_secrets(monkeypatch: pytest.MonkeyPatch) -> None:
     assert "CLAUDECODE" not in env
     assert env["CLAUDE_CODE_SUBAGENT_MODEL"] == "m"
     assert env["PATH"]
+
+
+def test_toolkit_does_not_reveal_the_race(tmp_path: Path) -> None:
+    """The toolkit models can read runs, but says nothing about contenders or budget."""
+    toolkit = seed.write_toolkit(tmp_path / "toolkit")
+    text = "\n".join(p.read_text() for p in (toolkit / "harness").glob("*.py")).lower()
+    for word in ("kimi", "opus", "contender", "budget", "critic", "rival", "race"):
+        assert word not in text, word
+    env = {**os.environ, "PYTHONPATH": str(toolkit)}
+    for module in ("harness.shot_tool", "harness.stop_hook"):
+        proc = subprocess.run(
+            [sys.executable, "-c", f"import {module}"],
+            env=env,
+            cwd=tmp_path,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert proc.returncode == 0, proc.stderr

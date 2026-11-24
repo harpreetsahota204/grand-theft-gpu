@@ -11,15 +11,19 @@ Both contenders must start from byte-identical folders. `harness.runner` calls
       .gitignore                        keeps node_modules/ and dist/ out of the model's own commits
       node_modules/                     from `npm ci`
 
-and, next to the workspace, `toolkit/`: a copy of the few harness modules
-`tools/screenshot` runs. The model's sandbox (`harness.sandbox`) lets it read
-that copy but not this repo.
+and, next to the workspace, `toolkit/`: a stripped copy of the few harness
+modules `tools/screenshot` and the Stop hook run. The model's sandbox
+(`harness.sandbox`) lets it read that copy but not this repo, and models do
+read it, so it carries code only: no docstrings or comments, and a config with
+just the constants the tools use. Nothing in it says there's a race or who
+else is in it.
 
 The base repo is fetched once into a cache under `RUNS_ROOT/.cache`, and the
 core assets once into the huggingface_hub cache; both are copied from there,
 so a race doesn't re-download anything per contender.
 """
 
+import ast
 import fnmatch
 import shlex
 import shutil
@@ -27,7 +31,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from harness import fetch
+from harness import config, fetch
 from harness.config import (
     BASE_REPO_COMMIT,
     BASE_REPO_URL,
@@ -49,29 +53,65 @@ TOOL_PATH: Path = REPO_ROOT / "harness" / "workspace_tools" / "assets.mjs"
 
 # The harness modules that run inside the model's sandbox: `tools/screenshot`
 # (shot_tool -> snapshot -> config) and the Stop hook (harness.session).
+# config.py and __init__.py aren't copied: `write_toolkit` generates them.
 TOOLKIT_MODULES: tuple[str, ...] = (
-    "__init__.py",
     "cliutil.py",
-    "config.py",
     "shot_tool.py",
     "snapshot.py",
     "stop_hook.py",
 )
 
+# The only `harness.config` names the toolkit modules import. The real config
+# names both contenders, the budget and the stop rules.
+TOOLKIT_CONFIG_NAMES: tuple[str, ...] = ("BUILD_DIR", "GAME_ENTRY", "SCREENSHOT_SETTLE_MS")
+
+
+def strip_source(source: str) -> str:
+    """Returns the same code with every docstring and comment removed.
+
+    The harness's docs explain the race (contenders, budget, critic), and a
+    model that reads its toolkit shouldn't learn that from them. Round-tripping
+    through the AST keeps the code's behaviour and drops comments by design.
+
+    Args:
+        source: a Python module's source
+
+    Returns:
+        equivalent source with no docstrings or comments
+    """
+    tree = ast.parse(source)
+    for node in ast.walk(tree):
+        body = getattr(node, "body", None)
+        if (
+            isinstance(node, ast.Module | ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef)
+            and body
+            and isinstance(body[0], ast.Expr)
+            and isinstance(body[0].value, ast.Constant)
+            and isinstance(body[0].value.value, str)
+        ):
+            # A body can't be empty, so a docstring-only one becomes `pass`.
+            node.body = body[1:] or [ast.Pass()]
+    return ast.unparse(tree) + "\n"
+
 
 def write_toolkit(toolkit: Path) -> Path:
-    """Copies the modules `tools/screenshot` needs into `toolkit/harness/`.
+    """Writes the modules `tools/screenshot` and the Stop hook need into `toolkit/harness/`.
 
-    The screenshot tool runs inside the model's sandbox, which can't read this
-    repo, so it gets its own copy outside the workspace (read-only to the model).
+    They run inside the model's sandbox, which can't read this repo, so they
+    get their own stripped copy outside the workspace (read-only to the model).
 
     Returns:
         the toolkit folder, for PYTHONPATH
     """
     package = toolkit / "harness"
     package.mkdir(parents=True)
+    (package / "__init__.py").write_text("")
+    (package / "config.py").write_text(
+        "".join(f"{name} = {getattr(config, name)!r}\n" for name in TOOLKIT_CONFIG_NAMES)
+    )
     for name in TOOLKIT_MODULES:
-        shutil.copy2(REPO_ROOT / "harness" / name, package / name)
+        source = (REPO_ROOT / "harness" / name).read_text()
+        (package / name).write_text(strip_source(source))
     return toolkit
 
 

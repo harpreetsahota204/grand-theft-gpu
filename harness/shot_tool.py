@@ -13,25 +13,32 @@ the pointer-lock shim, a click to start play, optional held keys, then a
 Usage (from inside a workspace, via the wrapper):
     tools/screenshot                          # build + shot -> tools/shots/latest.png
     tools/screenshot --hold w:2000            # hold W for 2 s first (walk/drive forward)
-    tools/screenshot --hold w:1500 --hold a:500 --out tools/shots/turning.png
+    tools/screenshot --hold w+d:1500          # hold W and D together (drive and steer)
+    tools/screenshot --hold e:200 --shot talk --hold w:3000 --out tools/shots/after.png
+    tools/screenshot --look 300,0 --click 640,360 --wait 1000
     tools/screenshot --no-build               # reuse the last dist/ build
     tools/screenshot --help
 
+Input flags run in the order given, all in one play session, so one call can
+play a whole sequence and save shots along the way (`--shot NAME`).
+
 Usage errors are JSON on stderr with exit code 2 (see `harness.cliutil`).
 Output: one JSON object on stdout:
-    {"ok", "png", "build_ok", "loaded", "page_errors", "console_errors", "build_log_tail"}
+    {"ok", "png", "shots", "build_ok", "loaded", "page_errors", "console_errors",
+     "build_log_tail"}
 `ok` is true only if the build succeeded, the page loaded and a new PNG was written.
 Exit code 0 when ok, 1 otherwise. Non-interactive and safe to run repeatedly.
 """
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
 from harness.cliutil import JsonErrorParser
 from harness.config import BUILD_DIR
-from harness.snapshot import build, screenshot
+from harness.snapshot import Step, build, screenshot
 
 # Shorter than the harness's per-turn settle: a model iterating on visuals wants
 # fast feedback, and can pass --settle-ms for a slow-loading scene.
@@ -39,16 +46,63 @@ DEFAULT_SETTLE_MS: int = 8000
 MAX_ERRORS: int = 10
 
 
-def parse_hold(spec: str) -> tuple[str, int]:
-    """Parses one `KEY:MS` hold spec, e.g. "w:2000" or "ArrowUp:500".
+# --shot names become files in tools/shots/, so keep them to safe file names.
+SHOT_NAME: re.Pattern[str] = re.compile(r"[A-Za-z0-9_-]{1,64}")
+
+
+def parse_hold(spec: str) -> Step:
+    """Parses one `KEY[+KEY...]:MS` hold spec, e.g. "w:2000", "w+d:1500" or "ArrowUp:500".
 
     Raises:
-        argparse.ArgumentTypeError: if the spec isn't KEY:MS with a positive MS
+        argparse.ArgumentTypeError: if the spec isn't KEYS:MS with a positive MS
     """
     key, sep, ms = spec.rpartition(":")
     if not sep or not key or not ms.isdigit() or int(ms) <= 0:
         raise argparse.ArgumentTypeError(f"expected KEY:MS like w:2000, got {spec!r}")
-    return key, int(ms)
+    keys = key.split("+")
+    # "+" on its own (or "a++") names the plus key, not a chord.
+    if not all(keys):
+        keys = [key]
+    return Step("keys", keys=tuple(keys), ms=int(ms))
+
+
+def parse_wait(spec: str) -> Step:
+    """Parses `--wait MS`: let the game run with no input."""
+    if not spec.isdigit() or int(spec) <= 0:
+        raise argparse.ArgumentTypeError(f"expected milliseconds like 1000, got {spec!r}")
+    return Step("wait", ms=int(spec))
+
+
+def parse_shot(spec: str) -> Step:
+    """Parses `--shot NAME`: save tools/shots/NAME.png at this point in the sequence."""
+    if not SHOT_NAME.fullmatch(spec):
+        raise argparse.ArgumentTypeError(f"expected a name like after-steal, got {spec!r}")
+    # Relative for now; run() resolves it against the workspace.
+    return Step("shot", path=Path("tools") / "shots" / f"{spec}.png")
+
+
+def _parse_pair(spec: str, example: str) -> tuple[int, int]:
+    """Parses "A,B" into two ints (negative allowed)."""
+    parts = spec.split(",")
+    try:
+        a, b = (int(p) for p in parts)
+    except ValueError:
+        raise argparse.ArgumentTypeError(
+            f"expected two numbers like {example}, got {spec!r}"
+        ) from None
+    return a, b
+
+
+def parse_click(spec: str) -> Step:
+    """Parses `--click X,Y`: a left click at viewport pixel X,Y (1280x720)."""
+    x, y = _parse_pair(spec, "640,360")
+    return Step("click", x=x, y=y)
+
+
+def parse_look(spec: str) -> Step:
+    """Parses `--look DX,DY`: mouse movement, as a pointer-locked camera sees it."""
+    dx, dy = _parse_pair(spec, "300,0")
+    return Step("look", x=dx, y=dy)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -57,21 +111,32 @@ def build_parser() -> argparse.ArgumentParser:
         prog="tools/screenshot",
         description=(
             "Build the game and save a gameplay screenshot you can open with the Read "
-            "tool. Prints JSON; exit 0 if a screenshot was written."
+            "tool. Prints JSON; exit 0 if a screenshot was written. The input flags "
+            "(--hold, --wait, --shot, --click, --look) run in the order given, in one "
+            "play session, before the final shot."
         ),
     )
     p.add_argument("workspace", type=Path, help="the game folder (set by the wrapper)")
     p.add_argument(
-        "--out", type=Path, default=None, help="PNG path (default: tools/shots/latest.png)"
+        "--out", type=Path, default=None, help="final PNG path (default: tools/shots/latest.png)"
     )
-    p.add_argument(
-        "--hold",
-        type=parse_hold,
-        action="append",
-        default=[],
-        metavar="KEY:MS",
-        help="hold a key after play starts, e.g. w:2000 (repeatable, applied in order)",
-    )
+    # Every input flag appends to one list, so their order on the command line is
+    # the order they're played in.
+    for flag, parse, metavar, text in (
+        (
+            "--hold",
+            parse_hold,
+            "KEYS:MS",
+            "hold keys, e.g. w:2000, or several at once: w+d:1500",
+        ),
+        ("--wait", parse_wait, "MS", "let the game run with no input, e.g. 1000"),
+        ("--shot", parse_shot, "NAME", "save tools/shots/NAME.png at this point"),
+        ("--click", parse_click, "X,Y", "left click at a viewport pixel (1280x720)"),
+        ("--look", parse_look, "DX,DY", "move the mouse/camera by DX,DY, e.g. 300,0"),
+    ):
+        p.add_argument(
+            flag, dest="steps", type=parse, action="append", default=[], metavar=metavar, help=text
+        )
     p.add_argument(
         "--settle-ms", type=int, default=DEFAULT_SETTLE_MS, help="wait for the scene to load"
     )
@@ -87,8 +152,14 @@ def run(args: argparse.Namespace) -> dict[str, object]:
     """
     workspace = args.workspace.resolve()
     out = (args.out or workspace / "tools" / "shots" / "latest.png").resolve()
-    # Remove the previous shot first, so a failed render can't report a stale PNG.
-    out.unlink(missing_ok=True)
+    steps = [
+        Step("shot", path=workspace / st.path) if st.kind == "shot" and st.path else st
+        for st in args.steps
+    ]
+    extra = [st.path for st in steps if st.kind == "shot" and st.path]
+    # Remove previous shots first, so a failed render can't report a stale PNG.
+    for path in (out, *extra):
+        path.unlink(missing_ok=True)
     built_ok, log_tail = True, ""
     if not args.no_build:
         result = build(workspace)
@@ -97,16 +168,18 @@ def run(args: argparse.Namespace) -> dict[str, object]:
         return {
             "ok": False,
             "png": None,
+            "shots": [],
             "build_ok": False,
             "loaded": False,
             "page_errors": [],
             "console_errors": [],
             "build_log_tail": log_tail,
         }
-    shot = screenshot(workspace / BUILD_DIR, out, settle_ms=args.settle_ms, hold=args.hold)
+    shot = screenshot(workspace / BUILD_DIR, out, settle_ms=args.settle_ms, steps=steps)
     return {
         "ok": shot.shot_written,
         "png": str(out) if shot.shot_written else None,
+        "shots": [str(path) for path in extra if path.exists()],
         "build_ok": True,
         "loaded": shot.loaded,
         "page_errors": shot.page_errors[:MAX_ERRORS],
