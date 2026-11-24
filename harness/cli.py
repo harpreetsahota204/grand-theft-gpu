@@ -173,6 +173,17 @@ def cmd_status(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_reviews(args: argparse.Namespace) -> int:
+    """Prints every critic round of a race as JSON (the latest race by default)."""
+    from harness import status
+
+    try:
+        inventory.emit(status.reviews(args.race_id), "json")
+    except inventory.InventoryError as err:
+        return inventory.fail(err)
+    return 0
+
+
 def cmd_stop(args: argparse.Namespace) -> int:
     """Aborts a running race (the latest by default) and kills any turn left running."""
     from harness import status
@@ -281,12 +292,23 @@ def build_parser() -> argparse.ArgumentParser:
         "status",
         help="race progress as JSON (free, read-only)",
         description=(
-            "Summarise a race from its log files: turns, spend, stop reason, the Nexus "
-            "session to watch, and the latest screenshot. Works during and after a race."
+            "Summarise a race from its log files: turns, spend, critic tiers, stop reason, "
+            "the Nexus session to watch, and the latest screenshot. Works during and after a race."
         ),
     )
     st.add_argument("race_id", nargs="?", default=None, help="default: the latest race")
     st.set_defaults(func=cmd_status)
+
+    rv = sub.add_parser(
+        "reviews",
+        help="every critic round as JSON (free, read-only)",
+        description=(
+            "Trace the critic over a race: per contender and round, the tier, the Tier 4 "
+            "claim and checks, that review's cost and time, its notes, and its screenshots."
+        ),
+    )
+    rv.add_argument("race_id", nargs="?", default=None, help="default: the latest race")
+    rv.set_defaults(func=cmd_reviews)
 
     sp = sub.add_parser(
         "stop",

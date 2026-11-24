@@ -4,6 +4,10 @@
 runner writes (`logs/turns.jsonl`, `logs/cost.csv`, `result.json`), so it works
 while a race is running and after it ends, and never touches the race itself.
 
+`buildoff reviews [race-id]` prints every critic round per contender: tier,
+Tier 4 claim and checks, the review's own cost and time, notes, and where its
+screenshots are.
+
 `buildoff play <race-id> <contender>` serves that contender's latest build
 (`workspace/dist/`) on localhost and opens it in the default browser.
 """
@@ -106,6 +110,10 @@ def contender_status(folder: Path) -> dict[str, Any]:
         "session_id": sid,
         "nexus_meter": f"nexus claude usage --session {sid}" if sid else None,
         "latest_shot": str(max(folder.glob("shots/turn-*.png"), default="")) or None,
+        # The critic's tier after each turn, in order (None: no parsed verdict).
+        "tiers": [
+            r.get("tier") for r in read_jsonl(folder / "logs" / "reviews.jsonl") if "tier" in r
+        ],
         "history": f"git --git-dir={folder / 'history.git'} log --oneline",
     }
 
@@ -120,6 +128,57 @@ def status(race_id: str | None) -> dict[str, Any]:
         "folder": str(path),
         "contenders": {
             c["name"]: contender_status(path / c["name"])
+            for c in config["contenders"]
+            if (path / c["name"]).exists()
+        },
+    }
+
+
+def review_trace(folder: Path) -> list[dict[str, Any]]:
+    """Every critic round for one contender, with its Tier 4 check result if one ran.
+
+    `reviews.jsonl` holds a verdict row per round and, when the critic claimed
+    Tier 4, a separate `tier4_checks` row for the same turn; this merges them.
+
+    Args:
+        folder: the contender's output folder
+
+    Returns:
+        one dict per round, oldest first
+    """
+    rounds: dict[int, dict[str, Any]] = {}
+    for row in read_jsonl(folder / "logs" / "reviews.jsonl"):
+        entry = rounds.setdefault(row.get("turn", -1), {"turn": row.get("turn")})
+        if "tier4_checks" in row:
+            entry["tier4_checks"] = row["tier4_checks"]
+            continue
+        entry |= {
+            k: row.get(k)
+            for k in (
+                "tier",
+                "tier4_complete",
+                "review_cost_usd",
+                "review_seconds",
+                "cost_usd",
+                "notes",
+            )
+        }
+        shots = row.get("critic_shots") or []
+        entry["critic_shots"] = (
+            str(folder / "shots" / f"critic-{row.get('turn', 0):03d}") if shots else None
+        )
+        entry["critic_shot_count"] = len(shots)
+    return [rounds[t] for t in sorted(rounds)]
+
+
+def reviews(race_id: str | None) -> dict[str, Any]:
+    """The critic trace of every contender in a race (the latest race when race_id is None)."""
+    path = race_dir(race_id)
+    config = json.loads((path / "config.json").read_text())
+    return {
+        "race_id": config["race_id"],
+        "contenders": {
+            c["name"]: review_trace(path / c["name"])
             for c in config["contenders"]
             if (path / c["name"]).exists()
         },

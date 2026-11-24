@@ -135,3 +135,25 @@ def test_kill_group_kills_background_children() -> None:
     time.sleep(0.2)
     with pytest.raises(ProcessLookupError):
         os.kill(child, 0)
+
+
+def test_critic_shots_are_kept_per_round(tmp_path: Path) -> None:
+    """Only shots taken since the critic started are copied out of the workspace."""
+    shots = tmp_path / "ws" / "tools" / "shots"
+    shots.mkdir(parents=True)
+    old = shots / "old.png"
+    old.write_bytes(b"x")
+    os.utime(old, (1000, 1000))
+    (shots / "night.png").write_bytes(b"y")
+    dest = tmp_path / "shots" / "critic-001"
+    kept = runner.keep_critic_shots(tmp_path / "ws", dest, since=2000)
+    assert kept == ["night.png"]
+    assert (dest / "night.png").read_bytes() == b"y"
+    assert not (dest / "old.png").exists()
+
+
+def test_no_critic_shots_makes_no_folder(tmp_path: Path) -> None:
+    """A critic that took no shots leaves no empty folder behind."""
+    dest = tmp_path / "shots" / "critic-001"
+    assert runner.keep_critic_shots(tmp_path / "ws", dest, since=0) == []
+    assert not dest.exists()

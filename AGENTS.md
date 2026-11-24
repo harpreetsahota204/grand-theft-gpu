@@ -31,18 +31,19 @@ Requires macOS (`sandbox-exec`), Claude Code 2.1.281+, the Nexus CLI logged in a
 
 | Command | What it does | Cost |
 |---|---|---|
-| `uv run pytest` | Local tests: critic parsing, meter, sandbox, Stop hook, settings parity, checks, evidence | free, ~2 s |
+| `uv run pytest` | Local tests: critic parsing, review trace, meter, sandbox, Stop hook, settings parity, checks, evidence | free, ~2 s |
 | `uv run buildoff doctor` | Checks prerequisites | free |
 | `uv run buildoff smoke` | End to end: both models add a floating GPU, then one critic review each | ~$2–4 |
 | `uv run buildoff race --budget N --yes [--pack full\|primitives]` | A race on that pack's locked spec | up to $N per model |
-| `uv run buildoff status [race-id]` | Progress as JSON (latest race by default) | free |
+| `uv run buildoff status [race-id]` | Progress as JSON, with the critic's tier per round (latest race by default) | free |
+| `uv run buildoff reviews [race-id]` | Every critic round: tier, notes, Tier 4 checks, cost, time, screenshots | free |
 | `uv run buildoff play <kimi\|opus> [--race-id ID]` | Serves a contender's latest build on localhost | free |
 | `uv run buildoff stop [race-id]` | Aborts a race cleanly and kills any orphaned session | free |
 | `uv run buildoff inventory <schema\|categories\|list\|search\|show>` | Searches the asset catalog (JSON out) | free |
 | `uv run buildoff fetch <id ...> \| --core \| --pattern G` | Downloads assets from the pinned Hugging Face revision | free |
 | `uv run buildoff assets <gpu\|props\|catalog\|mirror\|city\|textures\|media\|dataset\|publish>` | Rebuilds or stages assets; `publish` is public (user's OK only) | free |
 
-Races take hours. Launch them detached and check in with `status`. The harness keeps the Mac awake by itself (keep it plugged in, lid open):
+Races take hours. Launch them detached and check in with `status` and `reviews`. The harness keeps the Mac awake by itself (keep it plugged in, lid open):
 
 ```bash
 nohup uv run buildoff race --budget N --yes --race-id my-race > ~/gta-race-runs/my-race.log 2>&1 &
@@ -53,10 +54,10 @@ nohup uv run buildoff race --budget N --yes --race-id my-race > ~/gta-race-runs/
 Outputs go to `~/gta-race-runs/<race-id>/<model>/`:
 - `result.json`: the stop reason (`tier4`, `budget`, or a safety stop: `leak`, `meter_down`, `aborted`, `error`), total cost from Nexus (builder and critics), turns, reviews, last tier, model time, first playable turn, and every model seen (must be only that side's own)
 - `logs/turns.jsonl`: per turn, whether it built, loaded and was `playable`, plus errors. Turn 0 is the untouched base game.
-- `logs/reviews.jsonl`: each critic verdict (tier, Tier 4 claim, notes) and any Tier 4 check result
+- `logs/reviews.jsonl`: each critic verdict (tier, Tier 4 claim, notes, that review's cost and time) and any Tier 4 check result; `buildoff reviews` merges them per round
 - `logs/turn-NNN.jsonl`, `logs/critic-NNN.jsonl`: timestamped transcripts
 - `logs/events.jsonl`: leaks, stalls, a dead meter, aborts, retries, harness errors with traceback
-- `shots/turn-NNN.png`, `workspace/`, `history.git/` (`git --git-dir=history.git log`), `toolkit/` (what ran inside the sandbox)
+- `shots/turn-NNN.png`, `shots/critic-NNN/` (the critic's own screenshots that round), `workspace/`, `history.git/` (`git --git-dir=history.git log`), `toolkit/` (what ran inside the sandbox)
 
 A healthy smoke run shows `declared_done`, `playable: true` on every turn, a parsed review in `reviews.jsonl`, and only that side's model in `models_seen`. `smoke` and `race` exit 1 if a side ended on `error`, `leak`, `meter_down` or `aborted`.
 
@@ -73,7 +74,7 @@ A healthy smoke run shows `declared_done`, `playable: true` on every turn, a par
 | `harness/seed.py` | Seeds a workspace: base game at a pinned commit, assets, tools, `npm ci` |
 | `harness/snapshot.py` | Per-turn commit, Vite build and gameplay screenshot |
 | `harness/meter.py` | Reads cost and models from `nexus claude usage --json` |
-| `harness/status.py`, `harness/viewer.py` | `status` and `play`; the live terminal viewer |
+| `harness/status.py`, `harness/viewer.py` | `status`, `reviews` and `play`; the live terminal viewer |
 | `harness/shot_tool.py`, `harness/workspace_tools/assets.mjs` | The models' `tools/screenshot` and asset search tool |
 | `harness/config.py` | Every constant: contenders, limits, paths, pinned commits and revisions |
 | `harness/catalog.py`, `inventory.py`, `fetch.py`, `mirror.py`, `sfcity.py`, `textures.py`, `media.py`, `dataset.py`, `assets.py` | The asset dataset: build, index, search, fetch, publish |

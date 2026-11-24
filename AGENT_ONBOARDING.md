@@ -39,7 +39,7 @@ The locked prompts (`prompts/`, tag `prompt-v7`) fix only the world, the gamepla
 | **One read-only `playtester` subagent** offered to both builders | Research (MAST, Cognition, Anthropic) found planner/coder/art teams hurt single-codebase builds; a fresh-eyes checker is the one role with evidence behind it. |
 | **A macOS `sandbox-exec` profile per contender** (`harness/sandbox.py`), environment scrubbed to `ENV_ALLOWLIST`; the critic's profile is read-only except build output and its own shots | Both workspaces sit side by side and both models have Bash. A model can't read the other side, the logs, earlier races, this repo or other sessions' transcripts, and can't plant `.claude/` config. `~/.claude/settings.json` stays readable because Claude Code needs it for Nexus. |
 | **Fail closed.** SIGINT/SIGTERM abort both sides within 1 s; a crash still kills the running session and writes `result.json`; `buildoff stop` kills orphans; a meter blind for 3 min stops the run (`meter_down`) | `claude` runs in its own session, so a dead harness would otherwise leave it spending with no budget check. |
-| **Evidence:** per-turn commits in `history.git` outside the workspace, a Vite build and a gameplay screenshot every turn, timestamped transcripts. **No screen recording** | The model can't rewrite its history. A screen recording once captured the user's other windows, so the video is rendered from the logs instead. |
+| **Evidence:** per-turn commits in `history.git` outside the workspace, a Vite build and a gameplay screenshot every turn, every critic's own screenshots (`shots/critic-NNN/`), timestamped transcripts. **No screen recording** | The model can't rewrite its history. A screen recording once captured the user's other windows, so the video is rendered from the logs instead. |
 | **Playable** = built, loaded, rendered, no uncaught exception (console errors are logged but don't fail it). The race clock counts model time only | 404s and logged warnings wrongly failed turns; counting harness build time penalised models that take more turns. |
 | **Provider API errors and cut-off streams are retried** (up to 3 per run) | Infrastructure, not the model. |
 | **The harness keeps the Mac awake** (`caffeinate -ims` for its whole run) | A sleeping Mac broke streams on both sides (up to 32 retries per turn) and voided the 2026-11-21 dry runs. Closing the lid still sleeps it. |
@@ -57,6 +57,7 @@ The locked prompts (`prompts/`, tag `prompt-v7`) fix only the world, the gamepla
 - **The Stop hook doesn't fire on API errors** (Claude Code sends `StopFailure` instead), and Claude Code overrides it after 8 blocks in a row with no tool call.
 - **Effort may not reach Kimi:** whether Claude Code sends an effort level for a gateway model isn't documented. Kimi can't turn thinking off anyway.
 - **Background subagents in `-p` mode** are killed 10 idle minutes after a session ends.
+- **Critics are slow, not expensive.** At max effort a review takes about an hour (minutes of thinking between tool calls) but costs $0.05–0.50, so each round takes roughly twice as long as its builder turn alone.
 - **Screenshots** need a network-idle wait, a ~12 s settle (the base game parses models between downloads) and a click with the pointer-lock shim (`snapshot.POINTER_LOCK_SHIM`). Headless Chromium also needs the SwiftShader flags.
 - **Catalog determinism:** part names come from the glTF JSON, not trimesh (which adds random suffixes), and Rocketbox/Kenney facts come from upstream `metadata.jsonl` (meshopt files trimesh can't decode). An unchanged rebuild is byte-identical.
 - **JSON has no `Infinity`:** USD's unlimited joint limits are written as `null`, and everything is written with `allow_nan=False`.
@@ -67,10 +68,10 @@ The locked prompts (`prompts/`, tag `prompt-v7`) fix only the world, the gamepla
 
 | | |
 |---|---|
-| Harness, sandbox, critic loop, tests (65), docs | ✅ Built. Smoke-tested 2026-11-23: Kimi's full loop worked (critic played 13 screenshots read-only, parsed verdict Tier 3); Opus spent the $2 smoke budget on its build turn at max effort, so its critic path ran only in tests. Waiting on the `prompt-v7` tag |
+| Harness, sandbox, critic loop, review trace (`buildoff reviews`), tests (68), docs | ✅ Built; prompts tagged `prompt-v7` |
 | Asset dataset (1,302 assets) | ✅ Published; revision pinned in `HF_ASSETS_REVISION` |
-| Dry runs | ✅ Several at $5–25. None yet with the critic loop |
-| Scoring checklist per tier, locked before the race | ⬜ |
+| $25 dry runs with the critic loop (`v7-full-25usd-001`, `v7-prim-25usd-001`) | 🟡 Running. Kimi, primitives: `tier4` at $6.04 after one turn and one review. Opus, full: `budget` at $25.11; its $21.5 first turn left no money to fix the crash bug its critic found (Tier 1). Kimi full and Opus primitives still going |
+| Scoring checklist per tier, locked before the race | ⬜ Deferred: first see whether the races produce real games |
 | The two $100 races | ⬜ Needs the user's explicit OK (up to $400) |
 | Blind judging, write-up, video | ⬜ |
 | Part 2 (RL on Fireworks) | ⬜ Separate project |
@@ -82,11 +83,11 @@ The locked prompts (`prompts/`, tag `prompt-v7`) fix only the world, the gamepla
 
 ## Next up
 
-1. The user approves the `prompt-v7` wording; commit and tag.
-2. Write and lock the scoring checklist.
-3. Both $100 races in parallel, unattended (needs the user's OK).
+1. Finish the two $25 runs; the user plays the builds and reads the critic trace (`buildoff reviews`).
+2. Decide whether $25 is enough for Opus at max effort, then both $100 races in parallel, unattended (needs the user's OK).
+3. Write and lock the scoring checklist.
 4. Judge, write up as "model + Claude Code + provider", fill `HUMANS.md`'s Results, render the video.
 
 ## Spend so far
 
-About **$93** on development, smoke tests and dry runs. The biggest items: $35.54 for the two $25 dry runs on 2026-11-22 (voided by Mac sleep), $20.26 for the first $25 dry run, and $19.58 for the two $100 races stopped early on 2026-11-23 to switch to the critic loop.
+About **$93** on development, smoke tests and dry runs before `prompt-v7`. The biggest items: $35.54 for the two $25 dry runs on 2026-11-22 (voided by Mac sleep), $20.26 for the first $25 dry run, and $19.58 for the two $100 races stopped early on 2026-11-23 to switch to the critic loop. The two $25 runs on `prompt-v7` can add up to $100; they were at about $60 on the evening of 2026-11-23.

@@ -44,6 +44,7 @@ Output layout under `<race_dir>/<contender>/`:
     logs/claude.pgid       process group of the running session (for `buildoff stop`)
     logs/checks/turn-NNN/  frames from the Tier 4 motion check
     shots/turn-NNN.png     screenshot of the built game after each turn (000 = base)
+    shots/critic-NNN/      the screenshots the critic took reviewing turn NNN
     result.json            final outcome
 """
 
@@ -51,6 +52,7 @@ import contextlib
 import json
 import os
 import re
+import shutil
 import signal
 import subprocess
 import threading
@@ -439,12 +441,24 @@ class ContenderRun:
         # Wall-clock start: the critic's day/night screenshots must be newer.
         self._review_started = time.time()
         end = self._run_session(cmd, self.critic_profile, critic_id, log_path, f"review {turn}")
+        kept = keep_critic_shots(
+            self.workspace, self.shots / f"critic-{turn:03d}", self._review_started
+        )
         if end in HARD_STOPS:
             return end  # type: ignore[return-value]  # every hard stop is a StopReason
         review = parse_review(log_path)
         self._append_jsonl(
             "reviews.jsonl",
-            {"turn": turn, "end": end, "cost_usd": self._cost()} | asdict(review),
+            {
+                "turn": turn,
+                "end": end,
+                "cost_usd": self._cost(),
+                # This critic session alone (it has its own Nexus session ID).
+                "review_cost_usd": round(self._spend.cost.get(critic_id, 0.0), 6),
+                "review_seconds": round(time.time() - self._review_started, 1),
+                "critic_shots": kept,
+            }
+            | asdict(review),
         )
         return review
 
@@ -809,6 +823,34 @@ def _ended_after_cut_off(log_path: Path) -> bool:
             if any(isinstance(b, dict) and b.get("type") == "tool_use" for b in content):
                 cut_off = False
     return cut_off
+
+
+def keep_critic_shots(workspace: Path, dest: Path, since: float) -> list[str]:
+    """Copies the screenshots a critic took this round out of the workspace.
+
+    The critic saves shots in the workspace's `tools/shots/`, which the builder
+    can overwrite or delete and `history.git` leaves out. Copying them into the
+    contender's own `shots/critic-NNN/` keeps each round's evidence for the
+    video and for tracing reviews.
+
+    Args:
+        workspace: the contender's game folder
+        dest: where this round's shots go (created only if there are any)
+        since: wall-clock time the critic started; older shots aren't its own
+
+    Returns:
+        the copied file names, oldest first
+    """
+    src = workspace / "tools" / "shots"
+    fresh = sorted(
+        (p for p in src.glob("*.png") if p.is_file() and p.stat().st_mtime >= since),
+        key=lambda p: p.stat().st_mtime,
+    )
+    if fresh:
+        dest.mkdir(parents=True, exist_ok=True)
+    for p in fresh:
+        shutil.copy2(p, dest / p.name)
+    return [p.name for p in fresh]
 
 
 def kill_group(pgid: int, grace_s: float = 10.0) -> None:

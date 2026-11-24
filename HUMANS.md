@@ -8,7 +8,7 @@ GTA 6 took 4,811 days to arrive after GTA V. Here, each model gets $100.
 
 That's the whole setup. Give two frontier-class models the same budget, the same starting code, the same assets and the same instructions, then step away. Neither model knows it's in a race. Each one builds, with a critic made from a fresh copy of itself reviewing every turn, until its game reaches the top tier or the money runs out.
 
-The hard part isn't writing the prompt. It's making sure the only thing that differs between the two runs is the model.
+The prompt was the easy part. The hard part is making sure the model is the only thing that differs between the two runs.
 
 ## **Key Takeaways**
 
@@ -16,14 +16,14 @@ The hard part isn't writing the prompt. It's making sure the only thing that dif
 * Spend is metered by `nexus claude usage`, not by Claude Code. In testing, Claude Code priced a Kimi call at $0.060, while list price for the same tokens was $0.030.
 * Each model starts from a working three.js game pinned to one commit, plus about 1,300 ready-made assets (or, in the primitives race, only the GPU it has to steal).
 * A run keeps going until the game reaches Tier 4 or the $100 runs out. After every turn, a critic (a fresh copy of the same model that didn't build the game) plays it and tells the builder what to fix next. Tier 4 counts only when the critic says so *and* the harness's own checks agree. A watchdog kills it early if any other model shows up in its usage.
-* Every turn leaves a git commit, a build result and a gameplay screenshot, and every transcript line is timestamped, so the race video can be cut from the logs.
+* Every turn leaves a git commit, a build result and a gameplay screenshot, every review keeps the critic's own screenshots and notes, and every transcript line is timestamped, so the race video can be cut from the logs.
 * The whole setup is reproducible: `uv sync`, `uv run buildoff doctor`, then `uv run buildoff smoke` for a few dollars.
 
 ## **What are the models racing to build?**
 
 The game is **Grand Theft GPU**. It's a third-person heist game set in **San Silicon**, a parody of San Francisco: hills, fog, cable cars, a famous red bridge, and robotaxis everywhere. GPUs are the most valuable thing in the city, and you steal them.
 
-The cast comes straight out of a tech Twitter thread: VCs, hype beasts, grifters, anon accounts, founders, doomers, reply guys. They're archetypes, never real people, and the brands are parodies too. It's "the robotaxi with the spinning roof sensor," not a real company.
+The cast comes straight out of a tech Twitter thread: VCs, hype beasts, grifters, anon accounts, founders, doomers, reply guys. They're archetypes, never real people, and the brands are parodies too. The robotaxi is "the one with the spinning roof sensor," never a named company.
 
 The prompt gives the models a world to play in and leaves the story to them. Raising money from VCs, poaching engineers, honeypot spies, doomers arguing with boomers, billboards for AI insurance startups: all of it is offered as inspiration, and none of it is required.
 
@@ -84,7 +84,7 @@ So the comparison runs twice, same models and same rules:
 | **Asset race** (`--pack full`, `game_spec.md`) | The base game, about 1,300 assets and the asset search tool | What each model builds when good parts are on hand |
 | **Primitives race** (`--pack primitives`, `game_spec_primitives.md`) | The base game and one model, the GPU. Everything else is made in code. Downloading assets is against the rules | How inventive each model is from scratch |
 
-Both races keep the screenshot tool. It's a way to look at your own work, not content, and it's the same for both models. The gap between the two races is itself a result: it shows how much of a game's quality came from the parts, and how much from the model.
+Both races keep the screenshot tool. It adds no content to the game, only a way for the model to look at its own work, and it's the same for both models. The gap between the two races is itself a result: it shows how much of a game's quality came from the parts, and how much from the model.
 
 ## **How does Nexus put Kimi inside Claude Code?**
 
@@ -121,15 +121,15 @@ Every rule below exists because something could tilt the result.
 
 **Nothing from anyone's laptop leaks in.** `--strict-mcp-config` with an empty config removes MCP servers. `--disable-slash-commands` removes skills. Workspaces live in `~/gta-race-runs/`, outside the repo. Claude Code's own init event confirms it for each session: `mcp_servers: []`, `slash_commands: []`.
 
-**No peeking at the other side.** Both workspaces sit in the same race folder, and both models have Bash, so a model could simply `cat` its rival's code. Each turn now runs under a macOS sandbox profile. A model can read and write only its own workspace. The other model's game, the race logs, earlier races, this repo and other sessions' transcripts all return "Operation not permitted". API keys are stripped from its environment too.
+**No peeking at the other side.** Both workspaces sit in the same race folder, and both models have Bash, so a model could `cat` its rival's code. Every session, builder and critic, runs under a macOS sandbox profile. A model can read and write only its own workspace. The other model's game, the race logs, earlier races, this repo and other sessions' transcripts all return "Operation not permitted". API keys are stripped from its environment too.
 
-**Same settings, not just same flags.** Each side gets one Claude Code settings file, identical except the model ID. Every model slot Claude Code might use, including background tasks and subagents, points at that side's own model, and no subagent can ask for another. Reasoning effort and the context size where it compacts are pinned to the same values. The watchdog still checks every request's model on every poll.
+**Same settings, too.** Each side gets one Claude Code settings file, identical except the model ID. Every model slot Claude Code might use, including background tasks and subagents, points at that side's own model, and no subagent can ask for another. Reasoning effort and the context size where it compacts are pinned to the same values. The watchdog still checks every request's model on every poll.
 
 **Stopping mid-sentence doesn't end a turn.** In the dry runs, a broken connection left Kimi's turns ending on "I'm adding browser checks now…" with nothing done. Now a Stop hook catches a turn that ends on a promise, or on a game that doesn't build, and sends the model back to work with one fixed line. A turn lost to a cut-off stream is retried instead of counted.
 
 **One playtester, same for both.** Each model can call one read-only `playtester` subagent that builds and plays the game and reports what's broken. Research on multi-agent coding found splitting a build across planner, coder and art agents hurts; a checker with fresh eyes is the one role that helps.
 
-**One referee for money.** Every 15 seconds, the watchdog reads `nexus claude usage --json`. That gives cost at list price, subagents included, plus every model that answered. If cost reaches the budget, the turn is killed. If a foreign model appears, the run stops with `leak`. If Nexus stops answering for three minutes, the run stops with `meter_down`: a budget nobody can see isn't a budget.
+**One referee for money.** Every 15 seconds, the watchdog reads `nexus claude usage --json`. That gives cost at list price, subagents included, plus every model that answered. If cost reaches the budget, the turn is killed. If a foreign model appears, the run stops with `leak`. If Nexus stops answering for three minutes, the run stops with `meter_down`, because the budget can't be enforced without a reading.
 
 **No hanging forever.** In a dry run, Kimi started `npm run preview`, a web server that never exits, as a foreground command, and sat blocked for 35 minutes. Now a turn with no output and no new spend for 10 minutes is cut short as `stalled`, and the critic reviews wherever it got to. After every turn, any server either model left running in its workspace is stopped.
 
@@ -157,10 +157,11 @@ Nothing records the screen. A screen recording would capture whatever else is op
     ├── history.git/          one commit per turn, out of the model's reach
     ├── logs/turn-NNN.jsonl   builder transcript, each line {"t": seconds, "event": ...}
     ├── logs/critic-NNN.jsonl the critic's review session after each turn
-    ├── logs/reviews.jsonl    every verdict: tier reached, Tier 4 claim, notes
+    ├── logs/reviews.jsonl    every verdict: tier reached, Tier 4 claim, notes, the review's cost and time
     ├── logs/cost.csv         spend at every Nexus poll
     ├── logs/turns.jsonl      per turn: build_ok, loaded, playable, errors, cost
     ├── shots/turn-NNN.png    gameplay screenshot (000 = untouched base game)
+    ├── shots/critic-NNN/     every screenshot the critic took reviewing that turn
     └── result.json           stop reason, cost, first playable turn, models seen
 ```
 
@@ -214,13 +215,19 @@ uv run buildoff status                     # progress of the latest race, as JSO
 uv run buildoff status my-race             # or a specific one
 ```
 
-For each model, `status` reports the turns recorded, spend so far, whether it has declared the game done, why it stopped, the latest screenshot, and the exact `nexus_meter` command for its session. Paste that command to watch requests and tokens arrive live:
+For each model, `status` reports the turns recorded, spend so far, the critic's tier after each round, why it stopped, the latest screenshot, and the exact `nexus_meter` command for its session. Paste that command to watch requests and tokens arrive live:
 
 ```bash
 nexus claude usage --session <session_id from status>
 ```
 
 That's also how you confirm Kimi is really working: every row names `kimi-k3p1-pro` on Fireworks, with its input, cached and output tokens and its cost. If the spend keeps climbing, the model is producing tokens.
+
+To see what each critic said, round by round (tier, notes, Tier 4 checks, what the review cost and where its screenshots are):
+
+```bash
+uv run buildoff reviews my-race
+```
 
 To follow along in more detail:
 
@@ -235,7 +242,7 @@ On macOS, the race also opens a viewer window per model that streams what it's d
 
 To end a race early, run `uv run buildoff stop` (or press Ctrl-C in the race's terminal). Both models stop within a second, and each writes its `result.json` with `aborted`.
 
-**Good to know. Why does a turn take so long?** A turn lasts until the model stops on its own. In our $25 dry run, Opus's first turn was one 38-minute session that built the whole game. The harness only records a turn (commit, build, screenshot) when it ends, so `turns_recorded` stays at 0 while spend climbs.
+**Good to know. Why does a turn take so long?** A turn lasts until the model stops on its own. In our $25 dry run, Opus's first turn was one 38-minute session that built the whole game. The harness only records a turn (commit, build, screenshot) when it ends, so `turns_recorded` stays at 0 while spend climbs. Then the critic plays the game, which at max effort can take another hour.
 
 ## **Step 6: Play the builds**
 
