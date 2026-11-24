@@ -129,7 +129,8 @@ def write_screenshot_wrapper(workspace: Path, toolkit: Path) -> Path:
     script.write_text(
         "#!/usr/bin/env bash\n"
         "# Build the game and save a gameplay screenshot (JSON result on stdout).\n"
-        "# Usage: tools/screenshot [--hold KEY:MS ...] [--out PATH] [--no-build] [--help]\n"
+        "# Usage: tools/screenshot [--hold KEYS:MS] [--wait MS] [--shot NAME] [--click X,Y]\n"
+        "#        [--look DX,DY] ... [--out PATH] [--no-build] [--help]\n"
         f"PYTHONPATH={shlex.quote(str(toolkit.resolve()))} exec {shlex.quote(sys.executable)} "
         f'-m harness.shot_tool {shlex.quote(str(workspace.resolve()))} "$@"\n'
     )

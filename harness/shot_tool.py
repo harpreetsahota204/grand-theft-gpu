@@ -7,7 +7,7 @@ and fix what's wrong. Both contenders' models were verified to read images.
 
 It renders exactly the way the harness's per-turn evidence does
 (`harness.snapshot`): Vite build, local static server, headless Chromium with
-the pointer-lock shim, a click to start play, optional held keys, then a
+the pointer-lock shim, a click to start play, optional scripted input, then a
 1280x720 PNG.
 
 Usage (from inside a workspace, via the wrapper):
