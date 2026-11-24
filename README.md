@@ -14,7 +14,7 @@ The game is **Grand Theft GPU**, a browser heist game set in San Silicon, a paro
 
 ## Setup (fresh clone)
 
-1. **Install the tools:** macOS, [uv](https://docs.astral.sh/uv/), [Claude Code](https://claude.com/claude-code) 2.1.281+, Node.js, and the Nexus CLI (`curl -fsSL https://nexus.fireworks.ai/install.sh | bash`).
+1. **Install the tools:** macOS, [uv](https://docs.astral.sh/uv/), [Claude Code](https://claude.com/claude-code) 2.1.281+, Node.js, git, and the Nexus CLI (`curl -fsSL https://nexus.fireworks.ai/install.sh | bash`).
 2. **Python environment** (3.12, pinned in `.python-version`):
    ```bash
    uv sync
@@ -87,11 +87,13 @@ Each contender loops through rounds:
 
 ```
 ~/gta-race-runs/<race-id>/
-├── config.json, summary.json
+├── config.json            the race's settings (budget, pack, spec, contenders)
+├── harness.pid            the running harness, so `buildoff stop` can find it
+├── summary.json           every contender's result, written when the race ends
 └── kimi/ | opus/
     ├── workspace/             the game the model built
     ├── history.git/           one commit per turn (git --git-dir=history.git log)
-    ├── toolkit/               what ran inside the sandbox: screenshot tool, Stop hook, settings
+    ├── toolkit/               what ran inside the sandbox: screenshot tool, Stop hook, builder and critic settings, playtester
     ├── logs/turn-NNN.jsonl    builder transcript, each line {"t": seconds, "event": ...}
     ├── logs/critic-NNN.jsonl  critic transcript after turn NNN
     ├── logs/reviews.jsonl     each review: tier, Tier 4 claim, check results, notes, its own cost and time
@@ -153,6 +155,7 @@ Errors go to stderr as `{"error": ..., "hint": ...}`, with exit code 1 (not foun
 | `harness/status.py`, `harness/viewer.py` | `status`, `reviews`, `play`, and the optional live terminal viewer |
 | `harness/shot_tool.py`, `harness/workspace_tools/assets.mjs` | The models' screenshot and asset tools |
 | `harness/config.py` | Contenders, limits, paths, pinned commits and revisions |
+| `harness/cliutil.py` | JSON output and `{"error", "hint"}` errors for every agent-facing command |
 | `harness/doctor.py` | Prerequisite checks |
 | `harness/fetch.py` | Downloads assets at the pinned dataset revision |
 | `assets/catalog.json` | Index of all 1,302 assets, seeded next to the models' `tools/assets.mjs` |

@@ -219,7 +219,7 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     f.add_argument("ids", nargs="*", help="catalog ids, e.g. rocketbox-avatars/chef-female-01")
-    f.add_argument("--core", action="store_true", help="the seeded set (~508 MB)")
+    f.add_argument("--core", action="store_true", help="the seeded set (~650 MB)")
     f.add_argument("--pattern", action="append", help="dataset glob, e.g. 'meta-mhr/*'")
     f.add_argument("--tiers", action="store_true", help="include people's lods/mobile/collision")
     f.add_argument("--out", type=Path, default=None, help="folder (default: HF cache)")
