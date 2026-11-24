@@ -6,6 +6,7 @@ requires-python = ">=3.12"
 license = "BUSL-1.1"
 license-files = ["LICENSE"]
 dependencies = [
+    "huggingface-hub>=2.4.0",
     "pillow>=13.0.0",
     "playwright>=1.48",
 ]
@@ -21,23 +22,10 @@ build-backend = "hatchling.build"
 packages = ["harness"]
 
 [dependency-groups]
-assets = [
-    "huggingface-hub>=2.4.0",
-    "mapbox-earcut>=2.1.0",
-    "pillow>=13.0.0",
-    "scipy>=1.18.1",
-    "shapely>=2.2.0",
-    "trimesh>=5.2.1",
-]
 dev = [
     "pytest>=9.2.0",
     "ruff>=0.7",
 ]
-
-[tool.uv]
-# A plain `uv sync` installs everything a replicator needs, including the
-# asset-rebuild tools.
-default-groups = "all"
 
 [tool.ruff]
 line-length = 100

@@ -1,14 +1,41 @@
 """Shared CLI plumbing for agent-facing commands.
 
 Every command an agent might call (`buildoff`, `tools/screenshot`) reports
-usage errors the same way: one JSON object on stderr and exit code 2, instead
-of argparse's free-text usage dump. Agents can parse it and self-correct.
+errors the same way: one {"error", "hint"} JSON object on stderr, exit code 2
+for bad input and 1 for anything else, instead of free text. Agents can parse
+it and self-correct. Results go to stdout as pretty JSON (`emit`).
 """
 
 import argparse
 import json
 import sys
-from typing import NoReturn
+from typing import Any, NoReturn
+
+
+class CliError(Exception):
+    """A user-facing failure with a hint on how to fix it.
+
+    Attributes:
+        hint: what to try instead, printed with the error
+        code: process exit code (1 not found, 2 bad input)
+    """
+
+    def __init__(self, message: str, hint: str, code: int = 1) -> None:
+        """Stores the message, hint and exit code."""
+        super().__init__(message)
+        self.hint = hint
+        self.code = code
+
+
+def emit(data: Any) -> None:
+    """Writes a result to stdout as stable, pretty-printed JSON."""
+    sys.stdout.write(json.dumps(data, indent=2, sort_keys=True) + "\n")
+
+
+def fail(err: CliError) -> int:
+    """Writes an error as JSON to stderr and returns its exit code."""
+    sys.stderr.write(json.dumps({"error": str(err), "hint": err.hint}) + "\n")
+    return err.code
 
 
 class JsonErrorParser(argparse.ArgumentParser):

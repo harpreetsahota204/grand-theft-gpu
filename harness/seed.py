@@ -28,10 +28,10 @@ import sys
 from pathlib import Path
 
 from harness import fetch
-from harness.catalog import CATALOG_PATH
 from harness.config import (
     BASE_REPO_COMMIT,
     BASE_REPO_URL,
+    CATALOG_PATH,
     GAME_ASSETS_SUBDIR,
     REPO_ROOT,
     RUNS_ROOT,

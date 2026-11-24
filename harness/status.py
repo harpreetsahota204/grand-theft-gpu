@@ -19,8 +19,8 @@ import webbrowser
 from pathlib import Path
 from typing import Any
 
+from harness.cliutil import CliError
 from harness.config import BUILD_DIR, CONTENDERS, RUNS_ROOT
-from harness.inventory import InventoryError
 from harness.snapshot import AssetServer, QuietHandler
 
 
@@ -28,16 +28,16 @@ def race_dir(race_id: str | None) -> Path:
     """The folder of a race id, or of the most recently started race when None.
 
     Raises:
-        InventoryError: if there is no such race (or no races at all)
+        CliError: if there is no such race (or no races at all)
     """
     if race_id:
         path = RUNS_ROOT / race_id
         if not (path / "config.json").exists():
-            raise InventoryError(f"no race {race_id!r}", f"races are folders in {RUNS_ROOT}")
+            raise CliError(f"no race {race_id!r}", f"races are folders in {RUNS_ROOT}")
         return path
     races = sorted(RUNS_ROOT.glob("*/config.json"), key=lambda p: p.stat().st_mtime)
     if not races:
-        raise InventoryError("no races yet", "start one with `buildoff smoke` or `buildoff race`")
+        raise CliError("no races yet", "start one with `buildoff smoke` or `buildoff race`")
     return races[-1].parent
 
 
@@ -189,14 +189,14 @@ def play(race_id: str | None, contender: str, port: int, open_browser: bool) -> 
     """Serves a contender's latest build on localhost until interrupted (Ctrl-C).
 
     Raises:
-        InventoryError: if the race, contender or build doesn't exist
+        CliError: if the race, contender or build doesn't exist
     """
     names = [c.name for c in CONTENDERS]
     if contender not in names:
-        raise InventoryError(f"no contender {contender!r}", f"one of: {', '.join(names)}")
+        raise CliError(f"no contender {contender!r}", f"one of: {', '.join(names)}")
     site = race_dir(race_id) / contender / "workspace" / BUILD_DIR
     if not (site / "index.html").exists():
-        raise InventoryError(f"no build at {site}", "wait for the contender's first turn to end")
+        raise CliError(f"no build at {site}", "wait for the contender's first turn to end")
     server = AssetServer(("127.0.0.1", port), functools.partial(QuietHandler, directory=str(site)))
     url = f"http://127.0.0.1:{server.server_address[1]}/"
     print(json.dumps({"url": url, "serving": str(site), "stop": "Ctrl-C"}), flush=True)

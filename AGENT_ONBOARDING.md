@@ -44,6 +44,9 @@ The locked prompts (`prompts/`, tag `prompt-v7`) fix only the world, the gamepla
 | **Provider API errors and cut-off streams are retried** (up to 3 per run) | Infrastructure, not the model. |
 | **The harness keeps the Mac awake** (`caffeinate -ims` for its whole run) | A sleeping Mac broke streams on both sides (up to 32 retries per turn) and voided the 2026-11-21 dry runs. Closing the lid still sleeps it. |
 | **Assets live in the Hugging Face dataset** `harpreetsahota/grand-theft-gpu-assets`, pinned by `HF_ASSETS_REVISION`. The repo tracks only `assets/catalog.json`. Every workspace is seeded with the full web tier (~650 MB) | Identical toolboxes for both sides; size costs seconds, not money or fairness. Fetching extras mid-race spends the model's own budget. |
+| **The code that builds the dataset lives in the dataset** (`build/`, with a "Recreate the assets" section on the card), not here | It was 2,800 of 6,100 lines in `harness/`, none of it on the race path. Races need only `fetch.py` and the catalog. |
+| **One asset search: the models' `tools/assets.mjs`** | A second Python ranker could drift, and you'd debug a search the models don't use. |
+| **Live viewer windows are opt-in** (`--viewers`) | They need AppleScript and a GUI session, and add nothing to an unattended run. |
 | **Asset choices:** adults only, no religious dress or swimwear; vehicles and trees set to real size and one heading; real brand names on textures are fine (the user's call) | So no model casts a real group as the villains of a satire. The upstream converter had shrunk vehicles and trees to about 1 m. |
 | The base game ([kartik786-git/gta-clone-threejs](https://github.com/kartik786-git/gta-clone-threejs)) is fetched at a pinned commit, not vendored; its committed `node_modules/` is skipped and `npm ci` runs instead | It has no license file (used with attribution), and its `node_modules` is broken on macOS: one model once spent budget repairing it. |
 
@@ -59,16 +62,13 @@ The locked prompts (`prompts/`, tag `prompt-v7`) fix only the world, the gamepla
 - **Background subagents in `-p` mode** are killed 10 idle minutes after a session ends.
 - **Critics are slow, not expensive.** At max effort a review takes about an hour (minutes of thinking between tool calls) but costs $0.05–0.50, so each round takes roughly twice as long as its builder turn alone.
 - **Screenshots** need a network-idle wait, a ~12 s settle (the base game parses models between downloads) and a click with the pointer-lock shim (`snapshot.POINTER_LOCK_SHIM`). Headless Chromium also needs the SwiftShader flags.
-- **Catalog determinism:** part names come from the glTF JSON, not trimesh (which adds random suffixes), and Rocketbox/Kenney facts come from upstream `metadata.jsonl` (meshopt files trimesh can't decode). An unchanged rebuild is byte-identical.
-- **JSON has no `Infinity`:** USD's unlimited joint limits are written as `null`, and everything is written with `allow_nan=False`.
 - **The HF cache lives under `~/.cache`:** any "skip `.cache`" filter must test the path relative to the snapshot folder.
-- **To check a `.glb` visually,** load it in a headless three.js page with Playwright (SwiftShader) and screenshot it.
 
 ## Status
 
 | | |
 |---|---|
-| Harness, sandbox, critic loop, review trace (`buildoff reviews`), tests (68), docs | ✅ Built; prompts tagged `prompt-v7` |
+| Harness, sandbox, critic loop, review trace (`buildoff reviews`), tests (60), docs | ✅ Built; prompts tagged `prompt-v7` |
 | Asset dataset (1,302 assets) | ✅ Published; revision pinned in `HF_ASSETS_REVISION` |
 | $25 dry runs with the critic loop (`v7-full-25usd-001`, `v7-prim-25usd-001`) | 🟡 Running. Kimi, primitives: `tier4` at $6.04 after one turn and one review. Opus, full: `budget` at $25.11; its $21.5 first turn left no money to fix the crash bug its critic found (Tier 1). Kimi full and Opus primitives still going |
 | Scoring checklist per tier, locked before the race | ⬜ Deferred: first see whether the races produce real games |

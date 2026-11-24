@@ -18,8 +18,7 @@ from pathlib import Path
 
 from huggingface_hub import snapshot_download
 
-from harness.catalog import CATALOG_PATH, URL_PREFIX
-from harness.config import HF_ASSETS_REPO, HF_ASSETS_REVISION
+from harness.config import CATALOG_PATH, HF_ASSETS_REPO, HF_ASSETS_REVISION
 
 # Licence and attribution files travel with the assets into every workspace.
 STEWARDSHIP: tuple[str, ...] = ("LICENSE*", "LICENSES.md", "ATTRIBUTION.md", "NOTICE.md")
@@ -99,7 +98,8 @@ def patterns_for_ids(ids: list[str], with_tiers: bool = False) -> list[str]:
     Raises:
         KeyError: listing ids that aren't in the catalog
     """
-    assets = {a["id"]: a for a in json.loads(CATALOG_PATH.read_text())["assets"]}
+    catalog = json.loads(CATALOG_PATH.read_text())
+    assets = {a["id"]: a for a in catalog["assets"]}
     missing = [i for i in ids if i not in assets]
     if missing:
         raise KeyError(f"unknown id(s): {', '.join(missing)}")
@@ -107,9 +107,10 @@ def patterns_for_ids(ids: list[str], with_tiers: bool = False) -> list[str]:
     for i in ids:
         a = assets[i]
         paths.append(a["hf_path"])
-        # Multi-file sets (sound variants, texture maps) list workspace URLs.
+        # Multi-file sets (sound variants, texture maps) list workspace URLs,
+        # which are the dataset path under the catalog's url_prefix.
         urls = [*a.get("files", []), *a.get("maps", {}).values()]
-        paths += [u.removeprefix(URL_PREFIX + "/") for u in urls]
+        paths += [u.removeprefix(catalog["url_prefix"] + "/") for u in urls]
         if with_tiers:
             paths += list(a.get("optional_tiers", {}).values())
     return sorted(set(paths))

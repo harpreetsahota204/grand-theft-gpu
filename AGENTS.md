@@ -15,7 +15,7 @@ A harness that races two models, **Kimi K3.1 Pro** (on Fireworks, routed through
 3. **Fairness is the product.** Both sides get identical flags, tools, files, settings and rules; only the model ID differs (in `--model` and the per-side settings files; `tests/test_session.py` checks this). Never change one side alone.
 4. **Don't read credentials.** Never open `~/.claude/settings.json` or other key files. Use `nexus claude status` to check routing.
 5. **Don't use `--dangerously-skip-permissions` or `claude --bare`.** The harness pre-approves tools with `--allowed-tools`, and `--bare` breaks Nexus auth.
-6. **Some steps need a human.** `nexus login` opens a browser, so ask the user to run it (`! nexus login`). `buildoff assets publish` is public: only with the user's OK.
+6. **Some steps need a human.** `nexus login` opens a browser, so ask the user to run it (`! nexus login`). Publishing to the asset dataset is public: only with the user's OK.
 
 ## Setup
 
@@ -25,23 +25,22 @@ uv run playwright install chromium       # headless browser for screenshots
 uv run buildoff doctor                   # every line should say ok
 ```
 
-Requires macOS (`sandbox-exec`), Claude Code 2.1.281+, the Nexus CLI logged in and connected (`nexus login`, then `nexus claude`), Node.js and git. Blender and the `hf` CLI are only for rebuilding assets.
+Requires macOS (`sandbox-exec`), Claude Code 2.1.281+, the Nexus CLI logged in and connected (`nexus login`, then `nexus claude`), Node.js and git. Rebuilding the asset dataset is separate: its code and instructions live in the dataset, under `build/`.
 
 ## Commands
 
 | Command | What it does | Cost |
 |---|---|---|
-| `uv run pytest` | Local tests: critic parsing, review trace, meter, sandbox, Stop hook, settings parity, checks, evidence | free, ~2 s |
+| `uv run pytest` | Local tests: critic parsing, review trace, meter, sandbox, Stop hook, settings parity, checks, evidence, asset lookup | free, ~2 s |
 | `uv run buildoff doctor` | Checks prerequisites | free |
 | `uv run buildoff smoke` | End to end: both models add a floating GPU, then one critic review each | ~$2–4 |
-| `uv run buildoff race --budget N --yes [--pack full\|primitives]` | A race on that pack's locked spec | up to $N per model |
+| `uv run buildoff race --budget N --yes [--pack full\|primitives] [--viewers]` | A race on that pack's locked spec; `--viewers` opens a live Terminal window per model | up to $N per model |
 | `uv run buildoff status [race-id]` | Progress as JSON, with the critic's tier per round (latest race by default) | free |
 | `uv run buildoff reviews [race-id]` | Every critic round: tier, notes, Tier 4 checks, cost, time, screenshots | free |
 | `uv run buildoff play <kimi\|opus> [--race-id ID]` | Serves a contender's latest build on localhost | free |
 | `uv run buildoff stop [race-id]` | Aborts a race cleanly and kills any orphaned session | free |
-| `uv run buildoff inventory <schema\|categories\|list\|search\|show>` | Searches the asset catalog (JSON out) | free |
 | `uv run buildoff fetch <id ...> \| --core \| --pattern G` | Downloads assets from the pinned Hugging Face revision | free |
-| `uv run buildoff assets <gpu\|props\|catalog\|mirror\|city\|textures\|media\|dataset\|publish>` | Rebuilds or stages assets; `publish` is public (user's OK only) | free |
+| `node <workspace>/tools/assets.mjs search police car` | Searches the catalog with the models' own tool (in any full-pack race workspace) | free |
 
 Races take hours. Launch them detached and check in with `status` and `reviews`. The harness keeps the Mac awake by itself (keep it plugged in, lid open):
 
@@ -74,18 +73,18 @@ A healthy smoke run shows `declared_done`, `playable: true` on every turn, a par
 | `harness/seed.py` | Seeds a workspace: base game at a pinned commit, assets, tools, `npm ci` |
 | `harness/snapshot.py` | Per-turn commit, Vite build and gameplay screenshot |
 | `harness/meter.py` | Reads cost and models from `nexus claude usage --json` |
-| `harness/status.py`, `harness/viewer.py` | `status`, `reviews` and `play`; the live terminal viewer |
+| `harness/status.py`, `harness/viewer.py` | `status`, `reviews` and `play`; the optional live terminal viewer |
 | `harness/shot_tool.py`, `harness/workspace_tools/assets.mjs` | The models' `tools/screenshot` and asset search tool |
 | `harness/config.py` | Every constant: contenders, limits, paths, pinned commits and revisions |
-| `harness/catalog.py`, `inventory.py`, `fetch.py`, `mirror.py`, `sfcity.py`, `textures.py`, `media.py`, `dataset.py`, `assets.py` | The asset dataset: build, index, search, fetch, publish |
+| `harness/fetch.py`, `assets/catalog.json` | Downloads assets at the pinned dataset revision; the index the models search with `tools/assets.mjs` |
 | `prompts/` | The locked game specs, run rules, critic prompt and nudge template; `smoke_spec.md` |
 | `tests/` | The local test suite |
 
 ## Code conventions
 
 - Google-style docstrings and full type hints on every function; comments explain *why*.
-- `uv run ruff check harness scripts tests`, `uv run ruff format harness scripts tests` and `uv run pytest` must pass.
-- Verify harness changes with the tests first, then `buildoff smoke`. For asset changes, rebuild with `--out` and diff.
+- `uv run ruff check harness tests`, `uv run ruff format harness tests` and `uv run pytest` must pass.
+- Verify harness changes with the tests first, then `buildoff smoke`.
 - Keep the docs current in the same change. `AGENT_ONBOARDING.md` describes the present: rewrite its rows, don't append history.
 
 ## Known pitfalls

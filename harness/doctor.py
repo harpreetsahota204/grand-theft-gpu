@@ -1,14 +1,13 @@
-"""Checks that this machine has everything needed to rebuild assets and run a race.
+"""Checks that this machine has everything needed to run a race.
 
 Run it first on a fresh clone; it prints one line per prerequisite and exits
-non-zero if anything required is missing. It only reads versions and status;
+non-zero if anything is missing. It only reads versions and status;
 it never changes configuration.
 
 Called by `buildoff doctor` (see `harness.cli`):
     uv run buildoff doctor
 """
 
-import os
 import platform
 import shutil
 import subprocess
@@ -18,7 +17,6 @@ from pathlib import Path
 from typing import NamedTuple
 
 from harness import sandbox
-from harness.config import DEFAULT_BLENDER
 
 
 def run(cmd: list[str]) -> str | None:
@@ -61,11 +59,6 @@ def check_python() -> str | None:
     return platform.python_version() if sys.version_info >= (3, 12) else None
 
 
-def check_blender() -> str | None:
-    """Blender runs the USDCraft converter; honours $BLENDER like harness.assets."""
-    return run([os.environ.get("BLENDER", DEFAULT_BLENDER), "--version"])
-
-
 class Check(NamedTuple):
     """One prerequisite.
 
@@ -73,42 +66,35 @@ class Check(NamedTuple):
         name: what is being checked, as printed
         probe: returns a short "found" string, or None if missing
         fix: how to install or fix it
-        required: False for things only the asset rebuild needs
     """
 
     name: str
     probe: Callable[[], str | None]
     fix: str
-    required: bool
 
 
 CHECKS: list[Check] = [
-    Check("macOS", check_macos, "viewers need Terminal; pass --no-viewers elsewhere", False),
-    Check("Python 3.12+", check_python, "uv sync", True),
+    Check("macOS", check_macos, "races need macOS (sandbox-exec isolates each model)"),
+    Check("Python 3.12+", check_python, "uv sync"),
     Check(
         "Claude Code",
         lambda: run(["claude", "--version"]),
         "install from https://claude.com/claude-code (2.1.281+)",
-        True,
     ),
     Check(
         "Nexus CLI",
         lambda: run(["nexus", "--version"]),
         "curl -fsSL https://nexus.fireworks.ai/install.sh | bash",
-        True,
     ),
-    Check("Nexus connected", check_nexus_connected, "nexus login && nexus claude", True),
-    Check("git", lambda: run(["git", "--version"]), "xcode-select --install", True),
+    Check("Nexus connected", check_nexus_connected, "nexus login && nexus claude"),
+    Check("git", lambda: run(["git", "--version"]), "xcode-select --install"),
     Check(
         "sandbox-exec (contender isolation)",
         lambda: None if sandbox.check() else "ok",
         "races need macOS's /usr/bin/sandbox-exec",
-        True,
     ),
-    Check("Chromium (Playwright)", check_chromium, "uv run playwright install chromium", True),
-    Check("Node.js (base game)", lambda: run(["node", "--version"]), "brew install node", True),
-    Check("Blender (asset rebuild)", check_blender, "brew install --cask blender", False),
-    Check("hf CLI (asset rebuild)", lambda: run(["hf", "version"]), "uv sync", False),
+    Check("Chromium (Playwright)", check_chromium, "uv run playwright install chromium"),
+    Check("Node.js (base game)", lambda: run(["node", "--version"]), "brew install node"),
 ]
 
 
@@ -116,9 +102,9 @@ def run_checks() -> int:
     """Runs every check and prints one line each.
 
     Returns:
-        process exit code: 1 if a required item is missing, else 0
+        process exit code: 1 if anything is missing, else 0
     """
-    missing_required = False
+    missing = False
     for check in CHECKS:
         try:
             found = check.probe()
@@ -127,7 +113,6 @@ def run_checks() -> int:
         if found:
             print(f"  ok    {check.name}: {found}")
         else:
-            tag = "MISS " if check.required else "opt  "
-            print(f"  {tag} {check.name}  ->  {check.fix}")
-            missing_required |= check.required
-    return 1 if missing_required else 0
+            print(f"  MISS  {check.name}  ->  {check.fix}")
+            missing = True
+    return 1 if missing else 0

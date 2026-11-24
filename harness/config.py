@@ -79,23 +79,18 @@ GAME_ENTRY: str = "index.html"
 BASE_REPO_URL: str = "https://github.com/kartik786-git/gta-clone-threejs.git"
 BASE_REPO_COMMIT: str = "babb6232df0f50d92e66a4b994a5fbc14fcc37d9"
 
-# Our asset pack and where the prompt promises it inside each workspace.
-# Vite serves public/ at the site root, so the game loads /assets/gt-gpu/...
-ASSETS_DIR: Path = REPO_ROOT / "assets"
-
-# Local staging copy of the Hugging Face asset dataset
-# (harpreetsahota/grand-theft-gpu-assets). `buildoff assets mirror` downloads
-# the third-party sets in scripts/mirror_sources.json here, outside the repo.
-MIRROR_DIR: Path = Path.home() / "grand-theft-gpu-assets"
+# Index of every asset in the dataset; seeded next to the models' tools/assets.mjs.
+CATALOG_PATH: Path = REPO_ROOT / "assets" / "catalog.json"
 
 # The published asset dataset and the exact revision races use. Seeding and
-# `buildoff assets fetch` download this revision, so every race gets identical
-# files; bump it deliberately after re-publishing (it changes what races see).
+# `buildoff fetch` download this revision, so every race gets identical files;
+# bump it deliberately after re-publishing (it changes what races see). The
+# code that builds the dataset lives in the dataset itself, under build/.
 HF_ASSETS_REPO: str = "harpreetsahota/grand-theft-gpu-assets"
 HF_ASSETS_REVISION: str = "717f91bbc3755ac942fd0afbbbc657826be126cc"
 
-# Blender runs the USDCraft converter; $BLENDER overrides this macOS default.
-DEFAULT_BLENDER: str = "/Applications/Blender.app/Contents/MacOS/Blender"
+# Where the prompt promises the assets inside each workspace. Vite serves
+# public/ at the site root, so the game loads /assets/gt-gpu/...
 GAME_ASSETS_SUBDIR: str = "public/assets/gt-gpu"
 
 # How long the game gets to finish loading after the network goes quiet, in ms.

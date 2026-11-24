@@ -2,8 +2,8 @@
 // Asset search + fetch tool for a Grand Theft GPU race workspace.
 //
 // Copied into every workspace as tools/assets.mjs next to tools/catalog.json
-// (the same catalog `buildoff inventory` reads in the harness repo). Zero
-// dependencies: Node 18+ only.
+// (a copy of the harness repo's assets/catalog.json). Zero dependencies:
+// Node 18+ only.
 //
 //   node tools/assets.mjs help
 //   node tools/assets.mjs categories
@@ -26,7 +26,7 @@ const WORKSPACE = join(HERE, "..");
 const CATALOG = JSON.parse(readFileSync(join(HERE, "catalog.json"), "utf8"));
 const ASSET_ROOT = join(WORKSPACE, "public", "assets", "gt-gpu");
 
-// Same weights and rules as harness/inventory.py, so both tools rank alike.
+// Ranking weights: id and name matches beat tags, tags beat substrings.
 const W = { id: 5, name: 4, tag: 3, substring: 1, coverage: 4 };
 const SUMMARY = ["id", "category", "kind", "name", "url", "seeded", "triangles", "size_m", "license"];
 
@@ -72,7 +72,7 @@ function parse(argv) {
   return opts;
 }
 
-// Exact, case-insensitive filters, matching harness/inventory.py's filter_assets.
+// Exact, case-insensitive filters.
 function filter(assets, o) {
   const [category, kind, tag] = [o.category, o.kind, o.tag].map((v) => v?.toLowerCase());
   return assets.filter(

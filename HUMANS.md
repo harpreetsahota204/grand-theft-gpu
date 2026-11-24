@@ -64,7 +64,7 @@ Starting from an empty folder would turn the race into "who sets up three.js fas
   * **45 props** from [NVIDIA USDCraft-10K](https://huggingface.co/datasets/nvidia/USDCraft-10K) (Apache 2.0): server racks, safes, an ATM, a forklift, a drone. We converted them from OpenUSD to glTF, keeping their moving parts and joints.
   * **The loot:** a CC0 graphics card from [Grab3D](https://grab3d.com/models/electronics/graphics-card/) with animatable fans and RGB strips.
   * **Looks and sound:** 8 HDRI skies and 16 PBR textures from [Poly Haven](https://polyhaven.com), 20 materials from [ambientCG](https://ambientcg.com) (office facades in day/night pairs, the night ones with lit windows), all CC0; 8 trees and palms (CC-BY 3.0, every artist credited); engine, tire, alarm and footstep sounds from OpenGameArt (CC0 and CC-BY 3.0) plus police and ambulance sirens, crashes, a horn and downtown traffic from Freesound (CC0); Kenney impact and UI sounds and particle sprites (CC0); and four OFL fonts for the HUD. The SF city's walls, roofs and roads have UVs in metres so these textures tile at real scale.
-* **A search tool:** `node tools/assets.mjs search vc` finds business people, `search phone call` finds the phone clips, and so on, so a model never has to dig through 1,300 files. It can also `fetch` optional extras (more detailed people, Meta's parametric body) on demand, at the cost of its own time and budget. The same search is available outside races as `uv run buildoff inventory`.
+* **A search tool:** `node tools/assets.mjs search vc` finds business people, `search phone call` finds the phone clips, and so on, so a model never has to dig through 1,300 files. It can also `fetch` optional extras (more detailed people, Meta's parametric body) on demand, at the cost of its own time and budget. It's the only search tool, so it's also the one to use outside a race.
 * **A screenshot tool:** `tools/screenshot` builds the game exactly the way the harness does, plays it in headless Chrome (optionally holding keys first, like `--hold w:2000`) and saves a PNG the model opens with its Read tool. Without it, a model writes 3D code blind. Before adding it, we checked that both Kimi K3.1 Pro (through Nexus) and Opus can read images in Claude Code, so it helps both sides equally.
 
 **Keep it honest.** The asset pack had a quiet bug, too. The web converter we mirror from had shrunk every Objaverse vehicle and every tree to about 1 m, and the vehicles faced different ways. A model would have parked a 1-metre fire truck next to 1.8-metre people, or spent its budget rescaling everything. We found it by rendering the pack, then set each model to its real size and the same heading by adding one transform node to each file. The geometry is untouched, and the change is recorded in each folder's `ATTRIBUTION.md`.
@@ -238,7 +238,7 @@ open ~/gta-race-runs/my-race/kimi/shots/                # gameplay screenshots
 git --git-dir ~/gta-race-runs/my-race/kimi/history.git log --oneline   # one commit per turn
 ```
 
-On macOS, the race also opens a viewer window per model that streams what it's doing. Pass `--no-viewers` to skip them.
+On macOS, `--viewers` also opens a Terminal window per model that streams what it's doing. It's off by default, since an overnight run has nobody watching.
 
 To end a race early, run `uv run buildoff stop` (or press Ctrl-C in the race's terminal). Both models stop within a second, and each writes its `result.json` with `aborted`.
 
@@ -276,8 +276,8 @@ It doesn't know Kimi's prices and falls back to a default rate. In testing it re
 ### **Can I change the prompt?**
 Not for a comparable race. The game specs, `run_rules.md`, `critic.md` and `nudge.md` are frozen at git tag `prompt-v7`. Edit them for your own experiments, but tag the new version, because results across prompt versions aren't comparable.
 
-### **Do I need Blender?**
-Only to rebuild the props from the source dataset with `uv run buildoff assets props`. The converted `.glb` files are already in the Hugging Face dataset.
+### **Can I rebuild the assets myself?**
+Yes. The code that builds the dataset lives in the dataset, under `build/`, and its card's [Recreate the assets](https://huggingface.co/datasets/harpreetsahota/grand-theft-gpu-assets#recreate-the-assets) section lists every step. You only need Blender for the USDCraft props. Races don't need any of it: they download the finished files at a pinned revision.
 
 ### **What license is this under?**
 The harness is under the Business Source License 1.1. Non-commercial use is free, including running your own races and publishing the results. It converts to Apache 2.0 on 2040-01-22, which is 4,811 days after release, the same wait as GTA V to GTA 6. The assets keep their own CC0 and Apache 2.0 licenses.

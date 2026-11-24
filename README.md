@@ -14,7 +14,7 @@ The game is **Grand Theft GPU**, a browser heist game set in San Silicon, a paro
 
 ## Setup (fresh clone)
 
-1. **Install the tools:** macOS, [uv](https://docs.astral.sh/uv/), [Claude Code](https://claude.com/claude-code) 2.1.281+, Node.js, and the Nexus CLI (`curl -fsSL https://nexus.fireworks.ai/install.sh | bash`). Blender only if you'll rebuild the props.
+1. **Install the tools:** macOS, [uv](https://docs.astral.sh/uv/), [Claude Code](https://claude.com/claude-code) 2.1.281+, Node.js, and the Nexus CLI (`curl -fsSL https://nexus.fireworks.ai/install.sh | bash`).
 2. **Python environment** (3.12, pinned in `.python-version`):
    ```bash
    uv sync
@@ -38,7 +38,7 @@ nohup uv run buildoff race --budget 100 --yes --pack full       --race-id full-0
 nohup uv run buildoff race --budget 100 --yes --pack primitives --race-id prim-001 > ~/gta-race-runs/prim-001.log 2>&1 &
 ```
 
-`--yes` is required above $2, because a race spends up to that amount **per model**. Races take hours; the harness keeps the Mac awake itself (keep it plugged in with the lid open). Live viewer windows open in Terminal; `--no-viewers` skips them.
+`--yes` is required above $2, because a race spends up to that amount **per model**. Races take hours; the harness keeps the Mac awake itself (keep it plugged in with the lid open). Add `--viewers` to open a live Terminal window per model (macOS; useful only when you're watching).
 
 Follow and play (free, read-only):
 
@@ -125,32 +125,17 @@ All assets live in the Hugging Face dataset **[harpreetsahota/grand-theft-gpu-as
 
 **In a race,** a full-pack workspace is seeded with the web tier (about 650 MB: everything except people's extra LOD/mobile/collision tiers, 2k skies and the MHR bodies). A primitives workspace gets only `gpu/`. The base game is [kartik786-git/gta-clone-threejs](https://github.com/kartik786-git/gta-clone-threejs), used with attribution and fetched at a pinned commit.
 
-**Search and fetch** (JSON out, deterministic, agent-friendly):
+**Search and fetch.** The racing models search with `tools/assets.mjs`, seeded into every full-pack workspace next to a copy of the catalog. It's the only search, so what you test is what the models run:
 
 ```bash
-uv run buildoff inventory schema                     # what every field and command means
-uv run buildoff inventory search police car --limit 3
-uv run buildoff inventory show usdcraft-props/home-safe
-uv run buildoff fetch rocketbox-avatars/chef-female-01 --tiers
-uv run buildoff fetch --pattern 'meta-mhr/*'
+node ~/gta-race-runs/<race-id>/kimi/workspace/tools/assets.mjs search police car --limit 3
+uv run buildoff fetch rocketbox-avatars/chef-female-01 --tiers   # download by catalog id
+uv run buildoff fetch --pattern 'meta-mhr/*'                      # or by dataset path
 ```
 
 Errors go to stderr as `{"error": ..., "hint": ...}`, with exit code 1 (not found) or 2 (bad input).
 
-**Rebuild and publish the dataset** (stages into `~/grand-theft-gpu-assets/`):
-
-```bash
-uv run buildoff assets mirror      # third-party sets at pinned revisions (scripts/mirror_sources.json)
-uv run buildoff assets city        # SF slice from OpenStreetMap + elevation
-uv run buildoff assets textures    # skies and PBR materials
-uv run buildoff assets media       # sounds, sprites, fonts
-uv run buildoff assets props       # USDCraft props → .glb via Blender (scripts/convert_usdcraft.py)
-uv run buildoff assets dataset     # license, attribution and dataset card
-uv run buildoff assets catalog     # rebuild assets/catalog.json
-uv run buildoff assets publish     # upload: public, only after a human reviews the cards
-```
-
-Every download is pinned (revision, date or sha256), and an unchanged rebuild of the catalog is byte-identical.
+**Rebuilding the dataset** isn't part of this repo. The code that builds it lives in the dataset itself, under `build/`, and the dataset card's [Recreate the assets](https://huggingface.co/datasets/harpreetsahota/grand-theft-gpu-assets#recreate-the-assets) section walks through it. After publishing a new revision, update `HF_ASSETS_REVISION` and copy the rebuilt `catalog.json` into `assets/`.
 
 ## Code map
 
@@ -165,13 +150,12 @@ Every download is pinned (revision, date or sha256), and an unchanged rebuild of
 | `harness/seed.py` | Seeds each workspace |
 | `harness/snapshot.py` | Per-turn commit, Vite build and gameplay screenshot |
 | `harness/meter.py` | Reads cost and models from Nexus |
-| `harness/status.py`, `harness/viewer.py` | `status`, `reviews`, `play`, and the live terminal viewer |
+| `harness/status.py`, `harness/viewer.py` | `status`, `reviews`, `play`, and the optional live terminal viewer |
 | `harness/shot_tool.py`, `harness/workspace_tools/assets.mjs` | The models' screenshot and asset tools |
 | `harness/config.py` | Contenders, limits, paths, pinned commits and revisions |
 | `harness/doctor.py` | Prerequisite checks |
-| `harness/catalog.py`, `inventory.py`, `fetch.py` | The asset catalog, its search, and downloads |
-| `harness/mirror.py`, `sfcity.py`, `textures.py`, `media.py`, `dataset.py`, `assets.py` | Building the asset dataset |
-| `scripts/` | Blender converters and pinned source lists |
+| `harness/fetch.py` | Downloads assets at the pinned dataset revision |
+| `assets/catalog.json` | Index of all 1,302 assets, seeded next to the models' `tools/assets.mjs` |
 | `prompts/` | The locked game specs, run rules, critic prompt and nudge template (tag `prompt-v7`) |
 | `tests/` | The local test suite |
 
