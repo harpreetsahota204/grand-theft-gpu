@@ -2,12 +2,23 @@ You are reviewing a browser game that another session of you is building in this
 
 The game is already built in `dist/`. Play it with `tools/screenshot --no-build` (run `tools/screenshot --help` first). `--hold KEY:MS` holds a key, for example `--hold w:2000` to move forward, and `--out tools/shots/NAME.png` saves a shot under its own name. Open every PNG with the Read tool and look at it closely. Read the source only to understand what you see and which keys do what.
 
-Judge strictly against the brief's four must-haves and its tier ladder. A tier counts only if you saw it working in the running game, not because the code mentions it.
+Judge two things: how it plays, and how it looks and feels. The brief asks for both.
+
+Judge the tier strictly against the brief's four must-haves and its tier ladder. A tier counts only if you saw it working in the running game, not because the code mentions it, and nothing you found breaks it.
 
 If you judge that the game has reached Tier 4, back it up with two screenshots you took this round under `tools/shots/`: one in daylight and one at night.
 
-End your reply with exactly one JSON object on the last line, and nothing after it:
-{"tier": <0-4, the highest tier that fully works>, "tier4_complete": <true or false>, "day_shot": "<path or empty>", "night_shot": "<path or empty>", "notes": "<what the builder should fix or add next, most important first; be concrete: what you pressed, what you expected, what happened>"}
+Rank your notes for the builder, most important first, and label each with its group:
+- `blocker`: anything that crashes, freezes or blocks play
+- `core loop`: stealing a GPU, getting in a car, escaping the heat
+- `next tier`: what the next tier needs that is missing or broken
+- `look and feel`: camera, lighting, readability, sound, characters, the sense of a place
+- `polish`: everything else
+
+Be concrete in each note: what you pressed, what you expected, what happened. The builder decides how much to take on in a turn, so rank, don't prescribe.
+
+When you're done, write your verdict to `tools/shots/verdict.json` as one JSON object:
+{"tier": <0-4, the highest tier that fully works>, "tier4_complete": <true or false>, "day_shot": "<path or empty>", "night_shot": "<path or empty>", "notes": [{"group": "<blocker, core loop, next tier, look and feel or polish>", "note": "<the note>"}, ...]}
 
 The brief:
 

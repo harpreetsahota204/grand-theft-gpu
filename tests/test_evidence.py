@@ -32,7 +32,7 @@ def test_history_ignores_model_gitignore_but_not_excludes(tmp_path: Path) -> Non
     (ws / "node_modules" / "x" / "i.js").write_text("dep")
     (ws / "dist").mkdir()
     (ws / "dist" / "index.html").write_text("built")
-    snapshot.init_history(history, ws)
+    snapshot.init_history(history)
     sha = snapshot.commit(history, ws, "turn 1")
     assert len(sha) == 40
     assert _tracked(history, ws) == {".gitignore", "secret.js", "src/main.js"}
@@ -44,7 +44,7 @@ def test_history_survives_a_model_git_repo(tmp_path: Path) -> None:
     ws, history = tmp_path / "ws", tmp_path / "history.git"
     ws.mkdir()
     (ws / "a.js").write_text("1")
-    snapshot.init_history(history, ws)
+    snapshot.init_history(history)
     snapshot.commit(history, ws, "turn 1")
     subprocess.run(["git", "init", "-q"], cwd=ws, check=True)
     (ws / "b.js").write_text("2")

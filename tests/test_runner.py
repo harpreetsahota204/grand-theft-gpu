@@ -12,43 +12,70 @@ from harness import meter, runner
 from harness.runner import ContenderRun
 
 
-def _critic_log(tmp_path: Path, final: str) -> Path:
-    """Writes a critic transcript whose final result message is `final`."""
-    path = tmp_path / "critic.jsonl"
-    event = {"type": "result", "subtype": "success", "result": final}
-    path.write_text(json.dumps({"t": 1, "event": event}) + "\n")
+def _verdict(tmp_path: Path, verdict: object) -> Path:
+    """Writes a critic's verdict.json and returns its path."""
+    path = tmp_path / "verdict.json"
+    path.write_text(json.dumps(verdict))
     return path
 
 
-def test_review_verdict_is_parsed_from_the_last_line(tmp_path: Path) -> None:
-    """The JSON line that ends the critic's reply becomes the Review."""
-    verdict = {
-        "tier": 3,
-        "tier4_complete": False,
-        "day_shot": "",
-        "night_shot": "",
-        "notes": "Traffic never moves; add {cars} on the main road.",
-    }
-    review = runner.parse_review(_critic_log(tmp_path, "Played it.\n" + json.dumps(verdict)))
+GOOD_VERDICT: dict[str, object] = {
+    "tier": 3,
+    "tier4_complete": False,
+    "day_shot": "",
+    "night_shot": "",
+    "notes": [
+        {"group": "blocker", "note": "Pressing E near a cop car freezes the game."},
+        {"group": "look and feel", "note": "Night is too dark to read the HUD."},
+    ],
+}
+
+
+def test_review_verdict_is_read_from_the_file(tmp_path: Path) -> None:
+    """A valid verdict.json becomes the Review, notes ranked and labelled."""
+    review = runner.parse_review(_verdict(tmp_path, GOOD_VERDICT))
     assert review == runner.Review(
-        parsed=True, tier=3, tier4_complete=False, notes=verdict["notes"]
+        parsed=True,
+        tier=3,
+        tier4_complete=False,
+        notes="1. [blocker] Pressing E near a cop car freezes the game.\n"
+        "2. [look and feel] Night is too dark to read the HUD.",
     )
-
-
-def test_review_verdict_inside_a_code_fence(tmp_path: Path) -> None:
-    """A verdict wrapped in a code fence still parses."""
-    final = (
-        '```json\n{"tier": 4, "tier4_complete": true, "day_shot": "a.png", '
-        '"night_shot": "b.png", "notes": "Polish."}\n```'
-    )
-    review = runner.parse_review(_critic_log(tmp_path, final))
-    assert review.parsed and review.tier4_complete and review.night_shot == "b.png"
 
 
 def test_missing_verdict_is_unparsed(tmp_path: Path) -> None:
-    """No verdict line means an unparsed review; the builder gets NO_REVIEW_NOTES."""
-    assert not runner.parse_review(_critic_log(tmp_path, "I ran out of time.")).parsed
+    """No verdict file means an unparsed review; the builder gets NO_REVIEW_NOTES."""
+    review = runner.parse_review(tmp_path / "verdict.json")
+    assert not review.parsed and review.problem == "no verdict.json"
     assert runner.NO_REVIEW_NOTES in runner.nudge_text("")
+
+
+def test_verdict_that_is_not_json_is_unparsed(tmp_path: Path) -> None:
+    """A truncated or prose verdict file is rejected with a reason."""
+    path = tmp_path / "verdict.json"
+    path.write_text('{"tier": 3, "notes": [')
+    review = runner.parse_review(path)
+    assert not review.parsed and "not JSON" in review.problem
+
+
+@pytest.mark.parametrize(
+    "change",
+    [
+        {"tier": 5},
+        {"tier": True},
+        {"tier": "3"},
+        {"tier4_complete": "yes"},
+        {"day_shot": 1},
+        {"notes": []},
+        {"notes": "Fix the siren."},
+        {"notes": [{"group": "urgent", "note": "Fix the siren."}]},
+        {"notes": [{"group": "polish", "note": "  "}]},
+    ],
+)
+def test_verdict_off_schema_is_unparsed(tmp_path: Path, change: dict[str, object]) -> None:
+    """Every schema break is rejected, never half-read."""
+    review = runner.parse_review(_verdict(tmp_path, GOOD_VERDICT | change))
+    assert not review.parsed and review.problem
 
 
 def test_nudge_wraps_the_critics_notes() -> None:

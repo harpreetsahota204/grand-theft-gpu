@@ -153,7 +153,7 @@ def _git(history: Path, workspace: Path, *args: str) -> str:
     return proc.stdout
 
 
-def init_history(history: Path, workspace: Path) -> None:
+def init_history(history: Path) -> None:
     """Creates the evidence history: a git repo kept outside the workspace.
 
     The model can't see or rewrite it (its sandbox can't read outside the
@@ -163,7 +163,6 @@ def init_history(history: Path, workspace: Path) -> None:
 
     Args:
         history: the bare-style git dir to create, e.g. `<contender>/history.git`
-        workspace: the seeded folder the model builds in
     """
     # Bare, so git never creates a working tree next to it; core.bare=false then
     # lets every command pair it with the workspace via --work-tree.

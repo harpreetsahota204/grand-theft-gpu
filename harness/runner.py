@@ -10,8 +10,8 @@ threads. A run is a loop of rounds:
    game and screenshots it.
 3. **Critic review.** A fresh `claude -p` session of the *same* model, with no
    memory of building, plays the game read-only (`prompts/critic.md`) and
-   ends with a JSON verdict: the tier reached, whether Tier 4 is complete, and
-   notes for the builder.
+   writes a JSON verdict to `tools/shots/verdict.json`: the tier reached,
+   whether Tier 4 is complete, and ranked notes for the builder.
 4. **Tier 4 check.** If the critic says Tier 4, the harness's own checks
    (`harness.checks`) must agree before the run ends as `tier4`. If they
    don't, their failures are added to the critic's notes.
@@ -51,7 +51,6 @@ Output layout under `<race_dir>/<contender>/`:
 import contextlib
 import json
 import os
-import re
 import shutil
 import signal
 import subprocess
@@ -95,7 +94,7 @@ API_ERROR_PREFIX: str = "API Error"
 CUT_OFF_MARKER: str = "was cut off mid-stream"
 
 # What the builder is told when the critic produced no usable verdict (its
-# session failed, or it didn't end with the JSON line).
+# session failed, or it wrote no valid verdict.json).
 NO_REVIEW_NOTES: str = "The critic could not finish a review this round."
 
 # An empty MCP config plus --strict-mcp-config removes the user's connectors
@@ -113,15 +112,16 @@ ABORT: threading.Event = threading.Event()
 
 @dataclass(frozen=True)
 class Review:
-    """A critic's verdict, parsed from the JSON line that ends its reply.
+    """A critic's verdict, read from the `verdict.json` it writes.
 
     Attributes:
-        parsed: whether a valid verdict line was found
+        parsed: whether a valid verdict file was found
         tier: highest tier the critic saw fully working, if given
         tier4_complete: the critic's claim that Tier 4 is done
         day_shot: path of its daylight screenshot (Tier 4 evidence)
         night_shot: path of its night screenshot (Tier 4 evidence)
-        notes: what the builder should do next
+        notes: what the builder should do next, ranked, one "[group] note" per line
+        problem: why the verdict was rejected (empty when parsed)
     """
 
     parsed: bool
@@ -130,6 +130,7 @@ class Review:
     day_shot: str = ""
     night_shot: str = ""
     notes: str = ""
+    problem: str = ""
 
 
 @dataclass
@@ -262,7 +263,7 @@ class ContenderRun:
             # Seeding happens before the clock starts: npm install and copying the
             # base game aren't the model's time.
             seed.seed_workspace(self.workspace, self.toolkit, self.cfg.pack)
-            snapshot.init_history(self.history, self.workspace)
+            snapshot.init_history(self.history)
             sandbox.write_profile(self.profile, self.workspace, self.toolkit)
             sandbox.write_profile(self.critic_profile, self.workspace, self.toolkit, read_only=True)
             session.write(self.toolkit, self.contender.model)
@@ -428,9 +429,12 @@ class ContenderRun:
             turn: the turn just finished
 
         Returns:
-            the review (unparsed if the critic failed or gave no verdict line),
+            the review (unparsed if the critic failed or wrote no valid verdict),
             or a stop reason if a hard stop fired during the critic's session
         """
+        # A verdict left over from the last round must never count for this one.
+        verdict_path = self.workspace / VERDICT_FILE
+        verdict_path.unlink(missing_ok=True)
         critic_id = str(uuid.uuid4())
         self.critic_sessions.append(critic_id)
         prompt = critic_text(self.cfg.spec_path)
@@ -446,7 +450,7 @@ class ContenderRun:
         )
         if end in HARD_STOPS:
             return end  # type: ignore[return-value]  # every hard stop is a StopReason
-        review = parse_review(log_path)
+        review = parse_review(verdict_path)
         self._append_jsonl(
             "reviews.jsonl",
             {
@@ -480,7 +484,7 @@ class ContenderRun:
         pgid_file = self.logs / "claude.pgid"
         env = sandbox.clean_env({"CLAUDE_CODE_SUBAGENT_MODEL": self.contender.model})
 
-        verdict: TurnEnd | None = None
+        ending: TurnEnd | None = None
         started = time.monotonic()
         with log_path.open("w") as log:
             # start_new_session puts claude and every shell it spawns in one
@@ -501,9 +505,9 @@ class ContenderRun:
                 pgid_file.write_text(str(proc.pid))
                 self._last_activity = self._last_reading_at = time.monotonic()
                 pump.start()
-                verdict = self._watch(proc, session_id, label)
+                ending = self._watch(proc, session_id, label)
             finally:
-                # Runs on a normal exit, a watchdog verdict, and a harness crash
+                # Runs on a normal exit, a watchdog stop, and a harness crash
                 # alike. Background jobs share claude's process group, and
                 # servers that escaped it are found by working directory.
                 _kill_tree(proc)
@@ -517,10 +521,10 @@ class ContenderRun:
         # If claude exited on its own, take one more reading: the last requests
         # land after the final mid-session poll. A stalled session still gets a
         # final reading, but budget/leak found there take priority.
-        if verdict in (None, "stalled"):
-            verdict = self._check_meter(session_id) or verdict
-        if verdict is not None:
-            return verdict
+        if ending in (None, "stalled"):
+            ending = self._check_meter(session_id) or ending
+        if ending is not None:
+            return ending
         if proc.returncode == 0:
             return "completed"
         return "api_error" if _ended_on_api_error(log_path) else "error"
@@ -534,7 +538,7 @@ class ContenderRun:
             label: e.g. "turn 3", for event rows
 
         Returns:
-            the verdict that ended the session early, or None if claude exited itself
+            how the watchdog ended the session early, or None if claude exited itself
         """
         next_poll = time.monotonic() + METER_POLL_SECONDS
         while True:
@@ -549,12 +553,12 @@ class ContenderRun:
             if time.monotonic() < next_poll:
                 continue
             next_poll = time.monotonic() + METER_POLL_SECONDS
-            verdict = self._check_meter(session_id)
-            if verdict is None and time.monotonic() - self._last_activity > STALL_TIMEOUT_S:
-                verdict = "stalled"
+            ending = self._check_meter(session_id)
+            if ending is None and time.monotonic() - self._last_activity > STALL_TIMEOUT_S:
+                ending = "stalled"
                 self._event({"event": "stalled", "during": label})
-            if verdict is not None:
-                return verdict
+            if ending is not None:
+                return ending
 
     def _pump(self, stream: IO[bytes], log: TextIO) -> None:
         """Copies claude's output into the session log, stamping each line with race time.
@@ -729,58 +733,94 @@ def critic_text(spec_path: Path) -> str:
     return template.replace("{brief}", spec_path.read_text().strip())
 
 
-# The verdict is the last JSON object in the critic's final message. Models
-# sometimes wrap it in a code fence or add a blank line, so search, don't split.
-_VERDICT: re.Pattern[str] = re.compile(r"\{[^{}]*\"tier4_complete\"[^{}]*\}", re.DOTALL)
+# Where the critic writes its verdict, relative to the workspace. It sits in
+# tools/shots/ because that's the one workspace folder the critic's sandbox lets
+# it write besides build output.
+VERDICT_FILE: str = "tools/shots/verdict.json"
+
+# The note groups, in the order prompts/critic.md ranks them.
+NOTE_GROUPS: tuple[str, ...] = ("blocker", "core loop", "next tier", "look and feel", "polish")
 
 
-def parse_review(log_path: Path) -> Review:
-    """Reads the critic's verdict from its transcript.
+def parse_review(verdict_path: Path) -> Review:
+    """Reads and schema-checks the verdict file the critic wrote.
+
+    A file instead of the reply's last line, because critics wrapped, split or
+    trailed that line often enough to need two fallback parsers.
 
     Args:
-        log_path: the critic session's log (runner format)
+        verdict_path: the critic's `tools/shots/verdict.json`
 
     Returns:
-        the parsed review, or `Review(parsed=False)` if there's no valid verdict
+        the review, or `Review(parsed=False, problem=...)` if the file is
+        missing or doesn't match the schema
     """
-    final = ""
-    for line in log_path.read_text().splitlines():
-        try:
-            event = json.loads(line).get("event") or {}
-        except json.JSONDecodeError:
-            continue
-        if isinstance(event, dict) and event.get("type") == "result":
-            final = str(event.get("result") or "")
-    verdict = _last_json_line(final)
-    if verdict is None:
-        # Fall back to the last brace-free object naming tier4_complete.
-        matches = _VERDICT.findall(final)
-        try:
-            verdict = json.loads(matches[-1]) if matches else None
-        except json.JSONDecodeError:
-            verdict = None
-    if not isinstance(verdict, dict):
-        return Review(parsed=False)
-    tier = verdict.get("tier")
+    try:
+        verdict = json.loads(verdict_path.read_text())
+    except FileNotFoundError:
+        return Review(parsed=False, problem="no verdict.json")
+    except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+        return Review(parsed=False, problem=f"verdict.json is not JSON: {exc}")
+    problem = _verdict_problem(verdict)
+    if problem:
+        return Review(parsed=False, problem=problem)
     return Review(
         parsed=True,
-        tier=tier if isinstance(tier, int) else None,
-        tier4_complete=verdict.get("tier4_complete") is True,
-        day_shot=str(verdict.get("day_shot") or ""),
-        night_shot=str(verdict.get("night_shot") or ""),
-        notes=str(verdict.get("notes") or ""),
+        tier=verdict["tier"],
+        tier4_complete=verdict["tier4_complete"],
+        day_shot=verdict.get("day_shot") or "",
+        night_shot=verdict.get("night_shot") or "",
+        notes="\n".join(
+            f"{i}. [{n['group']}] {n['note'].strip()}" for i, n in enumerate(verdict["notes"], 1)
+        ),
     )
 
 
-def _last_json_line(text: str) -> object | None:
-    """Parses the last non-empty line of text as JSON (ignoring a closing code fence)."""
-    lines = [ln.strip() for ln in text.strip().splitlines() if ln.strip() and ln.strip() != "```"]
-    if not lines:
-        return None
-    try:
-        return json.loads(lines[-1])
-    except json.JSONDecodeError:
-        return None
+def _verdict_problem(verdict: object) -> str:
+    """Checks a verdict against the schema in prompts/critic.md.
+
+    Args:
+        verdict: the decoded verdict.json
+
+    Returns:
+        what's wrong with it, or "" if it's valid
+    """
+    if not isinstance(verdict, dict):
+        return "verdict is not an object"
+    tier = verdict.get("tier")
+    # bool is an int subclass; True must not pass as tier 1.
+    if not isinstance(tier, int) or isinstance(tier, bool) or not 0 <= tier <= 4:
+        return "tier must be an integer from 0 to 4"
+    if not isinstance(verdict.get("tier4_complete"), bool):
+        return "tier4_complete must be true or false"
+    for key in ("day_shot", "night_shot"):
+        if not isinstance(verdict.get(key) or "", str):
+            return f"{key} must be a string"
+    notes = verdict.get("notes")
+    if not isinstance(notes, list) or not notes:
+        return "notes must be a non-empty list"
+    for n in notes:
+        if not isinstance(n, dict) or n.get("group") not in NOTE_GROUPS:
+            return f"each note needs a group from {', '.join(NOTE_GROUPS)}"
+        if not isinstance(n.get("note"), str) or not n["note"].strip():
+            return "each note needs non-empty text"
+    return ""
+
+
+def _events(log_path: Path) -> list[dict]:
+    """The Claude Code events in a session log (runner format), in order.
+
+    Skips stderr lines (no "event") and a last line cut off by a kill.
+    """
+    events = []
+    for line in log_path.read_text().splitlines():
+        try:
+            event = json.loads(line).get("event")
+        except json.JSONDecodeError:
+            continue
+        if isinstance(event, dict):
+            events.append(event)
+    return events
 
 
 def _ended_on_api_error(log_path: Path) -> bool:
@@ -790,16 +830,12 @@ def _ended_on_api_error(log_path: Path) -> bool:
     stopped arriving" when the provider fails mid-session; anything else that
     exits non-zero (a crash, a bad flag) stays a hard error.
     """
-    for line in reversed(log_path.read_text().splitlines()):
-        try:
-            event = json.loads(line).get("event") or {}
-        except json.JSONDecodeError:
-            continue  # a line cut off by the kill
-        if isinstance(event, dict) and event.get("type") == "result":
-            return bool(event.get("is_error")) and str(event.get("result", "")).startswith(
-                API_ERROR_PREFIX
-            )
-    return False
+    last = next((e for e in reversed(_events(log_path)) if e.get("type") == "result"), None)
+    return (
+        last is not None
+        and bool(last.get("is_error"))
+        and str(last.get("result", "")).startswith(API_ERROR_PREFIX)
+    )
 
 
 def _ended_after_cut_off(log_path: Path) -> bool:
@@ -809,19 +845,16 @@ def _ended_after_cut_off(log_path: Path) -> bool:
     cut-off) counts as a normal turn.
     """
     cut_off = False
-    for line in log_path.read_text().splitlines():
-        try:
-            event = json.loads(line).get("event") or {}
-        except json.JSONDecodeError:
-            continue
-        if not isinstance(event, dict):
-            continue
+    for event in _events(log_path):
         content = (event.get("message") or {}).get("content")
         if event.get("type") == "user" and CUT_OFF_MARKER in json.dumps(content):
             cut_off = True
-        elif event.get("type") == "assistant" and isinstance(content, list):
-            if any(isinstance(b, dict) and b.get("type") == "tool_use" for b in content):
-                cut_off = False
+        elif (
+            event.get("type") == "assistant"
+            and isinstance(content, list)
+            and any(isinstance(b, dict) and b.get("type") == "tool_use" for b in content)
+        ):
+            cut_off = False
     return cut_off
 
 
