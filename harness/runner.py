@@ -96,6 +96,10 @@ CUT_OFF_MARKER: str = "was cut off mid-stream"
 # What the builder is told when the critic produced no usable verdict (its
 # session failed, or it wrote no valid verdict.json).
 NO_REVIEW_NOTES: str = "The critic could not finish a review this round."
+# What the builder is told when a valid review has no notes (the critic found
+# nothing to fix). An empty list used to be rejected, which threw away a good
+# review: a v17 smoke critic did exactly this on a finished one-line task.
+NOTHING_TO_FIX: str = "The critic found nothing to fix this round."
 # What the first critic is told in place of the last review's tier and route.
 NO_LAST_REVIEW: str = "Nothing yet: this is the first review."
 
@@ -337,7 +341,10 @@ class ContenderRun:
                 if self.cfg.stop_on_done and (self.workspace / DONE_FILE).exists():
                     reason = "declared_done"
                     break
-                notes = review.notes if review.parsed else NO_REVIEW_NOTES
+                if not review.parsed:
+                    notes = NO_REVIEW_NOTES
+                else:
+                    notes = review.notes or NOTHING_TO_FIX
                 prompt = nudge_text(notes, self._cost(), self.cfg.budget_usd)
         except Exception:
             self._event({"event": "harness_error", "turn": turn, "trace": traceback.format_exc()})
@@ -934,8 +941,8 @@ def _verdict_problem(verdict: object) -> str:
     if not isinstance(verdict.get("route"), str):
         return "route must be a string"
     notes = verdict.get("notes")
-    if not isinstance(notes, list) or not notes:
-        return "notes must be a non-empty list"
+    if not isinstance(notes, list):
+        return "notes must be a list"
     for n in notes:
         if not isinstance(n, dict) or n.get("group") not in NOTE_GROUPS:
             return f"each note needs a group from {', '.join(NOTE_GROUPS)}"

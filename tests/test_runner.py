@@ -94,7 +94,6 @@ def test_verdict_that_is_not_json_is_unparsed(tmp_path: Path) -> None:
         {"tier": "3"},
         {"route": None},
         {"route": ["w:3000"]},
-        {"notes": []},
         {"notes": "Fix the siren."},
         {"notes": [{"group": "urgent", "note": "Fix the siren."}]},
         {"notes": [{"group": "polish", "status": "new", "note": "  "}]},
@@ -257,3 +256,9 @@ def test_critic_is_told_the_spend_and_the_last_reviews_cost(tmp_path: Path) -> N
     later = runner.critic_text(spec, 100.0, spent_usd=40.0, last_cost_usd=8.5)
     assert "The last review cost $8.50." in later
     assert not any(p in later for p in ("{spent}", "{budget}", "{last_cost}", "{turn}"))
+
+
+def test_a_review_with_no_notes_is_valid(tmp_path: Path) -> None:
+    """A critic that finds nothing to fix still writes a good review (a v17 smoke critic did)."""
+    review = runner.parse_review(_verdict(tmp_path, GOOD_VERDICT | {"notes": []}))
+    assert review.parsed and review.tier == 3 and review.notes == "" and review.items == ()
