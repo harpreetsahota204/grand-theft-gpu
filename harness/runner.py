@@ -866,7 +866,10 @@ def _ended_after_cut_off(log_path: Path) -> bool:
     """
     cut_off = False
     for event in _events(log_path):
-        content = (event.get("message") or {}).get("content")
+        # Not every event's "message" is an API message: a `permission_denied`
+        # system event carries a plain string there.
+        message = event.get("message")
+        content = message.get("content") if isinstance(message, dict) else None
         if event.get("type") == "user" and CUT_OFF_MARKER in json.dumps(content):
             cut_off = True
         elif (

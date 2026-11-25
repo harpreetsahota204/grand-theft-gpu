@@ -10,6 +10,7 @@ tell us when the first playable build appeared.
 import contextlib
 import functools
 import subprocess
+import sys
 import threading
 from collections.abc import Sequence
 from dataclasses import dataclass, field
@@ -356,6 +357,15 @@ class AssetServer(ThreadingHTTPServer):
     """
 
     request_queue_size = 256
+
+    def handle_error(self, request: object, client_address: tuple[str, int]) -> None:
+        """Ignores a browser that hangs up mid-file; prints any other error as usual.
+
+        Closing a page while assets stream in raises BrokenPipeError here, and
+        the stdlib prints its full traceback into the race log.
+        """
+        if not isinstance(sys.exc_info()[1], ConnectionError):
+            super().handle_error(request, client_address)  # type: ignore[arg-type]
 
 
 class QuietHandler(SimpleHTTPRequestHandler):

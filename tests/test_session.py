@@ -1,4 +1,4 @@
-"""The Stop hook, the per-contender Claude Code settings, and the cut-off retry rule."""
+"""The Stop hook, per-contender settings, the cut-off retry rule and odd stream events."""
 
 import json
 import subprocess
@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from harness import runner, session, stop_hook
+from harness import runner, session, stop_hook, viewer
 from harness.config import CONTENDERS
 
 
@@ -120,3 +120,30 @@ def test_cut_off_turn_with_no_work_is_retried(tmp_path: Path) -> None:
     assert runner._ended_after_cut_off(_log(tmp_path, [tool, cut, text]))
     assert not runner._ended_after_cut_off(_log(tmp_path, [cut, tool, text]))
     assert not runner._ended_after_cut_off(_log(tmp_path, [tool, text]))
+
+
+# Event shapes the turn-end checks must survive. A `permission_denied` system
+# event with a string "message" crashed Opus out of the prompt-v15 race.
+ODD_EVENTS: list[dict[str, object]] = [
+    {"type": "system", "subtype": "permission_denied", "message": "Claude Code can't..."},
+    {"type": "assistant", "message": None},
+    {"type": "assistant", "message": {"content": "plain text"}},
+    {"type": "assistant", "message": {"content": ["not a block", 3]}},
+    {"type": "user", "message": ["a list"]},
+    {"type": "result", "is_error": True, "result": None},
+]
+
+
+@pytest.mark.parametrize("odd", ODD_EVENTS)
+def test_turn_end_checks_survive_odd_events(tmp_path: Path, odd: dict[str, object]) -> None:
+    """Unexpected event shapes never raise in the checks that classify a turn's end."""
+    tool = {"type": "assistant", "message": {"content": [{"type": "tool_use", "name": "Bash"}]}}
+    log = _log(tmp_path, [tool, odd])
+    assert not runner._ended_after_cut_off(log)
+    assert not runner._ended_on_api_error(log)
+
+
+@pytest.mark.parametrize("odd", ODD_EVENTS)
+def test_viewer_survives_odd_events(tmp_path: Path, odd: dict[str, object]) -> None:
+    """The live viewer skips event shapes it doesn't know instead of dying."""
+    viewer._render(json.dumps({"t": 0, "event": odd}), tmp_path / "cost.csv")

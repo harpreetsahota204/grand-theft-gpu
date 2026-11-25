@@ -56,7 +56,7 @@ def read_session(session_id: str) -> Reading | None:
         return None
     try:
         return parse_usage(json.loads(proc.stdout))
-    except (ValueError, KeyError, TypeError):
+    except (ValueError, KeyError, TypeError, AttributeError):  # AttributeError: not a dict
         return None
 
 

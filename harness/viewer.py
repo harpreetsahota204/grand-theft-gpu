@@ -71,14 +71,20 @@ def _render(line: str, cost_csv: Path) -> None:
         event = json.loads(line).get("event") or {}
     except json.JSONDecodeError:
         return
-    if event.get("type") != "assistant":
+    if not isinstance(event, dict) or event.get("type") != "assistant":
         return
-    for block in event.get("message", {}).get("content", []):
-        if block.get("type") == "text" and block["text"].strip():
-            print(block["text"].strip()[:TEXT_PREVIEW_CHARS], flush=True)
+    # Guard every level: Claude Code adds event shapes over time (a system event
+    # once carried a plain string in "message"), and the viewer must not die on one.
+    message = event.get("message")
+    content = message.get("content") if isinstance(message, dict) else None
+    for block in content if isinstance(content, list) else []:
+        if not isinstance(block, dict):
+            continue
+        if block.get("type") == "text" and str(block.get("text", "")).strip():
+            print(str(block["text"]).strip()[:TEXT_PREVIEW_CHARS], flush=True)
         elif block.get("type") == "tool_use":
             args = json.dumps(block.get("input", {}))[:120]
-            print(f"{CYAN}> {block['name']}{RESET} {DIM}{args}{RESET}", flush=True)
+            print(f"{CYAN}> {block.get('name', '?')}{RESET} {DIM}{args}{RESET}", flush=True)
             print(f"{DIM}  spent ${_latest_cost(cost_csv):.2f}{RESET}", flush=True)
 
 
