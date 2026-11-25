@@ -267,6 +267,8 @@ class ContenderRun:
         self._unpriced_seen: int = 0
         # Wall-clock start of the latest review; only screenshots newer than this are its own.
         self._review_started: float = 0.0
+        # What the last critic session cost, so the next critic can pace itself.
+        self._last_review_cost: float | None = None
 
     def run(self) -> RunResult:
         """Runs rounds until a stop rule fires, then writes result.json.
@@ -444,7 +446,14 @@ class ContenderRun:
         verdict_path.unlink(missing_ok=True)
         critic_id = str(uuid.uuid4())
         self.critic_sessions.append(critic_id)
-        prompt = critic_text(self.cfg.spec_path, self.cfg.budget_usd, last, turn)
+        prompt = critic_text(
+            self.cfg.spec_path,
+            self.cfg.budget_usd,
+            last,
+            turn,
+            spent_usd=self._cost(),
+            last_cost_usd=self._last_review_cost,
+        )
         cmd = self._claude_cmd(
             prompt, ["--session-id", critic_id], CRITIC_TOOLS, session.CRITIC_SETTINGS_FILE
         )
@@ -458,14 +467,15 @@ class ContenderRun:
         if end in HARD_STOPS:
             return end  # type: ignore[return-value]  # every hard stop is a StopReason
         review = parse_review(verdict_path, turn, last)
+        # This critic session alone (it has its own Nexus session ID).
+        self._last_review_cost = self._spend.cost.get(critic_id, 0.0)
         self._append_jsonl(
             "reviews.jsonl",
             {
                 "turn": turn,
                 "end": end,
                 "cost_usd": self._cost(),
-                # This critic session alone (it has its own Nexus session ID).
-                "review_cost_usd": round(self._spend.cost.get(critic_id, 0.0), 6),
+                "review_cost_usd": round(self._last_review_cost, 6),
                 "review_seconds": round(time.time() - self._review_started, 1),
                 "critic_shots": kept,
             }
@@ -759,7 +769,12 @@ def nudge_text(notes: str, spent_usd: float, budget_usd: float) -> str:
 
 
 def critic_text(
-    spec_path: Path, budget_usd: float, last: Review | None = None, turn: int = 1
+    spec_path: Path,
+    budget_usd: float,
+    last: Review | None = None,
+    turn: int = 1,
+    spent_usd: float = 0.0,
+    last_cost_usd: float | None = None,
 ) -> str:
     """The critic's prompt: the locked critic template around the game brief.
 
@@ -769,11 +784,17 @@ def critic_text(
     v15 critics re-raised the same camera note for seven rounds and flipped heat
     from "too easy" to "never falls" because none knew what the last one said.
 
+    It also tells the critic what the side has spent and what the last review
+    cost, because reviews come out of the same budget as the build: in v12 and
+    v15 critics took 35-66% of each side's spend.
+
     Args:
         spec_path: markdown game spec
         budget_usd: the per-contender budget
         last: the latest parsed review, or None before the first one
         turn: the builder turn this critic reviews
+        spent_usd: the side's spend so far, builder and critics, per Nexus
+        last_cost_usd: what the last review cost, or None before the first one
 
     Returns:
         the critic's full prompt
@@ -788,9 +809,17 @@ def critic_text(
             f"It judged Tier {last.tier}. Its route:\n\n{last.route.strip() or '(none given)'}"
             f"\n\nIts notes:\n\n{ledger or '(none)'}"
         )
+    last_cost = (
+        "This is the first review."
+        if last_cost_usd is None
+        else f"The last review cost {usd(last_cost_usd)}."
+    )
     template = (PROMPTS_DIR / "critic.md").read_text()
     return (
         template.replace("{turn}", str(turn))
+        .replace("{spent}", usd(spent_usd))
+        .replace("{budget}", usd(budget_usd))
+        .replace("{last_cost}", last_cost)
         .replace("{last_review}", last_review)
         .replace("{brief}", brief_text(spec_path, budget_usd))
     )

@@ -1,5 +1,7 @@
 You are reviewing a browser game that another session of you is building in this folder, from the brief below. You did not build it and you cannot change it: never edit, create or delete project files. The only files you write are your screenshots and your verdict, under `tools/shots/`. This is the review of turn {turn}.
 
+Your review is paid from the same budget as the build. Of the {budget}, {spent} is spent so far, builder and critics together. {last_cost} Every dollar you spend is one the builder can't. Spend first on the regression check and on the highest tier the game claims, and explore beyond that only as far as it's worth.
+
 The game is already built in `dist/`. Play it with `tools/screenshot --no-build` (run `tools/screenshot --help` first). `--hold KEY:MS` holds a key, for example `--hold w:2000` to move forward, and `--out tools/shots/NAME.png` saves a shot under its own name. Open every PNG with the Read tool and look at it closely. To check that something animates (a walk cycle, a gesture), take two shots a moment apart in one command, for example `--wait 300 --shot a --wait 300 --shot b`, and compare them. Read the source only to understand what you see and which keys do what, and to check sound, which screenshots can't capture.
 
 Start from what's already known. `DONE.md` is the builder's walkthrough: the keys and route that reach each tier from a fresh load, and what changed this turn. The last review left this:

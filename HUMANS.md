@@ -138,6 +138,8 @@ There's no nudge limit. In the $25 dry runs, both models called their games done
 
 **Each critic settles the last one's notes.** In the `prompt-v15` race, critics still couldn't see what the last one said. One told Kimi heat was too easy to lose, Kimi made it harder, and the next critic found heat never fell and dropped the tier from 4 to 1. The same blocked-camera note came up in all seven reviews, and nothing marked it as a repeat. Now every note has an id and a status. Each critic gets the last review's notes, lists the ones it saw fixed, carries the rest forward as open or regressed, and quotes the line of the brief each note is measured against. Regressions go to the top, and a tier only counts while nothing below it has regressed. Once a build holds Tier 4, the critic asks for ambition (a new system, deeper company building, a better heist) and keeps look and polish to its top three notes, so the rest of the budget goes to making the game more itself instead of an endless polish list.
 
+**Critics pay from the same $100, and now they know it.** Review spend always counted toward each side's budget, but critics weren't told. They were taking 35–66% of each side's spend: Opus reviews cost $13–36 each, Kimi's $1–13. Now each critic sees the side's spend so far and what the last review cost, and is told to spend first on the regression check and the highest tier.
+
 **Keep it honest.** Nexus is a Fireworks tool, and Kimi runs on Fireworks. The referee's numbers come from list prices with a cited source (`docs.fireworks.ai/serverless/pricing` for Kimi), and every raw transcript is kept, so anyone can recompute the spend. The budget check runs every 15 seconds, so a run can end slightly over $100. In tests the overshoot was $0.01 to $0.05.
 
 **Keep it honest.** For now, the Claude side bills through a Claude login. For a clean "$100 at list price" comparison, Nexus needs an Anthropic API key, and that's an open item before the full race.
@@ -251,7 +253,7 @@ uv run buildoff play kimi --race-id my-race
 
 ## **Results**
 
-_A first $100 race ran on an earlier prompt and showed the problems fixed above: critics flipping tiers, a bland look, and software rendering. Its results don't count, since the prompt changed. A second race, on `prompt-v15`, was stopped early to fix the critic loop described above. This section will hold the `prompt-v16` race: the tier each model reached, time to first playable build, total spend and output speed, the blind judging, and the before/after screenshots._
+_A first $100 race ran on an earlier prompt and showed the problems fixed above: critics flipping tiers, a bland look, and software rendering. Its results don't count, since the prompt changed. A second race, on `prompt-v15`, was stopped early to fix the critic loop described above. This section will hold the `prompt-v17` race: the tier each model reached, time to first playable build, total spend and output speed, the blind judging, and the before/after screenshots._
 
 ## **Try it yourself**
 
@@ -270,7 +272,7 @@ So the harness isn't a variable. Nexus points Claude Code at Fireworks, and both
 It doesn't know Kimi's prices and falls back to a default rate. In testing it reported $0.060 for a call that costs $0.030 at Kimi K3.1 Pro's list price ($2 per million input tokens, $10 per million output). `nexus claude usage --json` prices each row at the provider's list rate.
 
 ### **Can I change the prompt?**
-Not for a comparable race. The game specs, `run_rules.md`, `critic.md` and `nudge.md` are frozen at git tag `prompt-v16`. Edit them for your own experiments, but tag the new version, because results across prompt versions aren't comparable.
+Not for a comparable race. The game specs, `run_rules.md`, `critic.md` and `nudge.md` are frozen at git tag `prompt-v17`. Edit them for your own experiments, but tag the new version, because results across prompt versions aren't comparable.
 
 ### **Can I rebuild the assets myself?**
 Yes. The code that builds the dataset lives in the dataset, under `build/`, and its card's [Recreate the assets](https://huggingface.co/datasets/harpreetsahota/grand-theft-gpu-assets#recreate-the-assets) section lists every step. You only need Blender for the USDCraft props. Races don't need any of it: they download the finished files at a pinned revision.

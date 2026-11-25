@@ -245,3 +245,15 @@ def test_no_critic_shots_makes_no_folder(tmp_path: Path) -> None:
     dest = tmp_path / "shots" / "critic-001"
     assert runner.keep_critic_shots(tmp_path / "ws", dest, since=0) == []
     assert not dest.exists()
+
+
+def test_critic_is_told_the_spend_and_the_last_reviews_cost(tmp_path: Path) -> None:
+    """Reviews come out of the build's budget, so the critic sees both figures."""
+    spec = tmp_path / "spec.md"
+    spec.write_text("brief")
+    first = runner.critic_text(spec, 100.0, spent_usd=12.403)
+    assert "Of the $100, $12.40 is spent so far" in first
+    assert "This is the first review." in first
+    later = runner.critic_text(spec, 100.0, spent_usd=40.0, last_cost_usd=8.5)
+    assert "The last review cost $8.50." in later
+    assert not any(p in later for p in ("{spent}", "{budget}", "{last_cost}", "{turn}"))
