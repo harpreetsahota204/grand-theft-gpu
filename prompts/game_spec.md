@@ -63,7 +63,10 @@ San Silicon should look like satire you can see: fog rolling over the hills, gol
 
 It should feel like a game, with a HUD, sound, feedback and some juice, not a tech demo.
 
-The assets are scaffolding, not the finished look. Don't drop them in as they come: make them yours. Retexture, recolor, relight, swap materials, add post-processing, combine and rebuild them until San Silicon looks like nothing else. Aim for amazing, not acceptable.
+The assets are scaffolding, not the finished look. Don't drop them in as they come: make them yours. Retexture, recolor, relight, swap materials, add post-processing, combine and rebuild them until San Silicon looks like nothing else. Aim for amazing, not acceptable. Three things separate a finished game from a demo:
+- **Grounded and clean.** People, cars and props cast visible shadows onto the street wherever the player goes, so nothing floats. Glass and car paint reflect the sky. Edges stay crisp, without jagged aliasing. Day reads clearly different from night, and night lights illuminate the street without blowing out to pure white.
+- **Readable at speed.** Keep streets and background buildings calmer in value, so your founder, the GPUs, vehicles and pursuers stand out at gameplay distance.
+- **A HUD built for this game.** Style it to match San Silicon's satire and keep it uncluttered: no overlapping bars, and no stack of generic dark translucent cards.
 
 A finished street in San Silicon looks like this, with the assets that get you there:
 - **Roads look like roads:** asphalt with lane markings (the `ambientcg-textures/Road…` and `Asphalt…` materials), not flat grey.

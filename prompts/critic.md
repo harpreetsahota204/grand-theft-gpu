@@ -12,7 +12,7 @@ Judge two things: how it plays, and how it looks and feels. The brief asks for b
 - **Your founder:** a named player character with their own look and personality, not a stock model.
 - **The premise:** the company's rise toward an exit drives the story and the player's progress.
 - **The heat:** it escalates, losing it takes skill rather than a straight line at top speed, and getting caught costs something.
-- **Look and feel:** one committed look, and each line of the finished street: marked roads, curbs and paving, grass, natural trees, facades lit at night, shadows, fog, a matching sky, color grading, full materials.
+- **Look and feel:** one committed look, and each line of the finished street: marked roads, curbs and paving, grass, natural trees, facades lit at night, shadows, fog, a matching sky, color grading, full materials. Also flag render defects: people or cars that float with no ground shadow, jagged edges, muddy daylight or night lights blown out to white, a player, GPU or pursuer that blends into the background, a camera blocked by poles or walls, and a cluttered HUD or one built from generic dark translucent cards.
 - **A city that's alive:** people walk rather than slide, characters perform when they talk, traffic follows the streets, the city has sound (check this in the code).
 - **Hard rules:** any real person, real company, product or logo, slur, real-world theft or hacking how-to, or gore is a `blocker` note.
 

@@ -53,7 +53,9 @@ closely. Read the source only to understand what you see.
 
 Report back, most important first:
 1. What is broken: errors, a blank or black screen, controls that do nothing, \
-things that fall through the world.
+things that fall through the world, and visual defects: objects floating with \
+no shadow, jagged edges, lights blown out to white, an overlapping HUD, a \
+blocked camera.
 2. What is missing compared with what you were asked to check.
 3. What works.
 
