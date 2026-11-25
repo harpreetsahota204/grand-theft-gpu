@@ -1,0 +1,839 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Grand Theft GPU — Blind Play &amp; Vote Arena</title>
+    <style>
+      :root {
+        --bg: #0b0e14;
+        --panel: #131823;
+        --panel-2: #1a2130;
+        --border: #263044;
+        --text: #eef2f8;
+        --muted: #93a1b8;
+        --accent: #f5b942;
+        --accent-ink: #111318;
+        --ok: #3ad29f;
+        --a-color: #5ea3ff;
+        --b-color: #f472b6;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: var(--bg);
+        color: var(--text);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        overflow: hidden;
+      }
+
+      .shell {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+      }
+
+      .topbar {
+        height: 58px;
+        flex: 0 0 58px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 0 16px;
+        background: var(--panel);
+        border-bottom: 1px solid var(--border);
+      }
+
+      .brand {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        white-space: nowrap;
+      }
+
+      .brand strong {
+        font-size: 15px;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .brand span {
+        font-size: 12px;
+        color: var(--accent);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .tabs {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .tab-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 14px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--panel-2);
+        color: var(--text);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: border-color 0.15s, background 0.15s;
+      }
+
+      .tab-btn:hover {
+        border-color: #445677;
+      }
+
+      .tab-btn.active[data-slot="a"] {
+        border-color: var(--a-color);
+        background: rgba(94, 163, 255, 0.14);
+      }
+
+      .tab-btn.active[data-slot="b"] {
+        border-color: var(--b-color);
+        background: rgba(244, 114, 182, 0.14);
+      }
+
+      .timer-pill {
+        font-variant-numeric: tabular-nums;
+        font-size: 11px;
+        padding: 2px 7px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--muted);
+      }
+
+      .timer-pill.done {
+        background: rgba(58, 210, 159, 0.18);
+        color: var(--ok);
+      }
+
+      .actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .vote-cta {
+        padding: 9px 16px;
+        border-radius: 8px;
+        border: none;
+        background: var(--accent);
+        color: var(--accent-ink);
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .vote-cta:disabled {
+        background: #2b3344;
+        color: var(--muted);
+        cursor: not-allowed;
+      }
+
+      .stage {
+        position: relative;
+        flex: 1;
+        background: #05070c;
+      }
+
+      .privacy-note {
+        flex: 0 0 auto;
+        padding: 4px 16px;
+        font-size: 11px;
+        color: var(--muted);
+        background: var(--panel);
+        border-top: 1px solid var(--border);
+      }
+
+      iframe#game-frame {
+        width: 100%;
+        height: 100%;
+        border: none;
+        display: block;
+      }
+
+      .banner {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        padding: 24px;
+        text-align: center;
+        background: var(--bg);
+      }
+
+      .banner code {
+        padding: 8px 12px;
+        border-radius: 6px;
+        background: var(--panel-2);
+        border: 1px solid var(--border);
+        color: var(--accent);
+        font-size: 13px;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(5, 7, 12, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+        z-index: 50;
+      }
+
+      .modal {
+        width: 100%;
+        max-width: 560px;
+        max-height: 90vh;
+        overflow-y: auto;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 22px;
+      }
+
+      .modal-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 14px;
+      }
+
+      .modal-head h2 {
+        margin: 0;
+        font-size: 18px;
+      }
+
+      .close-btn {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--muted);
+        border-radius: 6px;
+        padding: 4px 10px;
+        cursor: pointer;
+      }
+
+      .subcopy {
+        margin: 0 0 18px;
+        font-size: 13px;
+        color: var(--muted);
+        line-height: 1.45;
+      }
+
+      .question-row {
+        margin-bottom: 14px;
+        padding: 12px;
+        border-radius: 10px;
+        background: var(--panel-2);
+        border: 1px solid var(--border);
+      }
+
+      .question-label {
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+
+      .choice-group {
+        display: grid;
+        grid-template-columns: 1fr 0.75fr 1fr;
+        gap: 8px;
+      }
+
+      .choice-btn {
+        padding: 8px 10px;
+        border-radius: 7px;
+        border: 1px solid var(--border);
+        background: var(--panel);
+        color: var(--text);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .choice-btn.selected[data-val="a"] {
+        border-color: var(--a-color);
+        background: rgba(94, 163, 255, 0.22);
+      }
+
+      .choice-btn.selected[data-val="tie"] {
+        border-color: var(--accent);
+        background: rgba(245, 185, 66, 0.22);
+      }
+
+      .choice-btn.selected[data-val="b"] {
+        border-color: var(--b-color);
+        background: rgba(244, 114, 182, 0.22);
+      }
+
+      .error-msg {
+        color: #ff7b7b;
+        font-size: 13px;
+        margin: 8px 0;
+      }
+
+      .submit-row {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 16px;
+      }
+
+      .reveal-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+
+      .reveal-card {
+        padding: 12px;
+        border-radius: 10px;
+        background: var(--panel-2);
+        border: 1px solid var(--border);
+      }
+
+      .reveal-card small {
+        display: block;
+        color: var(--muted);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .reveal-card strong {
+        font-size: 16px;
+      }
+
+      .tally-item {
+        margin-bottom: 12px;
+      }
+
+      .tally-head {
+        display: flex;
+        justify-content: space-between;
+        font-size: 13px;
+        margin-bottom: 5px;
+      }
+
+      .tally-bar {
+        display: flex;
+        height: 10px;
+        border-radius: 999px;
+        overflow: hidden;
+        background: var(--panel-2);
+      }
+
+      .tally-seg-kimi {
+        background: var(--a-color);
+      }
+
+      .tally-seg-tie {
+        background: #64748b;
+      }
+
+      .tally-seg-opus {
+        background: var(--b-color);
+      }
+
+      .secondary-btn {
+        padding: 9px 14px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--panel-2);
+        color: var(--text);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <header class="topbar">
+        <div class="brand">
+          <strong>Grand Theft GPU</strong>
+          <span>Blind Arena</span>
+        </div>
+
+        <nav class="tabs" aria-label="Mystery game builds">
+          <button id="tab-a" class="tab-btn active" data-slot="a" type="button">
+            Build A
+            <span id="timer-a" class="timer-pill">0:00</span>
+          </button>
+          <button id="tab-b" class="tab-btn" data-slot="b" type="button">
+            Build B
+            <span id="timer-b" class="timer-pill">0:00</span>
+          </button>
+        </nav>
+
+        <div class="actions">
+          <button id="vote-cta" class="vote-cta" type="button" disabled>
+            Play both to vote
+          </button>
+        </div>
+      </header>
+
+      <main class="stage">
+        <iframe
+          id="game-frame"
+          title="Grand Theft GPU mystery build"
+          allow="pointer-lock; fullscreen; autoplay"
+        ></iframe>
+
+        <div id="setup-banner" class="banner hidden">
+          <h2>No builds packaged yet</h2>
+          <p class="subcopy">
+            Run the packager from your repo root to prepare opaque Build A &amp; Build B bundles:
+          </p>
+          <code>uv run python arena/prepare.py --race-id v15-full-100usd-001 --link-local-assets</code>
+        </div>
+      </main>
+      <footer class="privacy-note">
+        To study how people play, we log your play time and which keys and mouse buttons you press
+        inside each game, with timestamps. Nothing you type outside the games is recorded, and your
+        IP address is kept only as a one-way hash to limit repeat votes.
+      </footer>
+    </div>
+
+    <div id="vote-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+      <div class="modal">
+        <div class="modal-head">
+          <h2 id="modal-title">Cast Your Blind Vote</h2>
+          <button id="close-modal" class="close-btn" type="button">Close</button>
+        </div>
+
+        <div id="ballot-view">
+          <p class="subcopy">
+            Pick Build A, Build B, or Tie on all four questions. Model identities are randomized per
+            visitor and revealed right after you submit.
+          </p>
+          <div id="questions-container"></div>
+          <div id="vote-error" class="error-msg hidden"></div>
+          <div class="submit-row">
+            <button id="submit-vote" class="vote-cta" type="button" disabled>
+              Submit &amp; Reveal Models
+            </button>
+          </div>
+        </div>
+
+        <div id="reveal-view" class="hidden">
+          <div id="reveal-body"></div>
+          <div class="submit-row">
+            <button id="copy-share" class="secondary-btn" type="button">Copy Share Text</button>
+            <button id="done-reveal" class="vote-cta" type="button">Keep Playing</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const QUESTION_META = [
+        { key: "plays_better", label: "1. Plays better (controls, driving, chase, missions)" },
+        { key: "looks_better", label: "2. Looks better (city, lighting, atmosphere, HUD)" },
+        { key: "better_main_character", label: "3. Better main character (look, vibe, animation)" },
+        { key: "overall", label: "4. Overall winner" },
+      ];
+
+      const TOKEN_KEY = "gtgpu_arena_token";
+      const HEARTBEAT_INTERVAL_MS = 15000;
+
+      const state = {
+        slot: "a",
+        token: "",
+        buildsReady: false,
+        minPlaySeconds: 60,
+        playSeconds: { a: 0, b: 0 },
+        unflushedSeconds: 0,
+        voted: false,
+        canVote: false,
+        reveal: null,
+        picks: {},
+      };
+
+      function readStoredToken() {
+        try {
+          return localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY) || "";
+        } catch (_err) {
+          return "";
+        }
+      }
+
+      function saveStoredToken(token) {
+        if (!token) return;
+        state.token = token;
+        try {
+          localStorage.setItem(TOKEN_KEY, token);
+          sessionStorage.setItem(TOKEN_KEY, token);
+        } catch (_err) {
+          // Storage can be disabled inside strict cross-site iframes; in-memory state still works.
+        }
+      }
+
+      function apiHeaders(extra = {}) {
+        const headers = { ...extra };
+        if (state.token) {
+          headers["X-Arena-Token"] = state.token;
+        }
+        return headers;
+      }
+
+      const frame = document.getElementById("game-frame");
+      const setupBanner = document.getElementById("setup-banner");
+      const tabA = document.getElementById("tab-a");
+      const tabB = document.getElementById("tab-b");
+      const timerA = document.getElementById("timer-a");
+      const timerB = document.getElementById("timer-b");
+      const voteCta = document.getElementById("vote-cta");
+      const voteModal = document.getElementById("vote-modal");
+      const modalTitle = document.getElementById("modal-title");
+      const ballotView = document.getElementById("ballot-view");
+      const revealView = document.getElementById("reveal-view");
+      const revealBody = document.getElementById("reveal-body");
+      const questionsContainer = document.getElementById("questions-container");
+      const submitVoteBtn = document.getElementById("submit-vote");
+      const voteError = document.getElementById("vote-error");
+      const copyShareBtn = document.getElementById("copy-share");
+
+      function esc(str) {
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function fmtSeconds(sec) {
+        const whole = Math.max(0, Math.floor(sec));
+        const m = Math.floor(whole / 60);
+        const s = String(whole % 60).padStart(2, "0");
+        return `${m}:${s}`;
+      }
+
+      function fmtTimer(played, goal, done) {
+        return done ? `${fmtSeconds(played)} ✓` : `${fmtSeconds(played)} / ${fmtSeconds(goal)}`;
+      }
+
+      function renderTopbar() {
+        tabA.classList.toggle("active", state.slot === "a");
+        tabB.classList.toggle("active", state.slot === "b");
+
+        const goal = Math.ceil(state.minPlaySeconds);
+        const aDone = state.playSeconds.a >= state.minPlaySeconds;
+        const bDone = state.playSeconds.b >= state.minPlaySeconds;
+
+        timerA.textContent = fmtTimer(state.playSeconds.a, goal, aDone);
+        timerB.textContent = fmtTimer(state.playSeconds.b, goal, bDone);
+        timerA.classList.toggle("done", aDone);
+        timerB.classList.toggle("done", bDone);
+
+        if (!state.buildsReady) {
+          voteCta.disabled = true;
+          voteCta.textContent = "Builds not ready";
+          return;
+        }
+        if (state.voted) {
+          voteCta.disabled = false;
+          voteCta.textContent = state.reveal ? "View Reveal & Tally" : "Vote Recorded ✓";
+          return;
+        }
+        if (state.canVote) {
+          voteCta.disabled = false;
+          voteCta.textContent = "Cast Blind Vote";
+          return;
+        }
+        const remA = Math.max(0, Math.ceil(state.minPlaySeconds - state.playSeconds.a));
+        const remB = Math.max(0, Math.ceil(state.minPlaySeconds - state.playSeconds.b));
+        voteCta.disabled = true;
+        voteCta.textContent = `Play A (${remA}s) & B (${remB}s) to vote`;
+      }
+
+      function loadSlot(slot) {
+        if (slot !== state.slot && state.unflushedSeconds >= 1) {
+          sendHeartbeat(state.slot, state.unflushedSeconds);
+        }
+        state.slot = slot;
+        if (state.buildsReady) {
+          frame.src = state.token ? `/s/${state.token}/play/${slot}/` : `/play/${slot}/`;
+        }
+        renderTopbar();
+      }
+
+      function buildBallotUI() {
+        questionsContainer.innerHTML = "";
+        for (const q of QUESTION_META) {
+          const row = document.createElement("div");
+          row.className = "question-row";
+          const label = document.createElement("div");
+          label.className = "question-label";
+          label.textContent = q.label;
+
+          const group = document.createElement("div");
+          group.className = "choice-group";
+          for (const opt of [
+            { val: "a", text: "Build A" },
+            { val: "tie", text: "Tie" },
+            { val: "b", text: "Build B" },
+          ]) {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "choice-btn";
+            btn.dataset.val = opt.val;
+            btn.textContent = opt.text;
+            btn.addEventListener("click", () => {
+              state.picks[q.key] = opt.val;
+              for (const sibling of group.children) {
+                sibling.classList.toggle("selected", sibling === btn);
+              }
+              updateSubmitState();
+            });
+            group.appendChild(btn);
+          }
+
+          row.appendChild(label);
+          row.appendChild(group);
+          questionsContainer.appendChild(row);
+        }
+        updateSubmitState();
+      }
+
+      function updateSubmitState() {
+        const allPicked = QUESTION_META.every((q) => Boolean(state.picks[q.key]));
+        submitVoteBtn.disabled = !allPicked;
+      }
+
+      function renderReveal(reveal) {
+        modalTitle.textContent = "Blind Reveal";
+        ballotView.classList.add("hidden");
+        revealView.classList.remove("hidden");
+
+        if (!reveal) {
+          revealBody.innerHTML =
+            '<p class="subcopy">Your blind ballot has been saved. Model identities and community tallies will unlock at launch.</p>';
+          copyShareBtn.classList.add("hidden");
+          return;
+        }
+
+        copyShareBtn.classList.remove("hidden");
+        const labels = reveal.labels || {};
+        const tallies = reveal.tallies || { total_ballots: 0, questions: {} };
+        const overallPick = reveal.contender_picks.overall;
+        const overallName = overallPick === "tie" ? "Tie" : labels[overallPick] || overallPick;
+
+        let html = `
+          <p class="subcopy">You picked <strong>${esc(overallName)}</strong> overall (out of ${tallies.total_ballots} blind ballots).</p>
+          <div class="reveal-grid">
+            <div class="reveal-card"><small>Build A was</small><strong>${esc(reveal.a_label)}</strong></div>
+            <div class="reveal-card"><small>Build B was</small><strong>${esc(reveal.b_label)}</strong></div>
+          </div>
+        `;
+
+        for (const q of QUESTION_META) {
+          const qt = tallies.questions[q.key] || { counts: {}, total: 0 };
+          const total = qt.total || 1;
+          const kCount = qt.counts.kimi || 0;
+          const oCount = qt.counts.opus || 0;
+          const tCount = qt.counts.tie || 0;
+          const kPct = Math.round((kCount / total) * 100);
+          const tPct = Math.round((tCount / total) * 100);
+          const oPct = qt.total ? Math.max(0, 100 - kPct - tPct) : 0;
+          const yourKey = reveal.contender_picks[q.key];
+          const yourLabel = yourKey === "tie" ? "Tie" : labels[yourKey] || yourKey;
+
+          html += `
+            <div class="tally-item">
+              <div class="tally-head">
+                <span>${esc(q.label)}</span>
+                <span>You: <strong>${esc(yourLabel)}</strong></span>
+              </div>
+              <div class="tally-bar">
+                <div class="tally-seg-kimi" style="width:${kPct}%" title="Kimi ${kPct}%"></div>
+                <div class="tally-seg-tie" style="width:${tPct}%" title="Tie ${tPct}%"></div>
+                <div class="tally-seg-opus" style="width:${oPct}%" title="Opus ${oPct}%"></div>
+              </div>
+              <div class="tally-head" style="margin-top:4px;color:var(--muted);font-size:11px;">
+                <span>${esc(labels.kimi || "Kimi")}: ${kPct}% (${kCount})</span>
+                <span>Tie: ${tPct}% (${tCount})</span>
+                <span>${esc(labels.opus || "Opus")}: ${oPct}% (${oCount})</span>
+              </div>
+            </div>
+          `;
+        }
+        revealBody.innerHTML = html;
+      }
+
+      function openModal() {
+        voteError.classList.add("hidden");
+        if (state.voted) {
+          renderReveal(state.reveal);
+        } else {
+          modalTitle.textContent = "Cast Your Blind Vote";
+          revealView.classList.add("hidden");
+          ballotView.classList.remove("hidden");
+        }
+        voteModal.classList.remove("hidden");
+      }
+
+      function closeModal() {
+        voteModal.classList.add("hidden");
+      }
+
+      async function refreshSession() {
+        state.token = state.token || readStoredToken();
+        const res = await fetch("/api/session", {
+          credentials: "same-origin",
+          headers: apiHeaders(),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          // A 429 (per-network session cap) or 503 must say so, not show the setup banner.
+          setupBanner.querySelector("h2").textContent = "Arena unavailable";
+          setupBanner.querySelector(".subcopy").textContent =
+            data.detail || "Please try again in a little while.";
+          setupBanner.querySelector("code").classList.add("hidden");
+          setupBanner.classList.remove("hidden");
+          frame.classList.add("hidden");
+          voteCta.disabled = true;
+          return;
+        }
+        if (data.token) {
+          saveStoredToken(data.token);
+        }
+        state.buildsReady = Boolean(data.builds_ready);
+        state.minPlaySeconds = Number(data.min_play_seconds || 60);
+        state.playSeconds = data.play_seconds || { a: 0, b: 0 };
+        state.voted = Boolean(data.voted);
+        state.canVote = Boolean(data.can_vote);
+        state.reveal = data.reveal || null;
+
+        setupBanner.classList.toggle("hidden", state.buildsReady);
+        frame.classList.toggle("hidden", !state.buildsReady);
+        if (state.buildsReady && !frame.getAttribute("src")) {
+          loadSlot("a");
+        } else {
+          renderTopbar();
+        }
+      }
+
+      function isActivelyPlaying() {
+        return (
+          state.buildsReady &&
+          !state.voted &&
+          document.visibilityState === "visible" &&
+          voteModal.classList.contains("hidden")
+        );
+      }
+
+      async function sendHeartbeat(slot, seconds) {
+        state.unflushedSeconds = 0;
+        try {
+          const res = await fetch("/api/heartbeat", {
+            method: "POST",
+            credentials: "same-origin",
+            headers: apiHeaders({ "Content-Type": "application/json" }),
+            body: JSON.stringify({ slot, seconds }),
+          });
+          if (!res.ok) return;
+          const data = await res.json();
+          state.playSeconds = data.play_seconds || state.playSeconds;
+          state.canVote = Boolean(data.can_vote);
+          state.voted = Boolean(data.voted);
+          renderTopbar();
+        } catch (_err) {
+          // Transient network hiccups shouldn't interrupt gameplay.
+        }
+      }
+
+      function tickDisplayTimer() {
+        if (!isActivelyPlaying()) return;
+        const prev = state.playSeconds[state.slot];
+        state.playSeconds[state.slot] = prev + 1;
+        state.unflushedSeconds += 1;
+        renderTopbar();
+        // Flush promptly when crossing the play-time threshold so the Vote button unlocks cleanly.
+        const crossedGoal = prev < state.minPlaySeconds && state.playSeconds[state.slot] >= state.minPlaySeconds;
+        if (crossedGoal || state.unflushedSeconds >= HEARTBEAT_INTERVAL_MS / 1000) {
+          sendHeartbeat(state.slot, state.unflushedSeconds);
+        }
+      }
+
+      submitVoteBtn.addEventListener("click", async () => {
+        voteError.classList.add("hidden");
+        submitVoteBtn.disabled = true;
+        try {
+          const res = await fetch("/api/vote", {
+            method: "POST",
+            credentials: "same-origin",
+            headers: apiHeaders({ "Content-Type": "application/json" }),
+            body: JSON.stringify(state.picks),
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            voteError.textContent = data.detail || "Could not record vote.";
+            voteError.classList.remove("hidden");
+            updateSubmitState();
+            return;
+          }
+          state.voted = true;
+          state.canVote = false;
+          state.reveal = data.reveal || null;
+          renderTopbar();
+          renderReveal(state.reveal);
+        } catch (_err) {
+          voteError.textContent = "Network error while submitting vote. Please retry.";
+          voteError.classList.remove("hidden");
+          updateSubmitState();
+        }
+      });
+
+      copyShareBtn.addEventListener("click", async () => {
+        if (!state.reveal) return;
+        const labels = state.reveal.labels || {};
+        const overall = state.reveal.contender_picks.overall;
+        const winner = overall === "tie" ? "a tie" : labels[overall] || overall;
+        const text =
+          `I just played both $100 AI-built Grand Theft GPU games blind and picked ${winner} overall. Try both & vote before seeing who built which: ${location.origin}`;
+        try {
+          await navigator.clipboard.writeText(text);
+          copyShareBtn.textContent = "Copied ✓";
+          setTimeout(() => (copyShareBtn.textContent = "Copy Share Text"), 2000);
+        } catch (_err) {
+          copyShareBtn.textContent = "Copy failed";
+        }
+      });
+
+      tabA.addEventListener("click", () => loadSlot("a"));
+      tabB.addEventListener("click", () => loadSlot("b"));
+      voteCta.addEventListener("click", openModal);
+      document.getElementById("close-modal").addEventListener("click", closeModal);
+      document.getElementById("done-reveal").addEventListener("click", closeModal);
+
+      buildBallotUI();
+      refreshSession();
+      setInterval(tickDisplayTimer, 1000);
+    </script>
+  </body>
+</html>

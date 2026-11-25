@@ -18,3 +18,8 @@ assets/*
 # Local research write-ups behind harness decisions: not published
 reports/
 research_notes/
+
+# Blind arena runtime artifacts: packaged game bundles and local vote DB
+arena/builds/
+arena/data/
+

@@ -31,7 +31,7 @@ Requires macOS (`sandbox-exec`), Claude Code 2.1.281+, the Nexus CLI logged in a
 
 | Command | What it does | Cost |
 |---|---|---|
-| `uv run pytest` | Local tests: critic parsing, review trace, meter, sandbox, Stop hook, settings parity, evidence, asset lookup | free, ~2 s |
+| `uv run pytest` | Local tests: critic parsing, review trace, meter, sandbox, Stop hook, settings parity, evidence, asset lookup, blind arena | free, ~2 s |
 | `uv run buildoff doctor` | Checks prerequisites | free |
 | `uv run buildoff smoke` | End to end: both models add a floating GPU, then one critic review each | ~$2–4 |
 | `uv run buildoff race --budget N --yes [--pack full\|primitives] [--viewers]` | A race on that pack's locked spec (races use `full`; `primitives` is kept but unused); `--viewers` opens a live Terminal window per model | up to $N per model |
@@ -40,6 +40,7 @@ Requires macOS (`sandbox-exec`), Claude Code 2.1.281+, the Nexus CLI logged in a
 | `uv run buildoff play <kimi\|opus> [--race-id ID]` | Serves a contender's latest build on localhost | free |
 | `uv run buildoff stop [race-id]` | Aborts a race cleanly and kills any orphaned session | free |
 | `uv run buildoff fetch <id ...> \| --core \| --pattern G` | Downloads assets from the pinned Hugging Face revision | free |
+| `uv run python arena/prepare.py --race-id ID` | Packages a race's two final builds into opaque folders for the blind arena Space and scans them for identity leaks (`arena/README.md` covers running and deploying) | free |
 | `node <workspace>/tools/assets.mjs search police car` | Searches the catalog with the models' own tool (in any full-pack race workspace) | free |
 
 Races take hours. Launch them detached and check in with `status` and `reviews`. The harness keeps the Mac awake by itself (keep it plugged in, lid open):
@@ -78,12 +79,13 @@ A healthy smoke run shows `declared_done`, `playable: true` on every turn, a par
 | `harness/fetch.py`, `assets/catalog.json` | Downloads assets at the pinned dataset revision; the index the models search with `tools/assets.mjs` |
 | `scoring/checklist.md` | The locked scoring rubric (tag `scoring-v2`): per-tier pass/fail items on runtime evidence, blind pairwise judging, headline rules. Never shown to the models |
 | `prompts/` | The locked game specs, run rules, critic prompt and nudge template; `smoke_spec.md` |
+| `arena/` | The public blind play-and-vote Space: `app.py` (FastAPI routes), `blind.py` (signed A/B tokens, asset shim, input logger), `storage.py` (votes, play time, input logs, Hub sync), `prepare.py` (packages builds) |
 | `tests/` | The local test suite |
 
 ## Code conventions
 
 - Google-style docstrings and full type hints on every function; comments explain *why*.
-- `uv run ruff check harness tests`, `uv run ruff format harness tests` and `uv run pytest` must pass.
+- `uv run ruff check harness arena tests`, `uv run ruff format harness arena tests` and `uv run pytest` must pass.
 - Verify harness changes with the tests first, then `buildoff smoke`.
 - Keep the docs current in the same change. If you have `AGENT_ONBOARDING.md`, it describes the present: rewrite its rows, don't append history.
 
