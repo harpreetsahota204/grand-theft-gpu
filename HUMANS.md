@@ -14,7 +14,7 @@ The prompt was the easy part. The hard part is making sure the model is the only
 
 * Both models run headless in Claude Code with identical flags, tools, files and settings. The only difference is the model: `kimi-k3p1-pro` (Kimi K3.1 Pro, routed to Fireworks by Nexus) or `claude-opus-5-5` (Claude Opus 5.5).
 * Spend is metered by `nexus claude usage`, not by Claude Code. In testing, Claude Code priced a Kimi call at $0.060, while list price for the same tokens was $0.030.
-* Each model starts from a working three.js game pinned to one commit, plus about 1,300 ready-made assets (or, in the primitives race, only the GPU it has to steal).
+* Each model starts from a working three.js game pinned to one commit, plus about 1,300 ready-made assets.
 * A run keeps going until the $100 runs out. After every turn, a critic (a fresh copy of the same model that didn't build the game) plays it and tells the builder what to fix next. The critic's verdict never ends the run and never counts as the score: the builds are scored afterwards against a checklist we locked before the race. A watchdog kills it early if any other model shows up in its usage.
 * Every turn leaves a git commit, a build result and a gameplay screenshot, every review keeps the critic's own screenshots and notes, and every transcript line is timestamped, so the race video can be cut from the logs.
 * The whole setup is reproducible: `uv sync`, `uv run buildoff doctor`, then `uv run buildoff smoke` for a few dollars.
@@ -25,7 +25,7 @@ The game is **Grand Theft GPU**. It's a third-person heist game set in **San Sil
 
 The cast comes straight out of a tech Twitter thread: VCs, hype beasts, grifters, anon accounts, founders, doomers, reply guys. They're archetypes, never real people, and the brands are parodies too. The robotaxi is "the one with the spinning roof sensor," never a named company.
 
-The prompt gives the models a world to play in and leaves the story to them. Raising money from VCs, poaching engineers, honeypot spies, doomers arguing with boomers, billboards for AI insurance startups: all of it is offered as inspiration, and none of it is required.
+The prompt gives the models a world to play in and leaves the story to them. The GPU shortage, VCs who want a board seat, big labs shipping your startup as a feature, recruiters poaching your engineers, honeypot spies, doomers arguing with boomers, billboards for AI insurance startups: all of it is offered as inspiration, and none of it is required.
 
 What *is* required, in every build:
 
@@ -33,6 +33,8 @@ What *is* required, in every build:
 2. **Drive a car.** Get in, drive, get out.
 3. **Talk to an archetype.** At least one character who speaks in their own voice.
 4. **Get chased.** A pursuer, with heat that rises and falls.
+
+The prompt also asks for a founder worth playing: a name, a designed look, and real walk and run animation. And it says what a finished street looks like, because in the first $100 race both games looked bland. Neither model used the road, grass or facade textures we gave them, and nothing in the prompt told them to. Now the prompt lists the outcomes: lane markings, curbs, grass, natural trees, facades that light up at night, shadows wherever you go so nothing floats, crisp edges, night lights that don't blow out to white, and a HUD built for this game instead of a stack of generic dark cards. It names the assets for each, and the critic checks each one. It never says how to code any of it.
 
 ## **How do you score a game nobody has seen yet?**
 
@@ -65,26 +67,17 @@ Starting from an empty folder would turn the race into "who sets up three.js fas
   * **The loot:** a CC0 graphics card from [Grab3D](https://grab3d.com/models/electronics/graphics-card/) with animatable fans and RGB strips.
   * **Looks and sound:** 8 HDRI skies and 16 PBR textures from [Poly Haven](https://polyhaven.com), 20 materials from [ambientCG](https://ambientcg.com) (office facades in day/night pairs, the night ones with lit windows), all CC0; 8 trees and palms (CC-BY 3.0, every artist credited); engine, tire, alarm and footstep sounds from OpenGameArt (CC0 and CC-BY 3.0) plus police and ambulance sirens, crashes, a horn and downtown traffic from Freesound (CC0); Kenney impact and UI sounds and particle sprites (CC0); and four OFL fonts for the HUD. The SF city's walls, roofs and roads have UVs in metres so these textures tile at real scale.
 * **A search tool:** `node tools/assets.mjs search vc` finds business people, `search phone call` finds the phone clips, and so on, so a model never has to dig through 1,300 files. It can also `fetch` optional extras (more detailed people, Meta's parametric body) on demand, at the cost of its own time and budget. It's the only search tool, so it's also the one to use outside a race.
-* **A screenshot tool:** `tools/screenshot` builds the game exactly the way the harness does, plays it in headless Chrome and saves a PNG. In one run it can play a scripted sequence: hold keys, alone or together (`--hold w+d:1500` drives and steers), wait, click, move the camera (`--look 300,0`) and save shots along the way (`--shot NAME`). Each call reloads the game, so before this a critic had to replay a whole mission one key at a time, and couldn't steer while driving. It saves a PNG the model opens with its Read tool. Without it, a model writes 3D code blind. Before adding it, we checked that both Kimi K3.1 Pro (through Nexus) and Opus can read images in Claude Code, so it helps both sides equally.
+* **A screenshot tool:** `tools/screenshot` builds the game exactly the way the harness does, plays it in headless Chrome and saves a PNG. In one run it can play a scripted sequence: hold keys, alone or together (`--hold w+d:1500` drives and steers), wait, click, move the camera (`--look 300,0`) and save shots along the way (`--shot NAME`). Each call reloads the game, so before this a critic had to replay a whole mission one key at a time, and couldn't steer while driving. It saves a PNG the model opens with its Read tool. It renders on the Mac's GPU: the software renderer we started with ran a race build at about 10 frames per second instead of 60, so a scripted "hold W for 3 seconds" drove a different distance every time. Without it, a model writes 3D code blind. Before adding it, we checked that both Kimi K3.1 Pro (through Nexus) and Opus can read images in Claude Code, so it helps both sides equally.
 
 **Keep it honest.** The asset pack had a quiet bug, too. The web converter we mirror from had shrunk every Objaverse vehicle and every tree to about 1 m, and the vehicles faced different ways. A model would have parked a 1-metre fire truck next to 1.8-metre people, or spent its budget rescaling everything. We found it by rendering the pack, then set each model to its real size and the same heading by adding one transform node to each file. The geometry is untouched, and the change is recorded in each folder's `ATTRIBUTION.md`.
 
 **Keep it honest.** The base game had a problem we only found by running it. It commits its own `node_modules`, without execute permissions and built for another OS. In the first smoke test, Kimi quietly spent part of its budget repairing the install, and Opus didn't. The harness now skips that folder and installs from the lockfile (`npm ci`) before the clock starts.
 
-## **Why run the race twice?**
+## **Why only the asset race?**
 
-A rich asset pack makes better-looking games, but it also changes what the race measures. With finished people, cars and a real city handed over, the race mostly tests integration and game design: how well a model wires the parts together, and what it invents on top. The parts themselves are ours, and a viewer could easily credit the model for them.
+A rich asset pack makes better-looking games, but it also changes what the race measures. With finished people, cars and a real city handed over, the race mostly tests integration and game design: how well a model wires the parts together, and what it invents on top.
 
-The first dry run showed both sides. Opus wrote six missions, a wanted system and parody landmarks, all invention. It also put realistic people in the story scenes but made every pedestrian a recoloured copy of the base game's player, because our people have no walk animations. That was a shortcut around a gap in our pack, not a design choice.
-
-So the comparison runs twice, same models and same rules:
-
-| Race | What the models get | What it shows |
-|---|---|---|
-| **Asset race** (`--pack full`, `game_spec.md`) | The base game, about 1,300 assets and the asset search tool | What each model builds when good parts are on hand |
-| **Primitives race** (`--pack primitives`, `game_spec_primitives.md`) | The base game and one model, the GPU. Everything else is made in code. Downloading assets is against the rules | How inventive each model is from scratch |
-
-Both races keep the screenshot tool. It adds no content to the game, only a way for the model to look at its own work, and it's the same for both models. The gap between the two races is itself a result: it shows how much of a game's quality came from the parts, and how much from the model.
+So we built a second race to compare against: **primitives** (`--pack primitives`, `game_spec_primitives.md`), with only the GPU model and everything else made in code. We ran it in the $25 dry runs, and the games looked too rough to put in a video. The $100 race uses the asset pack. The primitives brief stays in the repo, kept in sync with the asset one, for anyone who wants to run it.
 
 ## **How does Nexus put Kimi inside Claude Code?**
 
@@ -166,7 +159,7 @@ Nothing records the screen. A screen recording would capture whatever else is op
     └── result.json           stop reason, cost, first playable turn, models seen
 ```
 
-Getting a real gameplay screenshot from headless Chrome took three fixes. Wait for the network to go quiet. Wait another 12 seconds, because the base game parses its models between downloads and takes about 9 seconds to load. Then click the middle of the screen with a small stub for the browser's pointer-lock API installed, because headless Chrome never grants pointer lock and "Click to Play" would never go away.
+Getting a real gameplay screenshot from headless Chrome took four fixes. Render on the GPU, not in software. Wait for the network to go quiet. Wait another 12 seconds, because the base game parses its models between downloads and takes about 9 seconds to load. Then click the middle of the screen with a small stub for the browser's pointer-lock API installed, because headless Chrome never grants pointer lock and "Click to Play" would never go away.
 
 ## **Step 1: Clone and install**
 
@@ -203,7 +196,7 @@ nohup uv run buildoff race --budget 100 --yes --race-id my-race > ~/gta-race-run
 nohup uv run buildoff race --budget 100 --yes --pack primitives --race-id my-race-prim > ~/gta-race-runs/my-race-prim.log 2>&1 &
 ```
 
-The first command is the asset race and the second is the primitives race. `--pack` picks both the seeded assets and the matching locked spec.
+The first command is the asset race we run. The second is the optional primitives race. `--pack` picks both the seeded assets and the matching locked spec.
 
 `--yes` is required for any budget over $2, because the race spends up to that amount *per model*. Running it detached keeps a long run from dying with your terminal.
 
@@ -256,7 +249,7 @@ uv run buildoff play kimi --race-id my-race
 
 ## **Results**
 
-_The full $100 race hasn't run yet. This section will hold the tier each model reached, time to first playable build, total spend and output speed, the blind playtest, and the before/after screenshots._
+_A first $100 race ran on an earlier prompt and showed the problems fixed above: critics flipping tiers, a bland look, and software rendering. Its results don't count, since the prompt changed. This section will hold the `prompt-v15` race: the tier each model reached, time to first playable build, total spend and output speed, the blind judging, and the before/after screenshots._
 
 ## **Try it yourself**
 

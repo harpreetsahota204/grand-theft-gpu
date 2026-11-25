@@ -34,7 +34,7 @@ Requires macOS (`sandbox-exec`), Claude Code 2.1.281+, the Nexus CLI logged in a
 | `uv run pytest` | Local tests: critic parsing, review trace, meter, sandbox, Stop hook, settings parity, evidence, asset lookup | free, ~2 s |
 | `uv run buildoff doctor` | Checks prerequisites | free |
 | `uv run buildoff smoke` | End to end: both models add a floating GPU, then one critic review each | ~$2–4 |
-| `uv run buildoff race --budget N --yes [--pack full\|primitives] [--viewers]` | A race on that pack's locked spec; `--viewers` opens a live Terminal window per model | up to $N per model |
+| `uv run buildoff race --budget N --yes [--pack full\|primitives] [--viewers]` | A race on that pack's locked spec (races use `full`; `primitives` is kept but unused); `--viewers` opens a live Terminal window per model | up to $N per model |
 | `uv run buildoff status [race-id]` | Progress as JSON, with the critic's tier per round (latest race by default) | free |
 | `uv run buildoff reviews [race-id]` | Every critic round: tier, route, notes, cost, time, screenshots | free |
 | `uv run buildoff play <kimi\|opus> [--race-id ID]` | Serves a contender's latest build on localhost | free |
@@ -92,5 +92,6 @@ A healthy smoke run shows `declared_done`, `playable: true` on every turn, a par
 - **zsh:** `$VAR` doesn't word-split, unmatched globs abort the command, and a variable named `path` overwrites `$PATH`. Use `bash -c` for loops.
 - **Claude Code misprices Kimi** (about 2x list). Use Nexus numbers, never Claude Code's `total_cost_usd`.
 - **Anything that runs inside the sandbox** (the Stop hook, `tools/screenshot`) must be listed in `seed.TOOLKIT_MODULES`; the sandbox can't read this repo.
+- **Screenshots render on the GPU** (`snapshot.CHROMIUM_ARGS`, ANGLE Metal). Don't switch back to SwiftShader: it ran race builds at ~10 fps, so scripted key holds stopped being repeatable.
 - **Closing the lid sleeps the Mac** despite `caffeinate`, and a sleeping Mac breaks the models' API streams.
 - **Don't `kill -9` the harness:** `claude` runs in its own session and would keep spending. Use Ctrl-C, `kill`, or `buildoff stop` (which also kills orphans).
