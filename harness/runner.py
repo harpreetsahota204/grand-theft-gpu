@@ -239,7 +239,7 @@ class ContenderRun:
         self._last_reading_at: float = 0.0
         # Highest unpriced-row total already logged as a warning event.
         self._unpriced_seen: int = 0
-        # Wall-clock start of the latest review; its day/night shots must be newer.
+        # Wall-clock start of the latest review; only screenshots newer than this are its own.
         self._review_started: float = 0.0
 
     def run(self) -> RunResult:
@@ -254,7 +254,8 @@ class ContenderRun:
         self.root.mkdir(parents=True, exist_ok=True)
         self.logs.mkdir(parents=True, exist_ok=True)
         turn = reviews = api_retries = 0
-        last_tier: int | None = None
+        # The latest parsed review, whose route the next critic replays first.
+        last_review: Review | None = None
         first_playable: tuple[int, float] | None = None
         reason: StopReason = "error"
         try:
@@ -272,8 +273,6 @@ class ContenderRun:
 
             prompt = build_first_prompt(self.cfg.spec_path, self.cfg.budget_usd)
             notes = ""
-            # The latest parsed review, whose route the next critic replays first.
-            last_review: Review | None = None
             while True:
                 if ABORT.is_set():
                     reason = "aborted"
@@ -306,7 +305,6 @@ class ContenderRun:
                 reviews += 1
                 if review.parsed:
                     last_review = review
-                    last_tier = review.tier
 
                 if self.cfg.stop_on_done and (self.workspace / DONE_FILE).exists():
                     reason = "declared_done"
@@ -327,7 +325,7 @@ class ContenderRun:
             stop_reason=reason,
             turns=turn,
             reviews=reviews,
-            last_tier=last_tier,
+            last_tier=last_review.tier if last_review else None,
             cost_usd=self._cost(),
             wall_seconds=round(time.monotonic() - self._start, 1) if self._start else 0.0,
             model_seconds=round(self._model_s, 1),

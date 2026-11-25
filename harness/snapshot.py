@@ -22,8 +22,11 @@ from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 from harness.config import GAME_ENTRY, SCREENSHOT_SETTLE_MS
 
-# Headless Chromium needs software GL to render WebGL (three.js) games.
-CHROMIUM_ARGS: list[str] = ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"]
+# Render WebGL on the Mac's GPU through ANGLE's Metal backend. The default,
+# software SwiftShader, ran a race build at ~10 fps against 60 on Metal (also
+# inside the sandbox), so a scripted `--hold w:3000` drove a different distance
+# every time and critics got lost on routes the game didn't break.
+CHROMIUM_ARGS: list[str] = ["--use-angle=metal", "--enable-gpu", "--ignore-gpu-blocklist"]
 
 
 # Characters of build output kept when a build fails, enough to show the error.

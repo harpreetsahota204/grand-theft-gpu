@@ -1,6 +1,6 @@
 # Scoring checklist
 
-How each race build is scored. **Locked at git tag `scoring-v1` before the first $100 race launched**, so the rubric can't be chosen after seeing the results. A change needs a new tag, and results scored under different tags aren't comparable.
+How each race build is scored. **Locked at git tag `scoring-v2` before the first `prompt-v14` race launched**, so the rubric can't be chosen after seeing the results. A change needs a new tag, and results scored under different tags aren't comparable. v2 follows the `prompt-v14` brief: startup-stage tier names, Valley pursuers, and bonus items for the founder, the look and the living city.
 
 The models never see this file: it isn't in the prompts, and their sandbox can't read this repo.
 
@@ -21,7 +21,7 @@ An item passes only if it's **seen working in the running game**: a scorer playi
 
 **Core** items decide the tier. A build reaches a tier when every core item of that tier and every tier below passes. **Bonus** items are counted and reported but never change the tier.
 
-### Tier 1: Small-time (steal a GPU, talk to an archetype)
+### Tier 1: Garage (steal a GPU, talk to an archetype)
 
 | # | Core item | Passes when |
 |---|---|---|
@@ -32,19 +32,19 @@ An item passes only if it's **seen working in the running game**: a scorer playi
 | 1.5 | Carry or deliver it | The player carries or delivers the GPU and the game acknowledges it (reward, objective complete). |
 | 1.6 | An archetype talks | Triggered by the player, at least one character speaks to the player in a recognisable tech-archetype voice. |
 
-### Tier 2: Getaway
+### Tier 2: Seed
 
 | # | Core item | Passes when |
 |---|---|---|
 | 2.1 | Get in | The player gets into a car. |
 | 2.2 | Drive | The car moves and steers under player input. |
 | 2.3 | Get out | The player gets out and walks again. |
-| 2.4 | Pursuit | Something pursues the player after a crime (cops, guards, drones, rivals). |
+| 2.4 | Pursuit | Something pursues the player after a crime (security, drones, recruiters, rivals, cops: any pursuer counts). |
 | 2.5 | Heat rises | A visible heat or wanted level rises because of something the player did. |
 | 2.6 | Heat falls | The heat level falls again through play (escape, hiding, time). |
 | 2.7 | The getaway | In one play session: steal, get chased, escape by car, and the heat drops. |
 
-### Tier 3: Crew
+### Tier 3: Series A
 
 | # | Core item | Passes when |
 |---|---|---|
@@ -53,7 +53,7 @@ An item passes only if it's **seen working in the running game**: a scorer playi
 | 3.3 | A cast | At least three distinct characters talk, each in its own archetype voice. |
 | 3.4 | Talk drives the story | Characters give, advance or react to missions through dialogue. |
 
-### Tier 4: Kingpin
+### Tier 4: IPO
 
 Watched with no input for 20 s, unless the item says otherwise.
 
@@ -78,6 +78,16 @@ Watched with no input for 20 s, unless the item says otherwise.
 | B8 | Vehicle damage or physics reactions (crashes, knockback). |
 | B9 | Traffic or pedestrians react to the player (swerve, flee, honk). |
 | B10 | Save, checkpoint or restart after failure without reloading the page. |
+| B11 | A designed founder: the player character has a name shown in the game and a look changed from any stock asset. |
+| B12 | The company's rise shows in the game: a stage, valuation or progress toward an exit that advances through play. |
+| B13 | The heat escalates: more or tougher pursuers as heat rises. |
+| B14 | Losing the heat takes more than a straight line: driving straight at top speed for 30 s from the start of a chase doesn't clear it. |
+| B15 | Getting caught costs something (loot, money or progress) and play continues. |
+| B16 | Roads show lane markings, and sidewalks are visibly separate from the road. |
+| B17 | Grass and trees appear in the city. |
+| B18 | Building facades show lit windows at night. |
+| B19 | Pedestrians animate a walk while they move (legs move, no sliding). |
+| B20 | A talking character plays a gesture or talking animation while speaking. |
 
 ## Hard rules
 
@@ -92,7 +102,7 @@ Each confirmed violation is reported by name next to the score, whatever the tie
 The checklist measures how much got built. How good it is gets judged blind, in pairs.
 
 1. **Scrub identity first.** Remove model names, vendor names and other identifying strings from the UI, console output and title screens. Label the builds A and B.
-2. **Human players** play both builds, in counterbalanced order, and pick A, B or tie on three questions: *plays better*, *looks better*, *overall*. They vote before anything is revealed.
+2. **Human players** play both builds, in counterbalanced order, and pick A, B or tie on four questions: *plays better*, *looks better*, *better main character*, *overall*. They vote before anything is revealed.
 3. **At least two multimodal LLM judges from outside both model families** get the same screenshots (the scripted sequence for every core item) and the code, once in each order (A/B, then B/A). A judge's win counts only if it holds in both orders; otherwise it's a tie.
 
 ## Headline rules (fixed now, applied after)

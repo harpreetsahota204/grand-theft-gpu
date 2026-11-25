@@ -4,7 +4,7 @@ Two models get the same game brief and up to $100 each. Each builds the game alo
 
 New here? [`HUMANS.md`](HUMANS.md) is the story version: the premise, the setup and why each rule exists. Coding agents start with [`AGENTS.md`](AGENTS.md).
 
-The game is **Grand Theft GPU**, a browser heist game set in San Silicon, a parody of San Francisco: you steal GPUs, and the cast is satirical tech-Twitter archetypes. Both models start from the same three.js base game.
+The game is **Grand Theft GPU**, a browser heist game set in San Silicon, a parody of San Francisco. You play a founder with no compute in a GPU shortage, stealing GPUs to grow a startup from a garage to an IPO, and the cast is satirical tech-Twitter archetypes. Both models start from the same three.js base game.
 
 | | Kimi K3.1 Pro | Claude Opus 5.5 |
 |---|---|---|
@@ -70,7 +70,7 @@ Each contender loops through rounds:
 2. **Builder turn:** one `claude -p` process that resumes the same session every turn. Turn 1 gets the spec (with the race's real budget filled in) plus the run rules; later turns get the critic's notes and the spend so far (`You have spent $X of your $Y.`). It runs until the model stops (a Stop hook won't let it stop on an announcement or a broken build).
 3. **Evidence:** the harness commits the workspace to `history.git` (outside the model's reach), builds it, screenshots gameplay, and logs a row in `turns.jsonl`. A turn is **playable** if it built, loaded and rendered with no uncaught exception.
 4. **Critic review:** a fresh session of the *same* model, with no memory of building, plays the game read-only, judges both how it plays and how it looks and feels against the brief and tier ladder (`prompts/critic.md`), and writes a verdict to `tools/shots/verdict.json`: tier reached, the exact `tools/screenshot` steps that showed it (its route), and notes ranked blocker > core loop > next tier > look and feel > polish. The harness schema-checks the file and logs why it rejected a bad one. The builder decides how many notes to take on. The notes become the builder's next prompt (`prompts/nudge.md`). The harness copies the critic's screenshots to `shots/critic-NNN/` and logs the review's own cost and time. A review at max effort can take about an hour.
-5. **Continuity:** each critic gets the last review's tier and route, and the builder keeps a per-tier walkthrough in `DONE.md`. The critic replays both first, then explores. Each one still starts fresh, so in the v12 race Kimi's critics flipped between Tier 2 and Tier 4 whenever one couldn't script its way to a mission the last one had reached. The tier never ends the run: a same-model critic is a coach, so every run goes to its budget and builds are scored afterwards against the locked `scoring/checklist.md`.
+5. **Continuity:** each critic gets the last review's tier and route, and the builder keeps a per-tier walkthrough in `DONE.md`. The critic replays both first, then explores. Before this, in the v12 race, each fresh critic had to find its own way, and Kimi's critics flipped between Tier 2 and Tier 4 whenever one couldn't script its way to a mission the last one had reached. The tier never ends the run: a same-model critic is a coach, so every run goes to its budget and builds are scored afterwards against the locked `scoring/checklist.md`.
 
 **Throughout,** a watchdog polls Nexus every 15 seconds and stops the run if total spend (builder and critics) reaches the budget, any other model shows up (`leak`), or Nexus goes quiet for 3 minutes (`meter_down`). A session with no output and no new spend for 10 minutes is cut short (`stalled`) and goes to review. Provider API errors and cut-off streams are retried (up to 3 per run). The smoke test stops at the first `DONE.md`, after one review.
 
@@ -158,7 +158,7 @@ Errors go to stderr as `{"error": ..., "hint": ...}`, with exit code 1 (not foun
 | `harness/doctor.py` | Prerequisite checks |
 | `harness/fetch.py` | Downloads assets at the pinned dataset revision |
 | `assets/catalog.json` | Index of all 1,302 assets, seeded next to the models' `tools/assets.mjs` |
-| `prompts/` | The locked game specs, run rules, critic prompt and nudge template (tag `prompt-v13`) |
+| `prompts/` | The locked game specs, run rules, critic prompt and nudge template (tag `prompt-v14`) |
 | `tests/` | The local test suite |
 
 ## Not done yet

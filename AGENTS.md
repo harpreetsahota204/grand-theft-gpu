@@ -4,14 +4,14 @@ Instructions for AI coding agents working in this repo. Read this first. Maintai
 
 ## What this repo is
 
-A harness that races two models, **Kimi K3.1 Pro** (on Fireworks, routed through Nexus) and **Claude Opus 5.5**, on the same brief and budget in headless Claude Code. Each builds *Grand Theft GPU*, a browser heist game, from the same three.js base game. After every builder turn, a critic (a fresh session of the same model) plays the game and writes the next prompt. A run ends when the budget runs out; the critic's tier never ends it. Builds are scored afterwards against `scoring/checklist.md`, locked at tag `scoring-v1` before the first $100 race. The harness sandboxes each model, meters spend through Nexus, catches cross-model leaks, and records a commit, a build and a screenshot every turn.
+A harness that races two models, **Kimi K3.1 Pro** (on Fireworks, routed through Nexus) and **Claude Opus 5.5**, on the same brief and budget in headless Claude Code. Each builds *Grand Theft GPU*, a browser heist game, from the same three.js base game. After every builder turn, a critic (a fresh session of the same model) plays the game and writes the next prompt. A run ends when the budget runs out; the critic's tier never ends it. Builds are scored afterwards against `scoring/checklist.md`, locked at tag `scoring-v2` before the first `prompt-v14` race. The harness sandboxes each model, meters spend through Nexus, catches cross-model leaks, and records a commit, a build and a screenshot every turn.
 
 `README.md` explains how a race works. `HUMANS.md` is the story version for people.
 
 ## Ground rules
 
 1. **Races spend real money.** `buildoff race` spends up to `--budget` *per model* on the user's Fireworks and Anthropic accounts. **Never start a race without the user's explicit OK in this conversation.** The CLI refuses budgets over $2 without `--yes`; don't add `--yes` on your own. `buildoff smoke` (about $2–4) is the only paid check you may run unasked, and only to verify a harness change.
-2. **The prompts are locked** at git tag `prompt-v13`: `prompts/game_spec.md`, `game_spec_primitives.md`, `run_rules.md`, `critic.md` and `nudge.md` (the template that wraps the critic's notes). A change needs the user's OK and a new tag, because results across prompt versions aren't comparable.
+2. **The prompts are locked** at git tag `prompt-v14`: `prompts/game_spec.md`, `game_spec_primitives.md`, `run_rules.md`, `critic.md` and `nudge.md` (the template that wraps the critic's notes). A change needs the user's OK and a new tag, because results across prompt versions aren't comparable.
 3. **Fairness is the product.** Both sides get identical flags, tools, files, settings and rules; only the model ID differs (in `--model` and the per-side settings files; `tests/test_session.py` checks this). Never change one side alone.
 4. **Don't read credentials.** Never open `~/.claude/settings.json` or other key files. Use `nexus claude status` to check routing.
 5. **Don't use `--dangerously-skip-permissions` or `claude --bare`.** The harness pre-approves tools with `--allowed-tools`, and `--bare` breaks Nexus auth.
@@ -76,7 +76,7 @@ A healthy smoke run shows `declared_done`, `playable: true` on every turn, a par
 | `harness/shot_tool.py`, `harness/workspace_tools/assets.mjs` | The models' `tools/screenshot` and asset search tool |
 | `harness/config.py` | Every constant: contenders, limits, paths, pinned commits and revisions |
 | `harness/fetch.py`, `assets/catalog.json` | Downloads assets at the pinned dataset revision; the index the models search with `tools/assets.mjs` |
-| `scoring/checklist.md` | The locked scoring rubric (tag `scoring-v1`): per-tier pass/fail items on runtime evidence, blind pairwise judging, headline rules. Never shown to the models |
+| `scoring/checklist.md` | The locked scoring rubric (tag `scoring-v2`): per-tier pass/fail items on runtime evidence, blind pairwise judging, headline rules. Never shown to the models |
 | `prompts/` | The locked game specs, run rules, critic prompt and nudge template; `smoke_spec.md` |
 | `tests/` | The local test suite |
 

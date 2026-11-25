@@ -21,7 +21,7 @@ The prompt was the easy part. The hard part is making sure the model is the only
 
 ## **What are the models racing to build?**
 
-The game is **Grand Theft GPU**. It's a third-person heist game set in **San Silicon**, a parody of San Francisco: hills, fog, cable cars, a famous red bridge, and robotaxis everywhere. GPUs are the most valuable thing in the city, and you steal them.
+The game is **Grand Theft GPU**. It's a third-person heist game set in **San Silicon**, a parody of San Francisco: hills, fog, cable cars, a famous red bridge, and robotaxis everywhere. You play a founder with an idea and no compute. There's a GPU shortage, so you steal GPUs, close deals and hire a crew, growing the company from a garage to an exit. The heat comes from the Valley itself: lab security, recruiters, honeypots, VCs who want a board seat.
 
 The cast comes straight out of a tech Twitter thread: VCs, hype beasts, grifters, anon accounts, founders, doomers, reply guys. They're archetypes, never real people, and the brands are parodies too. The robotaxi is "the one with the spinning roof sensor," never a named company.
 
@@ -36,16 +36,16 @@ What *is* required, in every build:
 
 ## **How do you score a game nobody has seen yet?**
 
-With a ladder the models can see. Builds are judged on how far up it they climb, and each tier includes everything below it.
+With a ladder the models can see, plus how good the game is to play and look at. Each tier includes everything below it, and the tiers follow the player's startup, from a garage to an IPO.
 
 | Video label | Tier | Unlocks when |
 | --- | --- | --- |
-| GTA 1 | Small-time | You can steal a GPU |
-| GTA 2 | Getaway | You escape by car while being chased, and heat rises and falls |
-| GTA 3 | Crew | A story across multiple missions, with archetype characters who talk |
-| GTA 4 | Kingpin | A living San Silicon: traffic, robotaxis, pedestrians, day and night |
+| GTA 1 | Garage | You can steal a GPU and talk to an archetype |
+| GTA 2 | Seed | You escape by car while being chased, and heat rises and falls |
+| GTA 3 | Series A | A story across multiple missions, with archetype characters who talk |
+| GTA 4 | IPO | A living San Silicon: traffic, robotaxis, pedestrians, day and night |
 
-The "GTA 1–4" labels are for the video. Inside the prompt, the tiers are only called Small-time through Kingpin, so the models aren't nudged toward copying a real game.
+The "GTA 1–4" labels are for the video. Inside the prompt, the tiers are only called Garage through IPO, so the models aren't nudged toward copying a real game.
 
 **Good to know. Do the models know their budget?**
 Yes. The prompt states the race's real budget ("about $100 of compute" in a $100 race) and asks them to keep the game playable at every step, and every later prompt says how much they've spent so far. Earlier versions said $100 even in $25 test runs, and Opus planned a $100 game and spent its whole budget in one turn. The prompt doesn't say they're racing anyone, and the harness files a model can read have every comment and docstring stripped, so they don't say so either.
@@ -137,11 +137,11 @@ Every rule below exists because something could tilt the result.
 
 **A clear finish line.** A run ends when the budget is spent, a leak is caught, the meter goes dark, the race is stopped (Ctrl-C or `buildoff stop`), or the process crashes. Nothing else.
 
-**Keep it honest.** An earlier version also ended a run when the model's own critic called it Tier 4 and two harness checks agreed (the city moves, night looks different). In a $25 test run, Kimi's critic gave Tier 4 after one turn while still listing bugs, and the checks only prove that pixels move. A critic made from the same model is a coach, not a referee. So now every run spends its whole budget, and the score comes from `scoring/checklist.md`: pass/fail items per tier, each counted only when seen working in the final build, plus blind pairwise judging. We locked it (git tag `scoring-v1`) before the first $100 race, so the rubric couldn't be picked after seeing who won.
+**Keep it honest.** An earlier version also ended a run when the model's own critic called it Tier 4 and two harness checks agreed (the city moves, night looks different). In a $25 test run, Kimi's critic gave Tier 4 after one turn while still listing bugs, and the checks only prove that pixels move. A critic made from the same model is a coach, not a referee. So now every run spends its whole budget, and the score comes from `scoring/checklist.md`: pass/fail items per tier, each counted only when seen working in the final build, plus blind pairwise judging. We locked it (git tag `scoring-v2`, after v1 for the first $100 race) before the race it scores, so the rubric couldn't be picked after seeing who won.
 
 There's no nudge limit. In the $25 dry runs, both models called their games done at $5–11, far short of the top tier. Now each model gets its own critic: after every turn, a fresh session of the same model, with no memory of building it, plays the game, compares it with the brief and writes the builder's next instructions. Both sides get the same setup, so the critic's quality is part of what's measured.
 
-**Each critic starts from the last one's route.** In the first $100 race, Kimi's critics flipped between Tier 2 and Tier 4 from one round to the next. The game wasn't breaking: each fresh critic had to script its way through a long mission chain with timed key presses, and when it missed a turn and never reached a mission, it called the tier unproven. The harness's own Tier 4 check had the same weakness: it called the city "frozen" whenever the camera at spawn showed no traffic. Now each critic gets the last review's tier and the exact steps it used, and the builder keeps a per-tier walkthrough in `DONE.md`. The critic replays those first and still has to see everything working itself. We dropped the harness check, since the locked checklist scores Tier 4 after the race.
+**Each critic starts from the last one's route.** In the first $100 race, Kimi's critics flipped between Tier 2 and Tier 4 from one round to the next. The game mostly wasn't breaking. Each fresh critic had to script its way through a long mission chain with timed key presses, and when it missed a turn and never reached a mission, it called the tier unproven. The harness's own Tier 4 check also misfired, calling the city "frozen" whenever the camera at spawn showed no traffic. Now each critic gets the last review's tier and the exact steps it used, and the builder keeps a per-tier walkthrough in `DONE.md`. The critic replays those first and still has to see everything working itself. We dropped the harness check, since the locked checklist scores Tier 4 after the race.
 
 **Keep it honest.** Nexus is a Fireworks tool, and Kimi runs on Fireworks. The referee's numbers come from list prices with a cited source (`docs.fireworks.ai/serverless/pricing` for Kimi), and every raw transcript is kept, so anyone can recompute the spend. The budget check runs every 15 seconds, so a run can end slightly over $100. In tests the overshoot was $0.01 to $0.05.
 
@@ -275,7 +275,7 @@ So the harness isn't a variable. Nexus points Claude Code at Fireworks, and both
 It doesn't know Kimi's prices and falls back to a default rate. In testing it reported $0.060 for a call that costs $0.030 at Kimi K3.1 Pro's list price ($2 per million input tokens, $10 per million output). `nexus claude usage --json` prices each row at the provider's list rate.
 
 ### **Can I change the prompt?**
-Not for a comparable race. The game specs, `run_rules.md`, `critic.md` and `nudge.md` are frozen at git tag `prompt-v13`. Edit them for your own experiments, but tag the new version, because results across prompt versions aren't comparable.
+Not for a comparable race. The game specs, `run_rules.md`, `critic.md` and `nudge.md` are frozen at git tag `prompt-v14`. Edit them for your own experiments, but tag the new version, because results across prompt versions aren't comparable.
 
 ### **Can I rebuild the assets myself?**
 Yes. The code that builds the dataset lives in the dataset, under `build/`, and its card's [Recreate the assets](https://huggingface.co/datasets/harpreetsahota/grand-theft-gpu-assets#recreate-the-assets) section lists every step. You only need Blender for the USDCraft props. Races don't need any of it: they download the finished files at a pinned revision.
