@@ -70,6 +70,28 @@ POINTER_LOCK_SHIM: str = """
 # frames so per-frame camera code sees a smooth turn.
 LOOK_STEPS: int = 10
 LOOK_STEP_MS: int = 16
+# Frame timing: a requestAnimationFrame loop installed before the game's scripts
+# records the gap between frames. Screenshots can't show a hitch or a slideshow
+# frame rate, so the result reports both, measured from the click that starts
+# play to the final shot. Headless timings are approximate but comparable
+# between runs on this machine.
+FRAME_TIMER_JS: str = """
+(() => {
+  const gaps = [];
+  window.__harnessFrameGaps = gaps;
+  let last = 0;
+  const tick = (now) => {
+    if (last) gaps.push(now - last);
+    last = now;
+    if (gaps.length > 20000) gaps.splice(0, 10000);
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+})();
+"""
+# A frame slower than this reads as a visible stutter (under 20 fps for a moment).
+HITCH_MS: float = 50.0
+
 LOOK_JS: str = """
 ([dx, dy]) => {
   const target = document.pointerLockElement || document.elementFromPoint(640, 360) || document;
@@ -78,6 +100,30 @@ LOOK_JS: str = """
   }));
 }
 """
+
+
+def frame_stats(gaps: Sequence[float]) -> dict[str, float] | None:
+    """Summarizes frame gaps (ms) into what a player would feel.
+
+    Args:
+        gaps: milliseconds between consecutive frames
+
+    Returns:
+        median fps, 95th-percentile and worst frame time in ms, the number of
+        hitches (frames over `HITCH_MS`) and the frame count; None with no frames
+    """
+    if not gaps:
+        return None
+    ordered = sorted(gaps)
+    median = ordered[len(ordered) // 2]
+    p95 = ordered[min(len(ordered) - 1, int(len(ordered) * 0.95))]
+    return {
+        "fps": round(1000 / median, 1) if median > 0 else 0.0,
+        "p95_ms": round(p95, 1),
+        "worst_ms": round(ordered[-1], 1),
+        "hitches": sum(1 for g in gaps if g > HITCH_MS),
+        "frames": len(gaps),
+    }
 
 
 @dataclass(frozen=True)
@@ -115,6 +161,8 @@ class ShotResult:
             failures (navigation or screenshot timeouts), prefixed "harness:"
         console_errors: `console.error` messages, including failed resource
             loads; recorded as evidence but they don't make a turn unplayable
+        frames: frame timing during play (see `frame_stats`), or None if play
+            never started
     """
 
     has_entry: bool
@@ -122,6 +170,7 @@ class ShotResult:
     shot_written: bool = False
     page_errors: list[str] = field(default_factory=list)
     console_errors: list[str] = field(default_factory=list)
+    frames: dict[str, float] | None = None
 
     @property
     def playable(self) -> bool:
@@ -275,6 +324,7 @@ def screenshot(
     console_errors: list[str] = []
     page_errors: list[str] = []
     loaded = written = False
+    frames: dict[str, float] | None = None
 
     def on_console(msg: ConsoleMessage) -> None:
         """Keeps console errors; drops log/info/warning noise."""
@@ -286,6 +336,7 @@ def screenshot(
             browser = pw.chromium.launch(args=CHROMIUM_ARGS)
             page = browser.new_page(viewport={"width": 1280, "height": 720})
             page.add_init_script(POINTER_LOCK_SHIM)
+            page.add_init_script(FRAME_TIMER_JS)
             page.on("console", on_console)
             page.on("pageerror", lambda e: page_errors.append(str(e)))
             try:
@@ -301,6 +352,8 @@ def screenshot(
                 # Click the middle like a player would, to get past a
                 # "click to play" screen, then let a few frames of play render.
                 page.mouse.click(640, 360)
+                # Time play only, not loading, which stalls frames by design.
+                page.evaluate("() => { (window.__harnessFrameGaps || []).length = 0; }")
                 page.wait_for_timeout(AFTER_CLICK_MS)
                 # Optional scripted input, so a shot can show the game in motion.
                 for step in steps:
@@ -308,6 +361,7 @@ def screenshot(
                 out_png.parent.mkdir(parents=True, exist_ok=True)
                 page.screenshot(path=str(out_png))
                 written = True
+                frames = frame_stats(page.evaluate("() => window.__harnessFrameGaps || []"))
             except Exception as exc:  # noqa: BLE001 - a broken build is data, not a harness crash
                 page_errors.append(f"harness: {exc}")
             finally:
@@ -324,6 +378,7 @@ def screenshot(
         shot_written=written,
         page_errors=page_errors,
         console_errors=console_errors,
+        frames=frames,
     )
 
 

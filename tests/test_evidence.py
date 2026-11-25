@@ -68,6 +68,32 @@ def test_playable_ignores_console_noise() -> None:
     assert not snapshot.ShotResult(True, True, shot_written=False).playable
 
 
+def test_frame_stats_reports_fps_and_hitches() -> None:
+    """Steady 60 fps with two long frames: median fps holds, the hitches are counted."""
+    gaps = [16.7] * 98 + [80.0, 120.0]
+    stats = snapshot.frame_stats(gaps)
+    assert stats is not None
+    assert stats["fps"] == 59.9
+    assert stats["worst_ms"] == 120.0
+    assert stats["hitches"] == 2
+    assert stats["frames"] == 100
+    assert snapshot.frame_stats([]) is None
+
+
+def test_screenshot_tool_reports_frames(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """The tool passes frame timing through, so a model can see stutter a PNG can't show."""
+    frames = {"fps": 60.0, "p95_ms": 17.0, "worst_ms": 30.0, "hitches": 0, "frames": 300}
+    monkeypatch.setattr(
+        shot_tool,
+        "screenshot",
+        lambda *a, **k: snapshot.ShotResult(True, True, False, frames=frames),
+    )
+    args = argparse.Namespace(
+        workspace=tmp_path, out=tmp_path / "shot.png", steps=[], settle_ms=0, no_build=True
+    )
+    assert shot_tool.run(args)["frames"] == frames
+
+
 def test_parse_usage_folds_subagents() -> None:
     """Subagent rows count toward the models seen; cost comes from grandTotals."""
     data = {

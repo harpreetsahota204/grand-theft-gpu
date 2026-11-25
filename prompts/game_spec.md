@@ -8,7 +8,7 @@ You start from a Vite + three.js project with an empty scene that builds: the ga
 
 ## Your founder
 
-The player character is the face of the game. Give them a name, a look and a personality that fit San Silicon. Build them from the assets and make them clearly yours: change a stock model's look, outfit or textures. Give them real walk and run animation, from a rig that has walk and run clips or animated yourself, so they never slide.
+The player character is the face of the game. Give them a name, a look and a personality that fit San Silicon. Build them from the assets and make them clearly yours: change a stock model's look, outfit or textures. Give them real walk and run animation, from a rig that has walk and run clips or animated yourself, so they never slide. The plain mannequins that come with the walk clips are there to preview them, not to be your founder or anyone else in the city.
 
 ## The world
 
@@ -36,11 +36,20 @@ The story, missions, characters and dialogue are yours to write.
 
 Beyond those four, how far you take it is up to you.
 
+## Keep these true on every turn
+
+Most of what goes wrong in a build like this comes down to three things. Keep them true from your first playable turn, not as polish at the end:
+1. **The player can always see their founder, what they're after, and what's after them.** No camera stuck in a tree or a wall, no character lost in the dark, no banner or marker over the action.
+2. **You lose pursuers by getting out of their sight, never by speed alone, and standing still gets you caught.**
+3. **The street the player is on is alive,** with cars and people in view.
+
 ## The heat
 
 In San Silicon the heat comes from the Valley itself, not just the police: a lab's security drones hunting their stolen GPUs, recruiters swarming your crew, a honeypot leaking your location, VCs chasing a board seat, a rival startup's heist team. Pick your own.
 
 Whoever it is, the chase should work like the best open-world crime games. Heat escalates the more trouble you cause. Losing your pursuers takes skill (breaking line of sight, cutting through side streets, hiding), not just holding a straight line at top speed. Getting caught costs you something before you try again.
+
+Tune pursuers against the player's car: on a straight they keep pace, and they close in as the heat rises. Hard turns, alleys, hiding and swapping cars break their sight, and heat drains while they can't see you, wherever you are, not by reaching a set spot. Pursuers who lose you search where they last saw you, heat comes only from what the player does, and a pursuer that gets stuck is replaced.
 
 ## How far it can go
 
@@ -66,10 +75,10 @@ San Silicon should look like satire you can see: fog rolling over the hills, gol
 It should feel like a game, with a HUD, sound, feedback and some juice, not a tech demo.
 
 The assets are scaffolding, not the finished look. Don't drop them in as they come: make them yours. Retexture, recolor, relight, swap materials, add post-processing, combine and rebuild them until San Silicon looks like nothing else. Aim for amazing, not acceptable. Four things separate a finished game from a demo:
-- **Grounded and clean.** People, cars and props cast visible shadows onto the street wherever the player goes, so nothing floats. Glass and car paint reflect the sky. Edges stay crisp, without jagged aliasing. Day reads clearly different from night, and night lights illuminate the street without blowing out to pure white.
+- **Grounded and clean.** People, cars and props cast visible shadows onto the street wherever the player goes, so nothing floats. Glass and car paint reflect the sky. Edges stay crisp, without jagged aliasing. Day reads clearly different from night, and night lights illuminate the street without blowing out to pure white. At night, light your characters, not the walls around them: a rim light or glowing trim keeps your founder, whoever they're talking to and their pursuers readable against bright windows. Vary window and storefront colors and keep them below white.
 - **Readable at speed.** Keep streets and background buildings calmer in value, so your founder, the GPUs, vehicles and pursuers stand out at gameplay distance.
 - **A HUD built for this game.** Style it to match San Silicon's satire and keep it uncluttered: no overlapping bars, and no stack of generic dark translucent cards.
-- **A camera that keeps the action in view.** Trees, poles, cars and walls never block your founder, and conversations frame both speakers.
+- **A camera that keeps the action in view.** Trees, poles, cars and walls never block your founder, and conversations frame both speakers. Test the camera against everything that can block it, not just buildings: tree crowns, poles, props and vehicles. Fade small things in the way, and near a wall raise the camera rather than pushing it into your founder. In a car it stays behind the car, even stopped or reversing.
 
 A finished street in San Silicon looks like this (the assets below have what you need for each):
 - **Roads look like roads:** asphalt with lane markings, not flat grey.
@@ -86,6 +95,7 @@ A finished street in San Silicon looks like this (the assets below have what you
 - **Characters perform.** Archetypes gesture and animate when they talk (`rocketbox-motions`).
 - **Traffic follows the streets** (`sf-city/streets.json` is a routable graph): it stops, turns and honks.
 - **The city sounds like a city:** ambience, traffic, footsteps, engines and sirens.
+- **Life is where the player is.** Spawn traffic and pedestrians around the player, so their street always has cars and people in view, rather than spreading them thin across the whole city.
 - **The city never breaks the story.** Traffic and crowds work around mission cars, objectives and escapes: they don't shove the getaway car off its spot, pin it or gridlock the route.
 
 ## Assets you can use
@@ -100,8 +110,8 @@ node tools/assets.mjs show rocketbox-avatars/business-female-01   # full record:
 
 Every result has a `url` to load in the game; `help` says which three.js loader each kind needs. What's there:
 
-- **People:** 105 rigged, realistic people (business suits, police, security, medical, construction, chefs, everyday adults) and **326 motion-capture clips** (idle, talking, phone calls, sitting, cheering, dancing) that play on any of them. There are no walk or run clips for these people; walk, run and drive clips exist on a different rig (search `walk`). Retargeting those clips onto these people (three.js `SkeletonUtils.retargetClip`) is one way to make them walk.
-- **The real San Francisco:** `sf-city/sf-city.glb` is SoMa, the Financial District and the Embarcadero, with real terrain and hills, 2,168 buildings at their real heights, streets and the bay. `sf-city/streets.json` is a routable street graph and `sf-city/buildings.json` lists every building's footprint and height. Its walls, roofs and roads are separate meshes with UVs in metres, so textures tile at real-world scale. Its street and place names are real, so rename any you show. Building San Silicon on top of it is up to you.
+- **People:** 105 rigged, realistic people (business suits, police, security, medical, construction, chefs, everyday adults) and **326 motion-capture clips** (idle, talking, phone calls, sitting, cheering, dancing) that play on any of them. There are no walk or run clips for these people; walk, run and drive clips exist on a different rig (search `walk`). To make these people walk, retarget those clips onto them: map the clip rig's bones to the people's `Bip01_` bones by name (`universal-animation-library-1` uses `DEF-` bones and has an `A_TPose` clip; `-2` uses `pelvis`, `spine_01`-style names), line up the two rest poses with that T-pose, then copy each bone's rotation. Three.js `SkeletonUtils.retargetClip` does this given the bone map.
+- **The real San Francisco:** `sf-city/sf-city.glb` is SoMa, the Financial District and the Embarcadero, with real terrain and hills, 2,168 buildings at their real heights, streets and the bay. `sf-city/streets.json` is a routable street graph and `sf-city/buildings.json` lists every building's footprint and height. Its walls, roofs and roads are separate meshes with UVs in metres, so textures tile at real-world scale. Its street and place names are real, so rename any you show. Build San Silicon on it, with the PBR textures, facades and skies; the city kits are for props and fill, not the skyline.
 - **Vehicles:** 15 realistic low-poly vehicles: a police sedan, taxis, compact cars, a sedan, an SUV, muscle cars, vans, an ambulance, a fire truck, a city bus and a mini truck.
 - **City kits:** low-poly buildings, roads, street pieces and furniture.
 - **Props:** server racks, safes, an ATM, a forklift, a drone, street furniture. Many have moving parts (doors, lids, rotors) listed in their records.
@@ -120,7 +130,7 @@ You can also build anything you need from three.js primitives.
 
 ## Hard rules
 
-- **No real people, and no real companies, products or logos.** Use archetypes and parody names: "the robotaxi with the spinning roof sensor," never a real brand.
+- **No real people, and no real companies, products or logos,** not even in a joke or a passing line: that includes social networks, apps and platforms. Use archetypes and parody names: "the robotaxi with the spinning roof sensor," never a real brand.
 - **No slurs and no punching down.** The satire targets tech culture, not groups of people.
 - **No real-world how-tos.** No realistic instructions for actual theft or hacking anywhere in the game's text.
 - **Cartoonish violence only.** No gore.

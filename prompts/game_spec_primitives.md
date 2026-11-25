@@ -36,11 +36,20 @@ The story, missions, characters and dialogue are yours to write.
 
 Beyond those four, how far you take it is up to you.
 
+## Keep these true on every turn
+
+Most of what goes wrong in a build like this comes down to three things. Keep them true from your first playable turn, not as polish at the end:
+1. **The player can always see their founder, what they're after, and what's after them.** No camera stuck in a tree or a wall, no character lost in the dark, no banner or marker over the action.
+2. **You lose pursuers by getting out of their sight, never by speed alone, and standing still gets you caught.**
+3. **The street the player is on is alive,** with cars and people in view.
+
 ## The heat
 
 In San Silicon the heat comes from the Valley itself, not just the police: a lab's security drones hunting their stolen GPUs, recruiters swarming your crew, a honeypot leaking your location, VCs chasing a board seat, a rival startup's heist team. Pick your own.
 
 Whoever it is, the chase should work like the best open-world crime games. Heat escalates the more trouble you cause. Losing your pursuers takes skill (breaking line of sight, cutting through side streets, hiding), not just holding a straight line at top speed. Getting caught costs you something before you try again.
+
+Tune pursuers against the player's car: on a straight they keep pace, and they close in as the heat rises. Hard turns, alleys, hiding and swapping cars break their sight, and heat drains while they can't see you, wherever you are, not by reaching a set spot. Pursuers who lose you search where they last saw you, heat comes only from what the player does, and a pursuer that gets stuck is replaced.
 
 ## How far it can go
 
@@ -66,10 +75,10 @@ San Silicon should look like satire you can see: fog rolling over the hills, gol
 It should feel like a game, with a HUD, sound, feedback and some juice, not a tech demo.
 
 Aim for amazing, not acceptable. Four things separate a finished game from a demo:
-- **Grounded and clean.** People, cars and props cast visible shadows onto the street wherever the player goes, so nothing floats. Glass and car paint reflect the sky. Edges stay crisp, without jagged aliasing. Day reads clearly different from night, and night lights illuminate the street without blowing out to pure white.
+- **Grounded and clean.** People, cars and props cast visible shadows onto the street wherever the player goes, so nothing floats. Glass and car paint reflect the sky. Edges stay crisp, without jagged aliasing. Day reads clearly different from night, and night lights illuminate the street without blowing out to pure white. At night, light your characters, not the walls around them: a rim light or glowing trim keeps your founder, whoever they're talking to and their pursuers readable against bright windows. Vary window and storefront colors and keep them below white.
 - **Readable at speed.** Keep streets and background buildings calmer in value, so your founder, the GPUs, vehicles and pursuers stand out at gameplay distance.
 - **A HUD built for this game.** Style it to match San Silicon's satire and keep it uncluttered: no overlapping bars, and no stack of generic dark translucent cards.
-- **A camera that keeps the action in view.** Trees, poles, cars and walls never block your founder, and conversations frame both speakers.
+- **A camera that keeps the action in view.** Trees, poles, cars and walls never block your founder, and conversations frame both speakers. Test the camera against everything that can block it, not just buildings: tree crowns, poles, props and vehicles. Fade small things in the way, and near a wall raise the camera rather than pushing it into your founder. In a car it stays behind the car, even stopped or reversing.
 
 A finished street in San Silicon looks like this:
 - **Roads look like roads:** asphalt with lane markings, not flat grey.
@@ -86,6 +95,7 @@ A finished street in San Silicon looks like this:
 - **Characters perform.** Archetypes gesture and animate when they talk.
 - **Traffic follows the streets:** it stops, turns and honks.
 - **The city sounds like a city:** ambience, traffic, footsteps, engines and sirens.
+- **Life is where the player is.** Spawn traffic and pedestrians around the player, so their street always has cars and people in view, rather than spreading them thin across the whole city.
 - **The city never breaks the story.** Traffic and crowds work around mission cars, objectives and escapes: they don't shove the getaway car off its spot, pin it or gridlock the route.
 
 ## What you have to work with
@@ -96,7 +106,7 @@ Everything else is yours to make: the people, the cars, the city, the sky, textu
 
 ## Hard rules
 
-- **No real people, and no real companies, products or logos.** Use archetypes and parody names: "the robotaxi with the spinning roof sensor," never a real brand.
+- **No real people, and no real companies, products or logos,** not even in a joke or a passing line: that includes social networks, apps and platforms. Use archetypes and parody names: "the robotaxi with the spinning roof sensor," never a real brand.
 - **No slurs and no punching down.** The satire targets tech culture, not groups of people.
 - **No real-world how-tos.** No realistic instructions for actual theft or hacking anywhere in the game's text.
 - **Cartoonish violence only.** No gore.

@@ -25,7 +25,10 @@ play a whole sequence and save shots along the way (`--shot NAME`).
 Usage errors are JSON on stderr with exit code 2 (see `harness.cliutil`).
 Output: one JSON object on stdout:
     {"ok", "png", "shots", "build_ok", "loaded", "page_errors", "console_errors",
-     "build_log_tail"}
+     "frames", "build_log_tail"}
+`frames` is how smoothly the game ran from the start of play to the final shot:
+median fps, 95th-percentile and worst frame time in ms, and the count of
+hitches (frames over 50 ms), so stutter shows up even though a PNG can't.
 `ok` is true only if the build succeeded, the page loaded and a new PNG was written.
 Exit code 0 when ok, 1 otherwise. Non-interactive and safe to run repeatedly.
 """
@@ -151,7 +154,8 @@ def build_parser() -> argparse.ArgumentParser:
             "Build the game and save a gameplay screenshot you can open with the Read "
             "tool. Prints JSON; exit 0 if a screenshot was written. The input flags "
             "(--hold, --wait, --shot, --click, --look) run in the order given, in one "
-            "play session, before the final shot."
+            'play session, before the final shot. The JSON\'s "frames" field says how '
+            "smoothly it ran: median fps, worst frame time and hitches (frames over 50 ms)."
         ),
     )
     p.add_argument("workspace", type=Path, help="the game folder (set by the wrapper)")
@@ -211,6 +215,7 @@ def run(args: argparse.Namespace) -> dict[str, object]:
             "loaded": False,
             "page_errors": [],
             "console_errors": [],
+            "frames": None,
             "build_log_tail": log_tail,
         }
     shot = screenshot(workspace / BUILD_DIR, out, settle_ms=args.settle_ms, steps=steps)
@@ -222,6 +227,7 @@ def run(args: argparse.Namespace) -> dict[str, object]:
         "loaded": shot.loaded,
         "page_errors": shot.page_errors[:MAX_ERRORS],
         "console_errors": shot.console_errors[:MAX_ERRORS],
+        "frames": shot.frames,
         "build_log_tail": "",
     }
 
