@@ -26,21 +26,54 @@ import storage  # noqa: E402
 
 
 def test_session_cookie_round_trip_and_tamper_rejection() -> None:
-    """Valid tokens decode cleanly; tampered or mismatched-build tokens are rejected."""
+    """Valid tokens decode cleanly; tampered or other-race tokens are rejected."""
     build_ids = ("b-1111aaaa", "b-2222bbbb")
     secret = "test-secret-key"
-    payload = blind.new_session(build_ids)
+    payload = blind.new_session(build_ids, secret)
 
     assert set(payload["order"]) == set(build_ids)
     token = blind.sign_session(payload, secret)
     decoded = blind.verify_session(token, secret, set(build_ids))
     assert decoded == payload
 
-    # Wrong secret, modified signature, or stale build IDs must all fail closed.
+    # Wrong secret, modified signature, or another race's build pair must all fail closed.
     assert blind.verify_session(token, "wrong-secret", set(build_ids)) is None
     assert blind.verify_session(token[:-1] + "X", secret, set(build_ids)) is None
     assert blind.verify_session(token, secret, {"b-other1", "b-other2"}) is None
     assert blind.verify_session(None, secret, set(build_ids)) is None
+
+
+def test_token_never_reveals_slot_order() -> None:
+    """The token carries only the sid; the A/B order is secret yet counterbalanced."""
+    import base64
+
+    build_ids = ("b-1111aaaa", "b-2222bbbb")
+    orders = []
+    for _ in range(400):
+        payload = blind.new_session(build_ids, "k")
+        token = blind.sign_session(payload, "k")
+        body = token.split(".")[0]
+        decoded = base64.urlsafe_b64decode(body + "=" * (-len(body) % 4)).decode()
+        assert "b-1111aaaa" not in decoded and "b-2222bbbb" not in decoded
+        assert json.loads(decoded) == {"sid": payload["sid"]}
+        orders.append(payload["order"][0])
+    # Roughly 50/50 across sessions (400 draws: well inside 150..250).
+    assert 150 < orders.count("b-1111aaaa") < 250
+    # A different secret gives an unrelated order for the same sid.
+    sid = "f" * 32
+    flips = {tuple(blind.slot_order(sid, build_ids, f"key-{i}")) for i in range(20)}
+    assert len(flips) == 2
+
+
+def test_old_format_tokens_are_rejected() -> None:
+    """Pre-fix tokens that spelled out the order get a fresh session, not a mismatch."""
+    import base64
+
+    ids = ["b-1111aaaa", "b-2222bbbb"]
+    raw = json.dumps({"order": ids, "sid": "a" * 32}, separators=(",", ":"), sort_keys=True)
+    body = base64.urlsafe_b64encode(raw.encode()).decode().rstrip("=")
+    token = f"{body}.{blind._sign_body(body, 'k', ids)}"
+    assert blind.verify_session(token, "k", set(ids)) is None
 
 
 def test_inject_slot_shim_rewrites_static_tags_and_inserts_shim() -> None:
@@ -468,3 +501,31 @@ def test_events_endpoint_bounds_code_and_body_size(arena_client) -> None:  # noq
     resp = client.post("/api/events", content=huge, headers={"content-type": "application/json"})
     assert resp.status_code == 413
     assert app_module.MAX_API_BODY_BYTES < len(huge)
+
+
+def test_bundle_names_lose_their_hashes(tmp_path: Path) -> None:
+    """Hashed Vite bundle names are renamed and every reference follows."""
+    build = tmp_path / "b-x"
+    (build / "assets").mkdir(parents=True)
+    (build / "index.html").write_text(
+        '<script src="/assets/index-CEyXDvVM.js"></script><link href="/assets/index-BHOQRlWH.css">',
+        encoding="utf-8",
+    )
+    (build / "assets" / "index-CEyXDvVM.js").write_text(
+        'import("./chunk-Ab_9xY-z.js")', encoding="utf-8"
+    )
+    (build / "assets" / "chunk-Ab_9xY-z.js").write_text("x", encoding="utf-8")
+    (build / "assets" / "index-BHOQRlWH.css").write_text("a{}", encoding="utf-8")
+    (build / "assets" / "Player_Idle.fbx").write_bytes(b"bin")
+
+    renames = prepare.neutralize_bundle_names(build)
+    assert renames == {
+        "chunk-Ab_9xY-z.js": "chunk.js",
+        "index-BHOQRlWH.css": "index.css",
+        "index-CEyXDvVM.js": "index.js",
+    }
+    names = sorted(p.name for p in (build / "assets").iterdir())
+    assert names == ["Player_Idle.fbx", "chunk.js", "index.css", "index.js"]
+    html = (build / "index.html").read_text(encoding="utf-8")
+    assert "/assets/index.js" in html and "/assets/index.css" in html
+    assert (build / "assets" / "index.js").read_text(encoding="utf-8") == 'import("./chunk.js")'

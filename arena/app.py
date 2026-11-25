@@ -286,7 +286,7 @@ def _resolve_cookie(
         if payload is not None and candidate is not None:
             return payload, candidate, False
 
-    fresh = new_session(runtime.build_ids)
+    fresh = new_session(runtime.build_ids, SESSION_SECRET)
     return fresh, sign_session(fresh, SESSION_SECRET), True
 
 

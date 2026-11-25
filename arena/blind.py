@@ -6,6 +6,7 @@ requiring web-framework dependencies.
 
 Main entry points:
 - `new_session`, `sign_session`, `verify_session`: counterbalanced A/B assignment
+  that is never readable from the token itself (`slot_order`)
 - `inject_slot_shim`: rewrites a Vite `index.html` so root-relative `/assets/`
   fetches route cleanly to `/play/{slot}/assets/` inside a blind iframe, and
   adds the input logger (`build_input_logger_script`)
@@ -37,7 +38,11 @@ SHARED_ASSET_PREFIX: str = "/assets/gt-gpu/"
 
 
 class SessionPayload(TypedDict):
-    """Data embedded inside a visitor's signed HttpOnly arena cookie.
+    """A visitor's blind session, as resolved server-side from their signed token.
+
+    Only `sid` travels in the token. `order` is derived on the server from the sid and
+    the signing secret, so a visitor who decodes their token learns nothing about which
+    build sits in which slot.
 
     Attributes:
         sid: random 128-bit hex session identifier (used as primary key for votes)
@@ -49,47 +54,75 @@ class SessionPayload(TypedDict):
     order: list[str]
 
 
-def new_session(build_ids: tuple[str, str]) -> SessionPayload:
-    """Creates a fresh blind session with 50/50 counterbalanced A/B build order.
+def _check_pair(build_ids: tuple[str, str] | set[str]) -> list[str]:
+    """Returns the two build IDs sorted, or raises if they aren't two distinct non-empty IDs."""
+    ids = sorted(build_ids)
+    if len(ids) != 2 or not ids[0] or not ids[1] or ids[0] == ids[1]:
+        raise ValueError("build_ids must contain two distinct non-empty IDs")
+    return ids
+
+
+def slot_order(sid: str, build_ids: tuple[str, str] | set[str], secret: str) -> list[str]:
+    """Derives a session's `[build_for_a, build_for_b]` from its sid with a keyed hash.
+
+    A keyed coin flip is 50/50 across random sids (counterbalanced) and stable for one
+    sid, yet nobody without the secret can predict it, so a reveal one visitor shares
+    says nothing about anyone else's slots.
+
+    Args:
+        sid: session ID
+        build_ids: the two opaque build IDs currently served
+        secret: server-side signing key
+
+    Returns:
+        the two build IDs in slot order (A first)
+    """
+    ids = _check_pair(build_ids)
+    flip = hmac.new(secret.encode("utf-8"), f"order:{sid}".encode(), hashlib.sha256).digest()
+    return ids if flip[0] & 1 == 0 else [ids[1], ids[0]]
+
+
+def new_session(build_ids: tuple[str, str], secret: str) -> SessionPayload:
+    """Creates a fresh blind session with a counterbalanced, secret A/B build order.
 
     Args:
         build_ids: pair of two distinct opaque build identifiers from manifest.json
+        secret: server-side signing key (decides the hidden slot order)
 
     Returns:
-        a new `SessionPayload` with a cryptographically random session ID and
-        unbiased slot assignment
+        a new `SessionPayload` with a cryptographically random session ID
 
     Raises:
         ValueError: if the two build IDs are empty or identical
     """
-    first, second = build_ids
-    if not first or not second or first == second:
-        raise ValueError("build_ids must contain two distinct non-empty IDs")
-
-    # Coin flip via OS CSPRNG so order bias cancels out across visitors.
-    order = [first, second] if secrets.randbelow(2) == 0 else [second, first]
-    return {"sid": secrets.token_hex(16), "order": order}
+    sid = secrets.token_hex(16)
+    return {"sid": sid, "order": slot_order(sid, build_ids, secret)}
 
 
-def _sign_body(body: str, secret: str) -> str:
-    """Computes the unpadded URL-safe base64 HMAC-SHA256 signature for `body`."""
-    mac = hmac.new(secret.encode("utf-8"), body.encode("ascii"), hashlib.sha256).digest()
+def _sign_body(body: str, secret: str, build_ids: list[str]) -> str:
+    """Computes the unpadded URL-safe base64 HMAC-SHA256 signature for `body`.
+
+    The served build pair is part of the signed message, so a token minted for one
+    race stops verifying once the Space switches to another race's builds.
+    """
+    message = f"{body}|{','.join(build_ids)}".encode("ascii")
+    mac = hmac.new(secret.encode("utf-8"), message, hashlib.sha256).digest()
     return base64.urlsafe_b64encode(mac).decode("ascii").rstrip("=")
 
 
 def sign_session(payload: SessionPayload, secret: str) -> str:
-    """Serializes and HMAC-SHA256 signs a session payload into a cookie token.
+    """Signs a session into a cookie token that carries only its sid.
 
     Args:
-        payload: session dict (`sid` and two-element opaque `order`)
+        payload: session dict (`sid` and the derived `order`)
         secret: server-side signing key
 
     Returns:
         URL-safe `<base64_payload>.<base64_mac>` token string
     """
-    raw = json.dumps(payload, separators=(",", ":"), sort_keys=True).encode("utf-8")
+    raw = json.dumps({"sid": payload["sid"]}, separators=(",", ":")).encode("utf-8")
     body = base64.urlsafe_b64encode(raw).decode("ascii").rstrip("=")
-    return f"{body}.{_sign_body(body, secret)}"
+    return f"{body}.{_sign_body(body, secret, _check_pair(set(payload['order'])))}"
 
 
 def verify_session(
@@ -97,7 +130,7 @@ def verify_session(
     secret: str,
     valid_build_ids: set[str],
 ) -> SessionPayload | None:
-    """Validates a signed session cookie and checks its build IDs against manifest.
+    """Validates a signed session token for the build pair currently served.
 
     Args:
         token: raw cookie value, or None if missing
@@ -105,7 +138,9 @@ def verify_session(
         valid_build_ids: set of opaque build IDs currently served by the arena
 
     Returns:
-        decoded `SessionPayload` when signature and build IDs are valid, else None
+        the `SessionPayload` (with its derived slot order) when the signature is valid
+        for this build pair, else None; tokens in the old format that spelled out the
+        order are rejected so those visitors get a fresh session
     """
     if not token:
         return None
@@ -113,8 +148,13 @@ def verify_session(
     if not sep or not body or not sig:
         return None
 
+    try:
+        ids = _check_pair(valid_build_ids)
+        expected = _sign_body(body, secret, ids)
+    except (ValueError, UnicodeEncodeError):
+        return None
     # Verify HMAC in constant time before decoding untrusted JSON.
-    if not hmac.compare_digest(sig, _sign_body(body, secret)):
+    if not hmac.compare_digest(sig, expected):
         return None
 
     # Restore stripped base64 padding before decoding.
@@ -124,19 +164,12 @@ def verify_session(
     except (ValueError, UnicodeDecodeError):
         return None
 
-    if not isinstance(data, dict):
+    if not isinstance(data, dict) or set(data) != {"sid"}:
         return None
-    sid = data.get("sid")
-    order = data.get("order")
-    if (
-        not isinstance(sid, str)
-        or len(sid) < 16
-        or not isinstance(order, list)
-        or len(order) != 2
-        or set(order) != valid_build_ids
-    ):
+    sid = data["sid"]
+    if not isinstance(sid, str) or len(sid) < 16:
         return None
-    return {"sid": sid, "order": [str(order[0]), str(order[1])]}
+    return {"sid": sid, "order": slot_order(sid, ids, secret)}
 
 
 def build_slot_shim_script(asset_prefix: str) -> str:

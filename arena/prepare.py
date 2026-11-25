@@ -13,6 +13,8 @@ Responsibilities:
   testing).
 - Scans every non-media file (and flags source maps) for leaked model/vendor names (`kimi`, `opus`,
   `claude`, `anthropic`, `fireworks`, `moonshot`) and scrubs `<title>` leaks.
+- Strips Vite content hashes from bundle names (`index-<hash>.js` -> `index.js`) so
+  file names don't tell the two builds apart.
 - Writes `arena/builds/manifest.json`, which stays server-side in `arena/app.py`.
 """
 
@@ -180,6 +182,60 @@ def scan_build_for_leaks(build_dir: Path, contender: str, max_hits: int = 25) ->
     return hits
 
 
+# Vite's content-hashed bundle names (`index-CEyXDvVM.js`): stable per build and identical
+# for every visitor, so one shared screenshot of DevTools would de-blind everyone.
+_HASHED_BUNDLE_RE: re.Pattern[str] = re.compile(
+    r"^(?P<stem>.+)-[A-Za-z0-9_-]{8}\.(?P<ext>js|mjs|css)$"
+)
+
+# Text files whose contents may reference bundle names and so get the renames applied.
+_REFERENCE_SUFFIXES: frozenset[str] = frozenset({".html", ".js", ".mjs", ".css"})
+
+
+def neutralize_bundle_names(build_dir: Path) -> dict[str, str]:
+    """Strips Vite content hashes from `assets/` bundle names so both builds look alike.
+
+    Renames `index-<hash>.js` to `index.js` (and likewise for CSS and code-split chunks)
+    and rewrites every reference in the build's HTML, JS and CSS. A name is left alone
+    when stripping its hash would collide with another file.
+
+    Args:
+        build_dir: packaged opaque build folder
+
+    Returns:
+        mapping of old file name to new file name for every rename applied
+    """
+    assets = build_dir / "assets"
+    if not assets.is_dir():
+        return {}
+    taken = {p.name for p in assets.iterdir()}
+    renames: dict[str, str] = {}
+    for path in sorted(assets.iterdir()):
+        match = _HASHED_BUNDLE_RE.match(path.name)
+        if not path.is_file() or match is None:
+            continue
+        new_name = f"{match['stem']}.{match['ext']}"
+        if new_name in taken:
+            continue
+        taken.add(new_name)
+        renames[path.name] = new_name
+    if not renames:
+        return {}
+
+    for path in build_dir.rglob("*"):
+        if not path.is_file() or path.suffix.lower() not in _REFERENCE_SUFFIXES:
+            continue
+        text = path.read_text(encoding="utf-8", errors="surrogateescape")
+        updated = text
+        for old, new in renames.items():
+            updated = updated.replace(old, new)
+        if updated != text:
+            path.write_text(updated, encoding="utf-8", errors="surrogateescape")
+    for old, new in renames.items():
+        (assets / old).rename(assets / new)
+    return renames
+
+
 def _copy_dist_without_shared(src_dist: Path, dest_dir: Path) -> int:
     """Copies a Vite `dist/` tree while skipping the shared `assets/gt-gpu/` directory.
 
@@ -258,6 +314,7 @@ def package_race(
         opaque_id = f"b-{secrets.token_hex(4)}"
         dest = out_dir / opaque_id
         copied_bytes = _copy_dist_without_shared(dist, dest)
+        neutralize_bundle_names(dest)
         all_leaks.extend(scan_build_for_leaks(dest, contender))
         builds_meta[opaque_id] = {
             "contender": contender,
