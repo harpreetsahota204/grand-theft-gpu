@@ -4,14 +4,14 @@ Instructions for AI coding agents working in this repo. Read this first. Maintai
 
 ## What this repo is
 
-A harness that races two models, **Kimi K3.1 Pro** (on Fireworks, routed through Nexus) and **Claude Opus 5.5**, on the same brief and budget in headless Claude Code. Each builds *Grand Theft GPU*, a browser heist game, from the same three.js base game. After every builder turn, a critic (a fresh session of the same model) plays the game and writes the next prompt. A run ends when the budget runs out; a Tier 4 claim is checked and logged but doesn't end it. Builds are scored afterwards against `scoring/checklist.md`, locked at tag `scoring-v1` before the first $100 race. The harness sandboxes each model, meters spend through Nexus, catches cross-model leaks, and records a commit, a build and a screenshot every turn.
+A harness that races two models, **Kimi K3.1 Pro** (on Fireworks, routed through Nexus) and **Claude Opus 5.5**, on the same brief and budget in headless Claude Code. Each builds *Grand Theft GPU*, a browser heist game, from the same three.js base game. After every builder turn, a critic (a fresh session of the same model) plays the game and writes the next prompt. A run ends when the budget runs out; the critic's tier never ends it. Builds are scored afterwards against `scoring/checklist.md`, locked at tag `scoring-v1` before the first $100 race. The harness sandboxes each model, meters spend through Nexus, catches cross-model leaks, and records a commit, a build and a screenshot every turn.
 
 `README.md` explains how a race works. `HUMANS.md` is the story version for people.
 
 ## Ground rules
 
 1. **Races spend real money.** `buildoff race` spends up to `--budget` *per model* on the user's Fireworks and Anthropic accounts. **Never start a race without the user's explicit OK in this conversation.** The CLI refuses budgets over $2 without `--yes`; don't add `--yes` on your own. `buildoff smoke` (about $2–4) is the only paid check you may run unasked, and only to verify a harness change.
-2. **The prompts are locked** at git tag `prompt-v12`: `prompts/game_spec.md`, `game_spec_primitives.md`, `run_rules.md`, `critic.md` and `nudge.md` (the template that wraps the critic's notes). A change needs the user's OK and a new tag, because results across prompt versions aren't comparable.
+2. **The prompts are locked** at git tag `prompt-v13`: `prompts/game_spec.md`, `game_spec_primitives.md`, `run_rules.md`, `critic.md` and `nudge.md` (the template that wraps the critic's notes). A change needs the user's OK and a new tag, because results across prompt versions aren't comparable.
 3. **Fairness is the product.** Both sides get identical flags, tools, files, settings and rules; only the model ID differs (in `--model` and the per-side settings files; `tests/test_session.py` checks this). Never change one side alone.
 4. **Don't read credentials.** Never open `~/.claude/settings.json` or other key files. Use `nexus claude status` to check routing.
 5. **Don't use `--dangerously-skip-permissions` or `claude --bare`.** The harness pre-approves tools with `--allowed-tools`, and `--bare` breaks Nexus auth.
@@ -31,12 +31,12 @@ Requires macOS (`sandbox-exec`), Claude Code 2.1.281+, the Nexus CLI logged in a
 
 | Command | What it does | Cost |
 |---|---|---|
-| `uv run pytest` | Local tests: critic parsing, review trace, meter, sandbox, Stop hook, settings parity, checks, evidence, asset lookup | free, ~2 s |
+| `uv run pytest` | Local tests: critic parsing, review trace, meter, sandbox, Stop hook, settings parity, evidence, asset lookup | free, ~2 s |
 | `uv run buildoff doctor` | Checks prerequisites | free |
 | `uv run buildoff smoke` | End to end: both models add a floating GPU, then one critic review each | ~$2–4 |
 | `uv run buildoff race --budget N --yes [--pack full\|primitives] [--viewers]` | A race on that pack's locked spec; `--viewers` opens a live Terminal window per model | up to $N per model |
 | `uv run buildoff status [race-id]` | Progress as JSON, with the critic's tier per round (latest race by default) | free |
-| `uv run buildoff reviews [race-id]` | Every critic round: tier, notes, Tier 4 checks, cost, time, screenshots | free |
+| `uv run buildoff reviews [race-id]` | Every critic round: tier, route, notes, cost, time, screenshots | free |
 | `uv run buildoff play <kimi\|opus> [--race-id ID]` | Serves a contender's latest build on localhost | free |
 | `uv run buildoff stop [race-id]` | Aborts a race cleanly and kills any orphaned session | free |
 | `uv run buildoff fetch <id ...> \| --core \| --pattern G` | Downloads assets from the pinned Hugging Face revision | free |
@@ -53,7 +53,7 @@ nohup uv run buildoff race --budget N --yes --race-id my-race > ~/gta-race-runs/
 Outputs go to `~/gta-race-runs/<race-id>/<model>/`:
 - `result.json`: the stop reason (`budget`, `declared_done` in smoke tests, or a safety stop: `leak`, `meter_down`, `aborted`, `error`), total cost from Nexus (builder and critics), turns, reviews, last tier, model time, first playable turn, and every model seen (must be only that side's own)
 - `logs/turns.jsonl`: per turn, whether it built, loaded and was `playable`, plus errors. Turn 0 is the untouched base game.
-- `logs/reviews.jsonl`: each critic verdict (tier, Tier 4 claim, notes, that review's cost and time) and any Tier 4 check result; `buildoff reviews` merges them per round
+- `logs/reviews.jsonl`: each critic verdict (tier, route, notes, that review's cost and time); `buildoff reviews` lists them per round
 - `logs/turn-NNN.jsonl`, `logs/critic-NNN.jsonl`: timestamped transcripts
 - `logs/events.jsonl`: leaks, stalls, a dead meter, aborts, retries, harness errors with traceback
 - `shots/turn-NNN.png`, `shots/critic-NNN/` (the critic's own screenshots that round), `workspace/`, `history.git/` (`git --git-dir=history.git log`), `toolkit/` (what ran inside the sandbox)
@@ -66,8 +66,7 @@ A healthy smoke run shows `declared_done`, `playable: true` on every turn, a par
 |---|---|
 | `harness/cli.py` | The `buildoff` entry point |
 | `harness/race.py` | Runs both contenders in parallel; abort handling, keep-awake, `stop` |
-| `harness/runner.py` | One contender: build turn → evidence → critic review → Tier 4 check → next prompt; the spend/leak/stall watchdog |
-| `harness/checks.py` | The harness's own Tier 4 checks |
+| `harness/runner.py` | One contender: build turn → evidence → critic review (given the last review's route) → next prompt; the spend/leak/stall watchdog |
 | `harness/session.py`, `harness/stop_hook.py` | Per-side Claude Code settings (model pins, effort, compaction), the Stop hook, the playtester subagent |
 | `harness/sandbox.py` | Per-side `sandbox-exec` profiles (builder; read-only critic) and the scrubbed environment |
 | `harness/seed.py` | Seeds a workspace: base game at a pinned commit, assets, tools, `npm ci` |

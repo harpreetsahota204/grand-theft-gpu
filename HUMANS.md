@@ -141,6 +141,8 @@ Every rule below exists because something could tilt the result.
 
 There's no nudge limit. In the $25 dry runs, both models called their games done at $5–11, far short of the top tier. Now each model gets its own critic: after every turn, a fresh session of the same model, with no memory of building it, plays the game, compares it with the brief and writes the builder's next instructions. Both sides get the same setup, so the critic's quality is part of what's measured.
 
+**Each critic starts from the last one's route.** In the first $100 race, Kimi's critics flipped between Tier 2 and Tier 4 from one round to the next. The game wasn't breaking: each fresh critic had to script its way through a long mission chain with timed key presses, and when it missed a turn and never reached a mission, it called the tier unproven. The harness's own Tier 4 check had the same weakness: it called the city "frozen" whenever the camera at spawn showed no traffic. Now each critic gets the last review's tier and the exact steps it used, and the builder keeps a per-tier walkthrough in `DONE.md`. The critic replays those first and still has to see everything working itself. We dropped the harness check, since the locked checklist scores Tier 4 after the race.
+
 **Keep it honest.** Nexus is a Fireworks tool, and Kimi runs on Fireworks. The referee's numbers come from list prices with a cited source (`docs.fireworks.ai/serverless/pricing` for Kimi), and every raw transcript is kept, so anyone can recompute the spend. The budget check runs every 15 seconds, so a run can end slightly over $100. In tests the overshoot was $0.01 to $0.05.
 
 **Keep it honest.** For now, the Claude side bills through a Claude login. For a clean "$100 at list price" comparison, Nexus needs an Anthropic API key, and that's an open item before the full race.
@@ -156,7 +158,7 @@ Nothing records the screen. A screen recording would capture whatever else is op
     ├── history.git/          one commit per turn, out of the model's reach
     ├── logs/turn-NNN.jsonl   builder transcript, each line {"t": seconds, "event": ...}
     ├── logs/critic-NNN.jsonl the critic's review session after each turn
-    ├── logs/reviews.jsonl    every verdict: tier reached, Tier 4 claim, notes, the review's cost and time
+    ├── logs/reviews.jsonl    every verdict: tier reached, route, notes, the review's cost and time
     ├── logs/cost.csv         spend at every Nexus poll
     ├── logs/turns.jsonl      per turn: build_ok, loaded, playable, errors, cost
     ├── shots/turn-NNN.png    gameplay screenshot (000 = untouched base game)
@@ -222,7 +224,7 @@ nexus claude usage --session <session_id from status>
 
 That's also how you confirm Kimi is really working: every row names `kimi-k3p1-pro` on Fireworks, with its input, cached and output tokens and its cost. If the spend keeps climbing, the model is producing tokens.
 
-To see what each critic said, round by round (tier, notes, Tier 4 checks, what the review cost and where its screenshots are):
+To see what each critic said, round by round (tier, route, notes, what the review cost and where its screenshots are):
 
 ```bash
 uv run buildoff reviews my-race
@@ -273,7 +275,7 @@ So the harness isn't a variable. Nexus points Claude Code at Fireworks, and both
 It doesn't know Kimi's prices and falls back to a default rate. In testing it reported $0.060 for a call that costs $0.030 at Kimi K3.1 Pro's list price ($2 per million input tokens, $10 per million output). `nexus claude usage --json` prices each row at the provider's list rate.
 
 ### **Can I change the prompt?**
-Not for a comparable race. The game specs, `run_rules.md`, `critic.md` and `nudge.md` are frozen at git tag `prompt-v12`. Edit them for your own experiments, but tag the new version, because results across prompt versions aren't comparable.
+Not for a comparable race. The game specs, `run_rules.md`, `critic.md` and `nudge.md` are frozen at git tag `prompt-v13`. Edit them for your own experiments, but tag the new version, because results across prompt versions aren't comparable.
 
 ### **Can I rebuild the assets myself?**
 Yes. The code that builds the dataset lives in the dataset, under `build/`, and its card's [Recreate the assets](https://huggingface.co/datasets/harpreetsahota/grand-theft-gpu-assets#recreate-the-assets) section lists every step. You only need Blender for the USDCraft props. Races don't need any of it: they download the finished files at a pinned revision.

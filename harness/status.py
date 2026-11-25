@@ -5,8 +5,8 @@ runner writes (`logs/turns.jsonl`, `logs/cost.csv`, `result.json`), so it works
 while a race is running and after it ends, and never touches the race itself.
 
 `buildoff reviews [race-id]` prints every critic round per contender: tier,
-Tier 4 claim and checks, the review's own cost and time, notes, and where its
-screenshots are.
+route, the review's own cost and time, notes, and where its screenshots are
+(plus the Tier 4 claim and harness checks in races before prompt-v13).
 
 `buildoff play <race-id> <contender>` serves that contender's latest build
 (`workspace/dist/`) on localhost and opens it in the default browser.
@@ -137,8 +137,9 @@ def status(race_id: str | None) -> dict[str, Any]:
 def review_trace(folder: Path) -> list[dict[str, Any]]:
     """Every critic round for one contender, with its Tier 4 check result if one ran.
 
-    `reviews.jsonl` holds a verdict row per round and, when the critic claimed
-    Tier 4, a separate `tier4_checks` row for the same turn; this merges them.
+    `reviews.jsonl` holds a verdict row per round. Races before prompt-v13 also
+    ran harness Tier 4 checks when the critic claimed Tier 4, logged as a
+    separate `tier4_checks` row for the same turn; this merges them.
 
     Args:
         folder: the contender's output folder
@@ -157,6 +158,7 @@ def review_trace(folder: Path) -> list[dict[str, Any]]:
             for k in (
                 "tier",
                 "tier4_complete",
+                "route",
                 "review_cost_usd",
                 "review_seconds",
                 "cost_usd",

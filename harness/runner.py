@@ -1,4 +1,4 @@
-"""One contender's race: build turns, critic reviews, the Tier 4 check, and the watchdog.
+"""One contender's race: build turns, critic reviews, and the watchdog.
 
 `harness.race` creates a `ContenderRun` per model and runs them in parallel
 threads. A run is a loop of rounds:
@@ -10,13 +10,13 @@ threads. A run is a loop of rounds:
    game and screenshots it.
 3. **Critic review.** A fresh `claude -p` session of the *same* model, with no
    memory of building, plays the game read-only (`prompts/critic.md`) and
-   writes a JSON verdict to `tools/shots/verdict.json`: the tier reached,
-   whether Tier 4 is complete, and ranked notes for the builder.
-4. **Tier 4 check.** If the critic says Tier 4, the harness's own checks
-   (`harness.checks`) run and are logged. If they fail, their failures are
-   added to the critic's notes. Either way the run goes on: a same-model
-   critic is too lenient a judge to end it (scoring is `scoring/checklist.md`).
-5. The notes go back to the builder in the `prompts/nudge.md` template, and
+   writes a JSON verdict to `tools/shots/verdict.json`: the tier reached, the
+   route that showed it, and ranked notes for the builder. Each critic gets the
+   last review's tier and route to replay first, so a tier it can't reach by
+   scripted play isn't silently dropped. The tier never ends the run: a
+   same-model critic is a coach, and builds are scored afterwards against
+   `scoring/checklist.md`.
+4. The notes go back to the builder in the `prompts/nudge.md` template, and
    the next round starts.
 
 A run ends on the budget or on a safety stop (leak, dead meter, abort, harness
@@ -38,12 +38,11 @@ Output layout under `<race_dir>/<contender>/`:
     sandbox.sb, critic.sb  sandbox profiles for the builder and the read-only critic
     logs/turn-NNN.jsonl    builder transcript per turn ({"t": seconds, "event": ...})
     logs/critic-NNN.jsonl  critic transcript after turn NNN
-    logs/reviews.jsonl     one row per review: tier, Tier 4 claim, check results, notes
+    logs/reviews.jsonl     one row per review: tier, route, notes, its cost and time
     logs/cost.csv          timestamped total spend (all sessions) per Nexus
     logs/turns.jsonl       one row per turn (turn 0 = seeded base): build, load, errors
     logs/events.jsonl      harness events: leak, stall, meter, abort, retries, errors
     logs/claude.pgid       process group of the running session (for `buildoff stop`)
-    logs/checks/turn-NNN/  frames from the Tier 4 motion check
     shots/turn-NNN.png     screenshot of the built game after each turn (000 = base)
     shots/critic-NNN/      the screenshots the critic took reviewing turn NNN
     result.json            final outcome
@@ -63,7 +62,7 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import IO, Literal, TextIO
 
-from harness import checks, meter, sandbox, seed, session, snapshot
+from harness import meter, sandbox, seed, session, snapshot
 from harness.config import (
     BUILD_DIR,
     CRITIC_TOOLS,
@@ -97,6 +96,8 @@ CUT_OFF_MARKER: str = "was cut off mid-stream"
 # What the builder is told when the critic produced no usable verdict (its
 # session failed, or it wrote no valid verdict.json).
 NO_REVIEW_NOTES: str = "The critic could not finish a review this round."
+# What the first critic is told in place of the last review's tier and route.
+NO_LAST_REVIEW: str = "Nothing yet: this is the first review."
 
 # An empty MCP config plus --strict-mcp-config removes the user's connectors
 # (Notion, Gmail, ...) from the race sessions.
@@ -118,18 +119,14 @@ class Review:
     Attributes:
         parsed: whether a valid verdict file was found
         tier: highest tier the critic saw fully working, if given
-        tier4_complete: the critic's claim that Tier 4 is done
-        day_shot: path of its daylight screenshot (Tier 4 evidence)
-        night_shot: path of its night screenshot (Tier 4 evidence)
+        route: the tools/screenshot steps, from a fresh load, that showed that tier
         notes: what the builder should do next, ranked, one "[group] note" per line
         problem: why the verdict was rejected (empty when parsed)
     """
 
     parsed: bool
     tier: int | None = None
-    tier4_complete: bool = False
-    day_shot: str = ""
-    night_shot: str = ""
+    route: str = ""
     notes: str = ""
     problem: str = ""
 
@@ -275,6 +272,8 @@ class ContenderRun:
 
             prompt = build_first_prompt(self.cfg.spec_path, self.cfg.budget_usd)
             notes = ""
+            # The latest parsed review, whose route the next critic replays first.
+            last_review: Review | None = None
             while True:
                 if ABORT.is_set():
                     reason = "aborted"
@@ -300,37 +299,19 @@ class ContenderRun:
                     reason = "error"
                     break
 
-                review = self._review(turn)
+                review = self._review(turn, last_review)
                 if isinstance(review, str):  # a hard stop during the critic's session
                     reason = review  # type: ignore[assignment]
                     break
                 reviews += 1
-                last_tier = review.tier if review.parsed else last_tier
+                if review.parsed:
+                    last_review = review
+                    last_tier = review.tier
 
                 if self.cfg.stop_on_done and (self.workspace / DONE_FILE).exists():
                     reason = "declared_done"
                     break
                 notes = review.notes if review.parsed else NO_REVIEW_NOTES
-                if review.tier4_complete:
-                    result = checks.tier4(
-                        self.workspace,
-                        self.logs / "checks" / f"turn-{turn:03d}",
-                        review.day_shot,
-                        review.night_shot,
-                        self._review_started,
-                    )
-                    self._append_jsonl(
-                        "reviews.jsonl",
-                        {"turn": turn, "tier4_checks": asdict(result)},
-                    )
-                    # A pass is only logged; the run goes on to the budget. A
-                    # failure means the critic overclaimed: the builder hears
-                    # both, so it knows what to fix.
-                    if not result.passed:
-                        notes = "\n".join(
-                            [notes, "", "The harness's Tier 4 checks failed:"]
-                            + [f"- {f}" for f in result.failures]
-                        ).strip()
                 prompt = nudge_text(notes, self._cost(), self.cfg.budget_usd)
         except Exception:
             self._event({"event": "harness_error", "turn": turn, "trace": traceback.format_exc()})
@@ -419,7 +400,7 @@ class ContenderRun:
             return "api_error"
         return end
 
-    def _review(self, turn: int) -> Review | StopReason:
+    def _review(self, turn: int, last: Review | None) -> Review | StopReason:
         """Runs the critic after a turn and parses its verdict.
 
         The critic is a fresh session of the same model (no memory of building),
@@ -427,6 +408,7 @@ class ContenderRun:
 
         Args:
             turn: the turn just finished
+            last: the latest parsed review, whose tier and route this critic replays first
 
         Returns:
             the review (unparsed if the critic failed or wrote no valid verdict),
@@ -437,12 +419,12 @@ class ContenderRun:
         verdict_path.unlink(missing_ok=True)
         critic_id = str(uuid.uuid4())
         self.critic_sessions.append(critic_id)
-        prompt = critic_text(self.cfg.spec_path, self.cfg.budget_usd)
+        prompt = critic_text(self.cfg.spec_path, self.cfg.budget_usd, last)
         cmd = self._claude_cmd(
             prompt, ["--session-id", critic_id], CRITIC_TOOLS, session.CRITIC_SETTINGS_FILE
         )
         log_path = self.logs / f"critic-{turn:03d}.jsonl"
-        # Wall-clock start: the critic's day/night screenshots must be newer.
+        # Wall-clock start: only screenshots newer than this are this critic's.
         self._review_started = time.time()
         end = self._run_session(cmd, self.critic_profile, critic_id, log_path, f"review {turn}")
         kept = keep_critic_shots(
@@ -751,10 +733,31 @@ def nudge_text(notes: str, spent_usd: float, budget_usd: float) -> str:
     )
 
 
-def critic_text(spec_path: Path, budget_usd: float) -> str:
-    """The critic's prompt: the locked critic template around the game brief."""
+def critic_text(spec_path: Path, budget_usd: float, last: Review | None = None) -> str:
+    """The critic's prompt: the locked critic template around the game brief.
+
+    It also carries the last review's tier and route. Each critic starts fresh,
+    and in the v12 race Kimi's critics flipped between Tier 2 and Tier 4 when one
+    couldn't script its way to a mission the one before had reached.
+
+    Args:
+        spec_path: markdown game spec
+        budget_usd: the per-contender budget
+        last: the latest parsed review, or None before the first one
+
+    Returns:
+        the critic's full prompt
+    """
+    if last is None:
+        last_review = NO_LAST_REVIEW
+    else:
+        last_review = (
+            f"It judged Tier {last.tier}. Its route:\n\n{last.route.strip() or '(none given)'}"
+        )
     template = (PROMPTS_DIR / "critic.md").read_text()
-    return template.replace("{brief}", brief_text(spec_path, budget_usd))
+    return template.replace("{last_review}", last_review).replace(
+        "{brief}", brief_text(spec_path, budget_usd)
+    )
 
 
 # Where the critic writes its verdict, relative to the workspace. It sits in
@@ -791,9 +794,7 @@ def parse_review(verdict_path: Path) -> Review:
     return Review(
         parsed=True,
         tier=verdict["tier"],
-        tier4_complete=verdict["tier4_complete"],
-        day_shot=verdict.get("day_shot") or "",
-        night_shot=verdict.get("night_shot") or "",
+        route=verdict["route"],
         notes="\n".join(
             f"{i}. [{n['group']}] {n['note'].strip()}" for i, n in enumerate(verdict["notes"], 1)
         ),
@@ -815,11 +816,8 @@ def _verdict_problem(verdict: object) -> str:
     # bool is an int subclass; True must not pass as tier 1.
     if not isinstance(tier, int) or isinstance(tier, bool) or not 0 <= tier <= 4:
         return "tier must be an integer from 0 to 4"
-    if not isinstance(verdict.get("tier4_complete"), bool):
-        return "tier4_complete must be true or false"
-    for key in ("day_shot", "night_shot"):
-        if not isinstance(verdict.get(key) or "", str):
-            return f"{key} must be a string"
+    if not isinstance(verdict.get("route"), str):
+        return "route must be a string"
     notes = verdict.get("notes")
     if not isinstance(notes, list) or not notes:
         return "notes must be a non-empty list"

@@ -179,8 +179,8 @@ def build_parser() -> argparse.ArgumentParser:
         "reviews",
         help="every critic round as JSON (free, read-only)",
         description=(
-            "Trace the critic over a race: per contender and round, the tier, the Tier 4 "
-            "claim and checks, that review's cost and time, its notes, and its screenshots."
+            "Trace the critic over a race: per contender and round, the tier, the route "
+            "that showed it, that review's cost and time, its notes, and its screenshots."
         ),
     )
     rv.add_argument("race_id", nargs="?", default=None, help="default: the latest race")

@@ -21,9 +21,7 @@ def _verdict(tmp_path: Path, verdict: object) -> Path:
 
 GOOD_VERDICT: dict[str, object] = {
     "tier": 3,
-    "tier4_complete": False,
-    "day_shot": "",
-    "night_shot": "",
+    "route": "tools/screenshot --no-build --hold e:200 --hold w:3000",
     "notes": [
         {"group": "blocker", "note": "Pressing E near a cop car freezes the game."},
         {"group": "look and feel", "note": "Night is too dark to read the HUD."},
@@ -37,7 +35,7 @@ def test_review_verdict_is_read_from_the_file(tmp_path: Path) -> None:
     assert review == runner.Review(
         parsed=True,
         tier=3,
-        tier4_complete=False,
+        route="tools/screenshot --no-build --hold e:200 --hold w:3000",
         notes="1. [blocker] Pressing E near a cop car freezes the game.\n"
         "2. [look and feel] Night is too dark to read the HUD.",
     )
@@ -64,8 +62,8 @@ def test_verdict_that_is_not_json_is_unparsed(tmp_path: Path) -> None:
         {"tier": 5},
         {"tier": True},
         {"tier": "3"},
-        {"tier4_complete": "yes"},
-        {"day_shot": 1},
+        {"route": None},
+        {"route": ["w:3000"]},
         {"notes": []},
         {"notes": "Fix the siren."},
         {"notes": [{"group": "urgent", "note": "Fix the siren."}]},
@@ -92,6 +90,25 @@ def test_critic_prompt_contains_the_brief(tmp_path: Path) -> None:
     spec.write_text("# Grand Theft GPU\nSteal a GPU with {budget}.")
     text = runner.critic_text(spec, 25.0)
     assert "Steal a GPU with $25." in text and "{brief}" not in text
+
+
+def test_first_critic_is_told_there_is_no_last_review(tmp_path: Path) -> None:
+    """Before any review, the placeholder becomes the fixed first-review line."""
+    spec = tmp_path / "spec.md"
+    spec.write_text("brief")
+    text = runner.critic_text(spec, 25.0)
+    assert runner.NO_LAST_REVIEW in text and "{last_review}" not in text
+
+
+def test_critic_gets_the_last_reviews_tier_and_route(tmp_path: Path) -> None:
+    """Each critic replays the route the last parsed review used to reach its tier."""
+    spec = tmp_path / "spec.md"
+    spec.write_text("brief")
+    last = runner.parse_review(_verdict(tmp_path, GOOD_VERDICT))
+    text = runner.critic_text(spec, 25.0, last)
+    assert "It judged Tier 3." in text
+    assert "tools/screenshot --no-build --hold e:200 --hold w:3000" in text
+    assert runner.NO_LAST_REVIEW not in text
 
 
 @pytest.mark.parametrize("pack", ["game_spec.md", "game_spec_primitives.md"])

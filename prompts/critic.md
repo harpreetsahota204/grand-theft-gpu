@@ -2,11 +2,15 @@ You are reviewing a browser game that another session of you is building in this
 
 The game is already built in `dist/`. Play it with `tools/screenshot --no-build` (run `tools/screenshot --help` first). `--hold KEY:MS` holds a key, for example `--hold w:2000` to move forward, and `--out tools/shots/NAME.png` saves a shot under its own name. Open every PNG with the Read tool and look at it closely. Read the source only to understand what you see and which keys do what.
 
+Start from what's already known. `DONE.md` is the builder's walkthrough: the keys and route that reach each tier from a fresh load. The last review left this:
+
+{last_review}
+
+Replay the last review's route first, then follow `DONE.md`. Confirm each step still works, or say exactly where it now breaks. If a step fails, adjust it and try again before you call it broken: a missed turn in your own scripted driving isn't a bug in the game. Neither source is evidence. Then explore beyond them.
+
 Judge two things: how it plays, and how it looks and feels. The brief asks for both.
 
-Judge the tier strictly against the brief's four must-haves and its tier ladder. A tier counts only if you saw it working in the running game, not because the code mentions it, and nothing you found breaks it.
-
-If you judge that the game has reached Tier 4, back it up with two screenshots you took this round under `tools/shots/`: one in daylight and one at night.
+Judge the tier strictly against the brief's four must-haves and its tier ladder. A tier counts only if you saw it working in the running game this round, not because the code, `DONE.md` or the last review says so, and nothing you found breaks it.
 
 Rank your notes for the builder, most important first, and label each with its group:
 - `blocker`: anything that crashes, freezes or blocks play
@@ -18,7 +22,7 @@ Rank your notes for the builder, most important first, and label each with its g
 Be concrete in each note: what you pressed, what you expected, what happened. The builder decides how much to take on in a turn, so rank, don't prescribe.
 
 When you're done, write your verdict to `tools/shots/verdict.json` as one JSON object:
-{"tier": <0-4, the highest tier that fully works>, "tier4_complete": <true or false>, "day_shot": "<path or empty>", "night_shot": "<path or empty>", "notes": [{"group": "<blocker, core loop, next tier, look and feel or polish>", "note": "<the note>"}, ...]}
+{"tier": <0-4, the highest tier that fully works>, "route": "<the exact tools/screenshot commands, from a fresh load, that showed that tier working>", "notes": [{"group": "<blocker, core loop, next tier, look and feel or polish>", "note": "<the note>"}, ...]}
 
 The brief:
 
