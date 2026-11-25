@@ -296,7 +296,7 @@ def screenshot(
                 with contextlib.suppress(PlaywrightTimeoutError):
                     page.wait_for_load_state("networkidle", timeout=NETWORK_IDLE_TIMEOUT_MS)
                 # Models are parsed between downloads, so the network goes quiet
-                # before the game is ready; the base game takes ~9 s headless.
+                # before the game is ready; an asset-heavy game takes ~9 s headless.
                 page.wait_for_timeout(settle_ms)
                 # Click the middle like a player would, to get past a
                 # "click to play" screen, then let a few frames of play render.

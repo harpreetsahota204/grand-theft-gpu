@@ -63,7 +63,7 @@ def cmd_fetch(args: argparse.Namespace) -> int:
 
 
 def cmd_smoke(args: argparse.Namespace) -> int:
-    """Runs the cheap smoke race: both models add a floating GPU to the base game."""
+    """Runs the cheap smoke race: both models add a floating GPU to the starter scene."""
     argv = [
         "--spec",
         str(PROMPTS_DIR / "smoke_spec.md"),

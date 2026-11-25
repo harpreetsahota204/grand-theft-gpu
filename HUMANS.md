@@ -54,9 +54,9 @@ Yes. The prompt states the race's real budget ("about $100 of compute" in a $100
 
 ## **What does each model start with?**
 
-Starting from an empty folder would turn the race into "who sets up three.js fastest." So both models start from the same working game and the same asset pack.
+Starting from an empty folder would turn the race into "who sets up three.js fastest." So both models start from the same small project and the same asset pack.
 
-* **The base game:** [kartik786-git/gta-clone-threejs](https://github.com/kartik786-git/gta-clone-threejs), a third-person three.js game with walking, sprinting, jumping, melee and enemies, plus a city model. It's fetched at commit `babb623` for every race and is not redistributed here. It has no cars.
+* **A starter project:** Vite and three.js at pinned versions, and a 30-line scene with a sky, a ground plane and a light. It builds and renders, and that's all. The game is the model's to write.
 * **About 1,300 assets,** pre-installed in every workspace (about 650 MB) and published as the Hugging Face dataset [harpreetsahota/grand-theft-gpu-assets](https://huggingface.co/datasets/harpreetsahota/grand-theft-gpu-assets), with every folder's license and attribution:
   * **105 rigged people** from [Microsoft Rocketbox](https://github.com/microsoft/Microsoft-Rocketbox) (MIT): business suits, police, security, medical, construction, everyday adults. There are no animals or children, and avatars in religious dress or swimwear were left out so no model could cast them as the villains of a satire.
   * **326 motion-capture clips** on the same skeleton (idle, talking, phone calls, sitting, dancing), plus 89 walk/run/drive clips from [Quaternius](https://quaternius.com) (CC0) on a different rig.
@@ -71,7 +71,7 @@ Starting from an empty folder would turn the race into "who sets up three.js fas
 
 **Keep it honest.** The asset pack had a quiet bug, too. The web converter we mirror from had shrunk every Objaverse vehicle and every tree to about 1 m, and the vehicles faced different ways. A model would have parked a 1-metre fire truck next to 1.8-metre people, or spent its budget rescaling everything. We found it by rendering the pack, then set each model to its real size and the same heading by adding one transform node to each file. The geometry is untouched, and the change is recorded in each folder's `ATTRIBUTION.md`.
 
-**Keep it honest.** The base game had a problem we only found by running it. It commits its own `node_modules`, without execute permissions and built for another OS. In the first smoke test, Kimi quietly spent part of its budget repairing the install, and Opus didn't. The harness now skips that folder and installs from the lockfile (`npm ci`) before the clock starts.
+**Keep it honest.** Up to `prompt-v15`, both models started from a third-person demo game ([kartik786-git/gta-clone-threejs](https://github.com/kartik786-git/gta-clone-threejs)) instead. Neither kept much of it: both rewrote its `main.js` in their first turn. But Kimi kept the demo's player model as its founder and reused it for every pedestrian, so the city filled with clones of the hero. The demo was the easiest thing on disk, and it pulled a model away from the brief. Now both start from the blank project, and the founder has to come from the asset pack.
 
 ## **Why only the asset race?**
 
@@ -136,6 +136,8 @@ There's no nudge limit. In the $25 dry runs, both models called their games done
 
 **Each critic starts from the last one's route.** In the first $100 race, Kimi's critics flipped between Tier 2 and Tier 4 from one round to the next. The game mostly wasn't breaking. Each fresh critic had to script its way through a long mission chain with timed key presses, and when it missed a turn and never reached a mission, it called the tier unproven. The harness's own Tier 4 check also misfired, calling the city "frozen" whenever the camera at spawn showed no traffic. Now each critic gets the last review's tier and the exact steps it used, and the builder keeps a per-tier walkthrough in `DONE.md`. The critic replays those first and still has to see everything working itself. We dropped the harness check, since the locked checklist scores Tier 4 after the race.
 
+**Each critic settles the last one's notes.** In the `prompt-v15` race, critics still couldn't see what the last one said. One told Kimi heat was too easy to lose, Kimi made it harder, and the next critic found heat never fell and dropped the tier from 4 to 1. The same blocked-camera note came up in all seven reviews, and nothing marked it as a repeat. Now every note has an id and a status. Each critic gets the last review's notes, lists the ones it saw fixed, carries the rest forward as open or regressed, and quotes the line of the brief each note is measured against. Regressions go to the top, and a tier only counts while nothing below it has regressed. Once a build holds Tier 4, the critic asks for ambition (a new system, deeper company building, a better heist) and keeps look and polish to its top three notes, so the rest of the budget goes to making the game more itself instead of an endless polish list.
+
 **Keep it honest.** Nexus is a Fireworks tool, and Kimi runs on Fireworks. The referee's numbers come from list prices with a cited source (`docs.fireworks.ai/serverless/pricing` for Kimi), and every raw transcript is kept, so anyone can recompute the spend. The budget check runs every 15 seconds, so a run can end slightly over $100. In tests the overshoot was $0.01 to $0.05.
 
 **Keep it honest.** For now, the Claude side bills through a Claude login. For a clean "$100 at list price" comparison, Nexus needs an Anthropic API key, and that's an open item before the full race.
@@ -154,12 +156,12 @@ Nothing records the screen. A screen recording would capture whatever else is op
     ├── logs/reviews.jsonl    every verdict: tier reached, route, notes, the review's cost and time
     ├── logs/cost.csv         spend at every Nexus poll
     ├── logs/turns.jsonl      per turn: build_ok, loaded, playable, errors, cost
-    ├── shots/turn-NNN.png    gameplay screenshot (000 = untouched base game)
+    ├── shots/turn-NNN.png    gameplay screenshot (000 = the untouched starter scene)
     ├── shots/critic-NNN/     every screenshot the critic took reviewing that turn
     └── result.json           stop reason, cost, first playable turn, models seen
 ```
 
-Getting a real gameplay screenshot from headless Chrome took four fixes. Render on the GPU, not in software. Wait for the network to go quiet. Wait another 12 seconds, because the base game parses its models between downloads and takes about 9 seconds to load. Then click the middle of the screen with a small stub for the browser's pointer-lock API installed, because headless Chrome never grants pointer lock and "Click to Play" would never go away.
+Getting a real gameplay screenshot from headless Chrome took four fixes. Render on the GPU, not in software. Wait for the network to go quiet. Wait another 12 seconds, because a game full of 3D models parses them between downloads and can take about 9 seconds to load. Then click the middle of the screen with a small stub for the browser's pointer-lock API installed, because headless Chrome never grants pointer lock and "Click to Play" would never go away.
 
 ## **Step 1: Clone and install**
 
@@ -249,7 +251,7 @@ uv run buildoff play kimi --race-id my-race
 
 ## **Results**
 
-_A first $100 race ran on an earlier prompt and showed the problems fixed above: critics flipping tiers, a bland look, and software rendering. Its results don't count, since the prompt changed. This section will hold the `prompt-v15` race: the tier each model reached, time to first playable build, total spend and output speed, the blind judging, and the before/after screenshots._
+_A first $100 race ran on an earlier prompt and showed the problems fixed above: critics flipping tiers, a bland look, and software rendering. Its results don't count, since the prompt changed. A second race, on `prompt-v15`, was stopped early to fix the critic loop described above. This section will hold the `prompt-v16` race: the tier each model reached, time to first playable build, total spend and output speed, the blind judging, and the before/after screenshots._
 
 ## **Try it yourself**
 
@@ -268,7 +270,7 @@ So the harness isn't a variable. Nexus points Claude Code at Fireworks, and both
 It doesn't know Kimi's prices and falls back to a default rate. In testing it reported $0.060 for a call that costs $0.030 at Kimi K3.1 Pro's list price ($2 per million input tokens, $10 per million output). `nexus claude usage --json` prices each row at the provider's list rate.
 
 ### **Can I change the prompt?**
-Not for a comparable race. The game specs, `run_rules.md`, `critic.md` and `nudge.md` are frozen at git tag `prompt-v15`. Edit them for your own experiments, but tag the new version, because results across prompt versions aren't comparable.
+Not for a comparable race. The game specs, `run_rules.md`, `critic.md` and `nudge.md` are frozen at git tag `prompt-v16`. Edit them for your own experiments, but tag the new version, because results across prompt versions aren't comparable.
 
 ### **Can I rebuild the assets myself?**
 Yes. The code that builds the dataset lives in the dataset, under `build/`, and its card's [Recreate the assets](https://huggingface.co/datasets/harpreetsahota/grand-theft-gpu-assets#recreate-the-assets) section lists every step. You only need Blender for the USDCraft props. Races don't need any of it: they download the finished files at a pinned revision.

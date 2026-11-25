@@ -74,10 +74,6 @@ DONE_FILE: str = "DONE.md"
 BUILD_DIR: str = "dist"
 GAME_ENTRY: str = "index.html"
 
-# The base game both contenders start from, pinned so every race starts from
-# identical code. Fetched at seed time (not vendored); the link is the attribution.
-BASE_REPO_URL: str = "https://github.com/kartik786-git/gta-clone-threejs.git"
-BASE_REPO_COMMIT: str = "babb6232df0f50d92e66a4b994a5fbc14fcc37d9"
 
 # Index of every asset in the dataset; seeded next to the models' tools/assets.mjs.
 CATALOG_PATH: Path = REPO_ROOT / "assets" / "catalog.json"
@@ -94,7 +90,7 @@ HF_ASSETS_REVISION: str = "717f91bbc3755ac942fd0afbbbc657826be126cc"
 GAME_ASSETS_SUBDIR: str = "public/assets/gt-gpu"
 
 # How long the game gets to finish loading after the network goes quiet, in ms.
-# The base game needs ~9 s headless (models are parsed between downloads).
+# A game that loads many models needs ~9 s headless (they are parsed between downloads).
 SCREENSHOT_SETTLE_MS: int = 12000
 
 

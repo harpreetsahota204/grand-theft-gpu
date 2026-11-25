@@ -95,7 +95,7 @@ def contender_status(folder: Path) -> dict[str, Any]:
     return {
         "finished": result is not None,
         "stop_reason": (result or {}).get("stop_reason"),
-        "turns_recorded": max(len(turns) - 1, 0),  # turn 0 is the untouched base game
+        "turns_recorded": max(len(turns) - 1, 0),  # turn 0 is the untouched starter project
         "cost_usd": (result or {}).get("cost_usd", latest_cost(folder / "logs" / "cost.csv")),
         "last_turn": {
             k: last.get(k) for k in ("turn", "build_ok", "loaded", "playable", "elapsed_s")
@@ -159,6 +159,7 @@ def review_trace(folder: Path) -> list[dict[str, Any]]:
                 "tier",
                 "tier4_complete",
                 "route",
+                "fixed",
                 "review_cost_usd",
                 "review_seconds",
                 "cost_usd",

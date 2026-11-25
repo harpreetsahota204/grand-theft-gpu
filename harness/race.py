@@ -32,7 +32,7 @@ from dataclasses import asdict
 from datetime import datetime
 from pathlib import Path
 
-from harness import fetch, sandbox, seed
+from harness import fetch, sandbox
 from harness.config import REPO_ROOT, RaceConfig
 from harness.runner import ABORT, ContenderRun, RunResult, kill_group
 
@@ -146,10 +146,8 @@ def main(argv: list[str]) -> list[RunResult]:
         signal.signal(sig, _abort)
 
     try:
-        # Fetch the pinned base game once, before the contender threads start, so
-        # they don't both try to populate the cache at the same time.
-        seed.base_cache()
-        # Same for the core assets: download once into the HF cache up front.
+        # Download the core assets once into the HF cache, before the contender
+        # threads start, so they don't both try to populate it at the same time.
         fetch.core()
 
         runs = [ContenderRun(c, cfg) for c in cfg.contenders]

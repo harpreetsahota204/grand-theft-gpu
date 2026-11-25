@@ -4,7 +4,7 @@ Two models get the same game brief and up to $100 each. Each builds the game alo
 
 New here? [`HUMANS.md`](HUMANS.md) is the story version: the premise, the setup and why each rule exists. Coding agents start with [`AGENTS.md`](AGENTS.md).
 
-The game is **Grand Theft GPU**, a browser heist game set in San Silicon, a parody of San Francisco. You play a founder with no compute in a GPU shortage, stealing GPUs to grow a startup from a garage to an IPO, and the cast is satirical tech-Twitter archetypes. Both models start from the same three.js base game.
+The game is **Grand Theft GPU**, a browser heist game set in San Silicon, a parody of San Francisco. You play a founder with no compute in a GPU shortage, stealing GPUs to grow a startup from a garage to an IPO, and the cast is satirical tech-Twitter archetypes. Both models start from the same blank Vite + three.js project.
 
 | | Kimi K3.1 Pro | Claude Opus 5.5 |
 |---|---|---|
@@ -22,7 +22,7 @@ The game is **Grand Theft GPU**, a browser heist game set in San Silicon, a paro
    ```
 3. **Connect Nexus:** `nexus login`, then `nexus claude`. This routes Claude Code to Fireworks for the Kimi side.
 4. **Check everything:** `uv run buildoff doctor` (prints `ok` or a fix per prerequisite) and `uv run pytest` (free, seconds).
-5. **Smoke test** (about $2–4): both models add a floating GPU to the base game, then each gets one critic review.
+5. **Smoke test** (about $2–4): both models add a floating GPU to the starter scene, then each gets one critic review.
    ```bash
    uv run buildoff smoke
    ```
@@ -66,11 +66,11 @@ flowchart LR
 
 Each contender loops through rounds:
 
-1. **Seeding** (before the clock starts): its own copy of the base game at a pinned commit, the pack's assets at `public/assets/gt-gpu/`, `tools/screenshot` and (full pack) `tools/assets.mjs`, then `npm ci`. Turn 0 records the untouched base game.
+1. **Seeding** (before the clock starts): its own copy of the starter project (Vite and three.js at pinned versions, an empty scene), the pack's assets at `public/assets/gt-gpu/`, `tools/screenshot` and (full pack) `tools/assets.mjs`, then `npm ci`. Turn 0 records the untouched starter scene.
 2. **Builder turn:** one `claude -p` process that resumes the same session every turn. Turn 1 gets the spec (with the race's real budget filled in) plus the run rules; later turns get the critic's notes and the spend so far (`You have spent $X of your $Y.`). It runs until the model stops (a Stop hook won't let it stop on an announcement or a broken build).
 3. **Evidence:** the harness commits the workspace to `history.git` (outside the model's reach), builds it, screenshots gameplay, and logs a row in `turns.jsonl`. A turn is **playable** if it built, loaded and rendered with no uncaught exception.
-4. **Critic review:** a fresh session of the *same* model, with no memory of building, plays the game read-only, judges both how it plays and how it looks and feels against the brief and tier ladder (`prompts/critic.md`), and writes a verdict to `tools/shots/verdict.json`: tier reached, the exact `tools/screenshot` steps that showed it (its route), and notes ranked blocker > core loop > next tier > look and feel > polish. The harness schema-checks the file and logs why it rejected a bad one. The builder decides how many notes to take on. The notes become the builder's next prompt (`prompts/nudge.md`). The harness copies the critic's screenshots to `shots/critic-NNN/` and logs the review's own cost and time. A review at max effort can take about an hour.
-5. **Continuity:** each critic gets the last review's tier and route, and the builder keeps a per-tier walkthrough in `DONE.md`. The critic replays both first, then explores. Before this, in the v12 race, each fresh critic had to find its own way, and Kimi's critics flipped between Tier 2 and Tier 4 whenever one couldn't script its way to a mission the last one had reached. The tier never ends the run: a same-model critic is a coach, so every run goes to its budget and builds are scored afterwards against the locked `scoring/checklist.md`.
+4. **Critic review:** a fresh session of the *same* model, with no memory of building, plays the game read-only, judges both how it plays and how it looks and feels against the brief and tier ladder (`prompts/critic.md`), and writes a verdict to `tools/shots/verdict.json`: tier reached, the exact `tools/screenshot` steps that showed it (its route), and notes ranked blocker > core loop > next tier > ambition > look and feel > polish, each quoting the brief line it's measured against. The harness schema-checks the file and logs why it rejected a bad one. The builder decides how many notes to take on. The notes become the builder's next prompt (`prompts/nudge.md`). The harness copies the critic's screenshots to `shots/critic-NNN/` and logs the review's own cost and time. A review at max effort can take about an hour.
+5. **Continuity:** each critic gets the last review's tier, route and notes, and the builder keeps a per-tier walkthrough and a list of this turn's changes in `DONE.md`. The critic checks for regressions first, marks each old note fixed, open or regressed, then explores. Once a build holds Tier 4, it asks for ambition and caps look and polish at three notes. Before this, in the v12 race, each fresh critic had to find its own way, and Kimi's critics flipped between Tier 2 and Tier 4 whenever one couldn't script its way to a mission the last one had reached. The tier never ends the run: a same-model critic is a coach, so every run goes to its budget and builds are scored afterwards against the locked `scoring/checklist.md`.
 
 **Throughout,** a watchdog polls Nexus every 15 seconds and stops the run if total spend (builder and critics) reaches the budget, any other model shows up (`leak`), or Nexus goes quiet for 3 minutes (`meter_down`). A session with no output and no new spend for 10 minutes is cut short (`stalled`) and goes to review. Provider API errors and cut-off streams are retried (up to 3 per run). The smoke test stops at the first `DONE.md`, after one review.
 
@@ -100,7 +100,7 @@ Each contender loops through rounds:
     ├── logs/turns.jsonl       per turn: commit, cost, build_ok, loaded, playable, errors
     ├── logs/cost.csv          seconds,total_cost_usd at every Nexus poll
     ├── logs/events.jsonl      leaks, stalls, meter, aborts, retries, harness errors (if any)
-    ├── shots/turn-NNN.png     gameplay screenshot after each turn (000 = base game)
+    ├── shots/turn-NNN.png     gameplay screenshot after each turn (000 = starter scene)
     ├── shots/critic-NNN/      the screenshots the critic took reviewing turn NNN
     └── result.json            stop reason, cost, turns, reviews, last tier, model time
 ```
@@ -125,7 +125,7 @@ All assets live in the Hugging Face dataset **[harpreetsahota/grand-theft-gpu-as
 | `audio-opengameart/`, `audio-freesound/`, `kenney-media/` | Engines, tires, sirens, crashes, horn, traffic, footsteps, impacts, UI sounds; particle sprites | CC0 / CC-BY 3.0 per item |
 | `google-fonts/` | Bebas Neue, Anton, Rajdhani, Share Tech Mono | OFL 1.1 |
 
-**In a race,** a full-pack workspace is seeded with the web tier (about 650 MB: everything except people's extra LOD/mobile/collision tiers, 2k skies and the MHR bodies). A primitives workspace gets only `gpu/`. The base game is [kartik786-git/gta-clone-threejs](https://github.com/kartik786-git/gta-clone-threejs), used with attribution and fetched at a pinned commit.
+**In a race,** a full-pack workspace is seeded with the web tier (about 650 MB: everything except people's extra LOD/mobile/collision tiers, 2k skies and the MHR bodies). A primitives workspace gets only `gpu/`. The starter project (`harness/workspace_tools/seed/`) is Vite, three.js and an empty scene.
 
 **Search and fetch.** The racing models search with `tools/assets.mjs`, seeded into every full-pack workspace next to a copy of the catalog. It's the only search, so what you test is what the models run:
 
@@ -158,7 +158,7 @@ Errors go to stderr as `{"error": ..., "hint": ...}`, with exit code 1 (not foun
 | `harness/doctor.py` | Prerequisite checks |
 | `harness/fetch.py` | Downloads assets at the pinned dataset revision |
 | `assets/catalog.json` | Index of all 1,302 assets, seeded next to the models' `tools/assets.mjs` |
-| `prompts/` | The locked game specs, run rules, critic prompt and nudge template (tag `prompt-v15`) |
+| `prompts/` | The locked game specs, run rules, critic prompt and nudge template (tag `prompt-v16`) |
 | `tests/` | The local test suite |
 
 ## Not done yet
@@ -173,4 +173,4 @@ The harness code and docs are under the [Business Source License 1.1](LICENSE). 
 
 Why 2040-01-22? It's **4,811 days** after this repo went public, exactly how long fans waited between GTA V (Sept 17, 2013) and GTA 6 (Nov 19, 2026). The license's own four-year rule means the code opens up sooner, but the date stays as a tribute.
 
-The assets keep their own licenses, listed per folder in the [asset dataset](https://huggingface.co/datasets/harpreetsahota/grand-theft-gpu-assets#licenses-and-credit). The base game is fetched from [its author's repo](https://github.com/kartik786-git/gta-clone-threejs) at run time and isn't redistributed here.
+The assets keep their own licenses, listed per folder in the [asset dataset](https://huggingface.co/datasets/harpreetsahota/grand-theft-gpu-assets#licenses-and-credit). Races up to `prompt-v15` started from [kartik786-git/gta-clone-threejs](https://github.com/kartik786-git/gta-clone-threejs), fetched at run time and never redistributed here.

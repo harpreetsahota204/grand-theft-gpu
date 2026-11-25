@@ -1,10 +1,10 @@
 # Grand Theft GPU
 
-You're building **Grand Theft GPU**, a third-person open-world heist game for the browser, set in **San Silicon**, a parody of San Francisco: hills, fog, cable cars, a famous red bridge, robotaxis everywhere. Give its landmarks and neighborhoods parody names too.
+You're building **Grand Theft GPU**, a third-person open-world heist game for the browser, set in **San Silicon**, a parody of San Francisco: hills, fog, cable cars, a famous red bridge, robotaxis everywhere. Give its landmarks, neighborhoods and streets parody names too.
 
 You play a founder with an idea, ambition and the ability to execute, and no compute. There's a GPU shortage, and without GPUs the idea never gets off the ground. So you take them. Steal compute, close deals, sell, hire a crew, and grow the company from a garage to an exit: an acquisition or an IPO. The company's rise is the story and the player's progress; heists, chases and deals are how you play it.
 
-You aren't starting from zero. This directory is a working three.js game: a third-person character who walks, sprints, jumps and fights, plus a city model and enemies. Read it, keep what's useful, change whatever you want. Apart from one model of the loot, you make every asset yourself (see below).
+You start from a Vite + three.js project with an empty scene that builds: the game is yours to write. Apart from one model of the loot, you make every asset yourself (see below).
 
 ## Your founder
 
@@ -53,20 +53,23 @@ Builds are judged two ways: how far up this ladder they get, and how good they a
 | **Tier 3: Series A** | A story across multiple missions, with archetype characters who talk. |
 | **Tier 4: IPO** | A living San Silicon: traffic, robotaxis, pedestrians, day and night. |
 
+The ladder is the floor, not the ceiling. Past Tier 4, make the game more yours: deeper company building, better heists, sharper satire, systems nobody asked for. That's where one game pulls ahead of another.
+
 ## Budget
 
 You have about **{budget} of compute** for this whole build. When it runs out, the build stops wherever it is. Plan your scope so the game is playable at every step.
 
 ## Look and feel
 
-San Silicon should look like satire you can see: fog rolling over the hills, golden-hour light on glass towers, billboards shouting about AI startups, a city that's rich and a little absurd. The default look is bright and saturated, with everything slightly exaggerated: steeper hills, taller glass towers, oversized billboards, a sunset that's a little too perfect. If you have a stronger idea, go with it. Either way, commit to one look across the city, the characters, the HUD and the lighting, and describe it in `DONE.md`.
+San Silicon should look like satire you can see: fog rolling over the hills, golden-hour light on glass towers, billboards shouting about AI startups, a city that's rich and a little absurd. The default look is bright and saturated, with everything slightly exaggerated: steeper hills, taller glass towers, oversized billboards, a sunset that's a little too perfect. If you have a stronger idea, go with it. Either way, commit to one look across the city, the characters, the HUD and the lighting, hold it from day through night, and describe it in `DONE.md`. Pace the clock so the player spends most of their time in the look you chose.
 
 It should feel like a game, with a HUD, sound, feedback and some juice, not a tech demo.
 
-Aim for amazing, not acceptable. Three things separate a finished game from a demo:
+Aim for amazing, not acceptable. Four things separate a finished game from a demo:
 - **Grounded and clean.** People, cars and props cast visible shadows onto the street wherever the player goes, so nothing floats. Glass and car paint reflect the sky. Edges stay crisp, without jagged aliasing. Day reads clearly different from night, and night lights illuminate the street without blowing out to pure white.
 - **Readable at speed.** Keep streets and background buildings calmer in value, so your founder, the GPUs, vehicles and pursuers stand out at gameplay distance.
 - **A HUD built for this game.** Style it to match San Silicon's satire and keep it uncluttered: no overlapping bars, and no stack of generic dark translucent cards.
+- **A camera that keeps the action in view.** Trees, poles, cars and walls never block your founder, and conversations frame both speakers.
 
 A finished street in San Silicon looks like this:
 - **Roads look like roads:** asphalt with lane markings, not flat grey.
@@ -83,12 +86,13 @@ A finished street in San Silicon looks like this:
 - **Characters perform.** Archetypes gesture and animate when they talk.
 - **Traffic follows the streets:** it stops, turns and honks.
 - **The city sounds like a city:** ambience, traffic, footsteps, engines and sirens.
+- **The city never breaks the story.** Traffic and crowds work around mission cars, objectives and escapes: they don't shove the getaway car off its spot, pin it or gridlock the route.
 
 ## What you have to work with
 
 One ready-made asset: the loot, `public/assets/gt-gpu/gpu/graphics-card-light.glb`, a graphics card whose fans and RGB strips you can animate. Load it with three.js `GLTFLoader`.
 
-Everything else is yours to make: the people, the cars, the city, the sky, textures, sound, effects and the HUD. Use three.js geometry and materials, textures you generate in code, the Web Audio API, CSS and fonts your system already has, or anything else you can write. The base game's own city model and player character are still there if you want them.
+Everything else is yours to make: the people, the cars, the city, the sky, textures, sound, effects and the HUD. Use three.js geometry and materials, textures you generate in code, the Web Audio API, CSS and fonts your system already has, or anything else you can write.
 
 ## Hard rules
 

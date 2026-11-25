@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from harness import fetch
+from harness import fetch, seed
 from harness.config import CATALOG_PATH
 from harness.seed import TOOL_PATH
 
@@ -35,3 +35,16 @@ def test_models_search_tool_finds_a_police_car(tmp_path: Path) -> None:
     )
     rows = json.loads(node.stdout)
     assert rows and "police" in rows[0]["id"]
+
+
+def test_starter_project_pins_exact_versions() -> None:
+    """Both workspaces install the same three.js and Vite: exact versions, matching lockfile."""
+    manifest = json.loads((seed.SEED_DIR / "package.json").read_text())
+    lock = json.loads((seed.SEED_DIR / "package-lock.json").read_text())["packages"]
+    for deps in (manifest["dependencies"], manifest["devDependencies"]):
+        for name, version in deps.items():
+            assert version[0].isdigit(), f"{name} must be pinned exactly, not {version}"
+            assert lock[f"node_modules/{name}"]["version"] == version
+    assert (seed.SEED_DIR / "index.html").exists()
+    assert (seed.SEED_DIR / "src" / "main.js").exists()
+    assert not (seed.SEED_DIR / "node_modules").exists()

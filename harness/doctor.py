@@ -94,7 +94,7 @@ CHECKS: list[Check] = [
         "races need macOS's /usr/bin/sandbox-exec",
     ),
     Check("Chromium (Playwright)", check_chromium, "uv run playwright install chromium"),
-    Check("Node.js (base game)", lambda: run(["node", "--version"]), "brew install node"),
+    Check("Node.js (Vite builds)", lambda: run(["node", "--version"]), "brew install node"),
 ]
 
 

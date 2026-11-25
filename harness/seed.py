@@ -1,10 +1,11 @@
-"""Seeds a contender's workspace with the base game and the shared asset pack.
+"""Seeds a contender's workspace with the starter project and the shared asset pack.
 
 Both contenders must start from byte-identical folders. `harness.runner` calls
 `seed_workspace` once per contender before turn 1. The result is:
 
     workspace/
-      <base game at BASE_REPO_COMMIT>   minus its .git and duplicate top-level assets/
+      package.json, package-lock.json   Vite + three.js at exact versions (SEED_DIR)
+      index.html, src/main.js           an empty three.js scene that builds and renders
       public/assets/gt-gpu/<dataset layout>   the seeded asset set (harness.fetch.PACK_PATTERNS)
       tools/assets.mjs, tools/catalog.json    the models' own search + fetch tool (full pack only)
       tools/screenshot                  build + render the game to a PNG (harness.shot_tool)
@@ -18,9 +19,11 @@ read it, so it carries code only: no docstrings or comments, and a config with
 just the constants the tools use. Nothing in it says there's a race or who
 else is in it.
 
-The base repo is fetched once into a cache under `RUNS_ROOT/.cache`, and the
-core assets once into the huggingface_hub cache; both are copied from there,
-so a race doesn't re-download anything per contender.
+The starter project lives in this repo (SEED_DIR). Up to prompt-v15 races
+started from a third-party demo game instead; models spent their first turn
+tearing it out, and one kept its demo character as the founder. The core assets
+are downloaded once into the huggingface_hub cache and copied from there, so a
+race doesn't re-download anything per contender.
 """
 
 import ast
@@ -32,14 +35,7 @@ import sys
 from pathlib import Path
 
 from harness import config, fetch
-from harness.config import (
-    BASE_REPO_COMMIT,
-    BASE_REPO_URL,
-    CATALOG_PATH,
-    GAME_ASSETS_SUBDIR,
-    REPO_ROOT,
-    RUNS_ROOT,
-)
+from harness.config import CATALOG_PATH, GAME_ASSETS_SUBDIR, REPO_ROOT
 
 # node_modules is reinstalled per workspace; dist is rebuilt every turn. The
 # harness's own per-turn history ignores them regardless (snapshot.EVIDENCE_EXCLUDES);
@@ -50,6 +46,11 @@ NPM_TIMEOUT_S: int = 600
 
 # The models' zero-dependency asset tool, copied into every workspace's tools/.
 TOOL_PATH: Path = REPO_ROOT / "harness" / "workspace_tools" / "assets.mjs"
+
+# The starter project every workspace begins as: Vite and three.js pinned to
+# exact versions by its lockfile, and a blank scene that passes the harness's
+# build and playable checks.
+SEED_DIR: Path = REPO_ROOT / "harness" / "workspace_tools" / "seed"
 
 # The harness modules that run inside the model's sandbox: `tools/screenshot`
 # (shot_tool -> snapshot -> config) and the Stop hook (harness.session).
@@ -170,36 +171,8 @@ def copy_core(dest: Path, patterns: list[str] = fetch.CORE_PATTERNS) -> int:
     return copied
 
 
-def base_cache() -> Path:
-    """Returns a local checkout of the base game at the pinned commit, fetching it once.
-
-    Fetches only that one commit (depth 1), which GitHub allows by SHA.
-
-    Returns:
-        path to the cached checkout
-    """
-    cache = RUNS_ROOT / ".cache" / f"base-{BASE_REPO_COMMIT[:7]}"
-    if (cache / "package.json").exists():
-        return cache
-
-    # Fetch into a temp sibling and rename at the end, so an interrupted fetch
-    # never leaves a half-populated cache that looks valid.
-    tmp = cache.with_name(cache.name + ".tmp")
-    shutil.rmtree(tmp, ignore_errors=True)
-    tmp.mkdir(parents=True)
-    for cmd in (
-        ["git", "init", "-q"],
-        ["git", "remote", "add", "origin", BASE_REPO_URL],
-        ["git", "fetch", "-q", "--depth", "1", "origin", BASE_REPO_COMMIT],
-        ["git", "checkout", "-q", "FETCH_HEAD"],
-    ):
-        subprocess.run(cmd, cwd=tmp, check=True)
-    tmp.rename(cache)
-    return cache
-
-
 def seed_workspace(workspace: Path, toolkit: Path, pack: str = "full") -> None:
-    """Fills an empty workspace with the base game, our assets and installed deps.
+    """Fills an empty workspace with the starter project, our assets and installed deps.
 
     Args:
         workspace: the contender's folder; must not exist yet
@@ -207,23 +180,7 @@ def seed_workspace(workspace: Path, toolkit: Path, pack: str = "full") -> None:
         pack: "full" (the whole seeded asset set plus the asset search tool) or
             "primitives" (only the GPU loot; no asset tool). Both get tools/screenshot.
     """
-    cache = base_cache()
-
-    # At the repo root, drop three things the base repo commits:
-    # - assets/: a duplicate of public/assets/ (90 MB of it is city.glb); the
-    #   game only loads from public/assets/
-    # - node_modules/: committed without execute bits and with another OS's
-    #   native binaries, so `vite` fails with "Permission denied". A smoke test
-    #   showed one model spending budget repairing it; a clean install is fair.
-    # - dist/: stale build output; the harness rebuilds every turn
-    def skip(directory: str, names: list[str]) -> set[str]:
-        """Ignores .git everywhere, and assets/, node_modules/ and dist/ at the root."""
-        skipped = {".git"} & set(names)
-        if Path(directory) == cache:
-            skipped |= {"assets", "node_modules", "dist"} & set(names)
-        return skipped
-
-    shutil.copytree(cache, workspace, ignore=skip)
+    shutil.copytree(SEED_DIR, workspace)
     copy_core(workspace / GAME_ASSETS_SUBDIR, fetch.PACK_PATTERNS[pack])
     tools = workspace / "tools"
     # tools/shots exists up front: the read-only critic may write there but
@@ -237,7 +194,7 @@ def seed_workspace(workspace: Path, toolkit: Path, pack: str = "full") -> None:
 
     # Install before turn 1 so the model starts with a buildable project and the
     # first turn isn't charged for waiting on npm. `npm ci` installs exactly the
-    # base game's lockfile, so both contenders get identical dependencies.
+    # starter's lockfile, so both contenders get identical dependencies.
     subprocess.run(
         ["npm", "ci", "--no-audit", "--no-fund", "--loglevel=error"],
         cwd=workspace,

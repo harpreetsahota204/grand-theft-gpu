@@ -23,22 +23,52 @@ GOOD_VERDICT: dict[str, object] = {
     "tier": 3,
     "route": "tools/screenshot --no-build --hold e:200 --hold w:3000",
     "notes": [
-        {"group": "blocker", "note": "Pressing E near a cop car freezes the game."},
-        {"group": "look and feel", "note": "Night is too dark to read the HUD."},
+        {
+            "group": "blocker",
+            "status": "new",
+            "note": "Pressing E near a cop car freezes the game.",
+        },
+        {
+            "group": "look and feel",
+            "status": "new",
+            "note": "Night is too dark to read the HUD.",
+            "brief": "Day reads clearly different from night",
+        },
     ],
 }
 
 
 def test_review_verdict_is_read_from_the_file(tmp_path: Path) -> None:
     """A valid verdict.json becomes the Review, notes ranked and labelled."""
-    review = runner.parse_review(_verdict(tmp_path, GOOD_VERDICT))
-    assert review == runner.Review(
-        parsed=True,
-        tier=3,
-        route="tools/screenshot --no-build --hold e:200 --hold w:3000",
-        notes="1. [blocker] Pressing E near a cop car freezes the game.\n"
-        "2. [look and feel] Night is too dark to read the HUD.",
+    review = runner.parse_review(_verdict(tmp_path, GOOD_VERDICT), turn=2)
+    assert review.parsed and review.tier == 3
+    assert review.route == "tools/screenshot --no-build --hold e:200 --hold w:3000"
+    assert review.notes == (
+        "1. [blocker] Pressing E near a cop car freezes the game.\n"
+        "2. [look and feel] Night is too dark to read the HUD.\n"
+        '   Brief: "Day reads clearly different from night"'
     )
+    assert [n.id for n in review.items] == ["T2.1", "T2.2"]
+
+
+def test_carried_notes_keep_their_id_and_age(tmp_path: Path) -> None:
+    """An open or regressed note keeps the id and first turn of the note it continues."""
+    first = runner.parse_review(_verdict(tmp_path, GOOD_VERDICT), turn=2)
+    second = GOOD_VERDICT | {
+        "fixed": ["T2.1"],
+        "notes": [
+            {"group": "core loop", "status": "regressed", "note": "Heat never falls now."},
+            {"group": "look and feel", "status": "open", "id": "T2.2", "note": "Night still dark."},
+            {"group": "polish", "status": "open", "id": "T9.9", "note": "Unknown id."},
+        ],
+    }
+    review = runner.parse_review(_verdict(tmp_path, second), turn=5, last=first)
+    assert [(n.id, n.since) for n in review.items] == [("T5.1", 5), ("T2.2", 2), ("T5.3", 5)]
+    assert review.fixed == ("T2.1",)
+    lines = review.notes.splitlines()
+    assert lines[0] == "1. [core loop] REGRESSED: Heat never falls now."
+    assert lines[1] == "2. [look and feel] (open since turn 2) Night still dark."
+    assert lines[2] == "3. [polish] Unknown id."
 
 
 def test_missing_verdict_is_unparsed(tmp_path: Path) -> None:
@@ -67,7 +97,11 @@ def test_verdict_that_is_not_json_is_unparsed(tmp_path: Path) -> None:
         {"notes": []},
         {"notes": "Fix the siren."},
         {"notes": [{"group": "urgent", "note": "Fix the siren."}]},
-        {"notes": [{"group": "polish", "note": "  "}]},
+        {"notes": [{"group": "polish", "status": "new", "note": "  "}]},
+        {"notes": [{"group": "polish", "note": "No status."}]},
+        {"notes": [{"group": "polish", "status": "stale", "note": "Bad status."}]},
+        {"notes": [{"group": "polish", "status": "open", "id": 3, "note": "Bad id."}]},
+        {"fixed": "T2.1"},
     ],
 )
 def test_verdict_off_schema_is_unparsed(tmp_path: Path, change: dict[str, object]) -> None:
@@ -104,10 +138,11 @@ def test_critic_gets_the_last_reviews_tier_and_route(tmp_path: Path) -> None:
     """Each critic replays the route the last parsed review used to reach its tier."""
     spec = tmp_path / "spec.md"
     spec.write_text("brief")
-    last = runner.parse_review(_verdict(tmp_path, GOOD_VERDICT))
-    text = runner.critic_text(spec, 25.0, last)
+    last = runner.parse_review(_verdict(tmp_path, GOOD_VERDICT), turn=2)
+    text = runner.critic_text(spec, 25.0, last, turn=3)
     assert "It judged Tier 3." in text
     assert "tools/screenshot --no-build --hold e:200 --hold w:3000" in text
+    assert "- T2.2 [look and feel] (raised on turn 2) Night is too dark to read the HUD." in text
     assert runner.NO_LAST_REVIEW not in text
 
 

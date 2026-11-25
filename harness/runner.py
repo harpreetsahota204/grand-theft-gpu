@@ -113,6 +113,28 @@ ABORT: threading.Event = threading.Event()
 
 
 @dataclass(frozen=True)
+class Note:
+    """One critic note in the ledger that carries open problems from review to review.
+
+    Attributes:
+        id: where the note was first raised, e.g. "T3.2" (turn 3, second note);
+            a note the next critic carries forward keeps its id
+        group: one of NOTE_GROUPS
+        status: one of NOTE_STATUSES
+        note: the note itself
+        brief: the line of the brief the note is measured against, if given
+        since: the turn it was first raised
+    """
+
+    id: str
+    group: str
+    status: str
+    note: str
+    brief: str
+    since: int
+
+
+@dataclass(frozen=True)
 class Review:
     """A critic's verdict, read from the `verdict.json` it writes.
 
@@ -121,6 +143,8 @@ class Review:
         tier: highest tier the critic saw fully working, if given
         route: the tools/screenshot steps, from a fresh load, that showed that tier
         notes: what the builder should do next, ranked, one "[group] note" per line
+        items: the same notes as ledger entries, for the next critic
+        fixed: ids of earlier notes this critic saw fixed
         problem: why the verdict was rejected (empty when parsed)
     """
 
@@ -128,6 +152,8 @@ class Review:
     tier: int | None = None
     route: str = ""
     notes: str = ""
+    items: tuple[Note, ...] = ()
+    fixed: tuple[str, ...] = ()
     problem: str = ""
 
 
@@ -260,14 +286,14 @@ class ContenderRun:
         reason: StopReason = "error"
         try:
             # Seeding happens before the clock starts: npm install and copying the
-            # base game aren't the model's time.
+            # assets aren't the model's time.
             seed.seed_workspace(self.workspace, self.toolkit, self.cfg.pack)
             snapshot.init_history(self.history)
             sandbox.write_profile(self.profile, self.workspace, self.toolkit)
             sandbox.write_profile(self.critic_profile, self.workspace, self.toolkit, read_only=True)
             session.write(self.toolkit, self.contender.model)
-            # Turn 0 is the untouched base game: the "before" frame for the video
-            # and the diff base for scoring.
+            # Turn 0 is the untouched starter project: the "before" frame for the
+            # video and the diff base for scoring.
             self._record_turn(0, "seed")
             self._start = time.monotonic()
 
@@ -342,14 +368,14 @@ class ContenderRun:
         """Commits, builds and screenshots the workspace, and logs a turns.jsonl row.
 
         Args:
-            turn: turn number; 0 is the seeded base game before any model work
+            turn: turn number; 0 is the seeded starter project before any model work
             end: how the turn ended, or "seed" for turn 0
 
         Returns:
             whether this turn's game is playable: it built, loaded and rendered
             with no uncaught exception (see `snapshot.ShotResult.playable`)
         """
-        message = f"turn {turn}" if turn else "seed: base game + assets"
+        message = f"turn {turn}" if turn else "seed: starter project + assets"
         sha = snapshot.commit(self.history, self.workspace, message)
         built = snapshot.build(self.workspace)
         shot = (
@@ -406,7 +432,8 @@ class ContenderRun:
 
         Args:
             turn: the turn just finished
-            last: the latest parsed review, whose tier and route this critic replays first
+            last: the latest parsed review, whose route this critic replays first
+                and whose notes it marks fixed, open or regressed
 
         Returns:
             the review (unparsed if the critic failed or wrote no valid verdict),
@@ -417,7 +444,7 @@ class ContenderRun:
         verdict_path.unlink(missing_ok=True)
         critic_id = str(uuid.uuid4())
         self.critic_sessions.append(critic_id)
-        prompt = critic_text(self.cfg.spec_path, self.cfg.budget_usd, last)
+        prompt = critic_text(self.cfg.spec_path, self.cfg.budget_usd, last, turn)
         cmd = self._claude_cmd(
             prompt, ["--session-id", critic_id], CRITIC_TOOLS, session.CRITIC_SETTINGS_FILE
         )
@@ -430,7 +457,7 @@ class ContenderRun:
         )
         if end in HARD_STOPS:
             return end  # type: ignore[return-value]  # every hard stop is a StopReason
-        review = parse_review(verdict_path)
+        review = parse_review(verdict_path, turn, last)
         self._append_jsonl(
             "reviews.jsonl",
             {
@@ -731,17 +758,22 @@ def nudge_text(notes: str, spent_usd: float, budget_usd: float) -> str:
     )
 
 
-def critic_text(spec_path: Path, budget_usd: float, last: Review | None = None) -> str:
+def critic_text(
+    spec_path: Path, budget_usd: float, last: Review | None = None, turn: int = 1
+) -> str:
     """The critic's prompt: the locked critic template around the game brief.
 
-    It also carries the last review's tier and route. Each critic starts fresh,
-    and in the v12 race Kimi's critics flipped between Tier 2 and Tier 4 when one
-    couldn't script its way to a mission the one before had reached.
+    It also carries the last review's tier, route and notes. Each critic starts
+    fresh: in the v12 race Kimi's critics flipped between Tier 2 and Tier 4 when
+    one couldn't script its way to a mission the one before had reached, and in
+    v15 critics re-raised the same camera note for seven rounds and flipped heat
+    from "too easy" to "never falls" because none knew what the last one said.
 
     Args:
         spec_path: markdown game spec
         budget_usd: the per-contender budget
         last: the latest parsed review, or None before the first one
+        turn: the builder turn this critic reviews
 
     Returns:
         the critic's full prompt
@@ -749,12 +781,18 @@ def critic_text(spec_path: Path, budget_usd: float, last: Review | None = None) 
     if last is None:
         last_review = NO_LAST_REVIEW
     else:
+        ledger = "\n".join(
+            f"- {n.id} [{n.group}] (raised on turn {n.since}) {n.note}" for n in last.items
+        )
         last_review = (
             f"It judged Tier {last.tier}. Its route:\n\n{last.route.strip() or '(none given)'}"
+            f"\n\nIts notes:\n\n{ledger or '(none)'}"
         )
     template = (PROMPTS_DIR / "critic.md").read_text()
-    return template.replace("{last_review}", last_review).replace(
-        "{brief}", brief_text(spec_path, budget_usd)
+    return (
+        template.replace("{turn}", str(turn))
+        .replace("{last_review}", last_review)
+        .replace("{brief}", brief_text(spec_path, budget_usd))
     )
 
 
@@ -764,10 +802,20 @@ def critic_text(spec_path: Path, budget_usd: float, last: Review | None = None) 
 VERDICT_FILE: str = "tools/shots/verdict.json"
 
 # The note groups, in the order prompts/critic.md ranks them.
-NOTE_GROUPS: tuple[str, ...] = ("blocker", "core loop", "next tier", "look and feel", "polish")
+NOTE_GROUPS: tuple[str, ...] = (
+    "blocker",
+    "core loop",
+    "next tier",
+    "ambition",
+    "look and feel",
+    "polish",
+)
+
+# How a note relates to the last review's notes (see Note).
+NOTE_STATUSES: tuple[str, ...] = ("new", "open", "regressed")
 
 
-def parse_review(verdict_path: Path) -> Review:
+def parse_review(verdict_path: Path, turn: int = 1, last: Review | None = None) -> Review:
     """Reads and schema-checks the verdict file the critic wrote.
 
     A file instead of the reply's last line, because critics wrapped, split or
@@ -775,6 +823,8 @@ def parse_review(verdict_path: Path) -> Review:
 
     Args:
         verdict_path: the critic's `tools/shots/verdict.json`
+        turn: the builder turn this critic reviewed, for new note ids
+        last: the review before it, whose note ids carried-forward notes keep
 
     Returns:
         the review, or `Review(parsed=False, problem=...)` if the file is
@@ -789,14 +839,52 @@ def parse_review(verdict_path: Path) -> Review:
     problem = _verdict_problem(verdict)
     if problem:
         return Review(parsed=False, problem=problem)
+    items = _ledger(verdict["notes"], turn, last)
     return Review(
         parsed=True,
         tier=verdict["tier"],
         route=verdict["route"],
-        notes="\n".join(
-            f"{i}. [{n['group']}] {n['note'].strip()}" for i, n in enumerate(verdict["notes"], 1)
-        ),
+        notes="\n".join(_note_line(i, n, turn) for i, n in enumerate(items, 1)),
+        items=items,
+        fixed=tuple(verdict.get("fixed", ())),
     )
+
+
+def _ledger(raw: list[dict], turn: int, last: Review | None) -> tuple[Note, ...]:
+    """Turns verdict notes into ledger entries.
+
+    A note the critic carried forward ("open" or "regressed" with a known id)
+    keeps that id and its first turn, so its age survives across critics. Any
+    other note gets a fresh id; an unknown id is a critic's slip, not a reason
+    to throw the review away.
+    """
+    known = {n.id: n for n in last.items} if last else {}
+    items = []
+    for i, n in enumerate(raw, 1):
+        earlier = known.get(n.get("id", "")) if n["status"] != "new" else None
+        items.append(
+            Note(
+                id=earlier.id if earlier else f"T{turn}.{i}",
+                group=n["group"],
+                status=n["status"],
+                note=n["note"].strip(),
+                brief=str(n.get("brief", "")).strip(),
+                since=earlier.since if earlier else turn,
+            )
+        )
+    return tuple(items)
+
+
+def _note_line(rank: int, note: Note, turn: int) -> str:
+    """One ranked note as the builder reads it, with its status and age."""
+    if note.status == "regressed":
+        tag = "REGRESSED: "
+    elif note.since < turn:
+        tag = f"(open since turn {note.since}) "
+    else:
+        tag = ""
+    line = f"{rank}. [{note.group}] {tag}{note.note}"
+    return f'{line}\n   Brief: "{note.brief}"' if note.brief else line
 
 
 def _verdict_problem(verdict: object) -> str:
@@ -822,8 +910,15 @@ def _verdict_problem(verdict: object) -> str:
     for n in notes:
         if not isinstance(n, dict) or n.get("group") not in NOTE_GROUPS:
             return f"each note needs a group from {', '.join(NOTE_GROUPS)}"
+        if n.get("status") not in NOTE_STATUSES:
+            return f"each note needs a status from {', '.join(NOTE_STATUSES)}"
         if not isinstance(n.get("note"), str) or not n["note"].strip():
             return "each note needs non-empty text"
+        if not isinstance(n.get("id", ""), str) or not isinstance(n.get("brief", ""), str):
+            return "a note's id and brief must be strings"
+    fixed = verdict.get("fixed", [])
+    if not isinstance(fixed, list) or not all(isinstance(f, str) for f in fixed):
+        return "fixed must be a list of note ids"
     return ""
 
 
