@@ -2,8 +2,9 @@
 
 Serves two mystery Three.js builds behind opaque `/play/a/` and `/play/b/` routes
 using a server-signed, 50/50 counterbalanced session cookie (`arena.blind`),
-tracks verified play time per build, and stores pairwise ballots in SQLite plus
-an optional Hugging Face Dataset backup (`arena.storage`).
+tracks verified play time per build, records players' inputs and gameplay
+snapshots, and stores pairwise ballots in SQLite plus an optional Hugging Face
+Dataset backup (`arena.storage`).
 
 Start locally from the repo root:
     uv run --with fastapi --with "uvicorn[standard]" uvicorn app:app --app-dir arena --port 7860
@@ -32,7 +33,8 @@ from blind import (
     sign_session,
     verify_session,
 )
-from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi import FastAPI, HTTPException, Query, Request, Response
+from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
 from pydantic import BaseModel, Field, StringConstraints
 from storage import QUESTIONS, RateLimitedError, SessionState, VoteStore, VoteSummary
@@ -78,10 +80,11 @@ REVEAL_ON_VOTE: bool = os.environ.get("REVEAL_ON_VOTE", "1").strip().lower() not
 )
 VOTE_DATASET_REPO: str = os.environ.get("VOTE_DATASET_REPO", "").strip()
 HF_TOKEN: str | None = os.environ.get("HF_TOKEN") or None
-# Per-IP caps against ballot stuffing (0 disables). Generous enough for a shared office or
-# conference network; a script still needs a real ~2 min of play per ballot on top.
-MAX_SESSIONS_PER_IP_PER_HOUR: int = int(os.environ.get("MAX_SESSIONS_PER_IP_PER_HOUR", "30"))
-MAX_VOTES_PER_IP_PER_DAY: int = int(os.environ.get("MAX_VOTES_PER_IP_PER_DAY", "20"))
+# Per-IP caps against ballot stuffing (0 disables). A meetup or office puts a whole room
+# behind one IP, so the defaults fit a few hundred people; raise them for a bigger event.
+# A script still needs a real ~2 min of play per ballot on top.
+MAX_SESSIONS_PER_IP_PER_HOUR: int = int(os.environ.get("MAX_SESSIONS_PER_IP_PER_HOUR", "300"))
+MAX_VOTES_PER_IP_PER_DAY: int = int(os.environ.get("MAX_VOTES_PER_IP_PER_DAY", "100"))
 # Proxies in front of the app that append to X-Forwarded-For; the client IP is the entry
 # this many places from the right. Check the startup log line on a deployed Space.
 TRUSTED_PROXY_HOPS: int = max(1, int(os.environ.get("TRUSTED_PROXY_HOPS", "1")))
@@ -107,8 +110,24 @@ class HeartbeatRequest(BaseModel):
 
 # Input event kinds the injected logger sends (`blind.build_input_logger_script`).
 EventKind = Literal[
-    "start", "kd", "ku", "md", "mu", "lock", "unlock", "focus", "blur", "hidden", "visible", "exit"
+    "start",
+    "kd",
+    "ku",
+    "md",
+    "mu",
+    "mv",
+    "lock",
+    "unlock",
+    "focus",
+    "blur",
+    "hidden",
+    "visible",
+    "exit",
 ]
+
+# Upper bound on one snapshot upload; the logger sends ~15-40 KB JPEGs at 480 px wide.
+MAX_FRAME_BYTES: int = 200 * 1024
+MAX_FRAME_SIDE_PX: int = 2048
 
 
 class EventsRequest(BaseModel):
@@ -116,7 +135,10 @@ class EventsRequest(BaseModel):
 
     token: str | None = Field(default=None, max_length=512)
     slot: Slot
-    # `[ms_since_page_load, kind, code]`; code is a KeyboardEvent.code, button number or ''.
+    # The page's navigation start in epoch ms; `epoch + ms` lines events up with snapshots.
+    epoch: int | None = Field(default=None, ge=0)
+    # `[ms_since_page_load, kind, code]`; code is a KeyboardEvent.code, `button,x,y` for
+    # mouse buttons, `dx,dy` for mouse movement, or ''.
     events: list[tuple[float, EventKind, Annotated[str, StringConstraints(max_length=32)]]] = Field(
         max_length=1000
     )
@@ -492,7 +514,42 @@ def api_events(body: EventsRequest, request: Request) -> dict[str, object]:
     if minted:
         raise HTTPException(status_code=401, detail="No arena session")
     try:
-        stored = runtime.store.record_events(payload["sid"], body.slot, body.events)
+        stored = runtime.store.record_events(
+            payload["sid"], body.slot, body.events, epoch_ms=body.epoch
+        )
+    except KeyError:
+        raise HTTPException(status_code=401, detail="Unknown arena session") from None
+    return {"stored": stored}
+
+
+@app.post("/api/frame")
+async def api_frame(
+    request: Request,
+    slot: Slot,
+    t: Annotated[int, Query(ge=0)],
+    epoch: Annotated[int, Query(ge=0)],
+    w: Annotated[int, Query(ge=1, le=MAX_FRAME_SIDE_PX)],
+    h: Annotated[int, Query(ge=1, le=MAX_FRAME_SIDE_PX)],
+    token: Annotated[str, Query(max_length=512)] = "",
+) -> dict[str, object]:
+    """Stores one gameplay snapshot (raw JPEG body) from the logger in a build iframe.
+
+    Like `/api/events`, never mints a session, so snapshots can't bypass the per-IP cap.
+    """
+    if runtime.store is None or runtime.build_ids is None:
+        raise HTTPException(status_code=503, detail="Arena builds not packaged yet.")
+    payload, _, minted = _resolve_cookie(request, explicit_token=token or None)
+    if minted:
+        raise HTTPException(status_code=401, detail="No arena session")
+    jpeg = await request.body()
+    if len(jpeg) > MAX_FRAME_BYTES:
+        raise HTTPException(status_code=413, detail="Snapshot too large")
+    if not jpeg.startswith(b"\xff\xd8\xff"):
+        raise HTTPException(status_code=415, detail="Snapshot must be a JPEG")
+    try:
+        stored = await run_in_threadpool(
+            runtime.store.record_frame, payload["sid"], slot, t, epoch, w, h, jpeg
+        )
     except KeyError:
         raise HTTPException(status_code=401, detail="Unknown arena session") from None
     return {"stored": stored}

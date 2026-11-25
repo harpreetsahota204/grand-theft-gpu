@@ -79,7 +79,7 @@ A healthy smoke run shows `declared_done`, `playable: true` on every turn, a par
 | `harness/fetch.py`, `assets/catalog.json` | Downloads assets at the pinned dataset revision; the index the models search with `tools/assets.mjs` |
 | `scoring/checklist.md` | The locked scoring rubric (tag `scoring-v2`): per-tier pass/fail items on runtime evidence, blind pairwise judging, headline rules. Never shown to the models |
 | `prompts/` | The locked game specs, run rules, critic prompt and nudge template; `smoke_spec.md` |
-| `arena/` | The public blind play-and-vote Space: `app.py` (FastAPI routes), `blind.py` (signed A/B tokens, asset shim, input logger), `storage.py` (votes, play time, input logs, Hub sync), `prepare.py` (packages builds) |
+| `arena/` | The public blind play-and-vote Space: `app.py` (FastAPI routes), `blind.py` (signed A/B tokens, asset shim, input and snapshot logger), `storage.py` (votes, play time, input logs, snapshots, Hub sync), `prepare.py` (packages builds), `export_coco4gui.py` (snapshots + inputs → COCO4GUI) |
 | `tests/` | The local test suite |
 
 ## Code conventions

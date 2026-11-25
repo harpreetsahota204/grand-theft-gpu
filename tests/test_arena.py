@@ -21,6 +21,7 @@ if str(ARENA_DIR) not in sys.path:
     sys.path.append(str(ARENA_DIR))
 
 import blind  # noqa: E402
+import export_coco4gui  # noqa: E402
 import prepare  # noqa: E402
 import storage  # noqa: E402
 
@@ -360,7 +361,7 @@ def test_record_events_mirrors_deblinded_batches_and_caps(
     events = [[12.0, "kd", "KeyW"], [400.0, "ku", "KeyW"], [500.0, "md", "0"]]
     assert store.record_events(SID, "b", events, now=1061.0) == 3
 
-    (line,) = store.events_path.read_text(encoding="utf-8").splitlines()
+    (line,) = store.events.path.read_text(encoding="utf-8").splitlines()
     rec = json.loads(line)
     assert rec["build"] == "b-beta"
     assert rec["contender"] == "opus"
@@ -529,3 +530,219 @@ def test_bundle_names_lose_their_hashes(tmp_path: Path) -> None:
     html = (build / "index.html").read_text(encoding="utf-8")
     assert "/assets/index.js" in html and "/assets/index.css" in html
     assert (build / "assets" / "index.js").read_text(encoding="utf-8") == 'import("./chunk.js")'
+
+
+# Smallest valid-looking JPEG body for snapshot tests (magic bytes plus padding).
+JPEG = b"\xff\xd8\xff\xe0" + b"\x00" * 64
+
+
+def test_frame_endpoint_stores_jpeg_and_rejects_bad_uploads(arena_client) -> None:  # noqa: ANN001
+    """A JPEG with a session is stored; no session, non-JPEG or huge bodies are refused."""
+    client, app_module = arena_client
+    token = client.get("/api/session").json()["token"]
+    q = f"/api/frame?token={token}&slot=b&t=2500&epoch=1700000000000&w=480&h=270"
+    resp = client.post(q, content=JPEG, headers={"content-type": "image/jpeg"})
+    assert resp.status_code == 200
+    assert resp.json() == {"stored": True}
+
+    (line,) = app_module.runtime.store.frames.path.read_text(encoding="utf-8").splitlines()
+    rec = json.loads(line)
+    payload = blind.verify_session(token, "test-secret", set(BUILDS))
+    assert payload is not None
+    assert rec["build"] == payload["order"][1]
+    assert rec["contender"] == BUILDS[rec["build"]]
+    assert (rec["t_ms"], rec["epoch_ms"], rec["width"], rec["height"]) == (
+        2500,
+        1700000000000,
+        480,
+        270,
+    )
+
+    assert client.post(q, content=b"GIF89a" + b"0" * 64).status_code == 415
+    too_big = JPEG + b"0" * (app_module.MAX_FRAME_BYTES + 1)
+    assert client.post(q, content=too_big).status_code == 413
+    assert client.post(q.replace("w=480", "w=99999"), content=JPEG).status_code == 422
+    client.cookies.clear()
+    no_session = q.replace(f"token={token}", "token=")
+    assert client.post(no_session, content=JPEG).status_code == 401
+
+
+def test_record_frame_caps_per_session_and_rolls_shards(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Snapshots stop at the per-session cap and move to a new shard past the size limit."""
+    store = _played_store(tmp_path)
+    monkeypatch.setattr(storage, "MAX_FRAMES_PER_SESSION", 3)
+    monkeypatch.setattr(storage, "SHARD_MAX_BYTES", 10)
+    assert store.record_frame(SID, "a", 1, 0, 4, 3, JPEG, now=2000.0)
+    first = store.frames.path
+    assert store.record_frame(SID, "a", 2, 0, 4, 3, JPEG, now=2001.0)
+    assert store.frames.path != first
+    assert store.record_frame(SID, "b", 3, 0, 4, 3, JPEG, now=2002.0)
+    assert not store.record_frame(SID, "b", 4, 0, 4, 3, JPEG, now=2003.0)
+    assert len(list(store.frames.folder.glob("*.jsonl"))) == 3
+    with pytest.raises(KeyError):
+        store.record_frame("unknown-sid-00000000", "a", 1, 0, 4, 3, JPEG)
+
+
+def test_snapshots_cannot_outpace_real_time(tmp_path: Path) -> None:
+    """A client flooding snapshots gets the burst plus one per second of session age."""
+    store = _played_store(tmp_path)  # session created at t=1000
+    stored = sum(store.record_frame(SID, "a", i, 0, 4, 3, JPEG, now=1005.0) for i in range(50))
+    assert stored == storage.FRAME_BURST + 5
+
+
+def test_low_disk_stops_logging_but_not_votes(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Below the free-space floor, snapshots and inputs are dropped; voting still works."""
+    store = _played_store(tmp_path)
+    monkeypatch.setattr(storage, "MIN_FREE_DISK_BYTES", 1 << 62)
+    assert not store.record_frame(SID, "a", 1, 0, 4, 3, JPEG)
+    assert store.record_events(SID, "a", [[1.0, "kd", "KeyW"]]) == 0
+    store.submit_vote(SID, {q: "a" for q in storage.QUESTIONS}, min_play_seconds=10.0)
+
+
+def test_shards_roll_per_time_window_and_prune_only_closed_synced_files(tmp_path: Path) -> None:
+    """Closed, uploaded shards are deleted; open, recent or changed ones are kept."""
+    store = _played_store(tmp_path)
+    window = storage.SHARD_WINDOW_S
+    old = store.events.append("{}\n", now=window * 10.0)
+    changed = store.frames.append("{}\n", now=window * 10.0)
+    recent = store.events.append("{}\n", now=window * 12.0)
+    assert len({old, changed, recent}) == 3
+    unsynced = store.frames.append("{}\n", now=window * 10.5)
+    assert unsynced == changed
+
+    uploaded = {p: p.stat().st_mtime for p in (old, changed, recent)}
+    uploaded[changed] -= 1.0  # appended to after its last upload
+    deleted = storage.prune_synced_shards(store.jsonl_dir, uploaded, now=window * 13.0)
+    assert deleted == 1
+    assert not old.exists() and old not in uploaded
+    assert changed.exists() and recent.exists()
+
+
+def test_logger_captures_snapshots_after_the_game_frame() -> None:
+    """The logger wraps requestAnimationFrame and posts JPEGs with the page epoch."""
+    script = blind.build_input_logger_script("a", "tok.sig")
+    assert "window.requestAnimationFrame=function(cb)" in script
+    assert "cb(ts);snap();" in script
+    assert '"/api/frame?token="' in script
+    assert '"image/jpeg",0.7' in script
+    assert "epoch:E" in script
+    assert 'var rx=Math.round(mx),ry=Math.round(my);if(rx||ry){ev("mv",rx+","+ry)' in script
+    assert "innerWidth||1" in script and "innerHeight||1" in script
+    assert "if(!s){if(++tries<30)return;tries=0;due=n+2000;return;}" in script
+
+
+def test_export_writes_coco4gui_with_actions_on_the_frame_clock(tmp_path: Path) -> None:
+    """Snapshots become sequence images and inputs become annotations on one clock."""
+    store = _played_store(tmp_path)
+    epoch = 1_700_000_000_000
+    store.record_events(
+        SID,
+        "a",
+        [
+            [0.0, "start", str(epoch)],
+            [100.0, "kd", "KeyW"],
+            [150.0, "lock", ""],
+            [200.0, "md", "0,0.1000,0.2000"],
+            [300.0, "mv", "5,-2"],
+            [400.0, "mv", "3,1"],
+            [900.0, "mu", "0,0.1000,0.2000"],
+            [1500.0, "ku", "KeyW"],
+        ],
+        epoch_ms=epoch,
+    )
+    store.record_frame(SID, "a", 1000, epoch, 480, 270, JPEG)
+    store.record_frame(SID, "a", 2000, epoch, 480, 270, JPEG)
+    store.submit_vote(
+        SID,
+        {q: "a" for q in storage.QUESTIONS},
+        min_play_seconds=10.0,
+    )
+
+    out = tmp_path / "out"
+    summary = export_coco4gui.export(store.jsonl_dir, out)
+    assert summary == {"race-2": {"plays": 1, "images": 2, "annotations": 6, "parts": 1}}
+
+    coco = json.loads((out / "race-2" / "annotations_coco.json").read_text(encoding="utf-8"))
+    assert set(coco) == {"info", "images", "annotations", "categories"}
+    first, second = coco["images"]
+    assert (first["sequence_id"], first["sequence_position"]) == (f"{SID}_a", 1)
+    assert first["contender"] == "kimi" and first["keys_held"] == ["KeyW"]
+    assert first["pointer_locked"] is True and first["vote_overall"] == "win"
+    assert first["file_name"] == f"{SID}/a_00001.jpg"
+    assert (out / "race-2" / "images" / first["file_name"]).read_bytes() == JPEG
+    assert second["keys_held"] == []
+    # Ids come from the session, slot and capture time, so a re-export keeps them.
+    export_coco4gui.export(store.jsonl_dir, out)
+    again = json.loads((out / "race-2" / "annotations_coco.json").read_text(encoding="utf-8"))
+    assert [i["id"] for i in again["images"]] == [first["id"], second["id"]]
+    assert [a["id"] for a in again["annotations"]] == [a["id"] for a in coco["annotations"]]
+
+    by_image: dict[int, list[dict]] = {}
+    for ann in coco["annotations"]:
+        by_image.setdefault(ann["image_id"], []).append(ann)
+    names = {c["id"]: c["name"] for c in coco["categories"]}
+    first_actions = [names[a["category_id"]] for a in by_image[first["id"]]]
+    assert first_actions == ["key_down", "mouse_down", "mouse_up", "look", "key_hold"]
+    look = by_image[first["id"]][3]["attributes"]
+    assert look["custom_metadata"]["dx"] == 8 and look["custom_metadata"]["dy"] == -1
+    click = by_image[first["id"]][1]
+    # Pointer lock was on, so the click aims at the screen centre.
+    assert click["keypoints"] == [240.0, 135.0, 2]
+    assert click["attributes"]["previous_action_type"] == "key_down"
+    assert [names[a["category_id"]] for a in by_image[second["id"]]] == ["key_up"]
+    assert by_image[second["id"]][0]["attributes"]["steps_since_start"] == 6
+
+
+def test_export_keeps_trailing_inputs_and_splits_parts(tmp_path: Path) -> None:
+    """Inputs after the last snapshot land on it; big races split into numbered parts."""
+    store = _played_store(tmp_path)
+    epoch = 1_700_000_000_000
+    store.record_events(SID, "a", [[100.0, "kd", "KeyE"], [3000.0, "ku", "KeyE"]], epoch_ms=epoch)
+    store.record_frame(SID, "a", 1000, epoch, 480, 270, JPEG)
+    store.record_frame(SID, "b", 1000, epoch, 480, 270, JPEG)
+
+    out = tmp_path / "out"
+    summary = export_coco4gui.export(store.jsonl_dir, out, max_images=1)
+    assert summary["race-2"]["parts"] == 2
+    race_dir = out / "race-2"
+    assert not (race_dir / "annotations_coco.json").exists()
+    part_a = json.loads((race_dir / "annotations_coco_00001.json").read_text(encoding="utf-8"))
+    trailing = part_a["annotations"][-1]["attributes"]
+    assert trailing["action_type"] == "key_up"
+    assert trailing["custom_metadata"]["ms_before_frame"] == -2000
+    assert (race_dir / "annotations_coco_00002.json").exists()
+
+
+def test_export_clamps_edge_click_boxes_and_preserves_look_lock_state(tmp_path: Path) -> None:
+    """Edge clicks stay inside `[0, width] x [0, height]` and `look` keeps its lock state."""
+    store = _played_store(tmp_path)
+    epoch = 1_700_000_000_000
+    store.record_events(
+        SID,
+        "a",
+        [
+            [100.0, "md", "0,0.0000,0.0000"],
+            [200.0, "mu", "0,1.0000,1.0000"],
+            [300.0, "lock", ""],
+            [400.0, "mv", "12,-4"],
+            # Unlocking right before the snapshot must not mislabel the earlier locked look.
+            [500.0, "unlock", ""],
+        ],
+        epoch_ms=epoch,
+    )
+    store.record_frame(SID, "a", 1000, epoch, 480, 270, JPEG)
+
+    out = tmp_path / "out"
+    export_coco4gui.export(store.jsonl_dir, out)
+    coco = json.loads((out / "race-2" / "annotations_coco.json").read_text(encoding="utf-8"))
+    by_type = {a["attributes"]["action_type"]: a for a in coco["annotations"]}
+
+    x0, y0, bw, bh = by_type["mouse_down"]["bbox"]
+    assert x0 == 0.0 and y0 == 0.0 and bw == 16.0 and bh == 16.0
+    x1, y1, bw1, bh1 = by_type["mouse_up"]["bbox"]
+    assert x1 + bw1 <= 480.0 and y1 + bh1 <= 270.0
+    assert by_type["look"]["attributes"]["custom_metadata"]["pointer_locked"] is True

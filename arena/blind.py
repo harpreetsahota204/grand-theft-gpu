@@ -9,7 +9,7 @@ Main entry points:
   that is never readable from the token itself (`slot_order`)
 - `inject_slot_shim`: rewrites a Vite `index.html` so root-relative `/assets/`
   fetches route cleanly to `/play/{slot}/assets/` inside a blind iframe, and
-  adds the input logger (`build_input_logger_script`)
+  adds the input and snapshot logger (`build_input_logger_script`)
 - `shared_asset_cdn_url`: builds a pinned Hugging Face dataset URL for shared
   `assets/gt-gpu/` files
 """
@@ -214,13 +214,23 @@ def build_slot_shim_script(asset_prefix: str) -> str:
 
 
 def build_input_logger_script(slot: Slot, token: str = "") -> str:
-    """Returns an inline script that logs the player's inputs and posts them to `/api/events`.
+    """Returns an inline script that logs inputs and gameplay snapshots for one build iframe.
 
-    Records key down/up by physical key (`KeyboardEvent.code`, e.g. `KeyW`, never the
-    typed character), mouse button down/up, pointer lock, focus and tab visibility,
-    each as `[ms_since_page_load, kind, code]`. A `start` event carries the epoch ms
-    so batches line up across slots. Batches flush every 5 s and on page exit (via
-    `sendBeacon`). Both builds get this identical script, so logging stays fair.
+    Inputs go to `/api/events` as `[ms_since_page_load, kind, code]` triples: key
+    down/up by physical key (`KeyboardEvent.code`, e.g. `KeyW`, never the typed
+    character), mouse button down/up (code `button,x,y` with the pointer position as a
+    0-1 fraction of the viewport), summed mouse movement every 100 ms (`mv`, code
+    `dx,dy`, which is how pointer-locked games aim), pointer lock, focus and tab
+    visibility. Every batch carries `epoch`, the page's navigation start in epoch ms,
+    so `epoch + ms` is an absolute time that survives iframe reloads.
+
+    Snapshots go to `/api/frame`: a 480-px-wide JPEG of the game's largest canvas every
+    2 s while the tab is visible, on the same clock as the inputs. The copy is taken
+    right after the game's own `requestAnimationFrame` callback, the only moment a
+    WebGL canvas without `preserveDrawingBuffer` still holds the frame; a blank copy is
+    retried for up to 30 frames so a mid-frame read doesn't store a black image.
+
+    Both builds get this identical script, so logging stays fair.
 
     Args:
         slot: blind slot ("a" or "b") serving this document
@@ -232,21 +242,28 @@ def build_input_logger_script(slot: Slot, token: str = "") -> str:
     """
     return (
         "<script>(function(){"
-        f'var T="{token}",L="{slot}",Q=[],F=window.fetch;'
+        f'var T="{token}",L="{slot}",Q=[],F=window.fetch,'
+        "E=Math.round(Date.now()-performance.now());"
         'function ev(k,c){Q.push([Math.round(performance.now()),k,c||""]);'
         "if(Q.length>5000)Q.shift();if(Q.length>=900)fl(0);}"
         "function fl(b){if(!Q.length)return;"
-        "var p=JSON.stringify({token:T||null,slot:L,events:Q.splice(0,1000)});"
+        "var p=JSON.stringify({token:T||null,slot:L,epoch:E,events:Q.splice(0,1000)});"
         'if(b&&navigator.sendBeacon&&navigator.sendBeacon("/api/events",'
         'new Blob([p],{type:"application/json"})))return;'
         'try{F.call(window,"/api/events",{method:"POST",credentials:"same-origin",'
         'headers:{"Content-Type":"application/json"},body:p,keepalive:true})'
         ".catch(function(){});}catch(e){}}"
+        "function pos(e){return e.button+','+(e.clientX/(innerWidth||1)).toFixed(4)+','"
+        "+(e.clientY/(innerHeight||1)).toFixed(4);}"
         'ev("start",String(Date.now()));'
         'addEventListener("keydown",function(e){if(!e.repeat)ev("kd",e.code);},true);'
         'addEventListener("keyup",function(e){ev("ku",e.code);},true);'
-        'addEventListener("mousedown",function(e){ev("md",String(e.button));},true);'
-        'addEventListener("mouseup",function(e){ev("mu",String(e.button));},true);'
+        'addEventListener("mousedown",function(e){ev("md",pos(e));},true);'
+        'addEventListener("mouseup",function(e){ev("mu",pos(e));},true);'
+        "var mx=0,my=0;"
+        'addEventListener("mousemove",function(e){mx+=e.movementX||0;my+=e.movementY||0;},true);'
+        "setInterval(function(){var rx=Math.round(mx),ry=Math.round(my);"
+        'if(rx||ry){ev("mv",rx+","+ry);mx-=rx;my-=ry;}},100);'
         'addEventListener("focus",function(){ev("focus");});'
         'addEventListener("blur",function(){ev("blur");});'
         'document.addEventListener("pointerlockchange",function(){'
@@ -256,6 +273,28 @@ def build_input_logger_script(slot: Slot, token: str = "") -> str:
         'if(document.visibilityState==="hidden")fl(1);});'
         'addEventListener("pagehide",function(){ev("exit");fl(1);});'
         "setInterval(function(){fl(0);},5000);"
+        # Gameplay snapshots, taken right after the game's own frame callback.
+        'var cv=document.createElement("canvas"),cx=cv.getContext("2d"),'
+        "due=performance.now()+3000,tries=0,busy=0,NF=0;"
+        "function big(){var b=null,a=0,l=document.getElementsByTagName('canvas');"
+        "for(var i=0;i<l.length;i++){var r=l[i].width*l[i].height;if(r>a){a=r;b=l[i];}}return b;}"
+        "function snap(){var n=performance.now();"
+        'if(busy||n<due||NF>=2000||document.visibilityState!=="visible")return;'
+        "var c=big();if(!c||!c.width||!c.height){due=n+1000;return;}"
+        "var w=Math.min(480,c.width),h=Math.max(1,Math.round(c.height*w/c.width));"
+        "if(cv.width!==w)cv.width=w;if(cv.height!==h)cv.height=h;"
+        "try{cx.drawImage(c,0,0,w,h);var d=cx.getImageData(0,0,w,h).data,s=0;"
+        "for(var i=0;i<d.length;i+=4000)s+=d[i]+d[i+1]+d[i+2];"
+        "if(!s){if(++tries<30)return;tries=0;due=n+2000;return;}}catch(e){due=Infinity;return;}"
+        "tries=0;due=n+2000;busy=1;var t=Math.round(n);"
+        "cv.toBlob(function(b){busy=0;if(!b)return;NF++;"
+        'try{F.call(window,"/api/frame?token="+encodeURIComponent(T)+"&slot="+L+"&t="+t'
+        '+"&epoch="+E+"&w="+w+"&h="+h,{method:"POST",credentials:"same-origin",'
+        'headers:{"Content-Type":"image/jpeg"},body:b}).catch(function(){});}catch(e){}'
+        '},"image/jpeg",0.7);}'
+        "var R=window.requestAnimationFrame;"
+        "if(R)window.requestAnimationFrame=function(cb){"
+        "return R.call(window,function(ts){cb(ts);snap();});};"
         "})();</script>"
     )
 
