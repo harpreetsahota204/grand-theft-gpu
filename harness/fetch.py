@@ -45,6 +45,7 @@ CORE_PATTERNS: list[str] = [
     "ambientcg-textures/*",
     "audio-opengameart/*",
     "audio-freesound/*",
+    "music-cc0/*",
     "kenney-media/*",
     "google-fonts/*",
     *[f"{folder}/{f}" for folder in ("kenney", "rocketbox-avatars", "rocketbox-motions", "sf-city",

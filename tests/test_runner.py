@@ -29,7 +29,7 @@ GOOD_VERDICT: dict[str, object] = {
             "note": "Pressing E near a cop car freezes the game.",
         },
         {
-            "group": "look and feel",
+            "group": "look",
             "status": "new",
             "note": "Night is too dark to read the HUD.",
             "brief": "Day reads clearly different from night",
@@ -45,7 +45,7 @@ def test_review_verdict_is_read_from_the_file(tmp_path: Path) -> None:
     assert review.route == "tools/screenshot --no-build --hold e:200 --hold w:3000"
     assert review.notes == (
         "1. [blocker] Pressing E near a cop car freezes the game.\n"
-        "2. [look and feel] Night is too dark to read the HUD.\n"
+        "2. [look] Night is too dark to read the HUD.\n"
         '   Brief: "Day reads clearly different from night"'
     )
     assert [n.id for n in review.items] == ["T2.1", "T2.2"]
@@ -58,8 +58,8 @@ def test_carried_notes_keep_their_id_and_age(tmp_path: Path) -> None:
         "fixed": ["T2.1"],
         "notes": [
             {"group": "core loop", "status": "regressed", "note": "Heat never falls now."},
-            {"group": "look and feel", "status": "open", "id": "T2.2", "note": "Night still dark."},
-            {"group": "polish", "status": "open", "id": "T9.9", "note": "Unknown id."},
+            {"group": "look", "status": "open", "id": "T2.2", "note": "Night still dark."},
+            {"group": "feel", "status": "open", "id": "T9.9", "note": "Unknown id."},
         ],
     }
     review = runner.parse_review(_verdict(tmp_path, second), turn=5, last=first)
@@ -67,8 +67,8 @@ def test_carried_notes_keep_their_id_and_age(tmp_path: Path) -> None:
     assert review.fixed == ("T2.1",)
     lines = review.notes.splitlines()
     assert lines[0] == "1. [core loop] REGRESSED: Heat never falls now."
-    assert lines[1] == "2. [look and feel] (open since turn 2) Night still dark."
-    assert lines[2] == "3. [polish] Unknown id."
+    assert lines[1] == "2. [look] (open since turn 2) Night still dark."
+    assert lines[2] == "3. [feel] Unknown id."
 
 
 def test_missing_verdict_is_unparsed(tmp_path: Path) -> None:
@@ -96,11 +96,18 @@ def test_verdict_that_is_not_json_is_unparsed(tmp_path: Path) -> None:
         {"route": ["w:3000"]},
         {"notes": "Fix the siren."},
         {"notes": [{"group": "urgent", "note": "Fix the siren."}]},
-        {"notes": [{"group": "polish", "status": "new", "note": "  "}]},
-        {"notes": [{"group": "polish", "note": "No status."}]},
-        {"notes": [{"group": "polish", "status": "stale", "note": "Bad status."}]},
-        {"notes": [{"group": "polish", "status": "open", "id": 3, "note": "Bad id."}]},
+        {"notes": [{"group": "feel", "status": "new", "note": "  "}]},
+        {"notes": [{"group": "feel", "note": "No status."}]},
+        {"notes": [{"group": "feel", "status": "stale", "note": "Bad status."}]},
+        {"notes": [{"group": "feel", "status": "open", "id": 3, "note": "Bad id."}]},
         {"fixed": "T2.1"},
+        {"notes": [{"group": "look and feel", "status": "new", "note": "Old group."}]},
+        {"notes": [{"group": "look", "status": "new", "note": "Shots.", "shots": "a.png"}]},
+        {"untested": "the escape"},
+        {"scores": {"look": 11, "feel": 5}},
+        {"scores": {"look": 7}},
+        {"scores": {"look": True, "feel": 5}},
+        {"scores": [7, 5]},
     ],
 )
 def test_verdict_off_schema_is_unparsed(tmp_path: Path, change: dict[str, object]) -> None:
@@ -141,7 +148,7 @@ def test_critic_gets_the_last_reviews_tier_and_route(tmp_path: Path) -> None:
     text = runner.critic_text(spec, 25.0, last, turn=3)
     assert "It judged Tier 3." in text
     assert "tools/screenshot --no-build --hold e:200 --hold w:3000" in text
-    assert "- T2.2 [look and feel] (raised on turn 2) Night is too dark to read the HUD." in text
+    assert "- T2.2 [look] (raised on turn 2) Night is too dark to read the HUD." in text
     assert runner.NO_LAST_REVIEW not in text
 
 
@@ -251,7 +258,7 @@ def test_critic_is_told_the_spend_and_the_last_reviews_cost(tmp_path: Path) -> N
     spec = tmp_path / "spec.md"
     spec.write_text("brief")
     first = runner.critic_text(spec, 100.0, spent_usd=12.403)
-    assert "Of the $100, $12.40 is spent so far" in first
+    assert "of the $100, $12.40 is spent so far" in first
     assert "This is the first review." in first
     later = runner.critic_text(spec, 100.0, spent_usd=40.0, last_cost_usd=8.5)
     assert "The last review cost $8.50." in later
@@ -262,3 +269,56 @@ def test_a_review_with_no_notes_is_valid(tmp_path: Path) -> None:
     """A critic that finds nothing to fix still writes a good review (a v17 smoke critic did)."""
     review = runner.parse_review(_verdict(tmp_path, GOOD_VERDICT | {"notes": []}))
     assert review.parsed and review.tier == 3 and review.notes == "" and review.items == ()
+
+
+def test_scores_untested_and_shots_reach_the_builder_and_next_critic(tmp_path: Path) -> None:
+    """Scores and untested items head the builder's notes and the next critic's prompt."""
+    verdict = GOOD_VERDICT | {
+        "scores": {"look": 6, "feel": 4},
+        "untested": ["a car escape: two scripted corners hit the wall"],
+        "notes": [
+            {
+                "group": "look",
+                "status": "new",
+                "note": "Shadows are black.",
+                "shots": ["hero.png", "night.png"],
+            }
+        ],
+    }
+    review = runner.parse_review(_verdict(tmp_path, verdict), turn=4)
+    assert review.parsed and review.scores == {"look": 6, "feel": 4}
+    assert review.untested == ("a car escape: two scripted corners hit the wall",)
+    assert review.items[0].shots == ("hero.png", "night.png")
+    assert review.notes.startswith("Scores: look 6/10, feel 4/10.")
+    assert "not counted as broken" in review.notes
+    assert "   Shots: hero.png, night.png" in review.notes
+    spec = tmp_path / "spec.md"
+    spec.write_text("brief")
+    text = runner.critic_text(spec, 25.0, review, turn=5)
+    assert "It judged Tier 3. It scored look 6/10 and feel 4/10." in text
+    assert "- a car escape: two scripted corners hit the wall" in text
+
+
+def test_a_verdict_without_scores_still_parses(tmp_path: Path) -> None:
+    """Scores are optional: a review that forgot them still reaches the builder."""
+    review = runner.parse_review(_verdict(tmp_path, GOOD_VERDICT), turn=2)
+    assert review.parsed and review.scores is None and review.untested == ()
+
+
+def test_last_rounds_hero_and_night_are_staged_for_the_critic(tmp_path: Path) -> None:
+    """The critic gets the latest earlier round's hero and night shots in tools/shots/prev/."""
+    workspace, shots = tmp_path / "ws", tmp_path / "shots"
+    for rnd, names in ((2, ["hero.png", "night.png", "x.png"]), (3, ["hero.png"])):
+        d = shots / f"critic-{rnd:03d}"
+        d.mkdir(parents=True)
+        for name in names:
+            (d / name).write_text(f"r{rnd}")
+    prev = workspace / "tools" / "shots" / "prev"
+    prev.mkdir(parents=True)
+    (prev / "stale.png").write_text("old")
+    assert runner.stage_prev_shots(workspace, shots, turn=4) == ["hero.png"]
+    assert sorted(p.name for p in prev.iterdir()) == ["hero.png"]
+    assert (prev / "hero.png").read_text() == "r3"
+    # The first review has nothing to compare against, and leaves no folder.
+    assert runner.stage_prev_shots(workspace, shots, turn=1) == []
+    assert not prev.exists()

@@ -128,6 +128,7 @@ class Note:
         note: the note itself
         brief: the line of the brief the note is measured against, if given
         since: the turn it was first raised
+        shots: the critic's screenshots that show the problem, by file name
     """
 
     id: str
@@ -136,6 +137,7 @@ class Note:
     note: str
     brief: str
     since: int
+    shots: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -146,9 +148,12 @@ class Review:
         parsed: whether a valid verdict file was found
         tier: highest tier the critic saw fully working, if given
         route: the tools/screenshot steps, from a fresh load, that showed that tier
-        notes: what the builder should do next, ranked, one "[group] note" per line
+        notes: what the builder reads: the scores and untested steps, if any, then
+            the notes ranked, one "[group] note" per line
         items: the same notes as ledger entries, for the next critic
         fixed: ids of earlier notes this critic saw fixed
+        scores: the critic's 1-10 scores for "look" and "feel", if given
+        untested: what the critic couldn't make happen this round; never a failure
         problem: why the verdict was rejected (empty when parsed)
     """
 
@@ -158,6 +163,8 @@ class Review:
     notes: str = ""
     items: tuple[Note, ...] = ()
     fixed: tuple[str, ...] = ()
+    scores: dict[str, int] | None = None
+    untested: tuple[str, ...] = ()
     problem: str = ""
 
 
@@ -451,6 +458,7 @@ class ContenderRun:
         # A verdict left over from the last round must never count for this one.
         verdict_path = self.workspace / VERDICT_FILE
         verdict_path.unlink(missing_ok=True)
+        stage_prev_shots(self.workspace, self.shots, turn)
         critic_id = str(uuid.uuid4())
         self.critic_sessions.append(critic_id)
         prompt = critic_text(
@@ -812,9 +820,17 @@ def critic_text(
         ledger = "\n".join(
             f"- {n.id} [{n.group}] (raised on turn {n.since}) {n.note}" for n in last.items
         )
+        scores = (
+            f" It scored look {last.scores['look']}/10 and feel {last.scores['feel']}/10."
+            if last.scores
+            else ""
+        )
+        untested = "".join(f"\n- {u}" for u in last.untested)
         last_review = (
-            f"It judged Tier {last.tier}. Its route:\n\n{last.route.strip() or '(none given)'}"
-            f"\n\nIts notes:\n\n{ledger or '(none)'}"
+            f"It judged Tier {last.tier}.{scores} Its route:\n\n"
+            f"{last.route.strip() or '(none given)'}"
+            + (f"\n\nIt couldn't test:{untested}" if untested else "")
+            + f"\n\nIts notes:\n\n{ledger or '(none)'}"
         )
     last_cost = (
         "This is the first review."
@@ -840,12 +856,18 @@ VERDICT_FILE: str = "tools/shots/verdict.json"
 # The note groups, in the order prompts/critic.md ranks them.
 NOTE_GROUPS: tuple[str, ...] = (
     "blocker",
+    "look",
+    "feel",
     "core loop",
-    "next tier",
     "ambition",
-    "look and feel",
-    "polish",
 )
+
+# The scores every critic gives, each an integer from 1 to 10.
+SCORE_KEYS: tuple[str, ...] = ("look", "feel")
+
+# The critic's shots kept from one round for the next critic to compare against
+# (prompts/critic.md, check 1), staged in the workspace's tools/shots/prev/.
+PREV_SHOTS: tuple[str, ...] = ("hero.png", "night.png")
 
 # How a note relates to the last review's notes (see Note).
 NOTE_STATUSES: tuple[str, ...] = ("new", "open", "regressed")
@@ -876,13 +898,28 @@ def parse_review(verdict_path: Path, turn: int = 1, last: Review | None = None) 
     if problem:
         return Review(parsed=False, problem=problem)
     items = _ledger(verdict["notes"], turn, last)
+    scores = verdict.get("scores")
+    untested = tuple(u.strip() for u in verdict.get("untested", ()) if u.strip())
+    lines = [_note_line(i, n, turn) for i, n in enumerate(items, 1)]
+    # The builder sees the scores and what went untested above the notes, so it
+    # knows where the game stands and that an untested step isn't a failure.
+    header = []
+    if scores:
+        header.append(f"Scores: look {scores['look']}/10, feel {scores['feel']}/10.")
+    if untested:
+        header.append(
+            "Couldn't test this round (not counted as broken):"
+            + "".join(f"\n- {u}" for u in untested)
+        )
     return Review(
         parsed=True,
         tier=verdict["tier"],
         route=verdict["route"],
-        notes="\n".join(_note_line(i, n, turn) for i, n in enumerate(items, 1)),
+        notes="\n\n".join(header + (["\n".join(lines)] if lines else [])),
         items=items,
         fixed=tuple(verdict.get("fixed", ())),
+        scores={k: scores[k] for k in SCORE_KEYS} if scores else None,
+        untested=untested,
     )
 
 
@@ -906,6 +943,7 @@ def _ledger(raw: list[dict], turn: int, last: Review | None) -> tuple[Note, ...]
                 note=n["note"].strip(),
                 brief=str(n.get("brief", "")).strip(),
                 since=earlier.since if earlier else turn,
+                shots=tuple(n.get("shots", ())),
             )
         )
     return tuple(items)
@@ -920,7 +958,11 @@ def _note_line(rank: int, note: Note, turn: int) -> str:
     else:
         tag = ""
     line = f"{rank}. [{note.group}] {tag}{note.note}"
-    return f'{line}\n   Brief: "{note.brief}"' if note.brief else line
+    if note.brief:
+        line += f'\n   Brief: "{note.brief}"'
+    if note.shots:
+        line += f"\n   Shots: {', '.join(note.shots)}"
+    return line
 
 
 def _verdict_problem(verdict: object) -> str:
@@ -952,10 +994,32 @@ def _verdict_problem(verdict: object) -> str:
             return "each note needs non-empty text"
         if not isinstance(n.get("id", ""), str) or not isinstance(n.get("brief", ""), str):
             return "a note's id and brief must be strings"
+        if not _str_list(n.get("shots", [])):
+            return "a note's shots must be a list of file names"
     fixed = verdict.get("fixed", [])
-    if not isinstance(fixed, list) or not all(isinstance(f, str) for f in fixed):
+    if not _str_list(fixed):
         return "fixed must be a list of note ids"
+    if not _str_list(verdict.get("untested", [])):
+        return "untested must be a list of strings"
+    # Scores are optional, so a review that forgot them still reaches the
+    # builder; if present they must be well-formed.
+    scores = verdict.get("scores")
+    if scores is not None and not (
+        isinstance(scores, dict)
+        and all(
+            isinstance(scores.get(k), int)
+            and not isinstance(scores.get(k), bool)
+            and 1 <= scores[k] <= 10
+            for k in SCORE_KEYS
+        )
+    ):
+        return "scores must give look and feel as integers from 1 to 10"
     return ""
+
+
+def _str_list(value: object) -> bool:
+    """True if value is a list of strings."""
+    return isinstance(value, list) and all(isinstance(v, str) for v in value)
 
 
 def _events(log_path: Path) -> list[dict]:
@@ -1038,6 +1102,42 @@ def keep_critic_shots(workspace: Path, dest: Path, since: float) -> list[str]:
     for p in fresh:
         shutil.copy2(p, dest / p.name)
     return [p.name for p in fresh]
+
+
+def stage_prev_shots(workspace: Path, shots: Path, turn: int) -> list[str]:
+    """Puts the last round's hero and night shots where this round's critic can see them.
+
+    Critics judged each build fresh, so a turn that flattened the look never
+    showed up as a regression (v16-v18). The critic compares its own hero and
+    night shots with these. Staged after the builder's turn, right before the
+    critic runs, so the builder can't touch them.
+
+    Args:
+        workspace: the contender's game folder
+        shots: the contender's `shots/` folder, holding `critic-NNN/` per round
+        turn: the turn this critic reviews; only earlier rounds count
+
+    Returns:
+        the staged file names (empty on the first review, or if the last
+        round's critic took no such shots)
+    """
+    prev = workspace / "tools" / "shots" / "prev"
+    shutil.rmtree(prev, ignore_errors=True)
+    # Round folders are critic-NNN, named for the turn they reviewed.
+    earlier = {
+        int(n): d
+        for d in shots.glob("critic-*")
+        if d.is_dir() and (n := d.name.removeprefix("critic-")).isdigit() and int(n) < turn
+    }
+    if not earlier:
+        return []
+    latest = earlier[max(earlier)]
+    staged = [name for name in PREV_SHOTS if (latest / name).is_file()]
+    if staged:
+        prev.mkdir(parents=True, exist_ok=True)
+    for name in staged:
+        shutil.copy2(latest / name, prev / name)
+    return staged
 
 
 def kill_group(pgid: int, grace_s: float = 10.0) -> None:

@@ -83,7 +83,7 @@ CATALOG_PATH: Path = REPO_ROOT / "assets" / "catalog.json"
 # bump it deliberately after re-publishing (it changes what races see). The
 # code that builds the dataset lives in the dataset itself, under build/.
 HF_ASSETS_REPO: str = "harpreetsahota/grand-theft-gpu-assets"
-HF_ASSETS_REVISION: str = "717f91bbc3755ac942fd0afbbbc657826be126cc"
+HF_ASSETS_REVISION: str = "0d543859f7bea8a088b5d659b19fb7bdc7b9e518"
 
 # Where the prompt promises the assets inside each workspace. Vite serves
 # public/ at the site root, so the game loads /assets/gt-gpu/...

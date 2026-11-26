@@ -4,7 +4,7 @@ Two models get the same game brief and up to $100 each. Each builds the game alo
 
 New here? [`HUMANS.md`](HUMANS.md) is the story version: the premise, the setup and why each rule exists. Coding agents start with [`AGENTS.md`](AGENTS.md).
 
-The game is **Grand Theft GPU**, a browser heist game set in San Silicon, a parody of San Francisco. You play a founder with no compute in a GPU shortage, stealing GPUs to grow a startup from a garage to an IPO, and the cast is satirical tech-Twitter archetypes. Both models start from the same blank Vite + three.js project.
+The game is **Grand Theft GPU**, a browser heist game set in San Silicon, a parody of San Francisco. You play a founder with no compute in a GPU shortage, stealing GPUs to grow a startup from a garage to an IPO, and the cast is satirical tech-Twitter archetypes. The look is fixed by an art direction at the top of the brief (a cel-shaded San Francisco at golden hour, foggy at night, in a set palette), along with how driving and moving on foot should feel and a required code layout; the story, characters and systems are each model's own. Both models start from the same blank Vite + three.js project, with Rapier physics installed.
 
 | | Kimi K3.1 Pro | Claude Opus 5.5 |
 |---|---|---|
@@ -43,8 +43,8 @@ nohup uv run buildoff race --budget 100 --yes --pack primitives --race-id prim-0
 Follow and play (free, read-only):
 
 ```bash
-uv run buildoff status                     # progress as JSON: turns, spend, critic tiers, stop reason
-uv run buildoff reviews                    # every critic round: tier, route, notes, cost, screenshots
+uv run buildoff status                     # progress as JSON: turns, spend, critic tiers and scores, stop reason
+uv run buildoff reviews                    # every critic round: tier, scores, untested, route, notes, cost, screenshots
 nexus claude usage --session <session_id>  # live per-request tokens and cost for one model
 uv run buildoff play opus                  # open a model's latest build in your browser
 uv run buildoff stop                       # end a race early, cleanly
@@ -66,11 +66,11 @@ flowchart LR
 
 Each contender loops through rounds:
 
-1. **Seeding** (before the clock starts): its own copy of the starter project (Vite and three.js at pinned versions, an empty scene), the pack's assets at `public/assets/gt-gpu/`, `tools/screenshot` and (full pack) `tools/assets.mjs`, then `npm ci`. Turn 0 records the untouched starter scene.
+1. **Seeding** (before the clock starts): its own copy of the starter project (Vite, three.js and Rapier physics at pinned versions, an empty scene), the pack's assets at `public/assets/gt-gpu/`, `tools/screenshot` and (full pack) `tools/assets.mjs`, then `npm ci`. Turn 0 records the untouched starter scene.
 2. **Builder turn:** one `claude -p` process that resumes the same session every turn. Turn 1 gets the spec (with the race's real budget filled in) plus the run rules; later turns get the critic's notes and the spend so far (`You have spent $X of your $Y.`). It runs until the model stops (a Stop hook won't let it stop on an announcement or a broken build).
 3. **Evidence:** the harness commits the workspace to `history.git` (outside the model's reach), builds it, screenshots gameplay, and logs a row in `turns.jsonl`. A turn is **playable** if it built, loaded and rendered with no uncaught exception.
-4. **Critic review:** a fresh session of the *same* model, with no memory of building, plays the game read-only, judges both how it plays and how it looks and feels against the brief and tier ladder (`prompts/critic.md`), and writes a verdict to `tools/shots/verdict.json`: tier reached, the exact `tools/screenshot` steps that showed it (its route), and notes ranked blocker > core loop > next tier > ambition > look and feel > polish, each quoting the brief line it's measured against. The harness schema-checks the file and logs why it rejected a bad one. The builder decides how many notes to take on. The notes become the builder's next prompt (`prompts/nudge.md`). The harness copies the critic's screenshots to `shots/critic-NNN/` and logs the review's own cost and time. A review at max effort can take about an hour.
-5. **Continuity:** each critic gets the last review's tier, route and notes, and the builder keeps a per-tier walkthrough and a list of this turn's changes in `DONE.md`. The critic checks for regressions first, marks each old note fixed, open or regressed, then explores. Once a build holds Tier 4, it asks for ambition and caps look and polish at three notes. Before this, in the v12 race, each fresh critic had to find its own way, and Kimi's critics flipped between Tier 2 and Tier 4 whenever one couldn't script its way to a mission the last one had reached. The tier never ends the run: a same-model critic is a coach, so every run goes to its budget and builds are scored afterwards against the locked `scoring/checklist.md`.
+4. **Critic review:** a fresh session of the *same* model, with no memory of building, plays the game read-only and runs the same checks every round (`prompts/critic.md`): the hero view and the night view, compared with last round's shots (staged in `tools/shots/prev/`); a drive with a handbrake drift and each camera; moving on foot; and a chase, all set up from the builder's test keys. It writes a verdict to `tools/shots/verdict.json`: the tier reached, the exact `tools/screenshot` steps that showed it (its route), 1–10 scores for look and feel, what it couldn't make happen (`untested`, which never lowers the tier), and at most five notes ranked blocker > look > feel > core loop > ambition. Each note quotes the line of the brief or art direction it's measured against and names the shots that show it. The harness schema-checks the file and logs why it rejected a bad one. The builder decides how many notes to take on. The notes become the builder's next prompt (`prompts/nudge.md`). The harness copies the critic's screenshots to `shots/critic-NNN/` and logs the review's own cost and time. A review at max effort can take about an hour.
+5. **Continuity:** each critic gets the last review's tier, route and notes, and the builder keeps a per-tier walkthrough and a list of this turn's changes in `DONE.md`. The critic marks each old note fixed, open or regressed and replays the tier routes to catch regressions. It files an ambition note only once look and feel both score 7 or more. Before this, in the v12 race, each fresh critic had to find its own way, and Kimi's critics flipped between Tier 2 and Tier 4 whenever one couldn't script its way to a mission the last one had reached. The tier never ends the run: a same-model critic is a coach, so every run goes to its budget and builds are scored afterwards against the locked `scoring/checklist.md`.
 
 **Throughout,** a watchdog polls Nexus every 15 seconds and stops the run if total spend (builder and critics) reaches the budget, any other model shows up (`leak`), or Nexus goes quiet for 3 minutes (`meter_down`). A session with no output and no new spend for 10 minutes is cut short (`stalled`) and goes to review. Provider API errors and cut-off streams are retried (up to 3 per run). The smoke test stops at the first `DONE.md`, after one review.
 
@@ -157,8 +157,8 @@ Errors go to stderr as `{"error": ..., "hint": ...}`, with exit code 1 (not foun
 | `harness/cliutil.py` | JSON output and `{"error", "hint"}` errors for every agent-facing command |
 | `harness/doctor.py` | Prerequisite checks |
 | `harness/fetch.py` | Downloads assets at the pinned dataset revision |
-| `assets/catalog.json` | Index of all 1,302 assets, seeded next to the models' `tools/assets.mjs` |
-| `prompts/` | The locked game specs, run rules, critic prompt and nudge template (tag `prompt-v18`) |
+| `assets/catalog.json` | Index of all 1,326 assets, seeded next to the models' `tools/assets.mjs` |
+| `prompts/` | The locked game specs, run rules, critic prompt and nudge template (tag `prompt-v19`) |
 | `tests/` | The local test suite |
 
 ## Not done yet

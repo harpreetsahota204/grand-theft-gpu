@@ -11,7 +11,7 @@ A harness that races two models, **Kimi K3.1 Pro** (on Fireworks, routed through
 ## Ground rules
 
 1. **Races spend real money.** `buildoff race` spends up to `--budget` *per model* on the user's Fireworks and Anthropic accounts. **Never start a race without the user's explicit OK in this conversation.** The CLI refuses budgets over $2 without `--yes`; don't add `--yes` on your own. `buildoff smoke` (about $2–4) is the only paid check you may run unasked, and only to verify a harness change.
-2. **The prompts are locked** at git tag `prompt-v18`: `prompts/game_spec.md`, `game_spec_primitives.md`, `run_rules.md`, `critic.md` and `nudge.md` (the template that wraps the critic's notes). A change needs the user's OK and a new tag, because results across prompt versions aren't comparable.
+2. **The prompts are locked** at git tag `prompt-v19`: `prompts/game_spec.md`, `game_spec_primitives.md`, `run_rules.md`, `critic.md` and `nudge.md` (the template that wraps the critic's notes). A change needs the user's OK and a new tag, because results across prompt versions aren't comparable.
 3. **Fairness is the product.** Both sides get identical flags, tools, files, settings and rules; only the model ID differs (in `--model` and the per-side settings files; `tests/test_session.py` checks this). Never change one side alone.
 4. **Don't read credentials.** Never open `~/.claude/settings.json` or other key files. Use `nexus claude status` to check routing.
 5. **Don't use `--dangerously-skip-permissions` or `claude --bare`.** The harness pre-approves tools with `--allowed-tools`, and `--bare` breaks Nexus auth.
@@ -31,12 +31,12 @@ Requires macOS (`sandbox-exec`), Claude Code 2.1.281+, the Nexus CLI logged in a
 
 | Command | What it does | Cost |
 |---|---|---|
-| `uv run pytest` | Local tests: critic parsing, review trace, meter, sandbox, Stop hook, settings parity, evidence, asset lookup, blind arena | free, ~2 s |
+| `uv run pytest` | Local tests: critic parsing (scores, untested, shots), last round's shots staged for the critic, review trace, meter, sandbox, Stop hook, settings parity, evidence, asset lookup, blind arena | free, ~2 s |
 | `uv run buildoff doctor` | Checks prerequisites | free |
 | `uv run buildoff smoke` | End to end: both models add a floating GPU, then one critic review each | ~$2–4 |
 | `uv run buildoff race --budget N --yes [--pack full\|primitives] [--viewers]` | A race on that pack's locked spec (races use `full`; `primitives` is kept but unused); `--viewers` opens a live Terminal window per model | up to $N per model |
-| `uv run buildoff status [race-id]` | Progress as JSON, with the critic's tier per round (latest race by default) | free |
-| `uv run buildoff reviews [race-id]` | Every critic round: tier, route, fixed notes, notes, cost, time, screenshots | free |
+| `uv run buildoff status [race-id]` | Progress as JSON, with the critic's tier and look/feel scores per round (latest race by default) | free |
+| `uv run buildoff reviews [race-id]` | Every critic round: tier, scores, untested steps, route, fixed notes, notes, cost, time, screenshots | free |
 | `uv run buildoff play <kimi\|opus> [--race-id ID]` | Serves a contender's latest build on localhost | free |
 | `uv run buildoff stop [race-id]` | Aborts a race cleanly and kills any orphaned session | free |
 | `uv run buildoff fetch <id ...> \| --core \| --pattern G` | Downloads assets from the pinned Hugging Face revision | free |
@@ -54,7 +54,7 @@ nohup uv run buildoff race --budget N --yes --race-id my-race > ~/gta-race-runs/
 Outputs go to `~/gta-race-runs/<race-id>/<model>/`:
 - `result.json`: the stop reason (`budget`, `declared_done` in smoke tests, or a safety stop: `leak`, `meter_down`, `aborted`, `error`), total cost from Nexus (builder and critics), turns, reviews, last tier, model time, first playable turn, and every model seen (must be only that side's own)
 - `logs/turns.jsonl`: per turn, whether it built, loaded and was `playable`, plus errors. Turn 0 is the untouched starter scene.
-- `logs/reviews.jsonl`: each critic verdict (tier, route, fixed note ids, notes as ledger entries with id, status and brief line, that review's cost and time); `buildoff reviews` lists them per round
+- `logs/reviews.jsonl`: each critic verdict (tier, look/feel scores, untested steps, route, fixed note ids, notes as ledger entries with id, status, brief line and shots, that review's cost and time); `buildoff reviews` lists them per round
 - `logs/turn-NNN.jsonl`, `logs/critic-NNN.jsonl`: timestamped transcripts
 - `logs/events.jsonl`: leaks, stalls, a dead meter, aborts, retries, harness errors with traceback
 - `shots/turn-NNN.png`, `shots/critic-NNN/` (the critic's own screenshots that round), `workspace/`, `history.git/` (`git --git-dir=history.git log`), `toolkit/` (what ran inside the sandbox)

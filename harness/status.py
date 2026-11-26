@@ -88,6 +88,7 @@ def contender_status(folder: Path) -> dict[str, Any]:
         a JSON-ready dict; `finished` is true once `result.json` exists
     """
     turns = read_jsonl(folder / "logs" / "turns.jsonl")
+    verdicts = [r for r in read_jsonl(folder / "logs" / "reviews.jsonl") if "tier" in r]
     result_path = folder / "result.json"
     result = json.loads(result_path.read_text()) if result_path.exists() else None
     last = turns[-1] if turns else {}
@@ -111,9 +112,10 @@ def contender_status(folder: Path) -> dict[str, Any]:
         "nexus_meter": f"nexus claude usage --session {sid}" if sid else None,
         "latest_shot": str(max(folder.glob("shots/turn-*.png"), default="")) or None,
         # The critic's tier after each turn, in order (None: no parsed verdict).
-        "tiers": [
-            r.get("tier") for r in read_jsonl(folder / "logs" / "reviews.jsonl") if "tier" in r
-        ],
+        "tiers": [r.get("tier") for r in verdicts],
+        # The critic's look and feel scores after each turn (prompt-v19 on; None
+        # for a round without them).
+        "scores": [r.get("scores") for r in verdicts],
         "history": f"git --git-dir={folder / 'history.git'} log --oneline",
     }
 
@@ -157,6 +159,8 @@ def review_trace(folder: Path) -> list[dict[str, Any]]:
             k: row.get(k)
             for k in (
                 "tier",
+                "scores",
+                "untested",
                 "tier4_complete",
                 "route",
                 "fixed",
