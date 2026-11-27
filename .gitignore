@@ -19,7 +19,16 @@ assets/*
 reports/
 research_notes/
 
+# Unpublished blog drafts
+NEXUS_BLOG.md
+NEXUS_BLOG.docx
+LESSONS_BLOG.md
+LESSONS_BLOG_figures/
+
 # Blind arena runtime artifacts: packaged game bundles and local vote DB
 arena/builds/
 arena/data/
 
+
+# Figures for the unpublished Nexus blog draft
+NEXUS_BLOG_figures/
