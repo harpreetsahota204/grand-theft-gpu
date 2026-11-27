@@ -258,7 +258,11 @@ def build_input_logger_script(slot: Slot, token: str = "") -> str:
         'ev("start",String(Date.now()));'
         'addEventListener("keydown",function(e){if(!e.repeat)ev("kd",e.code);},true);'
         'addEventListener("keyup",function(e){ev("ku",e.code);},true);'
-        'addEventListener("mousedown",function(e){ev("md",pos(e));},true);'
+        # A game that calls preventDefault() on mousedown also cancels the browser's
+        # click-to-focus, so inside the arena iframe its keys would go to the parent page.
+        # Focusing the frame on every press makes it behave as it does at top level.
+        'addEventListener("mousedown",function(e){ev("md",pos(e));'
+        "try{window.focus();}catch(x){}},true);"
         'addEventListener("mouseup",function(e){ev("mu",pos(e));},true);'
         "var mx=0,my=0;"
         'addEventListener("mousemove",function(e){mx+=e.movementX||0;my+=e.movementY||0;},true);'

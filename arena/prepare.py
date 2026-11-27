@@ -12,7 +12,8 @@ Responsibilities:
   the pinned Hugging Face dataset CDN (with an optional local symlink for offline
   testing).
 - Scans every non-media file (and flags source maps) for leaked model/vendor names (`kimi`, `opus`,
-  `claude`, `anthropic`, `fireworks`, `moonshot`) and scrubs `<title>` leaks.
+  `claude`, `anthropic`, `fireworks`, `moonshot`) and scrubs `<title>` leaks. Parody place
+  names on `LEAK_ALLOWLIST` are exempt: they contain a vendor token by coincidence.
 - Strips Vite content hashes from bundle names (`index-<hash>.js` -> `index.js`) so
   file names don't tell the two builds apart.
 - Writes `arena/builds/manifest.json`, which stays server-side in `arena/app.py`.
@@ -51,7 +52,7 @@ class ArenaManifest(TypedDict):
 # Defaults mirror harness/config.py so prepare.py works standalone as well as in-repo.
 DEFAULT_RUNS_ROOT: Path = Path.home() / "gta-race-runs"
 DEFAULT_HF_ASSETS_REPO: str = "harpreetsahota/grand-theft-gpu-assets"
-DEFAULT_HF_ASSETS_REVISION: str = "717f91bbc3755ac942fd0afbbbc657826be126cc"
+DEFAULT_HF_ASSETS_REVISION: str = "0d543859f7bea8a088b5d659b19fb7bdc7b9e518"
 
 # Human-readable labels revealed ONLY after a visitor submits their blind ballot.
 CONTENDER_LABELS: dict[str, str] = {
@@ -68,6 +69,11 @@ LEAK_PATTERN: re.Pattern[str] = re.compile(
     r"(?i:kimi|moonshot|opus|claude|anthropic|fireworks)"
     r"(?![a-z])"
 )
+
+# Exact phrases that contain a vendor token but reveal nothing about the builder. They are
+# matched whole and case-insensitively: "Moonshot Alley" is a street in the parody city, not
+# a Kimi credit, and hiding only these characters still reports a real token in the same file.
+LEAK_ALLOWLIST: frozenset[str] = frozenset({"moonshot alley"})
 
 # Binary media skipped by the leak scan: their bytes hold codec tags such as `OpusHead`
 # (Ogg Opus audio) or random byte runs (3D models) that are not identity leaks.
@@ -170,7 +176,18 @@ def scan_build_for_leaks(build_dir: Path, contender: str, max_hits: int = 25) ->
         except OSError:
             continue
 
-        for m in LEAK_PATTERN.finditer(text):
+        # Blank out allowlisted phrases before matching. Spaces keep every offset in place,
+        # so the reported snippet can still be quoted from the original text.
+        scanned = text
+        for phrase in LEAK_ALLOWLIST:
+            scanned = re.sub(
+                re.escape(phrase),
+                lambda m: " " * len(m.group(0)),
+                scanned,
+                flags=re.IGNORECASE,
+            )
+
+        for m in LEAK_PATTERN.finditer(scanned):
             start = max(0, m.start() - 30)
             end = min(len(text), m.end() + 30)
             snippet = text[start:end].replace("\n", " ").strip()

@@ -459,6 +459,17 @@ def test_leak_pattern_catches_camel_case_but_not_substrings() -> None:
         assert not prepare.LEAK_PATTERN.search(clean), clean
 
 
+def test_leak_allowlist_ignores_parody_place_names(tmp_path: Path) -> None:
+    """An allowlisted street name passes while a real token in the same file still fails."""
+    build = tmp_path / "b-x"
+    build.mkdir()
+    (build / "index.js").write_text(
+        'var streets=["North Star Way","MOONSHOT ALLEY"];var m=claudeMode;', encoding="utf-8"
+    )
+    hits = prepare.scan_build_for_leaks(build, "opus")
+    assert [h.match.lower() for h in hits] == ["claude"]
+
+
 def test_secret_file_is_shared_and_never_empty(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path, arena_client
 ) -> None:  # noqa: ANN001
@@ -633,6 +644,19 @@ def test_logger_captures_snapshots_after_the_game_frame() -> None:
     assert 'var rx=Math.round(mx),ry=Math.round(my);if(rx||ry){ev("mv",rx+","+ry)' in script
     assert "innerWidth||1" in script and "innerHeight||1" in script
     assert "if(!s){if(++tries<30)return;tries=0;due=n+2000;return;}" in script
+
+
+def test_logger_focuses_the_frame_on_mousedown() -> None:
+    """A press focuses the game frame even if the game cancels the mousedown default."""
+    script = blind.build_input_logger_script("b")
+    assert 'addEventListener("mousedown",function(e){ev("md",pos(e));try{window.focus();}' in script
+
+
+def test_arena_assets_pin_the_same_revision_as_the_races() -> None:
+    """Builds load shared assets at the revision the models built against, or new files 404."""
+    from harness.config import HF_ASSETS_REVISION
+
+    assert prepare.DEFAULT_HF_ASSETS_REVISION == HF_ASSETS_REVISION
 
 
 def test_export_writes_coco4gui_with_actions_on_the_frame_clock(tmp_path: Path) -> None:
