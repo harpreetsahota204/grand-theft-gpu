@@ -25,6 +25,14 @@ in COCO4GUI format (https://github.com/harpreetsahota204/gui_dataset_creator):
 It streams: shards are indexed by byte offset first, then read one play at a time, so
 memory stays bounded by one play plus one output part.
 
+Traffic that isn't real players is left out by default (`--include-test` keeps it):
+sessions whose rows say `test` (opened with `?test=1`) or `automated`
+(`navigator.webdriver`), plus sessions listed in the dataset's `flags/sessions.jsonl`
+(`{"sid", "flag", "reason"}`), which covers rows from before the flags existed.
+Snapshots that fall under an entry in `flags/known_issues.jsonl` (`{"race_id",
+"contender", "until", "issue", "note"}`: a bug in how the arena served that build, fixed
+at `until`, epoch seconds) keep their place but list the issue in `known_issues`.
+
 Usage:
     uv run python arena/export_coco4gui.py --repo <ns>/<votes-dataset> --out-dir out
     uv run python arena/export_coco4gui.py --data-dir arena/data/jsonl --out-dir out --race-id ID
@@ -39,6 +47,7 @@ import argparse
 import base64
 import hashlib
 import json
+import re
 from collections import defaultdict
 from collections.abc import Iterator
 from dataclasses import dataclass, field
@@ -70,6 +79,9 @@ POINT_BOX_HALF_PX: float = 8.0
 
 # Default images per output part: keeps each JSON small enough for FiftyOne to load.
 DEFAULT_MAX_IMAGES: int = 50_000
+
+# A set flag in any row's raw bytes (compact JSON in shards, spaced JSON in votes.jsonl).
+_FLAG_RE: re.Pattern[bytes] = re.compile(rb'"(?:test|automated)":\s*true')
 
 Play = tuple[str, str]  # (sid, slot)
 Location = tuple[Path, int]  # (shard, byte offset of the line)
@@ -147,25 +159,46 @@ def read_at(location: Location) -> dict[str, object]:
         return json.loads(fh.readline())
 
 
+def is_flagged(rec: dict[str, object]) -> bool:
+    """True when a row comes from a test (`?test=1`) or automated session."""
+    return bool(rec.get("test")) or bool(rec.get("automated"))
+
+
 def index_frames(
-    data_dir: Path, race_id: str | None
+    data_dir: Path,
+    race_id: str | None,
+    skip_sids: set[str] | None = None,
+    skip_flagged: bool = False,
 ) -> tuple[dict[Play, list[tuple[float, Location]]], dict[Play, str]]:
     """Indexes snapshot lines per play by absolute capture time, without keeping images.
+
+    Args:
+        data_dir: folder laid out like the votes dataset
+        race_id: index only this race (None: every race)
+        skip_sids: sessions to leave out entirely
+        skip_flagged: also leave out every session with a `test`/`automated` snapshot row
 
     Returns:
         per play, `(capture_ms, location)` sorted by time; and each play's race id
     """
+    skip = set(skip_sids or ())
+    flagged: set[str] = set()
     frames: dict[Play, list[tuple[float, Location]]] = defaultdict(list)
     races: dict[Play, str] = {}
-    for path in sorted((data_dir / "frames").glob("*.jsonl")):
+    for path in sorted((data_dir / "frames").rglob("*.jsonl")):
         for offset, rec in iter_lines(path):
             race = str(rec.get("race_id") or "unknown")
-            if race_id and race != race_id:
+            if (race_id and race != race_id) or str(rec["sid"]) in skip:
                 continue
+            if skip_flagged and is_flagged(rec):
+                flagged.add(str(rec["sid"]))
             play = (str(rec["sid"]), str(rec["slot"]))
             at = float(rec.get("epoch_ms") or 0) + float(rec.get("t_ms") or 0)  # type: ignore[arg-type]
             frames[play].append((at, (path, offset)))
             races[play] = race
+    # A flag can turn on mid-session, so one flagged row drops the whole session.
+    for play in [p for p in frames if p[0] in flagged]:
+        del frames[play], races[play]
     for entries in frames.values():
         entries.sort(key=lambda e: e[0])
     return frames, races
@@ -174,7 +207,7 @@ def index_frames(
 def index_events(data_dir: Path, plays: set[Play]) -> dict[Play, list[tuple[float, Location]]]:
     """Indexes event batches per play (only plays that have snapshots) by arrival time."""
     batches: dict[Play, list[tuple[float, Location]]] = defaultdict(list)
-    for path in sorted((data_dir / "events").glob("*.jsonl")):
+    for path in sorted((data_dir / "events").rglob("*.jsonl")):
         for offset, rec in iter_lines(path):
             play = (str(rec.get("sid", "")), str(rec.get("slot", "")))
             if play in plays:
@@ -212,6 +245,36 @@ def load_play_events(batches: list[tuple[float, Location]]) -> list[Event]:
         events.extend(Event(float(epoch) + float(t), str(k), str(c)) for t, k, c in raw)  # type: ignore[arg-type]
     events.sort(key=lambda e: e.at_ms)
     return events
+
+
+def load_session_flags(data_dir: Path) -> set[str]:
+    """Returns the sids that `flags/sessions.jsonl` marks as not real players."""
+    path = data_dir / "flags" / "sessions.jsonl"
+    if not path.exists():
+        return set()
+    return {str(rec["sid"]) for _, rec in iter_lines(path) if "sid" in rec}
+
+
+def load_known_issues(data_dir: Path) -> list[dict[str, object]]:
+    """Returns `flags/known_issues.jsonl`: arena bugs that affected one build until a fix."""
+    path = data_dir / "flags" / "known_issues.jsonl"
+    if not path.exists():
+        return []
+    return [
+        rec for _, rec in iter_lines(path) if {"race_id", "contender", "until", "issue"} <= set(rec)
+    ]
+
+
+def issues_for(rec: dict[str, object], issues: list[dict[str, object]]) -> list[str]:
+    """Names the known issues that applied to the build when this snapshot arrived."""
+    received = float(rec.get("received_at") or 0.0)  # type: ignore[arg-type]
+    return [
+        str(issue["issue"])
+        for issue in issues
+        if issue["race_id"] == rec.get("race_id")
+        and issue["contender"] == rec.get("contender")
+        and received < float(issue["until"])  # type: ignore[arg-type]
+    ]
 
 
 def load_votes(data_dir: Path) -> dict[str, dict[str, str]]:
@@ -399,6 +462,7 @@ def export_play(
     frames: list[tuple[float, Location]],
     events: list[Event],
     picks: dict[str, str] | None,
+    issues: list[dict[str, object]] | None = None,
 ) -> tuple[list[dict[str, object]], list[dict[str, object]]]:
     """Writes one play's snapshots to disk and returns its COCO4GUI images and annotations."""
     sid, slot = play
@@ -448,6 +512,7 @@ def export_play(
             "pointer_locked": state.locked,
             "focused": state.focused,
             "visible": state.visible,
+            "known_issues": issues_for(rec, issues or []),
             **{f"vote_{q}": r for q, r in results.items()},
         }
         images.append(image)
@@ -459,6 +524,30 @@ def export_play(
     if images and trailing:
         add_annotations(annotations, chain, images[-1], window_actions(trailing, frames[-1][0]))
     return images, annotations
+
+
+def flagged_sids(data_dir: Path) -> set[str]:
+    """Sessions whose input or vote rows say `test` or `automated`.
+
+    Snapshot rows are checked while they're indexed (`index_frames`), so the large
+    `frames/` shards are read once. One flagged row marks the whole session.
+    """
+    sids: set[str] = set()
+    paths = [*sorted((data_dir / "events").rglob("*.jsonl")), data_dir / "votes.jsonl"]
+    for path in paths:
+        if not path.exists():
+            continue
+        for line in path.open("rb"):
+            # Cheap pre-check: most lines carry neither flag, so skip parsing big frames.
+            if not _FLAG_RE.search(line):
+                continue
+            try:
+                rec = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if isinstance(rec, dict) and is_flagged(rec):
+                sids.add(str(rec.get("sid", "")))
+    return sids
 
 
 def write_part(
@@ -491,6 +580,7 @@ def export(
     out_dir: Path,
     race_id: str | None = None,
     max_images: int = DEFAULT_MAX_IMAGES,
+    include_test: bool = False,
 ) -> dict[str, dict[str, int]]:
     """Writes COCO4GUI datasets per race found in `data_dir`, one play at a time.
 
@@ -500,13 +590,16 @@ def export(
         race_id: export only this race (default: every race with snapshots)
         max_images: start a new JSON part once a part reaches this many images (plays
             are never split across parts)
+        include_test: keep test and automated sessions (left out by default)
 
     Returns:
         per race, the number of plays, images, annotations and JSON parts written
     """
-    frames, races = index_frames(data_dir, race_id)
+    skip = set() if include_test else load_session_flags(data_dir) | flagged_sids(data_dir)
+    frames, races = index_frames(data_dir, race_id, skip, skip_flagged=not include_test)
     batches = index_events(data_dir, set(frames))
     votes = load_votes(data_dir)
+    issues = load_known_issues(data_dir)
 
     by_race: dict[str, list[Play]] = defaultdict(list)
     for play, race in races.items():
@@ -526,7 +619,7 @@ def export(
         for play in sorted(plays):
             events = load_play_events(batches.get(play, []))
             play_images, play_annotations = export_play(
-                race_dir / "images", play, frames[play], events, votes.get(play[0])
+                race_dir / "images", play, frames[play], events, votes.get(play[0]), issues
             )
             images += play_images
             annotations += play_annotations
@@ -552,6 +645,11 @@ def main() -> None:
     parser.add_argument("--out-dir", type=Path, required=True, help="Where to write the export")
     parser.add_argument("--race-id", help="Export only this race")
     parser.add_argument(
+        "--include-test",
+        action="store_true",
+        help="Keep test and automated sessions (left out by default)",
+    )
+    parser.add_argument(
         "--max-images",
         type=int,
         default=DEFAULT_MAX_IMAGES,
@@ -568,7 +666,7 @@ def main() -> None:
                 repo_id=args.repo, repo_type="dataset", local_dir=args.out_dir / "_raw"
             )
         )
-    summary = export(data_dir, args.out_dir, args.race_id, args.max_images)
+    summary = export(data_dir, args.out_dir, args.race_id, args.max_images, args.include_test)
     if not summary:
         print("No snapshots found.")
     for race, n in summary.items():

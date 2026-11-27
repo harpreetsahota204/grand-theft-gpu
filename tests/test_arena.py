@@ -251,6 +251,8 @@ def test_tallies_count_only_the_current_race(tmp_path: Path) -> None:
                 60.0,
                 1.0,
                 "",
+                0,
+                0,
             ),
         )
     tallies = store.tallies()
@@ -591,16 +593,50 @@ def test_record_frame_caps_per_session_and_rolls_shards(
     assert store.frames.path != first
     assert store.record_frame(SID, "b", 3, 0, 4, 3, JPEG, now=2002.0)
     assert not store.record_frame(SID, "b", 4, 0, 4, 3, JPEG, now=2003.0)
-    assert len(list(store.frames.folder.glob("*.jsonl"))) == 3
+    assert len(list(store.frames.folder.rglob("*.jsonl"))) == 3
     with pytest.raises(KeyError):
         store.record_frame("unknown-sid-00000000", "a", 1, 0, 4, 3, JPEG)
 
 
 def test_snapshots_cannot_outpace_real_time(tmp_path: Path) -> None:
-    """A client flooding snapshots gets the burst plus one per second of session age."""
+    """A client flooding snapshots gets the burst plus twice the logger's cadence, no more."""
     store = _played_store(tmp_path)  # session created at t=1000
-    stored = sum(store.record_frame(SID, "a", i, 0, 4, 3, JPEG, now=1005.0) for i in range(50))
-    assert stored == storage.FRAME_BURST + 5
+    stored = sum(store.record_frame(SID, "a", i, 0, 4, 3, JPEG, now=1005.0) for i in range(500))
+    assert store.frame_interval_s == storage.DEFAULT_FRAME_INTERVAL_S
+    assert stored == storage.FRAME_BURST + round(5 * storage.FRAME_RATE_SLACK / 0.2)
+
+
+def test_caps_are_shared_across_workers(tmp_path: Path) -> None:
+    """Two stores on one data dir (two Uvicorn workers) count against one session budget."""
+    store = _played_store(tmp_path)
+    sibling = storage.VoteStore(store.data_dir, store.build_to_contender, race_id=store.race_id)
+    sent = [[float(i), "kd", "KeyW"] for i in range(1000)]
+    old_cap = storage.MAX_EVENTS_PER_SESSION
+    storage.MAX_EVENTS_PER_SESSION = 1500
+    try:
+        assert store.record_events(SID, "a", sent) == 1000
+        assert sibling.record_events(SID, "a", sent) == 500
+        assert store.record_events(SID, "a", sent) == 0
+    finally:
+        storage.MAX_EVENTS_PER_SESSION = old_cap
+
+
+def test_test_and_automated_sessions_are_flagged_on_every_row(tmp_path: Path) -> None:
+    """A flagged session's inputs, snapshots and vote all say so; flags never turn off."""
+    store = _played_store(tmp_path)
+    store.record_events(SID, "a", [[1.0, "kd", "KeyW"]], now=1001.0)
+    store.mark_session(SID, test=True)
+    store.mark_session(SID, automated=True)
+    store.mark_session(SID)
+    store.record_events(SID, "a", [[2.0, "kd", "KeyW"]], now=1002.0)
+    store.record_frame(SID, "a", 3, 0, 4, 3, JPEG, now=1003.0)
+    store.submit_vote(SID, ALL_A, min_play_seconds=30.0)
+    rows = [json.loads(line) for line in store.events.path.read_text().splitlines()]
+    assert [(r["test"], r["automated"]) for r in rows] == [(False, False), (True, True)]
+    frame = json.loads(store.frames.path.read_text())
+    assert frame["test"] and frame["automated"]
+    vote = json.loads(store.jsonl_path.read_text())
+    assert vote["test"] and vote["automated"]
 
 
 def test_low_disk_stops_logging_but_not_votes(
@@ -643,7 +679,12 @@ def test_logger_captures_snapshots_after_the_game_frame() -> None:
     assert "epoch:E" in script
     assert 'var rx=Math.round(mx),ry=Math.round(my);if(rx||ry){ev("mv",rx+","+ry)' in script
     assert "innerWidth||1" in script and "innerHeight||1" in script
-    assert "if(!s){if(++tries<30)return;tries=0;due=n+2000;return;}" in script
+    assert "if(!s){if(++tries<30)return;tries=0;due=n+P;return;}" in script
+    assert "P=200,W=320,MF=36000,A=navigator.webdriver===true" in script
+    assert "epoch:E,auto:A" in script and '(A?"&auto=1":"")' in script
+    assert "due=n-due>P?n+P:due+P" in script
+    slow = blind.build_input_logger_script("a", snapshot_ms=1000, snapshot_width=480)
+    assert "P=1000,W=480," in slow
 
 
 def test_logger_focuses_the_frame_on_mousedown() -> None:
@@ -770,3 +811,30 @@ def test_export_clamps_edge_click_boxes_and_preserves_look_lock_state(tmp_path: 
     x1, y1, bw1, bh1 = by_type["mouse_up"]["bbox"]
     assert x1 + bw1 <= 480.0 and y1 + bh1 <= 270.0
     assert by_type["look"]["attributes"]["custom_metadata"]["pointer_locked"] is True
+
+
+def test_export_leaves_out_test_sessions_and_tags_known_issues(tmp_path: Path) -> None:
+    """Flagged or listed sessions are skipped by default; affected snapshots name the issue."""
+    store = _played_store(tmp_path)
+    other = "other-session-0000000000"
+    store.ensure_session(other, "b-alpha", "b-beta", now=1000.0)
+    store.ensure_session("listed-session-00000000", "b-alpha", "b-beta", now=1000.0)
+    epoch = 1_700_000_000_000
+    store.record_frame(SID, "a", 1000, epoch, 480, 270, JPEG, now=1100.0)
+    store.record_frame(SID, "a", 2000, epoch, 480, 270, JPEG, now=1300.0)
+    store.mark_session(other, automated=True)
+    store.record_frame(other, "a", 1000, epoch, 480, 270, JPEG, now=1100.0)
+    store.record_frame("listed-session-00000000", "a", 1000, epoch, 480, 270, JPEG, now=1100.0)
+    flags = store.jsonl_dir / "flags"
+    flags.mkdir()
+    (flags / "sessions.jsonl").write_text(
+        json.dumps({"sid": "listed-session-00000000", "flag": "test", "reason": "probe"}) + "\n"
+    )
+    issue = {"race_id": "race-2", "contender": "kimi", "until": 1200.0, "issue": "focus"}
+    (flags / "known_issues.jsonl").write_text(json.dumps(issue) + "\n")
+
+    out = tmp_path / "out"
+    assert export_coco4gui.export(store.jsonl_dir, out)["race-2"]["plays"] == 1
+    coco = json.loads((out / "race-2" / "annotations_coco.json").read_text(encoding="utf-8"))
+    assert [i["known_issues"] for i in coco["images"]] == [["focus"], []]
+    assert export_coco4gui.export(store.jsonl_dir, out, include_test=True)["race-2"]["plays"] == 3

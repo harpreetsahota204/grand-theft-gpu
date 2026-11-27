@@ -213,7 +213,13 @@ def build_slot_shim_script(asset_prefix: str) -> str:
     )
 
 
-def build_input_logger_script(slot: Slot, token: str = "") -> str:
+def build_input_logger_script(
+    slot: Slot,
+    token: str = "",
+    snapshot_ms: int = 200,
+    snapshot_width: int = 320,
+    max_frames: int = 36_000,
+) -> str:
     """Returns an inline script that logs inputs and gameplay snapshots for one build iframe.
 
     Inputs go to `/api/events` as `[ms_since_page_load, kind, code]` triples: key
@@ -222,10 +228,13 @@ def build_input_logger_script(slot: Slot, token: str = "") -> str:
     0-1 fraction of the viewport), summed mouse movement every 100 ms (`mv`, code
     `dx,dy`, which is how pointer-locked games aim), pointer lock, focus and tab
     visibility. Every batch carries `epoch`, the page's navigation start in epoch ms,
-    so `epoch + ms` is an absolute time that survives iframe reloads.
+    so `epoch + ms` is an absolute time that survives iframe reloads, and `auto`, true
+    when the browser is automated (`navigator.webdriver`), so test runs can be filtered.
 
-    Snapshots go to `/api/frame`: a 480-px-wide JPEG of the game's largest canvas every
-    2 s while the tab is visible, on the same clock as the inputs. The copy is taken
+    Snapshots go to `/api/frame`: a JPEG of the game's largest canvas, `snapshot_width`
+    px wide, every `snapshot_ms` while the tab is visible, on the same clock as the
+    inputs. The cadence holds steady (a late capture doesn't push the next one back),
+    and the copy canvas is read-optimised, since every capture reads it. The copy is taken
     right after the game's own `requestAnimationFrame` callback, the only moment a
     WebGL canvas without `preserveDrawingBuffer` still holds the frame; a blank copy is
     retried for up to 30 frames so a mid-frame read doesn't store a black image.
@@ -236,18 +245,23 @@ def build_input_logger_script(slot: Slot, token: str = "") -> str:
         slot: blind slot ("a" or "b") serving this document
         token: signed session token (already verified server-side, so URL-safe);
             empty falls back to the session cookie
+        snapshot_ms: milliseconds between snapshots
+        snapshot_width: snapshot width in pixels (never wider than the game's canvas)
+        max_frames: snapshots one page load may send (the server enforces its own cap)
 
     Returns:
         an inline `<script>` tag to inject right after the asset shim
     """
+    period, width, cap = int(snapshot_ms), int(snapshot_width), int(max_frames)
     return (
         "<script>(function(){"
         f'var T="{token}",L="{slot}",Q=[],F=window.fetch,'
+        f"P={period},W={width},MF={cap},A=navigator.webdriver===true,"
         "E=Math.round(Date.now()-performance.now());"
         'function ev(k,c){Q.push([Math.round(performance.now()),k,c||""]);'
         "if(Q.length>5000)Q.shift();if(Q.length>=900)fl(0);}"
         "function fl(b){if(!Q.length)return;"
-        "var p=JSON.stringify({token:T||null,slot:L,epoch:E,events:Q.splice(0,1000)});"
+        "var p=JSON.stringify({token:T||null,slot:L,epoch:E,auto:A,events:Q.splice(0,1000)});"
         'if(b&&navigator.sendBeacon&&navigator.sendBeacon("/api/events",'
         'new Blob([p],{type:"application/json"})))return;'
         'try{F.call(window,"/api/events",{method:"POST",credentials:"same-origin",'
@@ -278,22 +292,22 @@ def build_input_logger_script(slot: Slot, token: str = "") -> str:
         'addEventListener("pagehide",function(){ev("exit");fl(1);});'
         "setInterval(function(){fl(0);},5000);"
         # Gameplay snapshots, taken right after the game's own frame callback.
-        'var cv=document.createElement("canvas"),cx=cv.getContext("2d"),'
+        'var cv=document.createElement("canvas"),cx=cv.getContext("2d",{willReadFrequently:true}),'
         "due=performance.now()+3000,tries=0,busy=0,NF=0;"
         "function big(){var b=null,a=0,l=document.getElementsByTagName('canvas');"
         "for(var i=0;i<l.length;i++){var r=l[i].width*l[i].height;if(r>a){a=r;b=l[i];}}return b;}"
         "function snap(){var n=performance.now();"
-        'if(busy||n<due||NF>=2000||document.visibilityState!=="visible")return;'
+        'if(busy||n<due||NF>=MF||document.visibilityState!=="visible")return;'
         "var c=big();if(!c||!c.width||!c.height){due=n+1000;return;}"
-        "var w=Math.min(480,c.width),h=Math.max(1,Math.round(c.height*w/c.width));"
+        "var w=Math.min(W,c.width),h=Math.max(1,Math.round(c.height*w/c.width));"
         "if(cv.width!==w)cv.width=w;if(cv.height!==h)cv.height=h;"
         "try{cx.drawImage(c,0,0,w,h);var d=cx.getImageData(0,0,w,h).data,s=0;"
         "for(var i=0;i<d.length;i+=4000)s+=d[i]+d[i+1]+d[i+2];"
-        "if(!s){if(++tries<30)return;tries=0;due=n+2000;return;}}catch(e){due=Infinity;return;}"
-        "tries=0;due=n+2000;busy=1;var t=Math.round(n);"
+        "if(!s){if(++tries<30)return;tries=0;due=n+P;return;}}catch(e){due=Infinity;return;}"
+        "tries=0;due=n-due>P?n+P:due+P;busy=1;var t=Math.round(n);"
         "cv.toBlob(function(b){busy=0;if(!b)return;NF++;"
         'try{F.call(window,"/api/frame?token="+encodeURIComponent(T)+"&slot="+L+"&t="+t'
-        '+"&epoch="+E+"&w="+w+"&h="+h,{method:"POST",credentials:"same-origin",'
+        '+"&epoch="+E+"&w="+w+"&h="+h+(A?"&auto=1":""),{method:"POST",credentials:"same-origin",'
         'headers:{"Content-Type":"image/jpeg"},body:b}).catch(function(){});}catch(e){}'
         '},"image/jpeg",0.7);}'
         "var R=window.requestAnimationFrame;"
@@ -303,7 +317,14 @@ def build_input_logger_script(slot: Slot, token: str = "") -> str:
     )
 
 
-def inject_slot_shim(html: str, slot: Slot, token: str = "") -> str:
+def inject_slot_shim(
+    html: str,
+    slot: Slot,
+    token: str = "",
+    snapshot_ms: int = 200,
+    snapshot_width: int = 320,
+    max_frames: int = 36_000,
+) -> str:
     """Rewrites static `/assets/` links in a build's `index.html` and injects the fetch shim.
 
     Args:
@@ -311,6 +332,9 @@ def inject_slot_shim(html: str, slot: Slot, token: str = "") -> str:
         slot: blind slot ("a" or "b") serving this document
         token: optional signed session token embedded in the route path so
             asset requests stay bound to the same blind assignment without cookies
+        snapshot_ms: milliseconds between gameplay snapshots
+        snapshot_width: snapshot width in pixels
+        max_frames: snapshots one page load may send
 
     Returns:
         transformed HTML ready to render inside the blind arena iframe
@@ -318,7 +342,10 @@ def inject_slot_shim(html: str, slot: Slot, token: str = "") -> str:
     asset_prefix = f"/s/{token}/play/{slot}/assets/" if token else f"/play/{slot}/assets/"
     # Rewrite static <script src="/assets/..."> and <link href="/assets/..."> tags.
     rewritten = _HTML_ASSET_ATTR_RE.sub(rf"\1{asset_prefix}", html)
-    shim = build_slot_shim_script(asset_prefix) + build_input_logger_script(slot, token)
+    logger_script = build_input_logger_script(
+        slot, token, snapshot_ms=snapshot_ms, snapshot_width=snapshot_width, max_frames=max_frames
+    )
+    shim = build_slot_shim_script(asset_prefix) + logger_script
 
     # Insert shim immediately after <head ...> so it executes before module scripts.
     head_match = re.search(r"<head\b[^>]*>", rewritten, re.IGNORECASE)

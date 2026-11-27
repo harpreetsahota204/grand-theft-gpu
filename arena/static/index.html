@@ -413,8 +413,8 @@
       </main>
       <footer class="privacy-note">
         To study how people play, we log your play time, the keys and mouse buttons you press and how
-        you move the mouse inside each game, with timestamps, plus a small screenshot of the game
-        every 2 seconds. Nothing outside the games is recorded, and your IP address is kept only as
+        you move the mouse inside each game, with timestamps, plus small screenshots of the game
+        (five a second). Nothing outside the games is recorded, and your IP address is kept only as
         a one-way hash to limit repeat votes.
       </footer>
     </div>
@@ -702,9 +702,16 @@
         voteModal.classList.add("hidden");
       }
 
+      // `?test=1` marks a maintainer's own play, and navigator.webdriver an automated
+      // browser, so the dataset can leave that traffic out. Once set, a flag stays on.
+      const SESSION_FLAGS = new URLSearchParams();
+      if (new URLSearchParams(location.search).get("test") === "1") SESSION_FLAGS.set("test", "1");
+      if (navigator.webdriver === true) SESSION_FLAGS.set("auto", "1");
+      const SESSION_URL = SESSION_FLAGS.toString() ? `/api/session?${SESSION_FLAGS}` : "/api/session";
+
       async function refreshSession() {
         state.token = state.token || readStoredToken();
-        const res = await fetch("/api/session", {
+        const res = await fetch(SESSION_URL, {
           credentials: "same-origin",
           headers: apiHeaders(),
         });

@@ -37,7 +37,14 @@ from fastapi import FastAPI, HTTPException, Query, Request, Response
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
 from pydantic import BaseModel, Field, StringConstraints
-from storage import QUESTIONS, RateLimitedError, SessionState, VoteStore, VoteSummary
+from storage import (
+    MAX_FRAMES_PER_SESSION,
+    QUESTIONS,
+    RateLimitedError,
+    SessionState,
+    VoteStore,
+    VoteSummary,
+)
 
 logger = logging.getLogger("uvicorn.error")
 
@@ -85,6 +92,12 @@ HF_TOKEN: str | None = os.environ.get("HF_TOKEN") or None
 # A script still needs a real ~2 min of play per ballot on top.
 MAX_SESSIONS_PER_IP_PER_HOUR: int = int(os.environ.get("MAX_SESSIONS_PER_IP_PER_HOUR", "300"))
 MAX_VOTES_PER_IP_PER_DAY: int = int(os.environ.get("MAX_VOTES_PER_IP_PER_DAY", "100"))
+
+# Gameplay snapshot cadence and width. 5 fps at 320 px (~10-15 KB each, ~4 MB per minute of
+# play) is dense enough to pair most inputs with what was on screen; lower it to save
+# players' upload bandwidth and dataset storage.
+SNAPSHOT_MS: int = max(50, int(os.environ.get("ARENA_SNAPSHOT_MS", "200")))
+SNAPSHOT_WIDTH: int = max(64, min(1280, int(os.environ.get("ARENA_SNAPSHOT_WIDTH", "320"))))
 # Proxies in front of the app that append to X-Forwarded-For; the client IP is the entry
 # this many places from the right. Check the startup log line on a deployed Space.
 TRUSTED_PROXY_HOPS: int = max(1, int(os.environ.get("TRUSTED_PROXY_HOPS", "1")))
@@ -125,7 +138,7 @@ EventKind = Literal[
     "exit",
 ]
 
-# Upper bound on one snapshot upload; the logger sends ~15-40 KB JPEGs at 480 px wide.
+# Upper bound on one snapshot upload; the logger sends ~10-15 KB JPEGs at 320 px wide.
 MAX_FRAME_BYTES: int = 200 * 1024
 MAX_FRAME_SIDE_PX: int = 2048
 
@@ -137,6 +150,8 @@ class EventsRequest(BaseModel):
     slot: Slot
     # The page's navigation start in epoch ms; `epoch + ms` lines events up with snapshots.
     epoch: int | None = Field(default=None, ge=0)
+    # True when the browser reports `navigator.webdriver` (an automated test run).
+    auto: bool = False
     # `[ms_since_page_load, kind, code]`; code is a KeyboardEvent.code, `button,x,y` for
     # mouse buttons, `dx,dy` for mouse movement, or ''.
     events: list[tuple[float, EventKind, Annotated[str, StringConstraints(max_length=32)]]] = Field(
@@ -200,6 +215,7 @@ class ArenaRuntime:
             race_id=self.race_id,
             dataset_repo=VOTE_DATASET_REPO,
             hf_token=HF_TOKEN,
+            frame_interval_s=SNAPSHOT_MS / 1000,
         )
         self.ready = True
 
@@ -439,13 +455,20 @@ def index(request: Request) -> Response:
 
 
 @app.get("/api/session")
-def api_session(request: Request, response: Response) -> dict[str, object]:
-    """Returns signed opaque token, play timers, vote gate, and post-vote reveal."""
+def api_session(
+    request: Request, response: Response, test: bool = False, auto: bool = False
+) -> dict[str, object]:
+    """Returns signed opaque token, play timers, vote gate, and post-vote reveal.
+
+    `test` (the arena opened with `?test=1`) and `auto` (`navigator.webdriver`) flag the
+    session, so its inputs, snapshots and vote can be left out of the dataset.
+    """
     response.headers["Cache-Control"] = "no-store"
     if not runtime.ready:
         return {"builds_ready": False, "min_play_seconds": MIN_PLAY_SECONDS}
 
     payload, state, token, minted, store = _resolve_session(request)
+    store.mark_session(payload["sid"], test=test, automated=auto)
     _attach_session_cookie(request, response, token, minted)
     vote = store.get_vote(payload["sid"]) if state.voted else None
     return {
@@ -514,6 +537,7 @@ def api_events(body: EventsRequest, request: Request) -> dict[str, object]:
     if minted:
         raise HTTPException(status_code=401, detail="No arena session")
     try:
+        runtime.store.mark_session(payload["sid"], automated=body.auto)
         stored = runtime.store.record_events(
             payload["sid"], body.slot, body.events, epoch_ms=body.epoch
         )
@@ -531,6 +555,7 @@ async def api_frame(
     w: Annotated[int, Query(ge=1, le=MAX_FRAME_SIDE_PX)],
     h: Annotated[int, Query(ge=1, le=MAX_FRAME_SIDE_PX)],
     token: Annotated[str, Query(max_length=512)] = "",
+    auto: bool = False,
 ) -> dict[str, object]:
     """Stores one gameplay snapshot (raw JPEG body) from the logger in a build iframe.
 
@@ -547,6 +572,7 @@ async def api_frame(
     if not jpeg.startswith(b"\xff\xd8\xff"):
         raise HTTPException(status_code=415, detail="Snapshot must be a JPEG")
     try:
+        await run_in_threadpool(runtime.store.mark_session, payload["sid"], automated=auto)
         stored = await run_in_threadpool(
             runtime.store.record_frame, payload["sid"], slot, t, epoch, w, h, jpeg
         )
@@ -571,7 +597,14 @@ def _render_play_entry(slot: Slot, request: Request, explicit_token: str | None 
 
     raw_html = entry.read_text(encoding="utf-8")
     resp = HTMLResponse(
-        content=inject_slot_shim(raw_html, slot, token=token),
+        content=inject_slot_shim(
+            raw_html,
+            slot,
+            token=token,
+            snapshot_ms=SNAPSHOT_MS,
+            snapshot_width=SNAPSHOT_WIDTH,
+            max_frames=MAX_FRAMES_PER_SESSION,
+        ),
         headers={"Cache-Control": "no-store"},
     )
     _attach_session_cookie(request, resp, token, minted)

@@ -49,17 +49,19 @@ MAX_HEARTBEAT_STEP_S: float = 20.0
 HEARTBEAT_GRACE_S: float = 1.5
 
 # Hard cap on logged input events per session, so one stuck key-repeat loop can't fill the disk.
-# Counted per worker process, so with N workers a session can log up to N times this.
+# Counted in `counters.db`, which every worker shares, so the cap holds across workers.
 MAX_EVENTS_PER_SESSION: int = 200_000
 
-# Snapshots per session across both slots: 0.5 fps for over an hour of play, then stop.
-# Counted per worker process (like MAX_EVENTS_PER_SESSION), so N workers allow up to N times this.
-MAX_FRAMES_PER_SESSION: int = 4000
+# Snapshots per session across both slots: two hours at 5 fps, then stop. Shared like above.
+MAX_FRAMES_PER_SESSION: int = 36_000
 
-# Snapshots may not outpace real time: at most one per this many seconds since the session
-# began, plus a small burst. The logger sends one per 2 s from the visible slot only.
-MIN_FRAME_INTERVAL_S: float = 1.0
-FRAME_BURST: int = 10
+# The logger's default snapshot cadence (`ARENA_SNAPSHOT_MS` in `arena.app` overrides it).
+DEFAULT_FRAME_INTERVAL_S: float = 0.2
+
+# Snapshots may not outpace real time: at most FRAME_RATE_SLACK times the logger's cadence
+# since the session began, plus a small burst. The logger sends from the visible slot only.
+FRAME_RATE_SLACK: float = 2.0
+FRAME_BURST: int = 20
 
 # Inputs and snapshots stop being written when the data disk has less free space than this,
 # so a flood of uploads degrades logging instead of crashing votes.
@@ -67,7 +69,10 @@ MIN_FREE_DISK_BYTES: int = 2 * 1024**3
 
 # Event and snapshot shards are bucketed into fixed time windows and capped in size. A shard
 # is never written once its window ends, so once synced it can be deleted from local disk.
-SHARD_WINDOW_S: int = 600
+# Two minutes against a one-minute sync means a shard is uploaded about twice while it
+# grows (small files are stored whole on each push). Shards go in one folder per UTC day,
+# which keeps any folder in the dataset to a few thousand files.
+SHARD_WINDOW_S: int = 120
 SHARD_MAX_BYTES: int = 32 * 1024 * 1024
 _SHARD_NAME_RE: re.Pattern[str] = re.compile(r"^(?:events|frames)-(\d+)-[0-9a-f]+-\d+-\d+\.jsonl$")
 
@@ -79,8 +84,9 @@ VOTE_WINDOW_S: float = 86400.0
 _INSERT_VOTE_SQL: str = """
 INSERT OR IGNORE INTO votes (
     sid, race_id, a_build, b_build, a_contender, b_contender,
-    slot_picks_json, contender_picks_json, play_a_s, play_b_s, submitted_at, ip_hash
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    slot_picks_json, contender_picks_json, play_a_s, play_b_s, submitted_at, ip_hash,
+    is_test, automated
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 """
 
 
@@ -134,7 +140,8 @@ class SessionState:
 class ShardWriter:
     """Appends JSONL lines to one process's time-bucketed, size-capped shard files.
 
-    Names are `<kind>-<window>-<process>-<index>.jsonl`. A new file starts when the time
+    Paths are `<kind>/<YYYY-MM-DD>/<kind>-<window>-<process>-<index>.jsonl` (UTC day of the
+    window). A new file starts when the time
     window changes or the current file passes `SHARD_MAX_BYTES`, so each scheduled Hub
     commit re-uploads small files and closed files can be pruned (`prune_synced_shards`).
     """
@@ -166,7 +173,9 @@ class ShardWriter:
                 if self.path.stat().st_size > SHARD_MAX_BYTES:
                     self._index += 1
             name = f"{self.kind}-{self._window}-{self._process}-{self._index:04d}.jsonl"
-            path = self.path = self.folder / name
+            day = time.strftime("%Y-%m-%d", time.gmtime(self._window * SHARD_WINDOW_S))
+            path = self.path = self.folder / day / name
+            path.parent.mkdir(exist_ok=True)
             _append_locked(path, line)
             return path
 
@@ -187,7 +196,7 @@ def prune_synced_shards(folder: Path, last_uploaded: dict[Path, float], now: flo
     """
     current = int(now // SHARD_WINDOW_S)
     deleted = 0
-    for path in folder.glob("*/*.jsonl"):
+    for path in folder.glob("*/*/*.jsonl"):
         match = _SHARD_NAME_RE.match(path.name)
         if match is None or int(match.group(1)) >= current - 1:
             continue
@@ -196,7 +205,28 @@ def prune_synced_shards(folder: Path, last_uploaded: dict[Path, float], now: flo
         path.unlink()
         last_uploaded.pop(path, None)
         deleted += 1
+        # Drop the day folder once its last shard is gone; a sibling may refill it.
+        try:
+            path.parent.rmdir()
+        except OSError:
+            pass
     return deleted
+
+
+def _enable_wal(conn: sqlite3.Connection, attempts: int = 50) -> None:
+    """Switches a database to WAL, retrying while a sibling worker holds the lock.
+
+    Workers boot together on a fresh data dir, and changing the journal mode can fail
+    with "database is locked" at once instead of waiting out the busy timeout.
+    """
+    for attempt in range(attempts):
+        try:
+            conn.execute("PRAGMA journal_mode=WAL;")
+            return
+        except sqlite3.OperationalError as exc:
+            if "locked" not in str(exc) or attempt == attempts - 1:
+                raise
+            time.sleep(0.1)
 
 
 def _append_locked(path: Path, line: str) -> None:
@@ -226,6 +256,7 @@ class VoteStore:
         race_id: str = "",
         dataset_repo: str = "",
         hf_token: str | None = None,
+        frame_interval_s: float = DEFAULT_FRAME_INTERVAL_S,
     ) -> None:
         """Initializes SQLite tables, optional HF Dataset hydration, and background sync.
 
@@ -235,6 +266,8 @@ class VoteStore:
             race_id: identifier of the race being judged, stamped on every vote row
             dataset_repo: optional HF dataset repo (`ns/name`) for durable JSONL backup
             hf_token: optional HF write token used when `dataset_repo` is set
+            frame_interval_s: seconds between the logger's snapshots, which sets the
+                snapshot rate limit
         """
         self.data_dir = data_dir
         self.data_dir.mkdir(parents=True, exist_ok=True)
@@ -246,11 +279,11 @@ class VoteStore:
         # Snapshots live in shards (base64 JPEG per line) rather than one file per image,
         # which keeps the dataset's file count low as plays add up.
         self.frames = ShardWriter(self.jsonl_dir / "frames", "frames")
-        # Per-session input and snapshot counts, kept in memory so logging never takes
-        # the SQLite write lock that heartbeats and votes need.
-        self._counter_lock = threading.Lock()
-        self._events_logged: dict[str, int] = {}
-        self._frames_logged: dict[str, int] = {}
+        # Per-session input and snapshot counts live in their own SQLite file: shared by
+        # every worker (so caps hold across them) without taking the write lock that
+        # heartbeats and votes need in `votes.db`.
+        self.counters_path = self.data_dir / "counters.db"
+        self.frame_interval_s = frame_interval_s
         self.build_to_contender = dict(build_to_contender)
         self.race_id = race_id
         self._lock = threading.Lock()
@@ -280,13 +313,17 @@ class VoteStore:
         return True
 
     @contextmanager
-    def _db(self) -> Iterator[sqlite3.Connection]:
+    def _db(self, path: Path | None = None) -> Iterator[sqlite3.Connection]:
         """Yields a connection inside an IMMEDIATE transaction and always closes it on exit.
 
         IMMEDIATE takes the write lock up front, so two Uvicorn workers serialize their
-        read-then-write sequences (heartbeat credit, vote dedup) instead of racing.
+        read-then-write sequences (heartbeat credit, vote dedup, cap counters) instead of
+        racing.
+
+        Args:
+            path: database file (default `votes.db`; `counters.db` for the caps)
         """
-        conn = sqlite3.connect(self.db_path, timeout=15.0, isolation_level=None)
+        conn = sqlite3.connect(path or self.db_path, timeout=15.0, isolation_level=None)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA busy_timeout=15000;")
         # NORMAL is crash-safe under WAL and skips an fsync per commit; a power cut can
@@ -303,6 +340,58 @@ class VoteStore:
         finally:
             conn.close()
 
+    def _claim(self, sid: str, kind: str, want: int, limit: float) -> int:
+        """Atomically reserves up to `want` units of a session's `kind` budget in `counters.db`.
+
+        Args:
+            sid: session ID
+            kind: what is counted (`events` or `frames`)
+            want: units requested
+            limit: the session's total budget for `kind` right now
+
+        Returns:
+            units granted (0 once the budget is spent)
+        """
+        with self._db(self.counters_path) as conn:
+            row = conn.execute(
+                "SELECT n FROM counts WHERE sid = ? AND kind = ?", (sid, kind)
+            ).fetchone()
+            used = int(row["n"]) if row else 0
+            granted = max(0, min(want, int(limit) - used))
+            if granted:
+                conn.execute(
+                    """
+                    INSERT INTO counts (sid, kind, n) VALUES (?, ?, ?)
+                    ON CONFLICT (sid, kind) DO UPDATE SET n = n + excluded.n
+                    """,
+                    (sid, kind, granted),
+                )
+        return granted
+
+    def mark_session(self, sid: str, test: bool = False, automated: bool = False) -> None:
+        """Flags a session as a maintainer test or an automated browser; flags only turn on.
+
+        Every later input, snapshot and vote row of the session carries the flags, so the
+        dataset can leave out traffic that isn't real players.
+
+        Args:
+            sid: session ID (unknown sessions are ignored)
+            test: the visitor opened the arena with `?test=1`
+            automated: the browser reports `navigator.webdriver` (Playwright, Selenium...)
+        """
+        if not (test or automated):
+            return
+        # The logger re-sends its flag with every batch; skip the write lock once it's set.
+        row = self._read_session(sid)
+        if row is None or (int(row["is_test"]) >= test and int(row["automated"]) >= automated):
+            return
+        with self._lock, self._db() as conn:
+            conn.execute(
+                "UPDATE sessions SET is_test = MAX(is_test, ?), automated = MAX(automated, ?)"
+                " WHERE sid = ?",
+                (int(test), int(automated), sid),
+            )
+
     def _read_session(self, sid: str) -> sqlite3.Row | None:
         """Reads one session row without taking the write lock (WAL readers never block)."""
         conn = sqlite3.connect(self.db_path, timeout=15.0)
@@ -317,11 +406,22 @@ class VoteStore:
         return shutil.disk_usage(self.data_dir).free < MIN_FREE_DISK_BYTES
 
     def _init_db(self) -> None:
-        """Enables WAL mode and creates or migrates the sessions and votes tables."""
+        """Enables WAL mode and creates or migrates the sessions, votes and counters tables."""
+        conn = sqlite3.connect(self.counters_path, timeout=15.0)
+        try:
+            _enable_wal(conn)
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS counts ("
+                " sid TEXT NOT NULL, kind TEXT NOT NULL, n INTEGER NOT NULL,"
+                " PRIMARY KEY (sid, kind))"
+            )
+            conn.commit()
+        finally:
+            conn.close()
         conn = sqlite3.connect(self.db_path, timeout=15.0)
         try:
             # WAL mode persists in the SQLite file header, so setting it once suffices.
-            conn.execute("PRAGMA journal_mode=WAL;")
+            _enable_wal(conn)
             conn.executescript(
                 """
                 CREATE TABLE IF NOT EXISTS sessions (
@@ -356,6 +456,10 @@ class VoteStore:
             for table, column, ddl in (
                 ("sessions", "ip_hash", "TEXT NOT NULL DEFAULT ''"),
                 ("votes", "ip_hash", "TEXT NOT NULL DEFAULT ''"),
+                ("sessions", "is_test", "INTEGER NOT NULL DEFAULT 0"),
+                ("sessions", "automated", "INTEGER NOT NULL DEFAULT 0"),
+                ("votes", "is_test", "INTEGER NOT NULL DEFAULT 0"),
+                ("votes", "automated", "INTEGER NOT NULL DEFAULT 0"),
             ):
                 existing = {row[1] for row in conn.execute(f"PRAGMA table_info({table})")}
                 if column not in existing:
@@ -582,6 +686,8 @@ class VoteStore:
                     play_b,
                     now,
                     ip_hash,
+                    int(sess["is_test"]),
+                    int(sess["automated"]),
                 ),
             )
             if cur.rowcount != 1:
@@ -599,11 +705,9 @@ class VoteStore:
                 "play_b_s": play_b,
                 "submitted_at": now,
             }
-            _append_locked(
-                self.jsonl_path,
-                json.dumps({"race_id": self.race_id, "ip_hash": ip_hash, **summary}, sort_keys=True)
-                + "\n",
-            )
+            flags = {"test": bool(sess["is_test"]), "automated": bool(sess["automated"])}
+            line = {"race_id": self.race_id, "ip_hash": ip_hash, **flags, **summary}
+            _append_locked(self.jsonl_path, json.dumps(line, sort_keys=True) + "\n")
 
         return summary
 
@@ -612,8 +716,9 @@ class VoteStore:
     ) -> dict[str, object]:
         """Returns the fields every input and snapshot record starts with.
 
-        Carries the de-blinded contender and the slot's server-verified play time, so the
-        synced dataset can be analysed without the manifest or the session table.
+        Carries the de-blinded contender, the slot's server-verified play time and the
+        session's test/automated flags, so the synced dataset can be analysed and filtered
+        without the manifest or the session table.
         """
         build = str(row["a_build"] if slot == "a" else row["b_build"])
         return {
@@ -625,6 +730,8 @@ class VoteStore:
             "received_at": ts,
             "play_s": float(row["play_a_s"] if slot == "a" else row["play_b_s"]),
             "epoch_ms": epoch_ms,
+            "test": bool(row["is_test"]),
+            "automated": bool(row["automated"]),
         }
 
     def record_events(
@@ -637,8 +744,8 @@ class VoteStore:
     ) -> int:
         """Stores one batch of input events (keys, mouse buttons, focus) for a session slot.
 
-        Each batch becomes one JSONL line (`_play_header` plus the events). Only reads
-        SQLite, never the write lock.
+        Each batch becomes one JSONL line (`_play_header` plus the events). Never takes
+        the `votes.db` write lock; the cap is counted in the shared `counters.db`.
 
         Args:
             sid: signed session ID (must already be registered via `ensure_session`)
@@ -661,12 +768,10 @@ class VoteStore:
             raise KeyError(f"unknown session: {sid}")
         if self._disk_full():
             return 0
-        with self._counter_lock:
-            used = self._events_logged.get(sid, 0)
-            kept = [list(e) for e in events[: max(0, MAX_EVENTS_PER_SESSION - used)]]
-            if not kept:
-                return 0
-            self._events_logged[sid] = used + len(kept)
+        granted = self._claim(sid, "events", len(events), MAX_EVENTS_PER_SESSION)
+        kept = [list(e) for e in events[:granted]]
+        if not kept:
+            return 0
 
         record = {**self._play_header(row, slot, ts, epoch_ms), "events": kept}
         self.events.append(json.dumps(record, separators=(",", ":")) + "\n", ts)
@@ -712,12 +817,10 @@ class VoteStore:
             raise KeyError(f"unknown session: {sid}")
         if self._disk_full():
             return False
-        allowed = FRAME_BURST + (ts - float(row["created_at"])) / MIN_FRAME_INTERVAL_S
-        with self._counter_lock:
-            used = self._frames_logged.get(sid, 0)
-            if used >= min(MAX_FRAMES_PER_SESSION, allowed):
-                return False
-            self._frames_logged[sid] = used + 1
+        elapsed = max(0.0, ts - float(row["created_at"]))
+        allowed = FRAME_BURST + elapsed * FRAME_RATE_SLACK / self.frame_interval_s
+        if not self._claim(sid, "frames", 1, min(MAX_FRAMES_PER_SESSION, allowed)):
+            return False
 
         record = {
             **self._play_header(row, slot, ts, epoch_ms),
@@ -802,6 +905,8 @@ class VoteStore:
                         "play_a_s": float(row["play_a_s"]),
                         "play_b_s": float(row["play_b_s"]),
                         "submitted_at": float(row["submitted_at"]),
+                        "test": bool(row["is_test"]),
+                        "automated": bool(row["automated"]),
                     }
                     fh.write(json.dumps(rec, sort_keys=True) + "\n")
                 fh.flush()
@@ -864,6 +969,8 @@ class VoteStore:
                             float(rec.get("play_b_s", 0.0)),
                             float(rec.get("submitted_at", 0.0)),
                             str(rec.get("ip_hash", "")),
+                            int(bool(rec.get("test"))),
+                            int(bool(rec.get("automated"))),
                         ),
                     )
                     imported += 1
@@ -876,7 +983,7 @@ class VoteStore:
         return True
 
     def _start_hf_sync(self, dataset_repo: str, hf_token: str | None) -> None:
-        """Starts a background scheduler that pushes the JSONL folder every 2 minutes.
+        """Starts a background scheduler that pushes the JSONL folder every minute.
 
         Synced event and snapshot shards are deleted locally afterwards, so the Space's
         disk holds only the unsynced backlog. `CommitScheduler` also pushes once at exit.
@@ -902,7 +1009,9 @@ class VoteStore:
                 repo_id=dataset_repo,
                 repo_type="dataset",
                 folder_path=self.jsonl_dir,
-                every=2,
+                # Every minute bounds what a crash can lose. Appended shards re-upload
+                # whole, but Xet storage dedupes their unchanged chunks.
+                every=1,
                 token=hf_token,
                 private=True,
             )
