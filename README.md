@@ -1,6 +1,8 @@
 # The $100 GTA Build-Off: race harness
 
-Two models get the same game brief and up to $100 each. Each builds the game alone in headless Claude Code, with a critic (a fresh copy of itself) reviewing every turn, until the money runs out. Builds are then scored against a checklist locked before the race. The harness keeps the race fair and records everything, so the results can be scored and turned into a video.
+Two models get the same game brief and up to $100 each. Each builds the game alone in headless Claude Code, with a critic (a fresh copy of itself) reviewing every turn, until the money runs out. The final builds are then judged by blind human votes in a public arena. The harness keeps the race fair and records everything, so the results can be judged and turned into a video.
+
+**The race is done.** The official result is `v19-full-100usd-001`, on `prompt-v19`: see [Results](#results).
 
 New here? [`HUMANS.md`](HUMANS.md) is the story version: the premise, the setup and why each rule exists. Coding agents start with [`AGENTS.md`](AGENTS.md).
 
@@ -29,13 +31,28 @@ The game is **Grand Theft GPU**, a browser heist game set in San Silicon, a paro
 
 Assets download from Hugging Face on the first race (about 650 MB, cached). See [Assets](#assets).
 
+## Results
+
+The official race is `v19-full-100usd-001` (`prompt-v19`, $100 per model). Both sides ran to the budget, every turn built and played, and only each side's own model showed up in its usage.
+
+| | Kimi K3.1 Pro | Claude Opus 5.5 |
+|---|---|---|
+| Spend (Nexus, list price) | $100.57 | $100.09 |
+| Builder turns / critic reviews | 49 / 48 | 17 / 16 |
+| Of which critics | $29.84 (30%) | $44.36 (44%) |
+| Model time | 14.7 h | 7.8 h |
+| First playable build | turn 1, at 37 min | turn 1, at 71 min |
+| Critic's tier | 4 from review 6 to the end | 4 on every review |
+| Critic's final look / feel (1–10) | 7 / 8 | 8 / 8 |
+
+The critic's tier and scores are coaching from a fresh copy of the same model, not the verdict. The verdict is the blind vote: both final builds are live, unlabelled, in the [Grand Theft GPU arena](https://huggingface.co/spaces/harpreetsahota/grand-theft-gpu-arena) (`arena/`), where players try both and vote on four questions: plays better, looks better, better main character, overall. Earlier races ran on earlier prompts and aren't comparable.
+
 ## Run a race
 
-There are two races, run side by side and compared: the **full-assets** race (about 1,300 ready-made assets) and the **primitives** race (only the GPU model; everything else made in code).
+Races use the **full-assets** pack (about 1,300 ready-made assets). A **primitives** pack (only the GPU model; everything else made in code) still works but was dropped after the $25 dry runs.
 
 ```bash
-nohup uv run buildoff race --budget 100 --yes --pack full       --race-id full-001 > ~/gta-race-runs/full-001.log 2>&1 &
-nohup uv run buildoff race --budget 100 --yes --pack primitives --race-id prim-001 > ~/gta-race-runs/prim-001.log 2>&1 &
+nohup uv run buildoff race --budget 100 --yes --pack full --race-id full-001 > ~/gta-race-runs/full-001.log 2>&1 &
 ```
 
 `--yes` is required above $2, because a race spends up to that amount **per model**. Races take hours; the harness keeps the Mac awake itself (keep it plugged in with the lid open). Add `--viewers` to open a live Terminal window per model (macOS; useful only when you're watching).
@@ -70,7 +87,7 @@ Each contender loops through rounds:
 2. **Builder turn:** one `claude -p` process that resumes the same session every turn. Turn 1 gets the spec (with the race's real budget filled in) plus the run rules; later turns get the critic's notes and the spend so far (`You have spent $X of your $Y.`). It runs until the model stops (a Stop hook won't let it stop on an announcement or a broken build).
 3. **Evidence:** the harness commits the workspace to `history.git` (outside the model's reach), builds it, screenshots gameplay, and logs a row in `turns.jsonl`. A turn is **playable** if it built, loaded and rendered with no uncaught exception.
 4. **Critic review:** a fresh session of the *same* model, with no memory of building, plays the game read-only and runs the same checks every round (`prompts/critic.md`): the hero view and the night view, compared with last round's shots (staged in `tools/shots/prev/`); a drive with a handbrake drift and each camera; moving on foot; and a chase, all set up from the builder's test keys. It writes a verdict to `tools/shots/verdict.json`: the tier reached, the exact `tools/screenshot` steps that showed it (its route), 1–10 scores for look and feel, what it couldn't make happen (`untested`, which never lowers the tier), and at most five notes ranked blocker > look > feel > core loop > ambition. Each note quotes the line of the brief or art direction it's measured against and names the shots that show it. The harness schema-checks the file and logs why it rejected a bad one. The builder decides how many notes to take on. The notes become the builder's next prompt (`prompts/nudge.md`). The harness copies the critic's screenshots to `shots/critic-NNN/` and logs the review's own cost and time. A review at max effort can take about an hour.
-5. **Continuity:** each critic gets the last review's tier, route and notes, and the builder keeps a per-tier walkthrough and a list of this turn's changes in `DONE.md`. The critic marks each old note fixed, open or regressed and replays the tier routes to catch regressions. It files an ambition note only once look and feel both score 7 or more. Before this, in the v12 race, each fresh critic had to find its own way, and Kimi's critics flipped between Tier 2 and Tier 4 whenever one couldn't script its way to a mission the last one had reached. The tier never ends the run: a same-model critic is a coach, so every run goes to its budget and builds are scored afterwards against the locked `scoring/checklist.md`.
+5. **Continuity:** each critic gets the last review's tier, route and notes, and the builder keeps a per-tier walkthrough and a list of this turn's changes in `DONE.md`. The critic marks each old note fixed, open or regressed and replays the tier routes to catch regressions. It files an ambition note only once look and feel both score 7 or more. Before this, in the v12 race, each fresh critic had to find its own way, and Kimi's critics flipped between Tier 2 and Tier 4 whenever one couldn't script its way to a mission the last one had reached. The tier never ends the run: a same-model critic is a coach, so every run goes to its budget, and the final builds are judged blind in the arena.
 
 **Throughout,** a watchdog polls Nexus every 15 seconds and stops the run if total spend (builder and critics) reaches the budget, any other model shows up (`leak`), or Nexus goes quiet for 3 minutes (`meter_down`). A session with no output and no new spend for 10 minutes is cut short (`stalled`) and goes to review. Provider API errors and cut-off streams are retried (up to 3 per run). The smoke test stops at the first `DONE.md`, after one review.
 
@@ -107,7 +124,7 @@ Each contender loops through rounds:
 
 ## Assets
 
-All assets live in the Hugging Face dataset **[harpreetsahota/grand-theft-gpu-assets](https://huggingface.co/datasets/harpreetsahota/grand-theft-gpu-assets)** (about 1 GB, every folder with its license and attribution). This repo tracks only `assets/catalog.json`, the index of all 1,302 assets, pinned to the dataset revision races use (`HF_ASSETS_REVISION` in `harness/config.py`).
+All assets live in the Hugging Face dataset **[harpreetsahota/grand-theft-gpu-assets](https://huggingface.co/datasets/harpreetsahota/grand-theft-gpu-assets)** (about 1 GB, every folder with its license and attribution). This repo tracks only `assets/catalog.json`, the index of all 1,326 assets, pinned to the dataset revision races use (`HF_ASSETS_REVISION` in `harness/config.py`).
 
 | Folder | What | License |
 |---|---|---|
@@ -123,6 +140,7 @@ All assets live in the Hugging Face dataset **[harpreetsahota/grand-theft-gpu-as
 | `trees-google-poly/` | 8 street trees and palms, at real heights | CC-BY 3.0 (per-artist credit) |
 | `polyhaven-hdris/`, `polyhaven-textures/`, `ambientcg-textures/` | 8 HDRI skies; 36 PBR materials including day/night office facades | CC0 |
 | `audio-opengameart/`, `audio-freesound/`, `kenney-media/` | Engines, tires, sirens, crashes, horn, traffic, footsteps, impacts, UI sounds; particle sprites | CC0 / CC-BY 3.0 per item |
+| `music-cc0/` | 24 radio tracks in 6 stations (the in-car radio) | CC0 |
 | `google-fonts/` | Bebas Neue, Anton, Rajdhani, Share Tech Mono | OFL 1.1 |
 
 **In a race,** a full-pack workspace is seeded with the web tier (about 650 MB: everything except people's extra LOD/mobile/collision tiers, 2k skies and the MHR bodies). A primitives workspace gets only `gpu/`. The starter project (`harness/workspace_tools/seed/`) is Vite, three.js and an empty scene.
@@ -159,13 +177,16 @@ Errors go to stderr as `{"error": ..., "hint": ...}`, with exit code 1 (not foun
 | `harness/fetch.py` | Downloads assets at the pinned dataset revision |
 | `assets/catalog.json` | Index of all 1,326 assets, seeded next to the models' `tools/assets.mjs` |
 | `prompts/` | The locked game specs, run rules, critic prompt and nudge template (tag `prompt-v19`) |
+| `arena/` | The blind play-and-vote Space: serves two unlabelled builds, records votes, play time, inputs and gameplay snapshots ([`arena/README.md`](arena/README.md)) |
+| `scoring/checklist.md` | A pass/fail rubric drafted and locked before the race (tag `scoring-v2`); the arena's four vote questions come from it. The race was judged by the arena vote instead of the checklist |
 | `tests/` | The local test suite |
 
-## Not done yet
+## Still to do
 
-- Scoring the race builds against `scoring/checklist.md`, and the blind judging.
-- The Claude side bills through a Claude login; a strict "list price" claim needs an Anthropic API key in Nexus.
+- Collecting the arena votes, and the write-up.
 - Rendering the race video from the logs.
+
+**Caveat:** the Claude side billed through a Claude login, so its $100 is Nexus's list-price estimate from token counts, not an Anthropic invoice. One race per model means no claim about run-to-run variance.
 
 ## License
 

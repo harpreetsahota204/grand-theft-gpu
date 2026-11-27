@@ -2,7 +2,7 @@
 
 Models, Benchmarks, Agents
 
-_Kimi K3.1 Pro and Claude Opus 5.5 each get $100 and the same locked prompt to build a GTA-style heist game, alone, in Claude Code. This is how the race is set up, what each model is given, and how we keep it fair._
+_Kimi K3.1 Pro and Claude Opus 5.5 each got $100 and the same locked prompt to build a GTA-style heist game, alone, in Claude Code. This is how the race was set up, what each model was given, how we kept it fair, and how it ended._
 
 GTA 6 took 4,811 days to arrive after GTA V. Here, each model gets $100.
 
@@ -15,8 +15,9 @@ The prompt was the easy part. The hard part is making sure the model is the only
 * Both models run headless in Claude Code with identical flags, tools, files and settings. The only difference is the model: `kimi-k3p1-pro` (Kimi K3.1 Pro, routed to Fireworks by Nexus) or `claude-opus-5-5` (Claude Opus 5.5).
 * Spend is metered by `nexus claude usage`, not by Claude Code. In testing, Claude Code priced a Kimi call at $0.060, while list price for the same tokens was $0.030.
 * Each model starts from a working three.js game pinned to one commit, plus about 1,300 ready-made assets.
-* A run keeps going until the $100 runs out. After every turn, a critic (a fresh copy of the same model that didn't build the game) plays it and tells the builder what to fix next. The critic's verdict never ends the run and never counts as the score: the builds are scored afterwards against a checklist we locked before the race. A watchdog kills it early if any other model shows up in its usage.
+* A run keeps going until the $100 runs out. After every turn, a critic (a fresh copy of the same model that didn't build the game) plays it and tells the builder what to fix next. The critic's verdict never ends the run and never counts as the score: the two final builds are judged by blind human votes in a public arena. A watchdog kills a run early if any other model shows up in its usage.
 * Every turn leaves a git commit, a build result and a gameplay screenshot, every review keeps the critic's own screenshots and notes, and every transcript line is timestamped, so the race video can be cut from the logs.
+* In the official race (`prompt-v19`), both models spent their $100 and their critics rated both games Tier 4. Kimi took 49 turns to Opus's 17. You can play both, unlabelled, in the [blind arena](https://huggingface.co/spaces/harpreetsahota/grand-theft-gpu-arena) and vote.
 * The whole setup is reproducible: `uv sync`, `uv run buildoff doctor`, then `uv run buildoff smoke` for a few dollars.
 
 ## **What are the models racing to build?**
@@ -38,7 +39,7 @@ The prompt also asks for a founder worth playing: a name, a designed look, and r
 
 ## **How do you score a game nobody has seen yet?**
 
-With a ladder the models can see, plus how good the game is to play and look at. Each tier includes everything below it, and the tiers follow the player's startup, from a garage to an IPO.
+Two ways. While building, the models climb a ladder they can see, and their critics track it. Each tier includes everything below it, and the tiers follow the player's startup, from a garage to an IPO.
 
 | Video label | Tier | Unlocks when |
 | --- | --- | --- |
@@ -48,6 +49,8 @@ With a ladder the models can see, plus how good the game is to play and look at.
 | GTA 4 | IPO | A living San Silicon: traffic, robotaxis, pedestrians, day and night |
 
 The "GTA 1–4" labels are for the video. Inside the prompt, the tiers are only called Garage through IPO, so the models aren't nudged toward copying a real game.
+
+The ladder is a floor, not the verdict. The verdict comes from people: the two final builds are served side by side in a public arena, labelled only A and B in a random order, and players vote after at least a minute in each on four questions: plays better, looks better, better main character, overall. The questions were locked before the race.
 
 **Good to know. Do the models know their budget?**
 Yes. The prompt states the race's real budget ("about $100 of compute" in a $100 race) and asks them to keep the game playable at every step, and every later prompt says how much they've spent so far. Earlier versions said $100 even in $25 test runs, and Opus planned a $100 game and spent its whole budget in one turn. The prompt doesn't say they're racing anyone, and the harness files a model can read have every comment and docstring stripped, so they don't say so either.
@@ -65,6 +68,7 @@ Starting from an empty folder would turn the race into "who sets up three.js fas
   * **664 Kenney city pieces** (CC0): buildings, roads and furniture.
   * **45 props** from [NVIDIA USDCraft-10K](https://huggingface.co/datasets/nvidia/USDCraft-10K) (Apache 2.0): server racks, safes, an ATM, a forklift, a drone. We converted them from OpenUSD to glTF, keeping their moving parts and joints.
   * **The loot:** a CC0 graphics card from [Grab3D](https://grab3d.com/models/electronics/graphics-card/) with animatable fans and RGB strips.
+  * **Music:** 24 CC0 tracks in six radio stations, for the in-car radio.
   * **Looks and sound:** 8 HDRI skies and 16 PBR textures from [Poly Haven](https://polyhaven.com), 20 materials from [ambientCG](https://ambientcg.com) (office facades in day/night pairs, the night ones with lit windows), all CC0; 8 trees and palms (CC-BY 3.0, every artist credited); engine, tire, alarm and footstep sounds from OpenGameArt (CC0 and CC-BY 3.0) plus police and ambulance sirens, crashes, a horn and downtown traffic from Freesound (CC0); Kenney impact and UI sounds and particle sprites (CC0); and four OFL fonts for the HUD. The SF city's walls, roofs and roads have UVs in metres so these textures tile at real scale.
 * **A search tool:** `node tools/assets.mjs search vc` finds business people, `search phone call` finds the phone clips, and so on, so a model never has to dig through 1,300 files. It can also `fetch` optional extras (more detailed people, Meta's parametric body) on demand, at the cost of its own time and budget. It's the only search tool, so it's also the one to use outside a race.
 * **A screenshot tool:** `tools/screenshot` builds the game exactly the way the harness does, plays it in headless Chrome and saves a PNG. In one run it can play a scripted sequence: hold keys, alone or together (`--hold w+d:1500` drives and steers), wait, click, move the camera (`--look 300,0`) and save shots along the way (`--shot NAME`). Each call reloads the game, so before this a critic had to replay a whole mission one key at a time, and couldn't steer while driving. It saves a PNG the model opens with its Read tool. It renders on the Mac's GPU: the software renderer we started with ran a race build at about 10 frames per second instead of 60, so a scripted "hold W for 3 seconds" drove a different distance every time. Without it, a model writes 3D code blind. Before adding it, we checked that both Kimi K3.1 Pro (through Nexus) and Opus can read images in Claude Code, so it helps both sides equally. Its JSON also reports how smoothly the game ran from the start of play to the last shot (median fps, the worst frame and hitches over 50 ms), because a PNG can't show stutter.
@@ -130,7 +134,7 @@ Every rule below exists because something could tilt the result.
 
 **A clear finish line.** A run ends when the budget is spent, a leak is caught, the meter goes dark, the race is stopped (Ctrl-C or `buildoff stop`), or the process crashes. Nothing else.
 
-**Keep it honest.** An earlier version also ended a run when the model's own critic called it Tier 4 and two harness checks agreed (the city moves, night looks different). In a $25 test run, Kimi's critic gave Tier 4 after one turn while still listing bugs, and the checks only prove that pixels move. A critic made from the same model is a coach, not a referee. So now every run spends its whole budget, and the score comes from `scoring/checklist.md`: pass/fail items per tier, each counted only when seen working in the final build, plus blind pairwise judging. We locked it (git tag `scoring-v2`, after v1 for the first $100 race) before the race it scores, so the rubric couldn't be picked after seeing who won.
+**Keep it honest.** An earlier version also ended a run when the model's own critic called it Tier 4 and two harness checks agreed (the city moves, night looks different). In a $25 test run, Kimi's critic gave Tier 4 after one turn while still listing bugs, and the checks only prove that pixels move. A critic made from the same model is a coach, not a referee. So now every run spends its whole budget, and the verdict is a blind human vote on the final builds. Its four questions were locked before the race (in `scoring/checklist.md`, git tag `scoring-v2`), so they couldn't be picked after seeing who won. That file also holds a pass/fail checklist per tier, drafted for scoring the builds by hand; in the end we let the players decide instead.
 
 There's no nudge limit. In the $25 dry runs, both models called their games done at $5–11, far short of the top tier. Now each model gets its own critic: after every turn, a fresh session of the same model, with no memory of building it, plays the game, compares it with the brief and writes the builder's next instructions. Both sides get the same setup, so the critic's quality is part of what's measured.
 
@@ -138,7 +142,7 @@ There's no nudge limit. In the $25 dry runs, both models called their games done
 
 **Each critic settles the last one's notes.** In the `prompt-v15` race, critics still couldn't see what the last one said. One told Kimi heat was too easy to lose, Kimi made it harder, and the next critic found heat never fell and dropped the tier from 4 to 1. The same blocked-camera note came up in all seven reviews, and nothing marked it as a repeat. Now every note has an id and a status. Each critic gets the last review's notes, lists the ones it saw fixed, carries the rest forward as open or regressed, and quotes the line of the brief each note is measured against. Regressions go to the top, and a tier only counts while nothing below it has regressed. Once a build holds Tier 4, the critic asks for ambition (a new system, deeper company building, a better heist) and keeps look and polish to its top three notes, so the rest of the budget goes to making the game more itself instead of an endless polish list.
 
-**Critics pay from the same $100, and now they know it.** Review spend always counted toward each side's budget, but critics weren't told. They were taking 35–66% of each side's spend: Opus reviews cost $13–36 each, Kimi's $1–13. Now each critic sees the side's spend so far and what the last review cost, and is told to spend first on the regression check and the highest tier.
+**Critics pay from the same $100, and now they know it.** Review spend always counted toward each side's budget, but critics weren't told. They were taking 35–66% of each side's spend: Opus reviews cost $13–36 each, Kimi's $1–13. Now each critic sees the side's spend so far and what the last review cost, and is told to spend first on the regression check and the highest tier. In the official race, critics took 30% of Kimi's spend and 44% of Opus's.
 
 **Three rules up front, and a self-check.** Across 33 reviews from four races, the same three problems kept coming back on both models, even though the brief already asked for each: a camera stuck in trees or walls (26 reviews), characters lost in the dark at night (23), and chases you escape by driving in a straight line or can't escape at all (22). Saying what we wanted didn't work. Saying how did: after we added a one-line hint on making the people walk, sliding walkers disappeared from the reviews. So `prompt-v18` opened the brief with three rules to keep true every turn (the player can always see their founder, the loot and the pursuers; you lose pursuers by breaking their sight, not by speed, and standing still gets you caught; the player's street is alive), each with a one-line how-to further down. Before ending a turn, the builder takes five screenshots that test those rules: a chase, a night street, a tree-lined road, thirty seconds standing still after a theft, and the screen right after a theft. The critic checked the same three rules first.
 
@@ -148,11 +152,11 @@ There's no nudge limit. In the $25 dry runs, both models called their games done
 
 **How it feels matters as much as how it looks.** The brief now says how driving and moving on foot should feel: cars with weight, a handbrake drift you control with countersteer, a sense of speed from the camera, at least two driving cameras, an engine that follows the RPM, and a car radio playing CC0 instrumental tracks. Rapier, a physics engine, is installed in the starter project for both sides. A required code layout (core, world, entities, systems, ui and utils, with an event bus between systems) keeps 1,500-line single files out of the race.
 
-**The critic judges what we care about, and only what it saw.** In the `prompt-v18` race, Opus's critic couldn't script a car escape for four rounds and dropped the game from Tier 4 to Tier 1 each time, and Opus spent its last money chasing that note. Both critics also kept asking for more systems, so the screens filled with panels. Now every round is the same fixed set of checks: the hero view and a night view compared with the last round's, a drive with a drift and every camera, moving on foot, and a chase, each started from a test key the builder provides. The critic scores look and feel from 1 to 10 against written anchors, files at most five notes ranked look > feel > core loop > ambition, cites the screenshots behind each one, and lists what it couldn't make happen as untested, which never lowers the tier. It asks for ambition only when look and feel both score 7 or more.
+**The critic judges what we care about, and only what it saw.** In the `prompt-v18` race, Opus's critic couldn't script a car escape for four rounds and dropped the game from Tier 4 to Tier 1 each time, and Opus spent its last money chasing that note. Both critics also kept asking for more systems, so the screens filled with panels. Now every round is the same fixed set of checks: the hero view and a night view compared with the last round's, a drive with a drift and every camera, moving on foot, and a chase, each started from a test key the builder provides. The critic scores look and feel from 1 to 10 against written anchors, files at most five notes ranked look > feel > core loop > ambition, cites the screenshots behind each one, and lists what it couldn't make happen as untested, which never lowers the tier. It asks for ambition only when look and feel both score 7 or more. In the official race, neither critic dropped a tier once its game reached Tier 4.
 
 **Keep it honest.** Nexus is a Fireworks tool, and Kimi runs on Fireworks. The referee's numbers come from list prices with a cited source (`docs.fireworks.ai/serverless/pricing` for Kimi), and every raw transcript is kept, so anyone can recompute the spend. The budget check runs every 15 seconds, so a run can end slightly over $100. In tests the overshoot was $0.01 to $0.05.
 
-**Keep it honest.** For now, the Claude side bills through a Claude login. For a clean "$100 at list price" comparison, Nexus needs an Anthropic API key, and that's an open item before the full race.
+**Keep it honest.** The Claude side billed through a Claude login, not an API key. Its $100 is Nexus's estimate at Anthropic's list price from the session's token counts, the same method used for Kimi, not an invoice.
 
 ## **What does a race leave behind?**
 
@@ -160,6 +164,7 @@ Nothing records the screen. A screen recording would capture whatever else is op
 
 ```
 ~/gta-race-runs/<race-id>/
+├── config.json and summary.json   the race's settings, and both results
 └── kimi/ and opus/
     ├── workspace/            the game
     ├── history.git/          one commit per turn, out of the model's reach
@@ -168,6 +173,7 @@ Nothing records the screen. A screen recording would capture whatever else is op
     ├── logs/reviews.jsonl    every verdict: tier reached, route, notes, the review's cost and time
     ├── logs/cost.csv         spend at every Nexus poll
     ├── logs/turns.jsonl      per turn: build_ok, loaded, playable, errors, cost
+    ├── logs/events.jsonl     leaks, stalls, retries, aborts, harness errors (if any)
     ├── shots/turn-NNN.png    gameplay screenshot (000 = the untouched starter scene)
     ├── shots/critic-NNN/     every screenshot the critic took reviewing that turn
     └── result.json           stop reason, cost, first playable turn, models seen
@@ -216,7 +222,7 @@ The first command is the asset race we run. The second is the optional primitive
 
 ## **Step 5: Watch it run**
 
-A race runs for 30 minutes to hours. Everything you need to follow it is read-only and free:
+A race runs for hours: the official one took 8 hours for Opus and 15 for Kimi. Everything you need to follow it is read-only and free:
 
 ```bash
 uv run buildoff status                     # progress of the latest race, as JSON
@@ -263,11 +269,28 @@ uv run buildoff play kimi --race-id my-race
 
 ## **Results**
 
-_A first $100 race ran on an earlier prompt and showed the problems fixed above: critics flipping tiers, a bland look, and software rendering. Its results don't count, since the prompt changed. A second race, on `prompt-v15`, was stopped early to fix the critic loop described above. A third, on `prompt-v17`, was stopped with both games at Tier 4 (Kimi at $39 after 5 turns, Opus at $86 after 6), because the reviews showed the problems `prompt-v18` fixes: the same camera, night and chase notes, and a plain-looking Kimi build its critic never flagged. A fourth, on `prompt-v18`, ran both sides to their $100: Kimi held Tier 4 on all ten reviews, with its critics taking 11% of its spend; Opus reached Tier 4 by turn 1 and held it for five reviews, then sat at Tier 1 for four after its critic couldn't script a car escape, with its critics taking 51% of its spend. Both games looked worse than in `prompt-v15`, which is what `prompt-v19` addresses. This section will hold the `prompt-v19` race: the tier each model reached, the look and feel scores, time to first playable build, total spend and output speed, the blind judging, and the before/after screenshots._
+The official race is `v19-full-100usd-001`, on `prompt-v19`. Both models ran to their $100, every turn built and played, no turn was lost to an API error, and each side's meter only ever showed its own model.
+
+| | Kimi K3.1 Pro | Claude Opus 5.5 |
+| --- | --- | --- |
+| Spend, at list price | $100.57 | $100.09 |
+| Builder turns / critic reviews | 49 / 48 | 17 / 16 |
+| Spent on critics | $29.84 (30%) | $44.36 (44%) |
+| Model time | 14.7 hours | 7.8 hours |
+| First playable build | turn 1, after 37 minutes | turn 1, after 71 minutes |
+| Critic's tier | Tier 4 from the 6th review on | Tier 4 on every review |
+| Critic's last look / feel score (out of 10) | 7 / 8 | 8 / 8 |
+
+The two models worked very differently. Kimi took many small turns, nearly three for every one of Opus's, and its critics cost less per review. Opus took fewer, bigger turns and reached Tier 4 on its first. Kimi's look score sat at 6 for nine reviews, then stayed at 7; Opus's reached 8 by its fourth review and stayed there.
+
+Those are the critics' numbers, and a critic made from the same model is a coach. The verdict is the blind vote: both final builds are live in the [Grand Theft GPU arena](https://huggingface.co/spaces/harpreetsahota/grand-theft-gpu-arena). It's one race per model, so it says nothing about how much a second run would vary.
+
+**Keep it honest. How did we get here?** Earlier $100 races ran on earlier prompts, and none of their results count. The first full one showed critics flipping tiers, a bland look and software rendering. The `prompt-v15` race was stopped early to fix the critic loop. The `prompt-v17` race was stopped with both games at Tier 4, because its reviews kept repeating the same camera, night and chase notes, and Kimi's critic never flagged its plain look. The `prompt-v18` race ran to the budget, but Opus's critic dropped it to Tier 1 for four reviews after failing to script a car escape, and both games looked worse than in `prompt-v15`. `prompt-v19` put the art direction and the feel up front, and that's the race above.
 
 ## **Try it yourself**
 
 * Repo: [github.com/harpreetsahota204/grand-theft-gpu](https://github.com/harpreetsahota204/grand-theft-gpu)
+* Play both builds blind and vote: [huggingface.co/spaces/harpreetsahota/grand-theft-gpu-arena](https://huggingface.co/spaces/harpreetsahota/grand-theft-gpu-arena)
 * For coding agents: [`AGENTS.md`](AGENTS.md)
 * Nexus: [docs.fireworks.ai/nexus](https://docs.fireworks.ai/nexus) (session meter and usage: [docs.fireworks.ai/nexus/metrics](https://docs.fireworks.ai/nexus/metrics))
 * Kimi K3.1 Pro on Fireworks: [app.fireworks.ai/models/fireworks/kimi-k3p1-pro](https://app.fireworks.ai/models/fireworks/kimi-k3p1-pro)

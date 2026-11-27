@@ -4,7 +4,9 @@ Instructions for AI coding agents working in this repo. Read this first. Maintai
 
 ## What this repo is
 
-A harness that races two models, **Kimi K3.1 Pro** (on Fireworks, routed through Nexus) and **Claude Opus 5.5**, on the same brief and budget in headless Claude Code. Each builds *Grand Theft GPU*, a browser heist game, from the same blank Vite + three.js starter project. After every builder turn, a critic (a fresh session of the same model) plays the game and writes the next prompt. A run ends when the budget runs out; the critic's tier never ends it. Builds are scored afterwards against `scoring/checklist.md`, locked at tag `scoring-v2` before the first race on it (`prompt-v15`). The harness sandboxes each model, meters spend through Nexus, catches cross-model leaks, and records a commit, a build and a screenshot every turn.
+A harness that races two models, **Kimi K3.1 Pro** (on Fireworks, routed through Nexus) and **Claude Opus 5.5**, on the same brief and budget in headless Claude Code. Each builds *Grand Theft GPU*, a browser heist game, from the same blank Vite + three.js starter project. After every builder turn, a critic (a fresh session of the same model) plays the game and writes the next prompt. A run ends when the budget runs out; the critic's tier never ends it. The harness sandboxes each model, meters spend through Nexus, catches cross-model leaks, and records a commit, a build and a screenshot every turn.
+
+**Status: the race is done.** The official result is `v19-full-100usd-001` (`prompt-v19`), in `~/gta-race-runs/v19-full-100usd-001/`; `README.md` has the numbers. The two final builds are judged by blind human votes in the public arena Space (`arena/`). Don't propose or start another race unless the user asks.
 
 `README.md` explains how a race works. `HUMANS.md` is the story version for people.
 
@@ -77,7 +79,7 @@ A healthy smoke run shows `declared_done`, `playable: true` on every turn, a par
 | `harness/shot_tool.py`, `harness/workspace_tools/assets.mjs` | The models' `tools/screenshot` and asset search tool |
 | `harness/config.py` | Every constant: contenders, limits, paths, pinned commits and revisions |
 | `harness/fetch.py`, `assets/catalog.json` | Downloads assets at the pinned dataset revision; the index the models search with `tools/assets.mjs` |
-| `scoring/checklist.md` | The locked scoring rubric (tag `scoring-v2`): per-tier pass/fail items on runtime evidence, blind pairwise judging, headline rules. Never shown to the models |
+| `scoring/checklist.md` | A pass/fail rubric locked before the race (tag `scoring-v2`), never shown to the models. The arena's four vote questions come from it; the race was judged by the arena vote, not the checklist |
 | `prompts/` | The locked game specs, run rules, critic prompt and nudge template; `smoke_spec.md` |
 | `arena/` | The public blind play-and-vote Space: `app.py` (FastAPI routes), `blind.py` (signed A/B tokens, asset shim, input and snapshot logger), `storage.py` (votes, play time, input logs, snapshots, Hub sync), `prepare.py` (packages builds), `export_coco4gui.py` (snapshots + inputs → COCO4GUI) |
 | `tests/` | The local test suite |
